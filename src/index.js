@@ -17,22 +17,25 @@ const app = new Hono();
 // Global error handler middleware
 app.use('*', errorHandler);
 
-// Serve static files from the public directory
-app.use('/*', serveStatic({ root: '../public' }));
-
-// Health check endpoint
+// Health check endpoint for API requests
 app.get('/', (c) => {
-  // If the request accepts HTML, the static file middleware will handle it
-  if (c.req.header('accept')?.includes('text/html')) {
-    return c.next();
+  // If the request doesn't accept HTML or explicitly wants JSON, return a JSON response
+  const acceptHeader = c.req.header('accept') || '';
+  if (!acceptHeader.includes('text/html') || acceptHeader.includes('application/json')) {
+    return c.json({ 
+      status: 'ok', 
+      message: 'Document generation service is running',
+      version: process.env.npm_package_version || '1.0.0'
+    });
   }
-  // Otherwise, return a JSON response
-  return c.json({ 
-    status: 'ok', 
-    message: 'Document generation service is running',
-    version: process.env.npm_package_version || '1.0.0'
-  });
+  
+  // For HTML requests, continue to the next middleware
+  return c.body(null);
 });
+
+// Serve static files from the public directory
+// This needs to be after the health check endpoint to handle HTML requests
+app.use('/*', serveStatic({ root: '../public' }));
 
 // Register all API routes
 registerRoutes(app);
