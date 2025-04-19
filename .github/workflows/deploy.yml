@@ -21,7 +21,31 @@ jobs:
       - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H profullstack.com >> ~/.ssh/known_hosts
+          # Try with verbose output to see what's happening
+          echo "Running ssh-keyscan with verbose output and custom port..."
+          ssh-keyscan -v -p 2048 -H 104.36.23.197 >> ~/.ssh/known_hosts || true
+          
+          # If the above fails, create a known_hosts file manually
+          echo "Creating known_hosts file manually as fallback..."
+          echo "${{ secrets.SERVER_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          
+          # Create SSH config file with custom port and user
+          echo "Creating SSH config file..."
+          cat > ~/.ssh/config << EOF
+          Host profullstack.com
+            HostName 104.36.23.197
+            User ubuntu
+            Port 2048
+          EOF
+          chmod 600 ~/.ssh/config
+          
+          # Verify the files exist and have content
+          ls -la ~/.ssh/
+          echo "Content of SSH config:"
+          cat ~/.ssh/config
+          echo "Lines in known_hosts:"
+          wc -l ~/.ssh/known_hosts || true
       
       - name: Install dependencies
         run: |
@@ -46,13 +70,15 @@ jobs:
           echo "Files in bin directory:"
           ls -la ./bin
           
-          # Run deploy script with full hostname
-          DEPLOY_REMOTE_HOST=profullstack.com ./bin/deploy.sh
+          # Run deploy script with IP address, port, and user
+          DEPLOY_REMOTE_HOST=104.36.23.197 DEPLOY_REMOTE_PORT=2048 DEPLOY_REMOTE_USER=ubuntu ./bin/deploy.sh
           
           # Run test script to verify deployment
           echo "Running test script on remote server..."
-          ssh profullstack.com "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
+          ssh -p 2048 ubuntu@104.36.23.197 "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
         env:
-          DEPLOY_REMOTE_HOST: profullstack.com
+          DEPLOY_REMOTE_HOST: 104.36.23.197
+          DEPLOY_REMOTE_PORT: 2048
+          DEPLOY_REMOTE_USER: ubuntu
           DEPLOY_REMOTE_DIR: www/profullstack.com/pdf
           INSTALL_SERVICE: true

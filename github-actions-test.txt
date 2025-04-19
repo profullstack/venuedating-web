@@ -2,12 +2,14 @@ This file is used to test GitHub Actions deployments.
 
 Modify this file and push to master/main to trigger a GitHub Actions workflow run.
 
-Last modified: 2025-04-19 12:44:38
+Last modified: 2025-04-19 12:49:46
 
-Deployment test: 3
+Deployment test: 5
 
 This update includes:
-1. Fix for using the full hostname (profullstack.com) instead of an alias
-2. Added functionality to create .env file from GitHub secret
+1. Fixed SSH connection by using direct IP, custom port (2048), and user (ubuntu)
+2. Updated all scripts to use the correct SSH connection details
+3. Added functionality to create .env file from GitHub secret
+4. Fixed ssh-keyscan issue with manual known_hosts creation
 
 You can increment the deployment test number and push to trigger a new workflow run.

@@ -40,11 +40,25 @@ This repository is configured to automatically deploy to the production server w
    - Name: `ENV_FILE_CONTENT`
    - Value: Copy the entire content of your .env file
    - Click "Add secret"
+   
+   c. **Server Known Hosts**:
+   - Run this command locally to get the server's SSH key fingerprint (using the correct port):
+     ```bash
+     ssh-keyscan -p 2048 -H 104.36.23.197
+     ```
+   - Click "New repository secret"
+   - Name: `SERVER_KNOWN_HOSTS`
+   - Value: Paste the output from the ssh-keyscan command
+   - Click "Add secret"
 
 4. **Important Note About SSH Configuration**:
    - GitHub Actions doesn't have access to your local `~/.ssh/config` file
-   - All scripts use the full hostname `profullstack.com` instead of any aliases
-   - If you need to use a different hostname, update it in:
+   - All scripts now use the direct IP address, port, and user:
+     - IP: `104.36.23.197`
+     - Port: `2048`
+     - User: `ubuntu`
+   - The workflow creates an SSH config file with these settings
+   - If you need to use different connection details, update them in:
      - `.github/workflows/deploy.yml`
      - `bin/deploy.sh`
      - `bin/check-deployment.sh`
