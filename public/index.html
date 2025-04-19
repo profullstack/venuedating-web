@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document Generation API - Profullstack, Inc.</title>
   <link rel="stylesheet" href="/css/theme.css">
+  <link id="favicon" rel="icon" type="image/svg+xml" href="/icons/favicon.light.svg">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -191,6 +192,17 @@
         }, 150);
       }
     }, { once: true });
+    
+    // Update favicon based on theme
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      document.getElementById('favicon').href = `/icons/favicon.${currentTheme === 'dark' ? 'dark' : 'light'}.svg`;
+      
+      // Listen for theme changes to update favicon
+      document.addEventListener('themechange', (event) => {
+        document.getElementById('favicon').href = `/icons/favicon.${event.detail.theme === 'dark' ? 'dark' : 'light'}.svg`;
+      });
+    });
   </script>
 </body>
 </html>

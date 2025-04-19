@@ -5,6 +5,7 @@ class PfHeader extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    this.currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   }
 
   connectedCallback() {
@@ -131,7 +132,7 @@ class PfHeader extends HTMLElement {
       
       <div class="header">
         <div class="logo">
-          <img src="/icons/logo.svg" alt="Profullstack, Inc. Logo">
+          <img src="/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg" alt="Profullstack, Inc. Logo">
           <h1>Document Generation API</h1>
         </div>
         
@@ -154,6 +155,19 @@ class PfHeader extends HTMLElement {
     window.addEventListener('auth-changed', () => {
       this.updateNavbar();
     });
+    
+    // Listen for theme changes
+    document.addEventListener('themechange', (event) => {
+      this.currentTheme = event.detail.theme;
+      this.updateLogo();
+    });
+  }
+  
+  updateLogo() {
+    const logoImg = this.shadowRoot.querySelector('.logo img');
+    if (logoImg) {
+      logoImg.src = `/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg`;
+    }
   }
 
   updateNavbar() {
