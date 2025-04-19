@@ -357,10 +357,6 @@ run_migrations() {
     echo -e "${RED}Migration failed after $MAX_RETRIES attempts.${NC}"
     echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
     exit 1
-    else
-      echo -e "${RED}psql not available for fallback. Migration failed.${NC}"
-      exit 1
-    fi
   fi
   
   # Remove the temporary .pgpass file
