@@ -1,15 +1,101 @@
 import { createClient } from '@supabase/supabase-js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+/**
+ * Read environment variables directly from .env file
+ */
+function readEnvFile() {
+  try {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const envPath = path.resolve(__dirname, '../../.env');
+    
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envVars = {};
+      
+      envContent.split('\n').forEach(line => {
+        // Skip comments and empty lines
+        if (line.startsWith('#') || !line.trim()) return;
+        
+        // Parse key=value pairs
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+          const key = match[1].trim();
+          const value = match[2].trim();
+          envVars[key] = value;
+        }
+      });
+      
+      return envVars;
+    }
+  } catch (error) {
+    console.error('Error reading .env file:', error);
+  }
+  
+  return {};
+}
+
+const envVars = readEnvFile();
 
 /**
  * Supabase configuration
  */
-const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY;
+const supabaseUrl = envVars.SUPABASE_URL || process.env.SUPABASE_URL || 'https://arokhsfbkdnfuklmqajh.supabase.co';
+const supabaseKey = envVars.SUPABASE_KEY || process.env.SUPABASE_KEY;
+
+// Log environment variables for debugging
+console.log('Environment variables:');
+console.log('SUPABASE_URL:', supabaseUrl);
+console.log('SUPABASE_KEY exists:', !!supabaseKey);
+console.log('SUPABASE_KEY from .env file:', !!envVars.SUPABASE_KEY);
+console.log('NODE_ENV:', process.env.NODE_ENV);
 
 /**
- * Create and export the Supabase client
+ * Create and export the Supabase client or a mock client if no key is provided
  */
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = supabaseKey
+  ? createClient(supabaseUrl, supabaseKey)
+  : createMockSupabaseClient();
+
+/**
+ * Create a mock Supabase client for development without credentials
+ */
+function createMockSupabaseClient() {
+  console.warn('SUPABASE_KEY not found in environment variables. Using mock Supabase client.');
+  
+  // Create a mock storage object
+  const mockStorage = {
+    from: (bucket) => ({
+      upload: (path, data, options) => {
+        console.log(`[MOCK] Uploading to ${bucket}/${path} with options:`, options);
+        return Promise.resolve({
+          data: { path, fullPath: `${bucket}/${path}` },
+          error: null
+        });
+      }
+    })
+  };
+  
+  // Create a mock database object
+  const mockFrom = (table) => ({
+    insert: (data) => ({
+      select: () => Promise.resolve({ data, error: null })
+    }),
+    select: () => ({
+      order: () => ({
+        range: () => Promise.resolve({ data: [], error: null })
+      })
+    })
+  });
+  
+  // Return a mock client
+  return {
+    storage: mockStorage,
+    from: mockFrom
+  };
+}
 
 /**
  * Utility functions for Supabase operations

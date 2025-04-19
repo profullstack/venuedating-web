@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenvFlow from 'dotenv-flow';
 import fs from 'fs';
-import http from 'http';
 
 import { registerRoutes } from './routes/index.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -28,90 +28,31 @@ if (fs.existsSync(publicPath)) {
   });
 }
 
-// Create a simple HTTP server to serve static files
-const staticServer = http.createServer((req, res) => {
-  // Parse the URL to get the pathname
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  let pathname = url.pathname;
-  
-  // Default to index.html for the root path
-  if (pathname === '/') {
-    pathname = '/index.html';
-  }
-  
-  // Construct the file path
-  const filePath = path.join(publicPath, pathname);
-  
-  // Check if the file exists
-  fs.access(filePath, fs.constants.F_OK, (err) => {
-    if (err) {
-      // File doesn't exist
-      console.error(`File not found: ${filePath}`);
-      res.writeHead(404);
-      res.end('File not found');
-      return;
-    }
-    
-    // Determine the content type based on file extension
-    const ext = path.extname(filePath);
-    let contentType = 'text/plain';
-    
-    switch (ext) {
-      case '.html':
-        contentType = 'text/html';
-        break;
-      case '.css':
-        contentType = 'text/css';
-        break;
-      case '.js':
-        contentType = 'text/javascript';
-        break;
-      case '.json':
-        contentType = 'application/json';
-        break;
-      case '.png':
-        contentType = 'image/png';
-        break;
-      case '.jpg':
-      case '.jpeg':
-        contentType = 'image/jpeg';
-        break;
-      case '.svg':
-        contentType = 'image/svg+xml';
-        break;
-    }
-    
-    // Read and serve the file
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        console.error(`Error reading file: ${filePath}`, err);
-        res.writeHead(500);
-        res.end('Internal server error');
-        return;
-      }
-      
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(data);
-    });
-  });
-});
-
-// Start the static file server
-const staticPort = 8099;
-staticServer.listen(staticPort, () => {
-  console.log(`Static file server running at http://localhost:${staticPort}`);
-});
-
-// Create Hono app for API endpoints
+// Create Hono app for both static files and API endpoints
 const app = new Hono();
+
+// Log when requests are received
+app.use('*', async (c, next) => {
+  console.log(`Request for: ${c.req.path}`);
+  await next();
+});
 
 // Global error handler middleware
 app.use('*', errorHandler);
 
+// Serve static files from the public directory
+app.use('*', serveStatic({ root: './public' }));
+
 // Health check endpoint
 app.get('/', (c) => {
-  return c.json({ 
-    status: 'ok', 
+  // If the request accepts HTML, let the static middleware handle it
+  if (c.req.header('accept')?.includes('text/html')) {
+    return c.next();
+  }
+  
+  // Otherwise, return a JSON response
+  return c.json({
+    status: 'ok',
     message: 'Document generation service is running',
     version: process.env.npm_package_version || '1.0.0'
   });
@@ -120,13 +61,13 @@ app.get('/', (c) => {
 // Register all API routes
 registerRoutes(app);
 
-// Start the API server
-const apiPort = 3000;
+// Start the server
+const port = process.env.PORT || 3000;
 serve({
   fetch: app.fetch,
-  port: apiPort
+  port
 }, (info) => {
-  console.log(`API server running at http://localhost:${info.port}`);
+  console.log(`Server running at http://localhost:${info.port}`);
   console.log('Available endpoints:');
   console.log(`- HTML to PDF: http://localhost:${info.port}/api/1/html-to-pdf`);
   console.log(`- HTML to DOC: http://localhost:${info.port}/api/1/html-to-doc`);
@@ -139,4 +80,5 @@ serve({
   console.log(`- Subscription: http://localhost:${info.port}/api/1/subscription`);
   console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
   console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payment-callback`);
+  console.log(`- Web interface: http://localhost:${info.port}`);
 });
