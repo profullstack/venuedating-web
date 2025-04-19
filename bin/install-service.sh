@@ -41,7 +41,6 @@ fi
 # Create log files
 echo -e "${YELLOW}Creating log files...${NC}"
 touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
-chown www-data:www-data /var/log/$SERVICE_NAME.log wwwlog/$SERVICE_NAME.error.log
 chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 
 # Create symbolic link to the service file
