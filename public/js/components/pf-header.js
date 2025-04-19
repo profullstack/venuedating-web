@@ -88,6 +88,12 @@ class PfHeader extends HTMLElement {
           color: var(--primary-color);
         }
         
+        .nav-link.active {
+          background-color: var(--surface-variant);
+          color: var(--primary-color);
+          font-weight: bold;
+        }
+        
         .subscription-link {
           display: inline-block;
           padding: 8px 15px;
@@ -165,10 +171,10 @@ class PfHeader extends HTMLElement {
         </a>
         
         <div class="nav-links">
-          <a href="/api-docs" class="nav-link">API Docs</a>
-          <a href="/api-keys" class="nav-link">API Keys</a>
-          <a href="/login" class="nav-link login-link">Login</a>
-          <a href="/register" class="subscription-link register-link">Register</a>
+          <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
+          <a href="/api-keys" class="nav-link" id="api-keys-link">API Keys</a>
+          <a href="/login" class="nav-link login-link" id="login-link">Login</a>
+          <a href="/register" class="subscription-link register-link" id="register-link">Register</a>
           <button class="theme-toggle" title="Toggle light/dark theme">
             ${this.currentTheme === 'dark'
               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -206,6 +212,35 @@ class PfHeader extends HTMLElement {
       themeToggle.addEventListener('click', () => {
         this.toggleTheme();
       });
+    }
+    
+    // Update active link based on current path
+    this.updateActiveLink();
+    
+    // Listen for route changes
+    window.addEventListener('route-changed', () => {
+      this.updateActiveLink();
+    });
+  }
+  
+  updateActiveLink() {
+    const currentPath = window.location.pathname;
+    
+    // Remove active class from all links
+    const links = this.shadowRoot.querySelectorAll('.nav-link');
+    links.forEach(link => {
+      link.classList.remove('active');
+    });
+    
+    // Add active class to the current link
+    if (currentPath.startsWith('/api-docs')) {
+      this.shadowRoot.querySelector('#api-docs-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/api-keys')) {
+      this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/login')) {
+      this.shadowRoot.querySelector('#login-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/register')) {
+      this.shadowRoot.querySelector('#register-link')?.classList.add('active');
     }
   }
   

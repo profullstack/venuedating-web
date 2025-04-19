@@ -40,7 +40,7 @@ export class SubscriptionForm extends BaseComponent {
       h2 {
         margin-top: 0;
         margin-bottom: 20px;
-        color: #2563eb;
+        color: var(--primary-color);
         font-weight: bold;
       }
       
@@ -68,8 +68,8 @@ export class SubscriptionForm extends BaseComponent {
       input[type="email"]:focus,
       select:focus {
         outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
       }
       
       .radio-group {
@@ -86,7 +86,7 @@ export class SubscriptionForm extends BaseComponent {
       
       .submit-button {
         padding: 12px 24px;
-        background-color: #2563eb;
+        background-color: var(--primary-color);
         color: white;
         border: none;
         border-radius: 5px;
@@ -97,7 +97,7 @@ export class SubscriptionForm extends BaseComponent {
       }
       
       .submit-button:hover {
-        background-color: #1d4ed8;
+        background-color: var(--primary-dark);
         transform: translateY(-2px);
       }
       
