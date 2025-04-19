@@ -31,10 +31,11 @@ export class SubscriptionForm extends BaseComponent {
       :host {
         display: block;
         padding: 30px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        background-color: var(--card-background);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
         margin-bottom: 30px;
+        color: var(--text-primary);
       }
       
       h2 {
@@ -51,17 +52,19 @@ export class SubscriptionForm extends BaseComponent {
       label {
         display: block;
         margin-bottom: 8px;
-        font-weight: 500;
-        color: #4b5563;
+        font-weight: var(--font-weight-medium);
+        color: var(--text-secondary);
       }
       
       input[type="email"],
       select {
         width: 100%;
         padding: 12px;
-        border: 1px solid #e5e7eb;
-        border-radius: 5px;
-        font-size: 16px;
+        border: 1px solid var(--input-border);
+        border-radius: var(--border-radius-md);
+        background-color: var(--input-background);
+        color: var(--text-primary);
+        font-size: var(--font-size-md);
         transition: border-color 0.2s;
       }
       
@@ -119,24 +122,26 @@ export class SubscriptionForm extends BaseComponent {
       .payment-info {
         margin-top: 30px;
         padding: 25px;
-        background-color: #f9fafb;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        background-color: var(--surface-color);
+        border-radius: var(--border-radius-lg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
       }
       
       .payment-info h3 {
         margin-top: 0;
         margin-bottom: 15px;
-        color: #111827;
-        font-weight: bold;
+        color: var(--text-primary);
+        font-weight: var(--font-weight-bold);
       }
       
       .payment-address {
         font-family: monospace;
         padding: 15px;
-        background-color: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 5px;
+        background-color: var(--input-background);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+        color: var(--text-primary);
         word-break: break-all;
         margin-bottom: 20px;
       }
@@ -147,11 +152,11 @@ export class SubscriptionForm extends BaseComponent {
       
       .payment-details p {
         margin: 8px 0;
-        color: #4b5563;
+        color: var(--text-secondary);
       }
       
       .payment-details strong {
-        color: #111827;
+        color: var(--text-primary);
       }
       
       .payment-qr {
@@ -169,22 +174,22 @@ export class SubscriptionForm extends BaseComponent {
       .subscription-info {
         margin-top: 30px;
         padding: 25px;
-        background-color: rgba(16, 185, 129, 0.1);
-        color: #10b981;
-        border-radius: 8px;
-        border-left: 4px solid #10b981;
+        background-color: rgba(224, 35, 55, 0.1);
+        color: var(--primary-color);
+        border-radius: var(--border-radius-lg);
+        border-left: 4px solid var(--primary-color);
       }
       
       .subscription-info h3 {
         margin-top: 0;
         margin-bottom: 15px;
-        color: #10b981;
-        font-weight: bold;
+        color: var(--primary-color);
+        font-weight: var(--font-weight-bold);
       }
       
       .subscription-details p {
         margin: 8px 0;
-        color: #065f46;
+        color: var(--text-primary);
       }
       
       .loading {
@@ -229,11 +234,11 @@ export class SubscriptionForm extends BaseComponent {
           <div class="radio-group">
             <div class="radio-option">
               <input type="radio" id="monthly" name="plan" value="monthly" ${this._plan === 'monthly' ? 'checked' : ''}>
-              <label for="monthly">Monthly - $5/month</label>
+              <label for="monthly" style="color: var(--text-primary);">Monthly - $5/month</label>
             </div>
             <div class="radio-option">
               <input type="radio" id="yearly" name="plan" value="yearly" ${this._plan === 'yearly' ? 'checked' : ''}>
-              <label for="yearly">Yearly - $30/year (Save over 50%!)</label>
+              <label for="yearly" style="color: var(--text-primary);">Yearly - $30/year (Save over 50%!)</label>
             </div>
           </div>
         </div>

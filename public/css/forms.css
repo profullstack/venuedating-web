@@ -27,6 +27,40 @@
   margin-bottom: 20px;
   color: var(--primary-color);
   font-weight: var(--font-weight-bold);
+  text-align: center;
+}
+
+.login-container .form-group,
+.register-container .form-group {
+  margin-bottom: 20px;
+}
+
+.login-container label,
+.register-container label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  width: 100%;
+}
+
+.login-container input,
+.register-container input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--input-background);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  box-sizing: border-box;
+}
+
+.login-container input:focus,
+.register-container input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(224, 35, 55, 0.1);
 }
 
 .login-button,
