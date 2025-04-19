@@ -81,21 +81,20 @@ else
   echo -e "${RED}Warning: Start script not found at $START_SCRIPT${NC}"
 fi
 
-# Install project dependencies
+# Install project dependencies automatically
 echo -e "${YELLOW}Installing project dependencies...${NC}"
 
 # Get the original user who ran sudo
 ORIGINAL_USER=${SUDO_USER:-$USER}
-echo -e "${YELLOW}Original user: $ORIGINAL_USER${NC}"
 
 # Run pnpm install with zsh and loading .zshrc
 if [ "$EUID" -eq 0 ]; then
-  echo -e "${YELLOW}Running pnpm install as $ORIGINAL_USER with zsh...${NC}"
   sudo -u "$ORIGINAL_USER" zsh -c "source /home/$ORIGINAL_USER/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 else
-  echo -e "${YELLOW}Running pnpm install as current user...${NC}"
   zsh -c "source $HOME/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 fi
+
+echo -e "${GREEN}Dependencies installed.${NC}"
 
 # Reload systemd
 echo -e "${YELLOW}Reloading systemd...${NC}"

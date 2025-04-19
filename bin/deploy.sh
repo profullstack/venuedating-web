@@ -30,8 +30,14 @@ echo -e "${YELLOW}Checking if remote directory exists...${NC}"
 if ssh $REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
     echo -e "${GREEN}Remote directory exists. Starting deployment...${NC}"
     
-    # Deploy using rsync
-    rsync -avz --partial --progress $LOCAL_DIR $REMOTE_HOST:$REMOTE_DIR
+    # Deploy using rsync with .deployignore
+    if [ -f .deployignore ]; then
+        echo -e "${YELLOW}Using .deployignore file for exclusions...${NC}"
+        rsync -avz --partial --progress --exclude-from=.deployignore $LOCAL_DIR $REMOTE_HOST:$REMOTE_DIR
+    else
+        echo -e "${YELLOW}No .deployignore file found. Excluding node_modules/ by default...${NC}"
+        rsync -avz --partial --progress --exclude="node_modules/" $LOCAL_DIR $REMOTE_HOST:$REMOTE_DIR
+    fi
     
     # Check if rsync was successful
     if [ $? -eq 0 ]; then
