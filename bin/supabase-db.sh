@@ -173,11 +173,14 @@ setup_project() {
   
   # Load environment variables from .env file if they're not already set
   if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-    if [ -f .env ]; then
-      echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
-      source .env
+    # Check for custom env file path
+    ENV_FILE="${SUPABASE_ENV_FILE:-.env}"
+    
+    if [ -f "$ENV_FILE" ]; then
+      echo -e "${YELLOW}Loading environment variables from $ENV_FILE file...${NC}"
+      source "$ENV_FILE"
     else
-      echo -e "${YELLOW}No .env file found. Checking for environment variables...${NC}"
+      echo -e "${YELLOW}No $ENV_FILE file found. Checking for environment variables...${NC}"
     fi
   fi
   
@@ -198,6 +201,33 @@ setup_project() {
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
   
+  # Test database connection
+  echo -e "${YELLOW}Testing database connection...${NC}"
+  
+  # Create a temporary .pgpass file for the test
+  PGPASS_FILE="$HOME/.pgpass"
+  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
+  
+  # Create .pgpass file with both possible usernames
+  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
+  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
+  chmod 600 "$PGPASS_FILE"
+  
+  # Check if psql is installed
+  if command -v psql &> /dev/null; then
+    # Try connection with postgres.{project_ref} user
+    if psql -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres.${PROJECT_REF}" -c "SELECT 1" > /dev/null 2>&1; then
+      echo -e "${GREEN}Database connection successful with postgres.${PROJECT_REF} user!${NC}"
+    # Try connection with postgres user
+    elif psql -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U postgres -c "SELECT 1" > /dev/null 2>&1; then
+      echo -e "${GREEN}Database connection successful with postgres user!${NC}"
+    else
+      echo -e "${YELLOW}Could not connect to database directly with psql. Continuing with Supabase CLI...${NC}"
+    fi
+  else
+    echo -e "${YELLOW}psql not installed, skipping direct connection test...${NC}"
+  fi
+  
   # Initialize Supabase project if not already initialized
   if [ ! -d "supabase" ]; then
     echo -e "${YELLOW}Initializing Supabase project...${NC}"
@@ -209,7 +239,24 @@ setup_project() {
   # Link to existing Supabase project
   echo -e "${YELLOW}Linking to Supabase cloud project...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
-  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --no-keyring --debug
+  
+  # Create a temporary .pgpass file to avoid password prompt
+  echo "Creating temporary .pgpass file..."
+  PGPASS_FILE="$HOME/.pgpass"
+  
+  # Extract project reference from URL for the hostname pattern
+  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
+  
+  # Create or append to .pgpass file
+  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
+  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
+  
+  # Set proper permissions
+  chmod 600 "$PGPASS_FILE"
+  
+  # Run the command with debug flag
+  echo "Running supabase link with debug flag..."
+  supabase link --project-ref "$PROJECT_REF" --no-keyring --debug
   
   echo -e "${GREEN}Supabase project setup complete!${NC}"
 }
@@ -233,7 +280,27 @@ run_migrations() {
   # Run migrations
   echo -e "${YELLOW}Pushing migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
-  supabase db push --no-keyring --password "$SUPABASE_DB_PASSWORD" --debug
+  
+  # Create a temporary .pgpass file to avoid password prompt
+  echo "Creating temporary .pgpass file..."
+  PGPASS_FILE="$HOME/.pgpass"
+  
+  # Extract project reference from URL for the hostname pattern
+  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
+  
+  # Create or append to .pgpass file
+  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
+  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
+  
+  # Set proper permissions
+  chmod 600 "$PGPASS_FILE"
+  
+  # Run the command with debug flag
+  echo "Running supabase db push with debug flag..."
+  supabase db push --no-keyring --debug
+  
+  # Remove the temporary .pgpass file
+  rm -f "$PGPASS_FILE"
   
   echo -e "${GREEN}Migrations applied successfully!${NC}"
 }
