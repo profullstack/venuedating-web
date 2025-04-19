@@ -1,3 +1,83 @@
+# Document Generation API
+
+A service that generates PDFs, Word documents, Excel spreadsheets, PowerPoint presentations, and EPUB e-books from HTML content using Hono.js, Puppeteer, XLSX, PptxGenJS, and Pandoc, with additional support for Markdown conversion, Supabase storage, and cryptocurrency payments.
+
+## Features
+
+- Converts HTML to PDF using Puppeteer
+- Converts HTML to Word documents (.doc)
+- Converts HTML tables to Excel spreadsheets (.xlsx)
+- Converts HTML with headings to PowerPoint presentations (.pptx)
+- Converts HTML to EPUB e-books using Pandoc
+- Converts HTML to Markdown
+- Converts Markdown to HTML
+- Stores generated documents in Supabase (optional)
+- Tracks document generation history
+- Subscription-based access with cryptocurrency payments
+- Email notifications for subscription events
+- Customizable document formats and margins
+- Simple JSON API
+- Web interface for testing
+- Environment variable configuration with dotenv-flow
+- Progressive Web App (PWA) support with offline functionality
+- Dark and light theme with system preference detection
+- API key management for secure authentication
+- Comprehensive API documentation
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/profullstack/pdf.git
+cd pdf
+
+# Install dependencies
+pnpm install
+
+# Install Pandoc (required for EPUB generation)
+# On Ubuntu/Debian:
+sudo apt-get update
+sudo apt-get install -y pandoc
+
+# On macOS:
+brew install pandoc
+
+# On Windows:
+# Download and install from https://pandoc.org/installing.html
+```
+
+## Configuration
+
+This project uses dotenv-flow for environment variable management. Create a `.env` file based on the `.env.example` template:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the .env file with your preferred settings
+```
+
+Available environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| PORT | The port on which the server will run | 3000 |
+| PUPPETEER_EXECUTABLE_PATH | Optional path to Chrome executable | (auto-detected) |
+| DEPLOY_REMOTE_HOST | Hostname for deployment | profullstack |
+| DEPLOY_REMOTE_DIR | Remote directory path for deployment | www/profullstack.com/pdf |
+| INSTALL_SERVICE | Whether to install the systemd service during deployment | false |
+| SUPABASE_KEY | Supabase API key for storage and database | (required for storage) |
+| MAILGUN_API_KEY | Mailgun API key for sending emails | (required for notifications) |
+| MAILGUN_DOMAIN | Mailgun domain for sending emails | (required for notifications) |
+| FROM_EMAIL | Email address to send from | hello@profullstack.com |
+| TO_EMAIL | Email address for admin notifications | admin@profullstack.com |
+| REPLY_TO_EMAIL | Reply-to email address | help@profullstack.com |
+| MONTHLY_SUBSCRIPTION_PRICE | Price for monthly subscription | 5 |
+| YEARLY_SUBSCRIPTION_PRICE | Price for yearly subscription | 30 |
+| ETHEREUM_ADDRESS | Ethereum wallet address for payments | (required for ETH payments) |
+| BITCOIN_ADDRESS | Bitcoin wallet address for payments | (required for BTC payments) |
+| SOLANA_ADDRESS | Solana wallet address for payments | (required for SOL payments) |
+
 ### Progressive Web App (PWA)
 
 The Document Generation API is also available as a Progressive Web App (PWA), which provides several benefits:
