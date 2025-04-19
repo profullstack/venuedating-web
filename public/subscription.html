@@ -13,6 +13,7 @@
   <script src="/js/register-sw.js"></script>
   <script type="module" src="/js/main.js"></script>
   <script type="module" src="/js/components/subscription-form.js"></script>
+  <script type="module" src="/js/api-client.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -321,7 +322,38 @@
     <p>&copy; 2025 <a href="https://profullstack.com" target="_blank">ProFullStack</a>. All rights reserved.</p>
   </footer>
 
-  <script>
+  <script type="module">
+    import { ApiClient } from '/js/api-client.js';
+    
+    // Check if we have subscription data in localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const subscriptionData = localStorage.getItem('subscription_data');
+      
+      if (subscriptionData) {
+        try {
+          // Parse the subscription data
+          const data = JSON.parse(subscriptionData);
+          
+          // Get the subscription form component
+          const subscriptionForm = document.querySelector('subscription-form');
+          
+          // Set the subscription data
+          if (subscriptionForm) {
+            // Use the component's API to set the data
+            subscriptionForm._subscription = data.subscription;
+            subscriptionForm._paymentInfo = data.payment_info;
+            subscriptionForm._email = data.subscription.email;
+            subscriptionForm.render();
+            
+            // Clear the localStorage data to prevent reuse
+            localStorage.removeItem('subscription_data');
+          }
+        } catch (error) {
+          console.error('Error parsing subscription data:', error);
+        }
+      }
+    });
+    
     // Handle offline/online status
     window.addEventListener('online', () => {
       document.getElementById('offline-notification').classList.remove('visible');

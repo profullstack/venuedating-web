@@ -212,6 +212,7 @@
       text-decoration: underline;
     }
   </style>
+  <script type="module" src="/js/api-client.js"></script>
 </head>
 <body>
   <div class="header">
@@ -303,6 +304,9 @@
       });
     });
     
+    // Import ApiClient
+    import { ApiClient } from '/js/api-client.js';
+    
     // Form submission
     document.getElementById('register-form').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -319,17 +323,32 @@
       const selectedPlan = document.querySelector('.plan-option.selected').dataset.plan;
       const selectedPayment = document.querySelector('.payment-method.selected').dataset.payment;
       
+      // Show loading state
+      const submitButton = document.querySelector('.register-button');
+      const originalButtonText = submitButton.textContent;
+      submitButton.textContent = 'Processing...';
+      submitButton.disabled = true;
+      
       try {
-        // For now, just store the email in localStorage as if it were an API key
-        // In a real implementation, this would create an account and subscription
+        // Store the email in localStorage as if it were an API key
         localStorage.setItem('api_key', email);
         localStorage.setItem('username', email);
+        
+        // Create a subscription using the API client
+        const result = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
+        
+        // Store subscription data in localStorage for the subscription page
+        localStorage.setItem('subscription_data', JSON.stringify(result));
         
         // Redirect to the subscription page
         window.location.href = '/subscription.html';
       } catch (error) {
         console.error('Registration error:', error);
-        alert('Registration failed. Please try again.');
+        alert('Registration failed: ' + (error.message || 'Please try again.'));
+        
+        // Reset button
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
       }
     });
   </script>
