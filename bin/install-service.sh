@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set colors for output
+# Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
@@ -12,36 +12,64 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Set the working directory to the script's directory parent
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-PROJECT_DIR="$( dirname "$SCRIPT_DIR" )"
-cd "$PROJECT_DIR"
+# Get the directory of the script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo -e "${YELLOW}Installing PDF Generation Service...${NC}"
+# Service name
+SERVICE_NAME="profullstack-pdf"
+SERVICE_FILE="$PROJECT_DIR/etc/$SERVICE_NAME.service"
+SYSTEMD_DIR="/etc/systemd/system"
 
-# Copy the service file to systemd directory
-echo -e "Copying service file to /etc/systemd/system/..."
-cp etc/profullstack-pdf.service /etc/systemd/system/
+echo -e "${GREEN}Installing $SERVICE_NAME service...${NC}"
+
+# Install pandoc if not already installed
+if ! command -v pandoc &> /dev/null; then
+  echo -e "${YELLOW}Pandoc not found. Installing pandoc...${NC}"
+  apt-get update
+  apt-get install -y pandoc
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Pandoc installed successfully.${NC}"
+  else
+    echo -e "${RED}Failed to install pandoc. Please install it manually.${NC}"
+    exit 1
+  fi
+else
+  echo -e "${GREEN}Pandoc is already installed.${NC}"
+fi
+
+# Create log files
+echo -e "${YELLOW}Creating log files...${NC}"
+touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
+chown www-data:www-data /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
+chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
+
+# Create symbolic link to the service file
+echo -e "${YELLOW}Creating symbolic link to service file...${NC}"
+if [ -f "$SYSTEMD_DIR/$SERVICE_NAME.service" ]; then
+  echo -e "${YELLOW}Service file already exists. Removing...${NC}"
+  rm "$SYSTEMD_DIR/$SERVICE_NAME.service"
+fi
+ln -s "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
 
 # Make the start script executable
-echo -e "Making start script executable..."
-chmod +x bin/start.sh
+echo -e "${YELLOW}Making start script executable...${NC}"
+chmod +x "$PROJECT_DIR/bin/start.sh"
 
 # Reload systemd
-echo -e "Reloading systemd..."
+echo -e "${YELLOW}Reloading systemd...${NC}"
 systemctl daemon-reload
 
-# Enable the service
-echo -e "Enabling service to start on boot..."
-systemctl enable profullstack-pdf
+# Enable and start the service
+echo -e "${YELLOW}Enabling and starting the service...${NC}"
+systemctl enable $SERVICE_NAME
+systemctl start $SERVICE_NAME
 
-# Start the service
-echo -e "Starting service..."
-systemctl start profullstack-pdf
-
-# Check status
+# Check the status
 echo -e "${YELLOW}Service status:${NC}"
-systemctl status profullstack-pdf
+systemctl status $SERVICE_NAME
 
-echo -e "\n${GREEN}Installation complete!${NC}"
-echo -e "You can view the logs at: ${YELLOW}/var/log/profullstack-pdf.log${NC} and ${YELLOW}/var/log/profullstack-pdf.error.log${NC}"
+echo -e "${GREEN}Installation complete!${NC}"
+echo -e "${YELLOW}You can view the logs with:${NC}"
+echo -e "  tail -f /var/log/$SERVICE_NAME.log"
+echo -e "  tail -f /var/log/$SERVICE_NAME.error.log"

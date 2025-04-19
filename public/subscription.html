@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribe - Document Generation API</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script type="module" src="/js/theme.js"></script>
+  <script type="module" src="/js/main.js"></script>
+  <script type="module" src="/js/components/subscription-form.js"></script>
+  <style>
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--spacing-lg);
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      color: var(--primary-color);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .logo h1 {
+      margin: 0;
+    }
+    
+    .pricing-table {
+      display: flex;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-xxl);
+    }
+    
+    .pricing-plan {
+      flex: 1;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      text-align: center;
+      background-color: var(--card-background);
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    
+    .pricing-plan:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .plan-name {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--spacing-sm);
+      color: var(--text-primary);
+    }
+    
+    .plan-price {
+      font-size: var(--font-size-4xl);
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--spacing-lg);
+      color: var(--primary-color);
+    }
+    
+    .plan-price small {
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-normal);
+      color: var(--text-secondary);
+    }
+    
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin-bottom: var(--spacing-lg);
+      text-align: left;
+    }
+    
+    .plan-features li {
+      padding: var(--spacing-xs) 0;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    
+    .plan-features li:last-child {
+      border-bottom: none;
+    }
+    
+    .plan-features li::before {
+      content: "✓";
+      color: var(--success-color);
+      margin-right: var(--spacing-sm);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .popular {
+      background-color: var(--surface-variant);
+      border-color: var(--secondary-color);
+      position: relative;
+    }
+    
+    .popular::after {
+      content: "Best Value";
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: var(--secondary-color);
+      color: var(--text-on-secondary);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .payment-methods {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+      padding: var(--spacing-md);
+      background-color: var(--surface-color);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .payment-methods p {
+      margin-bottom: var(--spacing-md);
+      color: var(--text-secondary);
+    }
+    
+    .payment-methods img {
+      height: 30px;
+      margin: 0 var(--spacing-sm);
+      filter: grayscale(0.2);
+      transition: filter var(--transition-fast), transform var(--transition-fast);
+    }
+    
+    .payment-methods img:hover {
+      filter: grayscale(0);
+      transform: scale(1.1);
+    }
+    
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: var(--spacing-xl);
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: var(--font-weight-medium);
+      transition: color var(--transition-fast);
+    }
+    
+    .back-link:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+    
+    footer {
+      margin-top: var(--spacing-xxl);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: var(--font-size-sm);
+    }
+    
+    footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <h1>Document Generation API</h1>
+    </div>
+  </div>
+  
+  <h1>Subscribe to Document Generation API</h1>
+  
+  <div class="pricing-table">
+    <div class="pricing-plan">
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price">$5<small>/month</small></div>
+      <ul class="plan-features">
+        <li>Unlimited PDF Generation</li>
+        <li>Unlimited Word Documents</li>
+        <li>Unlimited Excel Spreadsheets</li>
+        <li>Unlimited PowerPoint Presentations</li>
+        <li>Unlimited EPUB E-books</li>
+        <li>Markdown Conversion</li>
+        <li>Email Support</li>
+      </ul>
+    </div>
+    
+    <div class="pricing-plan popular">
+      <div class="plan-name">Yearly</div>
+      <div class="plan-price">$30<small>/year</small></div>
+      <ul class="plan-features">
+        <li>Save over 50%!</li>
+        <li>Unlimited PDF Generation</li>
+        <li>Unlimited Word Documents</li>
+        <li>Unlimited Excel Spreadsheets</li>
+        <li>Unlimited PowerPoint Presentations</li>
+        <li>Unlimited EPUB E-books</li>
+        <li>Markdown Conversion</li>
+        <li>Priority Email Support</li>
+      </ul>
+    </div>
+  </div>
+  
+  <div class="payment-methods">
+    <p>We accept cryptocurrency payments:</p>
+    <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="Bitcoin">
+    <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png" alt="Ethereum">
+    <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana">
+  </div>
+  
+  <subscription-form></subscription-form>
+  
+  <a href="/" class="back-link">Back to Document Generation</a>
+  
+  <footer>
+    <p>&copy; 2025 <a href="https://profullstack.com" target="_blank">ProFullStack</a>. All rights reserved.</p>
+  </footer>
+</body>
+</html>

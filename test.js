@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Base URL for API endpoints
+const API_BASE_URL = 'http://localhost:3000/api/1';
+
 // Sample HTML content
 const html = `
 <!DOCTYPE html>
@@ -107,6 +110,33 @@ const htmlWithHeadings = `
   <h2>Conclusion</h2>
   <p>This is the final slide with a conclusion.</p>
   <p>Thank you for your attention!</p>
+</body>
+</html>
+`;
+
+// Sample HTML for EPUB test
+const htmlForEpub = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>EPUB Test</title>
+</head>
+<body>
+  <h1>EPUB Generation Test</h1>
+  <p>This is a test document for EPUB generation.</p>
+  
+  <h2>Chapter 1: Introduction</h2>
+  <p>This is the first chapter of our test book.</p>
+  <p>EPUB is an e-book file format that uses the ".epub" file extension.</p>
+  
+  <h2>Chapter 2: Features</h2>
+  <p>EPUB files can be read on many devices and applications.</p>
+  <p>The format is designed for reflowable content, meaning the text display can be optimized for the particular display device.</p>
+  
+  <h2>Chapter 3: Conclusion</h2>
+  <p>This test demonstrates the conversion of HTML content to EPUB format.</p>
+  <p>Generated on: ${new Date().toLocaleString()}</p>
 </body>
 </html>
 `;
@@ -219,16 +249,25 @@ function hello() {
 Current date and time: ${new Date().toLocaleString()}
 `;
 
-async function testPdfGeneration() {
+/**
+ * Generic function to test an API endpoint
+ * @param {string} endpoint - API endpoint path
+ * @param {Object} requestBody - Request body
+ * @param {string} outputPath - Path to save the output
+ * @param {string} description - Test description
+ * @param {Function} processResponse - Function to process the response
+ * @returns {Promise<boolean>} - Whether the test passed
+ */
+async function testEndpoint(endpoint, requestBody, outputPath, description, processResponse) {
   try {
-    console.log('Sending request to HTML to PDF API...');
+    console.log(`Sending request to ${description}...`);
     
-    const response = await fetch('http://localhost:3000/api/1/html-to-pdf', {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ html }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -236,172 +275,15 @@ async function testPdfGeneration() {
       throw new Error(`API request failed: ${errorData.error || response.statusText}`);
     }
 
-    const pdfBuffer = await response.arrayBuffer();
-    const outputPath = path.join(__dirname, 'test-output.pdf');
+    // Process the response based on the endpoint
+    const result = await processResponse(response);
     
-    fs.writeFileSync(outputPath, Buffer.from(pdfBuffer));
-    console.log(`PDF successfully generated and saved to: ${outputPath}`);
+    // Save the result to a file
+    fs.writeFileSync(outputPath, result);
+    console.log(`${description} successfully generated and saved to: ${outputPath}`);
     return true;
   } catch (error) {
-    console.error('PDF test failed:', error.message);
-    return false;
-  }
-}
-
-async function testDocGeneration() {
-  try {
-    console.log('Sending request to HTML to DOC API...');
-    
-    const response = await fetch('http://localhost:3000/api/1/html-to-doc', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        html,
-        filename: 'test-document.doc' 
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API request failed: ${errorData.error || response.statusText}`);
-    }
-
-    const docBuffer = await response.arrayBuffer();
-    const outputPath = path.join(__dirname, 'test-output.doc');
-    
-    fs.writeFileSync(outputPath, Buffer.from(docBuffer));
-    console.log(`Word document successfully generated and saved to: ${outputPath}`);
-    return true;
-  } catch (error) {
-    console.error('DOC test failed:', error.message);
-    return false;
-  }
-}
-
-async function testExcelGeneration() {
-  try {
-    console.log('Sending request to HTML to Excel API...');
-    
-    const response = await fetch('http://localhost:3000/api/1/html-to-excel', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        html: htmlWithTable,
-        filename: 'test-data.xlsx',
-        sheetName: 'TestData'
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API request failed: ${errorData.error || response.statusText}`);
-    }
-
-    const excelBuffer = await response.arrayBuffer();
-    const outputPath = path.join(__dirname, 'test-output.xlsx');
-    
-    fs.writeFileSync(outputPath, Buffer.from(excelBuffer));
-    console.log(`Excel file successfully generated and saved to: ${outputPath}`);
-    return true;
-  } catch (error) {
-    console.error('Excel test failed:', error.message);
-    return false;
-  }
-}
-
-async function testPptGeneration() {
-  try {
-    console.log('Sending request to HTML to PowerPoint API...');
-    
-    const response = await fetch('http://localhost:3000/api/1/html-to-ppt', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        html: htmlWithHeadings,
-        filename: 'test-presentation.pptx',
-        title: 'Test Presentation'
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API request failed: ${errorData.error || response.statusText}`);
-    }
-
-    const pptBuffer = await response.arrayBuffer();
-    const outputPath = path.join(__dirname, 'test-output.pptx');
-    
-    fs.writeFileSync(outputPath, Buffer.from(pptBuffer));
-    console.log(`PowerPoint file successfully generated and saved to: ${outputPath}`);
-    return true;
-  } catch (error) {
-    console.error('PowerPoint test failed:', error.message);
-    return false;
-  }
-}
-
-async function testHtmlToMarkdown() {
-  try {
-    console.log('Sending request to HTML to Markdown API...');
-    
-    const response = await fetch('http://localhost:3000/api/1/html-to-markdown', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        html: htmlForMarkdown
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API request failed: ${errorData.error || response.statusText}`);
-    }
-
-    const result = await response.json();
-    const outputPath = path.join(__dirname, 'test-output.md');
-    
-    fs.writeFileSync(outputPath, result.markdown);
-    console.log(`HTML successfully converted to Markdown and saved to: ${outputPath}`);
-    return true;
-  } catch (error) {
-    console.error('HTML to Markdown test failed:', error.message);
-    return false;
-  }
-}
-
-async function testMarkdownConversion() {
-  try {
-    console.log('Sending request to Markdown to HTML API...');
-    
-    const response = await fetch('http://localhost:3000/api/1/markdown-to-html', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ markdown }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API request failed: ${errorData.error || response.statusText}`);
-    }
-
-    const result = await response.json();
-    const outputPath = path.join(__dirname, 'test-output.html');
-    
-    fs.writeFileSync(outputPath, result.html);
-    console.log(`Markdown successfully converted to HTML and saved to: ${outputPath}`);
-    return true;
-  } catch (error) {
-    console.error('Markdown conversion test failed:', error.message);
+    console.error(`${description} test failed:`, error.message);
     return false;
   }
 }
@@ -409,34 +291,91 @@ async function testMarkdownConversion() {
 async function runTests() {
   console.log('Starting API tests...');
   
-  // Test PDF generation
-  const pdfResult = await testPdfGeneration();
+  // Test HTML to PDF
+  const pdfResult = await testEndpoint(
+    '/html-to-pdf',
+    { html },
+    path.join(__dirname, 'test-output.pdf'),
+    'HTML to PDF API',
+    async (response) => Buffer.from(await response.arrayBuffer())
+  );
   
-  // Test DOC generation
-  const docResult = await testDocGeneration();
+  // Test HTML to DOC
+  const docResult = await testEndpoint(
+    '/html-to-doc',
+    { html, filename: 'test-document.doc' },
+    path.join(__dirname, 'test-output.doc'),
+    'HTML to DOC API',
+    async (response) => Buffer.from(await response.arrayBuffer())
+  );
   
-  // Test Excel generation
-  const excelResult = await testExcelGeneration();
+  // Test HTML to Excel
+  const excelResult = await testEndpoint(
+    '/html-to-excel',
+    { html: htmlWithTable, filename: 'test-data.xlsx', sheetName: 'TestData' },
+    path.join(__dirname, 'test-output.xlsx'),
+    'HTML to Excel API',
+    async (response) => Buffer.from(await response.arrayBuffer())
+  );
   
-  // Test PowerPoint generation
-  const pptResult = await testPptGeneration();
+  // Test HTML to PowerPoint
+  const pptResult = await testEndpoint(
+    '/html-to-ppt',
+    { html: htmlWithHeadings, filename: 'test-presentation.pptx', title: 'Test Presentation' },
+    path.join(__dirname, 'test-output.pptx'),
+    'HTML to PowerPoint API',
+    async (response) => Buffer.from(await response.arrayBuffer())
+  );
   
-  // Test HTML to Markdown conversion
-  const htmlToMarkdownResult = await testHtmlToMarkdown();
+  // Test HTML to EPUB
+  const epubResult = await testEndpoint(
+    '/html-to-epub',
+    { 
+      html: htmlForEpub, 
+      filename: 'test-book.epub', 
+      title: 'Test Book', 
+      author: 'API Test' 
+    },
+    path.join(__dirname, 'test-output.epub'),
+    'HTML to EPUB API',
+    async (response) => Buffer.from(await response.arrayBuffer())
+  );
   
-  // Test Markdown to HTML conversion
-  const markdownToHtmlResult = await testMarkdownConversion();
+  // Test HTML to Markdown
+  const htmlToMarkdownResult = await testEndpoint(
+    '/html-to-markdown',
+    { html: htmlForMarkdown },
+    path.join(__dirname, 'test-output.md'),
+    'HTML to Markdown API',
+    async (response) => {
+      const result = await response.json();
+      return result.markdown;
+    }
+  );
+  
+  // Test Markdown to HTML
+  const markdownToHtmlResult = await testEndpoint(
+    '/markdown-to-html',
+    { markdown },
+    path.join(__dirname, 'test-output.html'),
+    'Markdown to HTML API',
+    async (response) => {
+      const result = await response.json();
+      return result.html;
+    }
+  );
   
   // Summary
   console.log('\nTest Results:');
-  console.log(`PDF Generation: ${pdfResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
-  console.log(`DOC Generation: ${docResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
-  console.log(`Excel Generation: ${excelResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
-  console.log(`PowerPoint Generation: ${pptResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
+  console.log(`HTML to PDF: ${pdfResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
+  console.log(`HTML to DOC: ${docResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
+  console.log(`HTML to Excel: ${excelResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
+  console.log(`HTML to PowerPoint: ${pptResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
+  console.log(`HTML to EPUB: ${epubResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
   console.log(`HTML to Markdown: ${htmlToMarkdownResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
   console.log(`Markdown to HTML: ${markdownToHtmlResult ? 'SUCCESS ✓' : 'FAILED ✗'}`);
   
-  if (pdfResult && docResult && excelResult && pptResult && htmlToMarkdownResult && markdownToHtmlResult) {
+  if (pdfResult && docResult && excelResult && pptResult && epubResult && htmlToMarkdownResult && markdownToHtmlResult) {
     console.log('\nAll tests passed successfully!');
   } else {
     console.log('\nSome tests failed. Check the error messages above.');

@@ -1,6 +1,6 @@
 # Document Generation API
 
-A service that generates PDFs, Word documents, Excel spreadsheets, and PowerPoint presentations from HTML content using Hono.js, Puppeteer, XLSX, and PptxGenJS, with additional support for Markdown conversion.
+A service that generates PDFs, Word documents, Excel spreadsheets, PowerPoint presentations, and EPUB e-books from HTML content using Hono.js, Puppeteer, XLSX, PptxGenJS, and Pandoc, with additional support for Markdown conversion, Supabase storage, and cryptocurrency payments.
 
 ## Features
 
@@ -8,7 +8,13 @@ A service that generates PDFs, Word documents, Excel spreadsheets, and PowerPoin
 - Converts HTML to Word documents (.doc)
 - Converts HTML tables to Excel spreadsheets (.xlsx)
 - Converts HTML with headings to PowerPoint presentations (.pptx)
+- Converts HTML to EPUB e-books using Pandoc
+- Converts HTML to Markdown
 - Converts Markdown to HTML
+- Stores generated documents in Supabase (optional)
+- Tracks document generation history
+- Subscription-based access with cryptocurrency payments
+- Email notifications for subscription events
 - Customizable document formats and margins
 - Simple JSON API
 - Web interface for testing
@@ -23,6 +29,17 @@ cd document-generation-api
 
 # Install dependencies
 pnpm install
+
+# Install Pandoc (required for EPUB generation)
+# On Ubuntu/Debian:
+sudo apt-get update
+sudo apt-get install -y pandoc
+
+# On macOS:
+brew install pandoc
+
+# On Windows:
+# Download and install from https://pandoc.org/installing.html
 ```
 
 ## Configuration
@@ -44,6 +61,94 @@ Available environment variables:
 | PUPPETEER_EXECUTABLE_PATH | Optional path to Chrome executable | (auto-detected) |
 | DEPLOY_REMOTE_HOST | Hostname for deployment | profulltack |
 | DEPLOY_REMOTE_DIR | Remote directory path for deployment | www/profullstack/pdf |
+| INSTALL_SERVICE | Whether to install the systemd service during deployment | false |
+| SUPABASE_KEY | Supabase API key for storage and database | (required for storage) |
+| MAILGUN_API_KEY | Mailgun API key for sending emails | (required for notifications) |
+| MAILGUN_DOMAIN | Mailgun domain for sending emails | (required for notifications) |
+| FROM_EMAIL | Email address to send from | hello@profullstack.com |
+| TO_EMAIL | Email address for admin notifications | admin@profullstack.com |
+| REPLY_TO_EMAIL | Reply-to email address | help@profullstack.com |
+| MONTHLY_SUBSCRIPTION_PRICE | Price for monthly subscription | 5 |
+| YEARLY_SUBSCRIPTION_PRICE | Price for yearly subscription | 30 |
+| ETHEREUM_ADDRESS | Ethereum wallet address for payments | (required for ETH payments) |
+| BITCOIN_ADDRESS | Bitcoin wallet address for payments | (required for BTC payments) |
+| SOLANA_ADDRESS | Solana wallet address for payments | (required for SOL payments) |
+
+### Supabase Setup
+
+To use the document storage, subscription, and payment features, you need to set up a Supabase project:
+
+1. Create a new project at [Supabase](https://supabase.com)
+2. Create a storage bucket named `documents` with public access
+3. Run the SQL script in `db/schema.sql` to create the necessary tables and policies
+
+### Mailgun Setup
+
+To enable email notifications for subscriptions and payments:
+
+1. Create an account at [Mailgun](https://mailgun.com)
+2. Add and verify your domain
+3. Get your API key and add it to the `.env` file
+
+### CryptAPI Setup
+
+To enable cryptocurrency payments:
+
+1. No account is needed for CryptAPI
+2. Add your cryptocurrency wallet addresses to the `.env` file
+
+## Project Structure
+
+The project follows a modular architecture for better maintainability:
+
+```
+/
+├── src/                    # Server-side code
+│   ├── routes/             # API route handlers
+│   ├── services/           # Business logic services
+│   ├── middleware/         # Express middleware
+│   ├── utils/              # Utility functions
+│   └── index.js            # Main server entry point
+├── public/                 # Client-side code
+│   ├── js/                 # JavaScript files
+│   │   ├── components/     # Web components
+│   │   ├── api-client.js   # API client
+│   │   └── main.js         # Main client entry point
+│   ├── css/                # CSS files
+│   │   └── theme.css       # Theme system with light/dark mode
+│   ├── index.html          # Main HTML file
+│   └── subscription.html   # Subscription page
+├── bin/                    # Scripts
+│   ├── deploy.sh           # Deployment script
+│   ├── start.sh            # Start script
+│   ├── install-service.sh  # Service installation script
+│   └── subscription-tasks.js # Subscription maintenance tasks
+├── db/                     # Database scripts
+│   └── schema.sql          # Supabase schema setup
+├── etc/                    # Configuration files
+│   └── profullstack-pdf.service  # Systemd service file
+└── test.js                 # Test script
+```
+
+### Server-Side Architecture
+
+The server-side code is organized into modules:
+
+- **Routes**: Handle HTTP requests and responses
+- **Services**: Implement business logic for document generation, payments, and emails
+- **Middleware**: Handle cross-cutting concerns like error handling and subscription checks
+- **Utils**: Provide utility functions for Supabase and other services
+
+### Client-Side Architecture
+
+The client-side code uses Web Components for a modular UI:
+
+- **Base Components**: Provide common functionality
+- **Specialized Editors**: HTML, Markdown, Table, and Slides editors
+- **Document History**: Displays document generation history
+- **Subscription Form**: Handles subscription creation and payment
+- **API Client**: Communicates with the server API
+- **Theme System**: Provides light and dark mode support
 
 ## Usage
 
@@ -81,15 +186,30 @@ Generates a PDF from the provided HTML content.
 
 ```json
 {
-  "html": "<html>Your HTML content here</html>"
+  "html": "<html>Your HTML content here</html>",
+  "options": {
+    "format": "A4",
+    "printBackground": true,
+    "margin": {
+      "top": "1cm",
+      "right": "1cm",
+      "bottom": "1cm",
+      "left": "1cm"
+    }
+  },
+  "filename": "document.pdf",
+  "store": false
 }
 ```
+
+The `options`, `filename`, and `store` fields are optional. If `store` is set to `true`, the document will be stored in Supabase.
 
 **Response:**
 
 The raw PDF file with the following headers:
 - `Content-Type: application/pdf`
 - `Content-Disposition: attachment; filename="document.pdf"`
+- `X-Storage-Path: documents/...` (if stored in Supabase)
 
 #### HTML to Word Document
 
@@ -104,15 +224,19 @@ Generates a Microsoft Word document (.doc) from the provided HTML content.
 ```json
 {
   "html": "<html>Your HTML content here</html>",
-  "filename": "optional-custom-filename.doc"
+  "filename": "document.doc",
+  "store": false
 }
 ```
+
+The `filename` and `store` fields are optional. If `store` is set to `true`, the document will be stored in Supabase.
 
 **Response:**
 
 The raw Word document file with the following headers:
 - `Content-Type: application/msword`
 - `Content-Disposition: attachment; filename="document.doc"` (or your custom filename)
+- `X-Storage-Path: documents/...` (if stored in Supabase)
 
 #### HTML to Excel Spreadsheet
 
@@ -127,16 +251,20 @@ Generates a Microsoft Excel spreadsheet (.xlsx) from HTML tables in the provided
 ```json
 {
   "html": "<html><body><table>...</table></body></html>",
-  "filename": "optional-custom-filename.xlsx",
-  "sheetName": "optional-sheet-name"
+  "filename": "document.xlsx",
+  "sheetName": "Sheet1",
+  "store": false
 }
 ```
+
+The `filename`, `sheetName`, and `store` fields are optional. If `store` is set to `true`, the document will be stored in Supabase.
 
 **Response:**
 
 The raw Excel file with the following headers:
 - `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
 - `Content-Disposition: attachment; filename="document.xlsx"` (or your custom filename)
+- `X-Storage-Path: documents/...` (if stored in Supabase)
 
 #### HTML to PowerPoint Presentation
 
@@ -151,16 +279,80 @@ Generates a Microsoft PowerPoint presentation (.pptx) from HTML content. The API
 ```json
 {
   "html": "<html><body><h1>Slide 1</h1><p>Content</p><h1>Slide 2</h1><p>More content</p></body></html>",
-  "filename": "optional-custom-filename.pptx",
-  "title": "optional-presentation-title"
+  "filename": "presentation.pptx",
+  "title": "Presentation Title",
+  "store": false
 }
 ```
+
+The `filename`, `title`, and `store` fields are optional. If `store` is set to `true`, the document will be stored in Supabase.
 
 **Response:**
 
 The raw PowerPoint file with the following headers:
 - `Content-Type: application/vnd.openxmlformats-officedocument.presentationml.presentation`
 - `Content-Disposition: attachment; filename="presentation.pptx"` (or your custom filename)
+- `X-Storage-Path: documents/...` (if stored in Supabase)
+
+#### HTML to EPUB
+
+```
+POST /api/1/html-to-epub
+```
+
+Generates an EPUB e-book from HTML content using Pandoc.
+
+**Request Body:**
+
+```json
+{
+  "html": "<html>Your HTML content here</html>",
+  "filename": "document.epub",
+  "title": "Book Title",
+  "author": "Author Name",
+  "cover": "path/to/cover.jpg",
+  "store": false
+}
+```
+
+The `filename`, `title`, `author`, `cover`, and `store` fields are optional. If `store` is set to `true`, the document will be stored in Supabase.
+
+**Response:**
+
+The raw EPUB file with the following headers:
+- `Content-Type: application/epub+zip`
+- `Content-Disposition: attachment; filename="document.epub"` (or your custom filename)
+- `X-Storage-Path: documents/...` (if stored in Supabase)
+
+#### HTML to Markdown
+
+```
+POST /api/1/html-to-markdown
+```
+
+Converts HTML content to Markdown format.
+
+**Request Body:**
+
+```json
+{
+  "html": "<html>Your HTML content here</html>",
+  "options": {
+    "headingStyle": "atx",
+    "bulletListMarker": "-"
+  }
+}
+```
+
+The `options` field is optional and can include any valid options for the turndown library.
+
+**Response:**
+
+```json
+{
+  "markdown": "# Your Markdown content here"
+}
+```
 
 #### Markdown to HTML
 
@@ -193,7 +385,147 @@ The `options` field is optional and can include any valid options for the marked
 }
 ```
 
-### Example: HTML to PDF
+#### Document History
+
+```
+GET /api/1/document-history
+```
+
+Retrieves the document generation history from Supabase.
+
+**Query Parameters:**
+
+- `limit` (optional): Maximum number of records to return (default: 10)
+- `offset` (optional): Offset for pagination (default: 0)
+
+**Response:**
+
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "document_type": "pdf",
+      "storage_path": "documents/2023-04-18T12-34-56-789Z_document.pdf",
+      "generated_at": "2023-04-18T12:34:56.789Z",
+      "metadata": {
+        "contentType": "application/pdf",
+        "userAgent": "Mozilla/5.0 ...",
+        "timestamp": "2023-04-18T12:34:56.789Z"
+      }
+    },
+    // More records...
+  ],
+  "pagination": {
+    "limit": 10,
+    "offset": 0,
+    "total": 1
+  }
+}
+```
+
+#### Create Subscription
+
+```
+POST /api/1/subscription
+```
+
+Creates a new subscription for the document generation service.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com",
+  "plan": "monthly",
+  "coin": "btc"
+}
+```
+
+- `email` (required): User's email address
+- `plan` (required): Subscription plan (`monthly` or `yearly`)
+- `coin` (required): Cryptocurrency for payment (`btc`, `eth`, or `sol`)
+
+**Response:**
+
+```json
+{
+  "subscription": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "plan": "monthly",
+    "amount": 5,
+    "interval": "month",
+    "status": "pending",
+    "start_date": "2023-04-18T12:34:56.789Z",
+    "expiration_date": "2023-05-18T12:34:56.789Z",
+    "payment_method": "btc",
+    "payment_address": "bc1q..."
+  },
+  "payment_info": {
+    "address": "bc1q...",
+    "coin": "btc",
+    "amount_fiat": 5,
+    "currency": "USD"
+  }
+}
+```
+
+#### Check Subscription Status
+
+```
+POST /api/1/subscription-status
+```
+
+Checks the status of a user's subscription.
+
+**Request Body:**
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response:**
+
+```json
+{
+  "has_subscription": true,
+  "subscription": {
+    "id": "uuid",
+    "email": "user@example.com",
+    "plan": "monthly",
+    "amount": 5,
+    "interval": "month",
+    "status": "active",
+    "start_date": "2023-04-18T12:34:56.789Z",
+    "expiration_date": "2023-05-18T12:34:56.789Z",
+    "payment_method": "btc",
+    "is_active": true
+  }
+}
+```
+
+#### Payment Callback
+
+```
+POST /api/1/payment-callback
+```
+
+Callback endpoint for CryptAPI to notify of payment status changes.
+
+This endpoint is used internally by CryptAPI and should not be called directly.
+
+### Authentication
+
+All document generation endpoints require an API key, which is the user's email address associated with an active subscription. Include the API key in the `X-API-Key` header:
+
+```
+X-API-Key: user@example.com
+```
+
+### Example: HTML to PDF with API Key
 
 ```javascript
 // Using fetch API
@@ -201,14 +533,20 @@ const response = await fetch('https://pdf.profullstack.com/api/1/html-to-pdf', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
+    'X-API-Key': 'user@example.com'
   },
   body: JSON.stringify({
-    html: '<html><body><h1>Hello, World!</h1></body></html>'
+    html: '<html><body><h1>Hello, World!</h1></body></html>',
+    store: true
   }),
 });
 
 // Get the PDF as a blob
 const pdfBlob = await response.blob();
+
+// Get the storage path from the response headers
+const storagePath = response.headers.get('X-Storage-Path');
+console.log('Document stored at:', storagePath);
 
 // Create a download link
 const url = URL.createObjectURL(pdfBlob);
@@ -221,186 +559,42 @@ document.body.removeChild(a);
 URL.revokeObjectURL(url);
 ```
 
-### Example: HTML to Word Document
+### Subscription Management
 
-```javascript
-// Using fetch API
-const response = await fetch('https://pdf.profullstack.com/api/1/html-to-doc', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    html: '<html><body><h1>Hello, World!</h1></body></html>',
-    filename: 'my-document.doc'
-  }),
-});
+The service includes a subscription management system with the following features:
 
-// Get the Word document as a blob
-const docBlob = await response.blob();
+1. **Subscription Creation**: Users can subscribe to the service with monthly or yearly plans
+2. **Cryptocurrency Payments**: Payments are accepted in Bitcoin, Ethereum, and Solana
+3. **Payment Tracking**: All payments are recorded and linked to subscriptions
+4. **Expiration Handling**: Subscriptions expire automatically after their period
+5. **Email Notifications**: Users receive emails for subscription events
+6. **Subscription Renewal**: Users can renew their subscriptions before expiration
 
-// Create a download link
-const url = URL.createObjectURL(docBlob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'my-document.doc';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
+### Scheduled Tasks
+
+The service includes a script for scheduled tasks related to subscription management:
+
+```bash
+# Run subscription tasks manually
+node bin/subscription-tasks.js
+
+# Set up a cron job to run daily
+0 0 * * * /path/to/project/bin/subscription-tasks.js
 ```
 
-### Example: HTML to Excel Spreadsheet
+This script performs the following tasks:
 
-```javascript
-// Using fetch API
-const response = await fetch('https://pdf.profullstack.com/api/1/html-to-excel', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    html: `
-      <html>
-        <body>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>John Doe</td>
-                <td>john@example.com</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Jane Smith</td>
-                <td>jane@example.com</td>
-              </tr>
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `,
-    filename: 'data.xlsx',
-    sheetName: 'Contacts'
-  }),
-});
+1. Sends payment reminders for subscriptions expiring in 7 days
+2. Expires subscriptions that have passed their expiration date
 
-// Get the Excel file as a blob
-const excelBlob = await response.blob();
+To set up a cron job for automatic subscription maintenance:
 
-// Create a download link
-const url = URL.createObjectURL(excelBlob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'data.xlsx';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
-```
+```bash
+# Edit crontab
+crontab -e
 
-### Example: HTML to PowerPoint Presentation
-
-```javascript
-// Using fetch API
-const response = await fetch('https://pdf.profullstack.com/api/1/html-to-ppt', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    html: `
-      <html>
-        <body>
-          <h1>Introduction</h1>
-          <p>This is the first slide of the presentation.</p>
-          
-          <h1>Second Slide</h1>
-          <p>This is the content for the second slide.</p>
-          
-          <h1>Conclusion</h1>
-          <p>Thank you for your attention!</p>
-        </body>
-      </html>
-    `,
-    filename: 'presentation.pptx',
-    title: 'My Presentation'
-  }),
-});
-
-// Get the PowerPoint file as a blob
-const pptBlob = await response.blob();
-
-// Create a download link
-const url = URL.createObjectURL(pptBlob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'presentation.pptx';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
-```
-
-### Example: Markdown to HTML
-
-```javascript
-// Using fetch API
-const response = await fetch('https://pdf.profullstack.com/api/1/markdown-to-html', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    markdown: '# Hello, World!\n\nThis is **bold** text.',
-    options: {
-      gfm: true,
-      breaks: true
-    }
-  }),
-});
-
-const result = await response.json();
-console.log(result.html);
-// Output: <h1>Hello, World!</h1><p>This is <strong>bold</strong> text.</p>
-```
-
-### Markdown to Document Workflow
-
-You can also convert Markdown to PDF, Word documents, Excel spreadsheets, or PowerPoint presentations by first converting to HTML and then generating the document:
-
-```javascript
-// Step 1: Convert Markdown to HTML
-const mdResponse = await fetch('https://pdf.profullstack.com/api/1/markdown-to-html', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    markdown: '# Hello, World!\n\nThis is **bold** text.'
-  }),
-});
-
-const { html } = await mdResponse.json();
-
-// Step 2: Generate PDF from the HTML
-const pdfResponse = await fetch('https://pdf.profullstack.com/api/1/html-to-pdf', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ html }),
-});
-
-const pdfBlob = await pdfResponse.blob();
-// ... handle the PDF blob
+# Add this line to run the script daily at midnight
+0 0 * * * cd /path/to/project && node bin/subscription-tasks.js >> /var/log/subscription-tasks.log 2>&1
 ```
 
 ## Testing
@@ -412,14 +606,14 @@ A test script is included to verify the API functionality:
 pnpm start
 
 # Run the test script in another terminal
-node test.js
+pnpm test
 ```
 
-This will generate test files named `test-output.pdf`, `test-output.doc`, `test-output.xlsx`, `test-output.pptx`, and `test-output.html` in the project directory.
+This will generate test files named `test-output.pdf`, `test-output.doc`, `test-output.xlsx`, `test-output.pptx`, `test-output.epub`, `test-output.md`, and `test-output.html` in the project directory.
 
 ## Web Interface
 
-A simple web interface is available at the root URL (e.g., http://localhost:3000) for testing the document generation functionality directly in your browser. The interface allows you to:
+A simple web interface is available at the root URL (e.g., http://localhost:3000) for testing the document generation functionality directly in your browser. The interface uses Web Components for a modular architecture and allows you to:
 
 1. Edit HTML content and preview it
 2. Edit Markdown content and preview it
@@ -429,7 +623,20 @@ A simple web interface is available at the root URL (e.g., http://localhost:3000
 6. Generate Word documents from HTML or Markdown
 7. Generate Excel spreadsheets from HTML tables
 8. Generate PowerPoint presentations from HTML with headings
-9. Convert Markdown to HTML
+9. Generate EPUB e-books from HTML
+10. Convert HTML to Markdown
+11. Convert Markdown to HTML
+12. View document generation history
+
+### Subscription Page
+
+A subscription page is available at `/subscription.html` (e.g., http://localhost:3000/subscription.html) for users to subscribe to the service. The page allows users to:
+
+1. Choose between monthly and yearly plans
+2. Select a cryptocurrency for payment
+3. Enter their email address
+4. Complete the payment process
+5. Check payment status
 
 ## Deployment
 
@@ -454,13 +661,18 @@ The deployment script:
 1. Loads configuration from the `.env` file
 2. Checks if the target directory exists on the remote server
 3. Uses rsync to transfer files if the directory exists
-4. Provides colored output for better visibility
+4. Optionally installs the systemd service on the remote server
+5. Makes all scripts executable
+6. Provides colored output for better visibility
 
 Configure the deployment by setting these variables in your `.env` file:
 ```
 DEPLOY_REMOTE_HOST=your-server-hostname
 DEPLOY_REMOTE_DIR=path/to/remote/directory
+INSTALL_SERVICE=false  # Set to true to automatically install the systemd service
 ```
+
+To automatically install the systemd service during deployment, set `INSTALL_SERVICE=true` in your `.env` file. This requires that your user has sudo privileges on the remote server without password prompt. If sudo requires a password, the script will provide instructions for manual installation.
 
 ### Running as a Systemd Service
 
@@ -476,25 +688,30 @@ sudo ./bin/install-service.sh
 ```
 
 This script will:
-1. Create log files in /var/log with appropriate permissions
-2. Copy the service file to /etc/systemd/system/
-3. Make the start script executable
-4. Reload systemd
-5. Enable and start the service
-6. Show the service status
+1. Install Pandoc if not already installed (required for EPUB generation)
+2. Create log files in /var/log with appropriate permissions
+3. Create a symbolic link to the service file in /etc/systemd/system/
+4. Make the start script executable
+5. Reload systemd
+6. Enable and start the service
+7. Show the service status
 
 #### Manual Installation
 
 If you prefer to install the service manually:
 
 ```bash
+# Install Pandoc (required for EPUB generation)
+sudo apt-get update
+sudo apt-get install -y pandoc
+
 # Create log files
 sudo touch /var/log/profullstack-pdf.log /var/log/profullstack-pdf.error.log
 sudo chown www-data:www-data /var/log/profullstack-pdf.log /var/log/profullstack-pdf.error.log
 sudo chmod 644 /var/log/profullstack-pdf.log /var/log/profullstack-pdf.error.log
 
-# Copy the service file to the systemd directory
-sudo cp etc/profullstack-pdf.service /etc/systemd/system/
+# Create a symbolic link to the service file
+sudo ln -s /path/to/project/etc/profullstack-pdf.service /etc/systemd/system/
 
 # Reload systemd to recognize the new service
 sudo systemctl daemon-reload

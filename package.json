@@ -1,36 +1,44 @@
 {
-  "name": "pdf",
+  "name": "document-generation-api",
   "version": "1.0.0",
-  "description": "API service for generating PDFs from HTML",
-  "main": "index.js",
+  "description": "API for generating various document formats from HTML and Markdown",
   "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "bin/deploy.sh"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "node test.js",
+    "deploy": "./bin/deploy.sh"
   },
   "keywords": [
     "pdf",
+    "doc",
+    "excel",
+    "powerpoint",
+    "epub",
+    "markdown",
     "html",
-    "puppeteer",
-    "hono"
+    "conversion",
+    "api"
   ],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.6.5",
   "dependencies": {
-    "@hono/node-server": "^1.14.1",
+    "@hono/node-server": "^1.8.2",
+    "@supabase/supabase-js": "^2.49.4",
+    "cryptapi": "^1.1.2",
     "dotenv-flow": "^4.1.0",
-    "hono": "^4.7.7",
+    "hono": "^4.1.3",
     "jsdom": "^26.1.0",
+    "mailgun.js": "^12.0.1",
     "marked": "^15.0.8",
     "pptxgenjs": "^3.12.0",
-    "puppeteer": "^24.6.1",
+    "puppeteer": "^22.5.0",
     "turndown": "^7.2.0",
+    "uuid": "^11.1.0",
     "xlsx": "^0.18.5"
   },
-  "engines": {
-    "node": ">=18.0.0"
+  "devDependencies": {
+    "nodemon": "^3.1.0"
   }
 }
