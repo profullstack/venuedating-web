@@ -213,9 +213,8 @@ setup_project() {
   export PGPASSWORD="$SUPABASE_DB_PASSWORD"
   
   # Run the link command directly - no retries to avoid confusion
-  # Add GODEBUG=netdns=4 to force IPv4 DNS resolution
-  echo -e "${YELLOW}Running: GODEBUG=netdns=4 supabase link --project-ref \"$PROJECT_REF\" --password \"$SUPABASE_DB_PASSWORD\" --debug${NC}"
-  GODEBUG=netdns=4 supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
+  echo -e "${YELLOW}Running: supabase link --project-ref \"$PROJECT_REF\" --password \"$SUPABASE_DB_PASSWORD\" --debug${NC}"
+  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
   
   if [ $? -eq 0 ]; then
     echo -e "${GREEN}Link successful!${NC}"
@@ -276,31 +275,12 @@ run_migrations() {
     echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
   fi
   
-  # Set up the database URL for direct cloud connection
-  # Force IPv4 by resolving the hostname to an IPv4 address
-  echo -e "${YELLOW}Resolving db.${PROJECT_REF}.supabase.co to IPv4 address...${NC}"
-  DB_HOST=$(getent ahostsv4 db.${PROJECT_REF}.supabase.co | head -n 1 | awk '{print $1}')
+  # Use the Supabase CLI to push migrations without direct database connection
+  echo -e "${YELLOW}Running migrations using Supabase CLI...${NC}"
   
-  if [ -z "$DB_HOST" ]; then
-    echo -e "${YELLOW}Failed to resolve IPv4 address, using hostname...${NC}"
-    DB_HOST="db.${PROJECT_REF}.supabase.co"
-  else
-    echo -e "${YELLOW}Using IPv4 address: $DB_HOST${NC}"
-  fi
-  
-  DB_URL="postgresql://postgres:${SUPABASE_DB_PASSWORD}@$DB_HOST:5432/postgres"
-  echo -e "${YELLOW}Using cloud database URL for migrations...${NC}"
-  
-  # Run the migration command directly with the cloud database URL
-  echo -e "${YELLOW}Running migrations on cloud database...${NC}"
-  
-  # Set up PGPASSWORD environment variable
-  export PGPASSWORD="$SUPABASE_DB_PASSWORD"
-  
-  # Run the command with the cloud database URL - no retries to avoid confusion
-  # Add GODEBUG=netdns=4 to force IPv4 DNS resolution
-  echo -e "${YELLOW}Running: GODEBUG=netdns=4 supabase db push --db-url <DB_URL> --debug${NC}"
-  GODEBUG=netdns=4 supabase db push --db-url "$DB_URL" --debug
+  # Run the command without direct database URL to use the linked project
+  echo -e "${YELLOW}Running: supabase db push${NC}"
+  supabase db push
   
   if [ $? -eq 0 ]; then
     echo -e "${GREEN}Migration successful!${NC}"

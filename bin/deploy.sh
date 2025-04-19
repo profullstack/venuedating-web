@@ -16,10 +16,10 @@ REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
 LOCAL_DIR="."
 INSTALL_SERVICE="${INSTALL_SERVICE:-false}"
 
-# Create SSH options - force IPv4 to avoid IPv6 connection issues
-SSH_OPTS="-4 -p $REMOTE_PORT"
-SCP_OPTS="-4 -P $REMOTE_PORT"
-RSYNC_OPTS="-e \"ssh -4 -p $REMOTE_PORT\""
+# Create SSH options
+SSH_OPTS="-p $REMOTE_PORT"
+SCP_OPTS="-P $REMOTE_PORT"
+RSYNC_OPTS="-e \"ssh -p $REMOTE_PORT\""
 
 # Set colors for output
 GREEN='\033[0;32m'
@@ -42,10 +42,10 @@ if ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
     # Deploy using rsync with .deployignore
     if [ -f .deployignore ]; then
         echo -e "${YELLOW}Using .deployignore file for exclusions...${NC}"
-        rsync -avz --partial --progress -e "ssh -4 -p $REMOTE_PORT" --exclude-from=.deployignore $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
+        rsync -avz --partial --progress -e "ssh -p $REMOTE_PORT" --exclude-from=.deployignore $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
     else
         echo -e "${YELLOW}No .deployignore file found. Excluding node_modules/ by default...${NC}"
-        rsync -avz --partial --progress -e "ssh -4 -p $REMOTE_PORT" --exclude="node_modules/" $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
+        rsync -avz --partial --progress -e "ssh -p $REMOTE_PORT" --exclude="node_modules/" $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
     fi
     
     # Check if rsync was successful
