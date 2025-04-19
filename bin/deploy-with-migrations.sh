@@ -36,9 +36,9 @@ echo -e "${GREEN}Deployment successful!${NC}"
 echo -e "${YELLOW}Installing service and dependencies on remote server...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/install-service.sh && sudo ./bin/install-service.sh"
 
-# Run migrations on the remote server
-echo -e "${YELLOW}Running migrations on remote server...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh migrate"
+# Run Supabase setup and migrations on the remote server
+echo -e "${YELLOW}Running Supabase setup and migrations on remote server...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup && ./bin/supabase-db.sh migrate"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Migrations successful!${NC}"
