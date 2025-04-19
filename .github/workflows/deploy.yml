@@ -3,7 +3,8 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - master  # or main, depending on your default branch name
+      - master
+      - main
 
 jobs:
   deploy:
@@ -21,10 +22,28 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H profullstack >> ~/.ssh/known_hosts
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
           
       - name: Deploy to server
         run: |
+          # Make deploy script executable
+          chmod +x ./bin/deploy.sh
+          
+          # Print debug info
+          echo "Current directory: $(pwd)"
+          echo "Files in bin directory:"
+          ls -la ./bin
+          
+          # Run deploy script
           ./bin/deploy.sh
+          
+          # Run test script to verify deployment
+          echo "Running test script on remote server..."
+          ssh profullstack "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
         env:
           DEPLOY_REMOTE_HOST: profullstack
           DEPLOY_REMOTE_DIR: www/profullstack.com/pdf
