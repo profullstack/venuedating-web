@@ -35,13 +35,17 @@ export const paymentService = {
    * @returns {Promise<Object>} - Subscription details
    */
   async createSubscription(email, plan, coin) {
+    console.log(`Payment service: Creating subscription for ${email}, plan: ${plan}, coin: ${coin}`);
+    
     // Validate plan
     if (!['monthly', 'yearly'].includes(plan)) {
+      console.log(`Payment service: Invalid plan "${plan}"`);
       throw new Error('Invalid subscription plan. Must be "monthly" or "yearly".');
     }
     
     // Validate coin
     if (!['btc', 'eth', 'sol'].includes(coin)) {
+      console.log(`Payment service: Invalid coin "${coin}"`);
       throw new Error('Invalid cryptocurrency. Must be "btc", "eth", or "sol".');
     }
     
@@ -52,70 +56,95 @@ export const paymentService = {
     const expirationDate = new Date(now);
     expirationDate.setMonth(expirationDate.getMonth() + (plan === 'monthly' ? 1 : 12));
     
-    // Create subscription record in Supabase
-    const { data: subscription, error } = await supabase
-      .from('subscriptions')
-      .insert([{
-        email,
-        plan,
-        amount,
-        interval: plan === 'monthly' ? 'month' : 'year',
-        payment_method: coin,
-        status: 'pending',
-        start_date: now.toISOString(),
-        expiration_date: expirationDate.toISOString()
-      }])
-      .select()
-      .single();
+    console.log('Payment service: Creating subscription record in Supabase');
+    console.log('Supabase URL:', supabase.supabaseUrl);
+    console.log('Supabase key exists:', !!supabase.supabaseKey);
     
-    if (error) {
-      console.error('Error creating subscription:', error);
-      throw error;
-    }
-    
-    // Generate payment invoice
-    const cryptapi = this._getCryptAPIClient(coin);
-    const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
-    
-    const invoice = await cryptapi.createAddress({
-      callback: callbackUrl,
-      pending: true,
-      parameters: {
-        subscription_id: subscription.id,
-        email
+    try {
+      // Create subscription record in Supabase
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .insert([{
+          email,
+          plan,
+          amount,
+          interval: plan === 'monthly' ? 'month' : 'year',
+          payment_method: coin,
+          status: 'pending',
+          start_date: now.toISOString(),
+          expiration_date: expirationDate.toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Payment service: Error creating subscription in Supabase:', error);
+        console.error('Error details:', JSON.stringify(error));
+        throw error;
       }
-    });
-    
-    // Update subscription with payment details
-    const { error: updateError } = await supabase
-      .from('subscriptions')
-      .update({
+      
+      console.log('Payment service: Subscription created in Supabase:', JSON.stringify(subscription));
+      
+      // Generate payment invoice
+      console.log('Payment service: Getting CryptAPI client for', coin);
+      const cryptapi = this._getCryptAPIClient(coin);
+      const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
+      
+      console.log('Payment service: Creating address with CryptAPI');
+      const invoice = await cryptapi.createAddress({
+        callback: callbackUrl,
+        pending: true,
+        parameters: {
+          subscription_id: subscription.id,
+          email
+        }
+      });
+      
+      console.log('Payment service: CryptAPI response:', JSON.stringify(invoice));
+      
+      // Update subscription with payment details
+      console.log('Payment service: Updating subscription with payment details');
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          payment_address: invoice.address_in,
+          payment_info: invoice
+        })
+        .eq('id', subscription.id);
+      
+      if (updateError) {
+        console.error('Payment service: Error updating subscription with payment details:', updateError);
+        console.error('Error details:', JSON.stringify(updateError));
+        throw updateError;
+      }
+      
+      // Send subscription confirmation email
+      try {
+        console.log('Payment service: Sending confirmation email to', email);
+        await emailService.sendSubscriptionConfirmation(email, {
+          ...subscription,
+          payment_address: invoice.address_in
+        });
+        console.log('Payment service: Confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Payment service: Error sending subscription confirmation email:', emailError);
+        console.error('Error stack:', emailError.stack);
+        // Don't throw error here, as the subscription was created successfully
+      }
+      
+      const result = {
+        ...subscription,
         payment_address: invoice.address_in,
         payment_info: invoice
-      })
-      .eq('id', subscription.id);
-    
-    if (updateError) {
-      console.error('Error updating subscription with payment details:', updateError);
-      throw updateError;
+      };
+      
+      console.log('Payment service: Returning subscription result:', JSON.stringify(result));
+      return result;
+    } catch (error) {
+      console.error('Payment service: Unexpected error in createSubscription:', error);
+      console.error('Error stack:', error.stack);
+      throw error;
     }
-    
-    // Send subscription confirmation email
-    try {
-      await emailService.sendSubscriptionConfirmation(email, {
-        ...subscription,
-        payment_address: invoice.address_in
-      });
-    } catch (emailError) {
-      console.error('Error sending subscription confirmation email:', emailError);
-      // Don't throw error here, as the subscription was created successfully
-    }
-    
-    return {
-      ...subscription,
-      payment_address: invoice.address_in,
-      payment_info: invoice
-    };
   },
 
   /**

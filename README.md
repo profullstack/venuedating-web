@@ -135,6 +135,29 @@ This script will:
 - Reload systemd daemon
 - Optionally install/restart the service
 
+### Deployment with Database Migrations
+
+To deploy your code and run database migrations in one step:
+
+```bash
+./bin/deploy-with-migrations.sh
+```
+
+This script will:
+1. Deploy your code using the regular deploy script
+2. Run database migrations using the Supabase CLI
+3. Restart the service to apply all changes
+
+This is the recommended way to deploy when you have database schema changes. The GitHub Actions workflow has been updated to use this script automatically, ensuring that migrations are applied during CI/CD deployments.
+
+#### CI/CD with Migrations
+
+The GitHub Actions workflow has been configured to:
+1. Install the Supabase CLI and set up the project
+2. Run migrations as part of the deployment process
+
+This ensures that your database schema is always in sync with your code. The workflow uses the same `supabase-db.sh` script that you can use locally.
+
 ### Test Script
 
 The test script creates a timestamped file on the server to verify deployment:
@@ -176,3 +199,100 @@ To trigger a new workflow run:
 4. Check the Actions tab on GitHub to see if the workflow runs
 
 This provides a simple way to test if GitHub Actions is properly configured without making significant code changes.
+
+## Database Setup
+
+This project uses Supabase as its database. You need to set up the required tables before the application will work correctly.
+
+### Setting Up Supabase Tables
+
+1. **Using Migrations**:
+   ```bash
+   ./bin/supabase-db.sh migrate
+   ```
+   This will run all migrations in the `supabase/migrations` directory.
+
+2. **Manual Setup**:
+   - Go to the Supabase dashboard: https://app.supabase.io
+   - Select your project
+   - Go to the SQL Editor
+   - Copy the contents of `supabase/migrations/20250419014200_initial_schema.sql`
+   - Paste into the SQL Editor and run the query
+
+### Required Tables
+
+The application requires the following tables:
+- `users` - For storing user information
+- `api_keys` - For storing API keys
+- `subscriptions` - For storing subscription information
+- `payments` - For recording payment transactions
+- `document_generations` - For storing document generation history
+
+These tables are defined in the Supabase migrations in the `supabase/migrations` directory.
+
+If you're experiencing 500 Internal Server Error when using the subscription API, it's likely because these tables don't exist in your Supabase database.
+
+### Database Migrations with Supabase CLI
+
+This project uses the Supabase CLI for database migrations. Migrations are stored in the `supabase/migrations` directory and are managed by the Supabase CLI.
+
+#### Installing Supabase CLI
+
+The Supabase CLI is automatically installed when you run the service installation script:
+
+```bash
+sudo ./bin/install-service.sh
+```
+
+Alternatively, you can use our database management script which will install the CLI if needed:
+
+```bash
+./bin/supabase-db.sh setup
+```
+
+#### Database Management
+
+We've created a single script to handle all Supabase database operations:
+
+```bash
+./bin/supabase-db.sh [command]
+```
+
+Available commands:
+
+1. **Setup** - Install Supabase CLI and link to your cloud project:
+   ```bash
+   ./bin/supabase-db.sh setup
+   ```
+
+2. **Migrate** - Run migrations on your Supabase database:
+   ```bash
+   ./bin/supabase-db.sh migrate
+   ```
+
+3. **Create New Migration** - Create a new migration file:
+   ```bash
+   ./bin/supabase-db.sh new add_user_preferences
+   ```
+
+**Note:** You need to add `SUPABASE_DB_PASSWORD` to your .env file. This is your database password from the Supabase dashboard.
+
+#### Migration Files
+
+Migration files are stored in the `supabase/migrations` directory with timestamp prefixes. Here's an example migration file:
+
+```sql
+-- Add user_preferences table
+CREATE TABLE IF NOT EXISTS user_preferences (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  theme TEXT DEFAULT 'light',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index on user_id
+CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
+```
+
+For more information on Supabase migrations, see the [Supabase CLI documentation](https://supabase.com/docs/reference/cli/supabase-db-push).

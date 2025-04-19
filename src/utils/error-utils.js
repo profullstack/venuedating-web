@@ -53,12 +53,34 @@ export const errorUtils = {
    */
   handleError(error, c) {
     console.error('API Error:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Log additional details for debugging
+    if (error.code) console.error('Error code:', error.code);
+    if (error.details) console.error('Error details:', error.details);
+    if (error.hint) console.error('Error hint:', error.hint);
     
     if (error instanceof ApiError) {
+      console.error(`Returning ${error.statusCode} response with message: ${error.message}`);
       return c.json({ error: error.message }, error.statusCode);
     }
     
+    // For database errors (likely from Supabase)
+    if (error.code && error.details) {
+      console.error('Database error detected');
+      return c.json({
+        error: 'Database error',
+        message: error.message,
+        code: error.code,
+        details: error.details
+      }, 500);
+    }
+    
     // Default to 500 for unknown errors
-    return c.json({ error: 'Internal server error' }, 500);
+    console.error('Returning 500 Internal Server Error');
+    return c.json({
+      error: 'Internal server error',
+      message: error.message || 'An unexpected error occurred'
+    }, 500);
   }
 };

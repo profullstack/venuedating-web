@@ -53,7 +53,7 @@ StandardError=append:/var/log/$SERVICE_NAME.error.log
 
 # Environment
 Environment=NODE_ENV=production
-Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/$SERVICE_USER/.local/share/pnpm:/home/$SERVICE_USER/.npm/pnpm/bin
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/$SERVICE_USER/.local/bin:/home/$SERVICE_USER/.local/share/pnpm:/home/$SERVICE_USER/.npm/pnpm/bin
 Environment=HOME=/home/$SERVICE_USER
 
 # Hardening
@@ -95,6 +95,42 @@ else
 fi
 
 echo -e "${GREEN}Dependencies installed.${NC}"
+
+# Install Supabase CLI
+echo -e "${YELLOW}Installing Supabase CLI...${NC}"
+
+# Create local bin directory if it doesn't exist
+if [ "$EUID" -eq 0 ]; then
+  sudo -u "$ORIGINAL_USER" mkdir -p "/home/$ORIGINAL_USER/.local/bin"
+else
+  mkdir -p "$HOME/.local/bin"
+fi
+
+# Download and install Supabase CLI
+SUPABASE_VERSION="1.175.6"  # change to latest if needed
+BINARY_URL="https://github.com/supabase/cli/releases/download/v$SUPABASE_VERSION/supabase_linux_amd64"
+
+if [ "$EUID" -eq 0 ]; then
+  echo -e "${YELLOW}Downloading Supabase CLI for $ORIGINAL_USER...${NC}"
+  sudo -u "$ORIGINAL_USER" curl -L "$BINARY_URL" -o "/home/$ORIGINAL_USER/.local/bin/supabase"
+  sudo -u "$ORIGINAL_USER" chmod +x "/home/$ORIGINAL_USER/.local/bin/supabase"
+  
+  # Add to PATH if not already there
+  if ! grep -q "export PATH=\"\$HOME/.local/bin:\$PATH\"" "/home/$ORIGINAL_USER/.zshrc"; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' | sudo -u "$ORIGINAL_USER" tee -a "/home/$ORIGINAL_USER/.zshrc" > /dev/null
+  fi
+else
+  echo -e "${YELLOW}Downloading Supabase CLI...${NC}"
+  curl -L "$BINARY_URL" -o "$HOME/.local/bin/supabase"
+  chmod +x "$HOME/.local/bin/supabase"
+  
+  # Add to PATH if not already there
+  if ! grep -q "export PATH=\"\$HOME/.local/bin:\$PATH\"" "$HOME/.zshrc"; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+  fi
+fi
+
+echo -e "${GREEN}Supabase CLI installed.${NC}"
 
 # Reload systemd
 echo -e "${YELLOW}Reloading systemd...${NC}"

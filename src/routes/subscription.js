@@ -8,26 +8,38 @@ import { errorUtils } from '../utils/error-utils.js';
  */
 export async function createSubscriptionHandler(c) {
   try {
-    const { email, plan, coin } = await c.req.json();
+    console.log('Subscription API called');
+    
+    // Log request body
+    const body = await c.req.json();
+    console.log('Request body:', JSON.stringify(body));
+    
+    const { email, plan, coin } = body;
     
     // Validate required fields
     if (!email) {
+      console.log('Validation error: Email is required');
       return c.json({ error: 'Email is required' }, 400);
     }
     
     if (!plan || !['monthly', 'yearly'].includes(plan)) {
+      console.log(`Validation error: Invalid plan "${plan}"`);
       return c.json({ error: 'Valid plan is required (monthly or yearly)' }, 400);
     }
     
     if (!coin || !['btc', 'eth', 'sol'].includes(coin)) {
+      console.log(`Validation error: Invalid coin "${coin}"`);
       return c.json({ error: 'Valid cryptocurrency is required (btc, eth, or sol)' }, 400);
     }
     
+    console.log(`Creating subscription for ${email} with plan ${plan} and coin ${coin}`);
+    
     // Create subscription
     const subscription = await paymentService.createSubscription(email, plan, coin);
+    console.log('Subscription created:', JSON.stringify(subscription));
     
     // Return subscription details
-    return c.json({
+    const response = {
       subscription: {
         id: subscription.id,
         email: subscription.email,
@@ -46,8 +58,13 @@ export async function createSubscriptionHandler(c) {
         amount_fiat: subscription.amount,
         currency: 'USD'
       }
-    });
+    };
+    
+    console.log('Returning response:', JSON.stringify(response));
+    return c.json(response);
   } catch (error) {
+    console.error('Error in subscription handler:', error);
+    console.error('Error stack:', error.stack);
     return errorUtils.handleError(error, c);
   }
 }

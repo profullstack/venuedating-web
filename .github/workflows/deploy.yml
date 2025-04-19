@@ -71,18 +71,33 @@ jobs:
           # Print confirmation (without showing the content for security)
           echo "Created .env file with $(grep -c '' .env) lines"
           
-      - name: Deploy to server
+      - name: Install Supabase CLI and setup project
         run: |
-          # Make deploy script executable
+          # Make scripts executable
+          chmod +x ./bin/supabase-db.sh
+          
+          # Setup Supabase project
+          ./bin/supabase-db.sh setup
+          
+          # Add to PATH
+          export PATH="$HOME/.local/bin:$PATH"
+          
+          # Verify installation
+          supabase --version
+      
+      - name: Deploy to server with migrations
+        run: |
+          # Make deploy scripts executable
           chmod +x ./bin/deploy.sh
+          chmod +x ./bin/deploy-with-migrations.sh
           
           # Print debug info
           echo "Current directory: $(pwd)"
           echo "Files in bin directory:"
           ls -la ./bin
           
-          # Run deploy script with IP address, port, and user
-          DEPLOY_REMOTE_HOST=104.36.23.197 DEPLOY_REMOTE_PORT=2048 DEPLOY_REMOTE_USER=ubuntu ./bin/deploy.sh
+          # Run deploy script with migrations
+          DEPLOY_REMOTE_HOST=104.36.23.197 DEPLOY_REMOTE_PORT=2048 DEPLOY_REMOTE_USER=ubuntu ./bin/deploy-with-migrations.sh
           
           # Run test script to verify deployment
           echo "Running test script on remote server..."

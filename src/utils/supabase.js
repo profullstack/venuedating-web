@@ -46,18 +46,49 @@ const supabaseUrl = envVars.SUPABASE_URL || process.env.SUPABASE_URL || 'https:/
 const supabaseKey = envVars.SUPABASE_KEY || process.env.SUPABASE_KEY;
 
 // Log environment variables for debugging
-console.log('Environment variables:');
+console.log('Supabase configuration:');
 console.log('SUPABASE_URL:', supabaseUrl);
 console.log('SUPABASE_KEY exists:', !!supabaseKey);
 console.log('SUPABASE_KEY from .env file:', !!envVars.SUPABASE_KEY);
+console.log('SUPABASE_KEY from process.env:', !!process.env.SUPABASE_KEY);
+console.log('SUPABASE_KEY length:', supabaseKey ? supabaseKey.length : 0);
 console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// Log all environment variables for debugging (without showing sensitive values)
+console.log('All environment variables:');
+Object.keys(process.env).forEach(key => {
+  if (key.includes('KEY') || key.includes('SECRET') || key.includes('PASSWORD')) {
+    console.log(`${key}: [REDACTED]`);
+  } else {
+    console.log(`${key}: ${process.env[key]}`);
+  }
+});
 
 /**
  * Create and export the Supabase client or a mock client if no key is provided
  */
-export const supabase = supabaseKey
-  ? createClient(supabaseUrl, supabaseKey)
-  : createMockSupabaseClient();
+// Create the Supabase client
+let supabaseClient;
+try {
+  console.log('Creating Supabase client...');
+  if (supabaseKey) {
+    supabaseClient = createClient(supabaseUrl, supabaseKey);
+    console.log('Supabase client created successfully with API key');
+  } else {
+    console.warn('No Supabase key found, creating mock client');
+    supabaseClient = createMockSupabaseClient();
+  }
+  
+  // Add URL and key to the client for debugging
+  supabaseClient.supabaseUrl = supabaseUrl;
+  supabaseClient.supabaseKey = !!supabaseKey;
+} catch (error) {
+  console.error('Error creating Supabase client:', error);
+  console.error('Error stack:', error.stack);
+  supabaseClient = createMockSupabaseClient();
+}
+
+export const supabase = supabaseClient;
 
 /**
  * Create a mock Supabase client for development without credentials
