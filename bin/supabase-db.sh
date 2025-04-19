@@ -42,7 +42,7 @@ install_cli() {
     return 0
   fi
   
-  SUPABASE_VERSION="2.20.12"  # Known working version
+  SUPABASE_VERSION="2.20.12"  # Latest stable version that works with cloud
   
   # Compile from source using ZIP file
   echo "Compiling Supabase CLI from source..."
@@ -185,9 +185,6 @@ setup_project() {
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
   
-  # Skip direct database connection test and proceed with Supabase CLI
-  echo -e "${YELLOW}Using Supabase CLI for database operations...${NC}"
-  
   # Initialize Supabase project if not already initialized
   if [ ! -d "supabase" ]; then
     echo -e "${YELLOW}Initializing Supabase project...${NC}"
@@ -202,42 +199,21 @@ setup_project() {
   
   # Set environment variables for Supabase CLI
   export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
+  export SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN"
   
-  # Run the command with retry logic
-  echo "Running supabase link with retry logic..."
-  MAX_RETRIES=3
-  RETRY_COUNT=0
-  SUCCESS=false
+  # Set up environment variables for Supabase CLI
+  export PGPASSWORD="$SUPABASE_DB_PASSWORD"
   
-  while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$SUCCESS" = "false" ]; do
-    echo "Attempt $(($RETRY_COUNT + 1)) of $MAX_RETRIES..."
-    
-    # Add a delay between retries
-    if [ $RETRY_COUNT -gt 0 ]; then
-      SLEEP_TIME=$(($RETRY_COUNT * 5))
-      echo "Waiting $SLEEP_TIME seconds before retry..."
-      sleep $SLEEP_TIME
-    fi
-    
-    # Run the command with timeout to prevent hanging
-    # Set up PGPASSWORD environment variable
-    export PGPASSWORD="$SUPABASE_DB_PASSWORD"
-    
-    # Run the command without --password flag
-    timeout 60 supabase link --project-ref "$PROJECT_REF" --debug
-    
-    if [ $? -eq 0 ]; then
-      SUCCESS=true
-      echo -e "${GREEN}Link successful!${NC}"
-    else
-      RETRY_COUNT=$(($RETRY_COUNT + 1))
-      echo -e "${YELLOW}Link failed. Retrying...${NC}"
-    fi
-  done
+  # Run the link command directly - no retries to avoid confusion
+  echo -e "${YELLOW}Running: supabase link --project-ref \"$PROJECT_REF\" --password \"$SUPABASE_DB_PASSWORD\" --debug${NC}"
+  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
   
-  if [ "$SUCCESS" = "false" ]; then
-    echo -e "${RED}Link failed after $MAX_RETRIES attempts.${NC}"
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Link successful!${NC}"
+  else
+    echo -e "${RED}Link failed.${NC}"
     echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+    echo -e "${YELLOW}Make sure your SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD are correct.${NC}"
     exit 1
   fi
   
@@ -267,41 +243,38 @@ run_migrations() {
   # Set environment variables for Supabase CLI
   export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
   
-  # Run the command with retry logic
-  echo "Running supabase migration up with retry logic..."
-  MAX_RETRIES=3
-  RETRY_COUNT=0
-  SUCCESS=false
+  # Extract project reference from URL if not already done
+  if [ -z "$PROJECT_REF" ]; then
+    PROJECT_REF=$(echo $SUPABASE_URL | sed -E 's/.*\/\/([^.]+).*/\1/')
+  fi
   
-  while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$SUCCESS" = "false" ]; do
-    echo "Attempt $(($RETRY_COUNT + 1)) of $MAX_RETRIES..."
-    
-    # Add a delay between retries
-    if [ $RETRY_COUNT -gt 0 ]; then
-      SLEEP_TIME=$(($RETRY_COUNT * 5))
-      echo "Waiting $SLEEP_TIME seconds before retry..."
-      sleep $SLEEP_TIME
-    fi
-    
-    # Run the command with timeout to prevent hanging
-    # Set up PGPASSWORD environment variable
-    export PGPASSWORD="$SUPABASE_DB_PASSWORD"
-    
-    # Run the command without --password flag
-    timeout 60 supabase migration up --debug
-    
-    if [ $? -eq 0 ]; then
-      SUCCESS=true
-      echo -e "${GREEN}Migration successful!${NC}"
-    else
-      RETRY_COUNT=$(($RETRY_COUNT + 1))
-      echo -e "${YELLOW}Migration failed. Retrying...${NC}"
-    fi
-  done
+  # Ensure we have the project reference
+  if [ -z "$PROJECT_REF" ]; then
+    echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL.${NC}"
+    echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
+    exit 1
+  fi
   
-  if [ "$SUCCESS" = "false" ]; then
-    echo -e "${RED}Migration failed after $MAX_RETRIES attempts.${NC}"
+  # Set up the database URL for direct cloud connection
+  DB_URL="postgresql://postgres:${SUPABASE_DB_PASSWORD}@db.${PROJECT_REF}.supabase.co:5432/postgres"
+  echo -e "${YELLOW}Using cloud database URL for migrations...${NC}"
+  
+  # Run the migration command directly with the cloud database URL
+  echo -e "${YELLOW}Running migrations on cloud database...${NC}"
+  
+  # Set up PGPASSWORD environment variable
+  export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+  
+  # Run the command with the cloud database URL - no retries to avoid confusion
+  echo -e "${YELLOW}Running: supabase db push --db-url <DB_URL> --debug${NC}"
+  supabase db push --db-url "$DB_URL" --debug
+  
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Migration successful!${NC}"
+  else
+    echo -e "${RED}Migration failed.${NC}"
     echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+    echo -e "${YELLOW}Make sure your SUPABASE_DB_PASSWORD is correct and your IP is allowed to access the database.${NC}"
     exit 1
   fi
   

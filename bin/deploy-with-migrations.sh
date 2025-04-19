@@ -38,7 +38,30 @@ ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/instal
 
 # Run Supabase setup and migrations on the remote server
 echo -e "${YELLOW}Running Supabase setup and migrations on remote server...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup && ./bin/supabase-db.sh migrate"
+
+# First, ensure the .env file is properly set up on the remote server
+if [ -f .env ]; then
+  echo -e "${YELLOW}Copying .env file to remote server...${NC}"
+  scp $SSH_OPTS .env $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR/.env
+  
+  if [ $? -ne 0 ]; then
+    echo -e "${RED}Failed to copy .env file to remote server. Aborting.${NC}"
+    exit 1
+  fi
+fi
+
+# Run the Supabase setup
+echo -e "${YELLOW}Running Supabase setup on remote server...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
+
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Supabase setup failed. Aborting deployment.${NC}"
+  exit 1
+fi
+
+# Run the Supabase migrations
+echo -e "${YELLOW}Running Supabase migrations on remote server...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh migrate"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Migrations successful!${NC}"

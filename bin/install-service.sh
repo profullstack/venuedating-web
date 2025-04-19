@@ -118,9 +118,18 @@ if [ "$EUID" -eq 0 ]; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' | sudo -u "$ORIGINAL_USER" tee -a "/home/$ORIGINAL_USER/.zshrc" > /dev/null
   fi
   
-  # Run the setup script as the original user
-  echo -e "${YELLOW}Running Supabase setup as $ORIGINAL_USER...${NC}"
-  sudo -u "$ORIGINAL_USER" zsh -c "cd \"$PROJECT_DIR\" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
+  # Check if .env file exists
+  if [ -f "$PROJECT_DIR/.env" ]; then
+    echo -e "${YELLOW}Found .env file, using for Supabase setup...${NC}"
+    
+    # Run the setup script as the original user with environment variables from .env
+    echo -e "${YELLOW}Running Supabase setup as $ORIGINAL_USER...${NC}"
+    sudo -u "$ORIGINAL_USER" zsh -c "cd \"$PROJECT_DIR\" && source .env && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
+  else
+    echo -e "${RED}No .env file found. Supabase setup may fail without proper credentials.${NC}"
+    echo -e "${YELLOW}Running Supabase setup as $ORIGINAL_USER...${NC}"
+    sudo -u "$ORIGINAL_USER" zsh -c "cd \"$PROJECT_DIR\" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
+  fi
 else
   mkdir -p "$HOME/.local/bin"
   
@@ -129,9 +138,18 @@ else
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
   fi
   
-  # Run the setup script
-  echo -e "${YELLOW}Running Supabase setup...${NC}"
-  cd "$PROJECT_DIR" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup
+  # Check if .env file exists
+  if [ -f "$PROJECT_DIR/.env" ]; then
+    echo -e "${YELLOW}Found .env file, using for Supabase setup...${NC}"
+    
+    # Run the setup script with environment variables from .env
+    echo -e "${YELLOW}Running Supabase setup...${NC}"
+    cd "$PROJECT_DIR" && source .env && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup
+  else
+    echo -e "${RED}No .env file found. Supabase setup may fail without proper credentials.${NC}"
+    echo -e "${YELLOW}Running Supabase setup...${NC}"
+    cd "$PROJECT_DIR" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup
+  fi
 fi
 
 echo -e "${GREEN}Supabase setup complete.${NC}"
