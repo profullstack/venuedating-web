@@ -239,10 +239,10 @@
     
     <div class="nav-links">
       <a href="/" class="nav-link">Home</a>
-      <a href="/api-docs.html" class="nav-link">API Docs</a>
-      <a href="/api-keys.html" class="nav-link">API Keys</a>
-      <a href="/login.html" class="nav-link">Login</a>
-      <a href="/register.html" class="subscription-link">Register</a>
+      <a href="/api-docs" class="nav-link">API Docs</a>
+      <a href="/api-keys" class="nav-link">API Keys</a>
+      <a href="/login" class="nav-link">Login</a>
+      <a href="/register" class="subscription-link">Register</a>
     </div>
   </div>
   
@@ -294,7 +294,7 @@
       <p>Next Billing Date: <span id="next-billing">May 18, 2025</span></p>
       <p>Payment Method: <span id="payment-method">Bitcoin</span></p>
       
-      <a href="/subscription.html" class="save-button">Manage Subscription</a>
+      <a href="/subscription" class="save-button">Manage Subscription</a>
       
       <div class="danger-zone">
         <h4>Danger Zone</h4>
@@ -307,14 +307,37 @@
   <script>
     // Check if user is logged in
     const apiKey = localStorage.getItem('api_key');
+    const userJson = localStorage.getItem('user');
+    let user = null;
+    
+    if (userJson) {
+      try {
+        user = JSON.parse(userJson);
+      } catch (e) {
+        console.error('Error parsing user JSON:', e);
+      }
+    }
+    
     if (!apiKey) {
       // Redirect to login page if not logged in
-      window.location.href = '/login.html';
+      window.location.href = '/login';
+      throw new Error('Not logged in');
     }
     
     // Populate form fields
-    document.getElementById('email').value = apiKey;
-    document.getElementById('display-name').value = localStorage.getItem('username') || apiKey;
+    document.getElementById('email').value = user?.email || apiKey;
+    document.getElementById('display-name').value = user?.username || localStorage.getItem('username') || apiKey;
+    
+    // Populate subscription info if available
+    if (user?.subscription) {
+      document.getElementById('current-plan').textContent =
+        user.subscription.plan === 'yearly' ? 'Yearly ($30/year)' : 'Monthly ($5/month)';
+      
+      if (user.subscription.expiresAt) {
+        const expiryDate = new Date(user.subscription.expiresAt);
+        document.getElementById('next-billing').textContent = expiryDate.toLocaleDateString();
+      }
+    }
     
     // Handle profile form submission
     document.getElementById('profile-form').addEventListener('submit', (e) => {
@@ -324,6 +347,12 @@
       
       // Update username in localStorage
       localStorage.setItem('username', displayName);
+      
+      // Update user object
+      if (user) {
+        user.username = displayName;
+        localStorage.setItem('user', JSON.stringify(user));
+      }
       
       alert('Profile updated successfully!');
     });
@@ -357,9 +386,17 @@
       if (confirmed) {
         // In a real implementation, this would delete the account on the server
         
-        // Clear localStorage
-        localStorage.removeItem('api_key');
-        localStorage.removeItem('username');
+        // Clear all localStorage
+        localStorage.clear();
+        
+        // Clear all cookies
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
         
         // Redirect to home page
         window.location.href = '/';
@@ -367,8 +404,8 @@
     });
     
     // Hide login and register links if user is logged in
-    const loginLink = document.querySelector('a[href="/login.html"]');
-    const registerLink = document.querySelector('a[href="/register.html"]');
+    const loginLink = document.querySelector('a[href="/login"]');
+    const registerLink = document.querySelector('a[href="/register"]');
     
     if (loginLink) loginLink.style.display = 'none';
     if (registerLink) registerLink.style.display = 'none';
@@ -386,7 +423,7 @@
           </svg>
         </button>
         <div class="dropdown-menu">
-          <a href="/settings.html" class="dropdown-item">Settings</a>
+          <a href="/settings" class="dropdown-item">Settings</a>
           <a href="#" class="dropdown-item logout-button">Logout</a>
         </div>
       </div>
@@ -415,9 +452,17 @@
     logoutButton.addEventListener('click', (e) => {
       e.preventDefault();
       
-      // Clear localStorage
-      localStorage.removeItem('api_key');
-      localStorage.removeItem('username');
+      // Clear all localStorage
+      localStorage.clear();
+      
+      // Clear all cookies
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
       
       // Redirect to home page
       window.location.href = '/';

@@ -180,6 +180,19 @@ function initLoginPage() {
         localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
+        // Create and store a publicly accessible user object
+        const userObject = {
+          email: email,
+          username: email,
+          subscription: {
+            plan: subscriptionStatus.plan || 'monthly',
+            status: subscriptionStatus.status || 'active',
+            expiresAt: subscriptionStatus.expires_at || null
+          },
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('user', JSON.stringify(userObject));
+        
         // Dispatch auth changed event
         window.dispatchEvent(new CustomEvent('auth-changed'));
         
@@ -283,6 +296,19 @@ function initRegisterPage() {
       localStorage.setItem('api_key', email);
       localStorage.setItem('username', email);
       localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
+      
+      // Create and store a publicly accessible user object
+      const userObject = {
+        email: email,
+        username: email,
+        subscription: {
+          plan: subscriptionData.subscription?.plan || selectedPlan,
+          status: 'pending',
+          expiresAt: null
+        },
+        createdAt: new Date().toISOString()
+      };
+      localStorage.setItem('user', JSON.stringify(userObject));
       
       // Dispatch auth changed event
       window.dispatchEvent(new CustomEvent('auth-changed'));
