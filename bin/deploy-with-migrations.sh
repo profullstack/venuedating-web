@@ -32,9 +32,13 @@ echo -e "${YELLOW}Running deployment script...${NC}"
 
 echo -e "${GREEN}Deployment successful!${NC}"
 
+# Run install-service.sh on the remote server to install dependencies and set up the service
+echo -e "${YELLOW}Installing service and dependencies on remote server...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/install-service.sh && sudo ./bin/install-service.sh"
+
 # Run migrations on the remote server
-echo -e "${YELLOW}Running database migrations on remote server...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh migrate"
+echo -e "${YELLOW}Running migrations on remote server...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh migrate"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Migrations successful!${NC}"
@@ -45,7 +49,7 @@ else
   exit 1
 fi
 
-# Restart the service
+# The service is already started by install-service.sh, but we'll restart it to be sure
 echo -e "${YELLOW}Restarting service...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart profullstack-pdf.service"
 
