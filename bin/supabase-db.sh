@@ -254,9 +254,38 @@ setup_project() {
   # Set proper permissions
   chmod 600 "$PGPASS_FILE"
   
-  # Run the command with debug flag
-  echo "Running supabase link with debug flag..."
-  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
+  # Run the command with retry logic
+  echo "Running supabase link with retry logic..."
+  MAX_RETRIES=3
+  RETRY_COUNT=0
+  SUCCESS=false
+  
+  while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$SUCCESS" = "false" ]; do
+    echo "Attempt $(($RETRY_COUNT + 1)) of $MAX_RETRIES..."
+    
+    # Add a delay between retries
+    if [ $RETRY_COUNT -gt 0 ]; then
+      SLEEP_TIME=$(($RETRY_COUNT * 5))
+      echo "Waiting $SLEEP_TIME seconds before retry..."
+      sleep $SLEEP_TIME
+    fi
+    
+    # Run the command with timeout to prevent hanging
+    timeout 60 supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
+    
+    if [ $? -eq 0 ]; then
+      SUCCESS=true
+      echo -e "${GREEN}Link successful!${NC}"
+    else
+      RETRY_COUNT=$(($RETRY_COUNT + 1))
+      echo -e "${YELLOW}Link failed. Retrying...${NC}"
+    fi
+  done
+  
+  if [ "$SUCCESS" = "false" ]; then
+    echo -e "${RED}Link failed after $MAX_RETRIES attempts.${NC}"
+    echo -e "${YELLOW}Continuing anyway, will try to push migrations directly...${NC}"
+  fi
   
   echo -e "${GREEN}Supabase project setup complete!${NC}"
 }
@@ -295,9 +324,79 @@ run_migrations() {
   # Set proper permissions
   chmod 600 "$PGPASS_FILE"
   
-  # Run the command with debug flag
-  echo "Running supabase db push with debug flag..."
-  supabase db push --password "$SUPABASE_DB_PASSWORD" --debug
+  # Run the command with retry logic
+  echo "Running supabase db push with retry logic..."
+  MAX_RETRIES=3
+  RETRY_COUNT=0
+  SUCCESS=false
+  
+  while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$SUCCESS" = "false" ]; do
+    echo "Attempt $(($RETRY_COUNT + 1)) of $MAX_RETRIES..."
+    
+    # Add a delay between retries
+    if [ $RETRY_COUNT -gt 0 ]; then
+      SLEEP_TIME=$(($RETRY_COUNT * 5))
+      echo "Waiting $SLEEP_TIME seconds before retry..."
+      sleep $SLEEP_TIME
+    fi
+    
+    # Run the command with timeout to prevent hanging
+    timeout 60 supabase db push --password "$SUPABASE_DB_PASSWORD" --debug
+    
+    if [ $? -eq 0 ]; then
+      SUCCESS=true
+      echo -e "${GREEN}Migration successful!${NC}"
+    else
+      RETRY_COUNT=$(($RETRY_COUNT + 1))
+      echo -e "${YELLOW}Migration failed. Retrying...${NC}"
+    fi
+  done
+  
+  if [ "$SUCCESS" = "false" ]; then
+    echo -e "${RED}Migration failed after $MAX_RETRIES attempts.${NC}"
+    echo -e "${YELLOW}Trying alternative approach...${NC}"
+    
+    # Try with psql directly if available
+    if command -v psql &> /dev/null; then
+      echo -e "${YELLOW}Attempting to apply migrations with psql...${NC}"
+      
+      # Find all migration files
+      MIGRATION_DIR="supabase/migrations"
+      if [ ! -d "$MIGRATION_DIR" ]; then
+        echo -e "${RED}Error: Migration directory not found: $MIGRATION_DIR${NC}"
+        exit 1
+      fi
+      
+      # Apply each migration file
+      for MIGRATION_FILE in $(find "$MIGRATION_DIR" -name "*.sql" | sort); do
+        echo -e "${YELLOW}Applying migration: $MIGRATION_FILE${NC}"
+        
+        # Use PGPASSWORD to avoid password prompt
+        PGPASSWORD="$SUPABASE_DB_PASSWORD" psql -v ON_ERROR_STOP=1 -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres.${PROJECT_REF}" -f "$MIGRATION_FILE"
+        
+        if [ $? -eq 0 ]; then
+          echo -e "${GREEN}Successfully applied migration: $MIGRATION_FILE${NC}"
+          SUCCESS=true
+        else
+          echo -e "${RED}Failed to apply migration: $MIGRATION_FILE${NC}"
+          # Try with postgres user
+          echo -e "${YELLOW}Trying with postgres user...${NC}"
+          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql -v ON_ERROR_STOP=1 -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres" -f "$MIGRATION_FILE"
+          
+          if [ $? -eq 0 ]; then
+            echo -e "${GREEN}Successfully applied migration with postgres user: $MIGRATION_FILE${NC}"
+            SUCCESS=true
+          else
+            echo -e "${RED}Failed to apply migration with postgres user: $MIGRATION_FILE${NC}"
+            exit 1
+          fi
+        fi
+      done
+    else
+      echo -e "${RED}psql not available for fallback. Migration failed.${NC}"
+      exit 1
+    fi
+  fi
   
   # Remove the temporary .pgpass file
   rm -f "$PGPASS_FILE"
