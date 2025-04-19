@@ -13,13 +13,59 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # Get the directory of the script
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${0:A}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-# Service name
-SERVICE_NAME="profullstack-pdf"
-SERVICE_FILE="$PROJECT_DIR/etc/$SERVICE_NAME.service"
+# Load environment variables from .env file if it exists
+if [ -f "$PROJECT_DIR/.env" ]; then
+  echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
+  source "$PROJECT_DIR/.env"
+fi
+
+# Set default values if not in environment
+SERVICE_NAME=${SERVICE_NAME:-"profullstack-pdf"}
+SERVICE_USER=${SERVICE_USER:-"ubuntu"}
+SERVICE_GROUP=${SERVICE_GROUP:-"ubuntu"}
+SERVICE_WORKING_DIR=${SERVICE_WORKING_DIR:-"$PROJECT_DIR"}
+START_SCRIPT=${START_SCRIPT:-"$PROJECT_DIR/bin/start.sh"}
 SYSTEMD_DIR="/etc/systemd/system"
+SERVICE_FILE="$PROJECT_DIR/etc/$SERVICE_NAME.service"
+SERVICE_TEMPLATE="$PROJECT_DIR/etc/$SERVICE_NAME.service.template"
+
+# Print environment for debugging
+echo -e "${YELLOW}Environment:${NC}"
+echo -e "${YELLOW}PROJECT_DIR: $PROJECT_DIR${NC}"
+echo -e "${YELLOW}SERVICE_NAME: $SERVICE_NAME${NC}"
+echo -e "${YELLOW}SERVICE_USER: $SERVICE_USER${NC}"
+echo -e "${YELLOW}SERVICE_GROUP: $SERVICE_GROUP${NC}"
+echo -e "${YELLOW}SERVICE_WORKING_DIR: $SERVICE_WORKING_DIR${NC}"
+echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
+echo -e "${YELLOW}SERVICE_TEMPLATE: $SERVICE_TEMPLATE${NC}"
+echo -e "${YELLOW}SERVICE_FILE: $SERVICE_FILE${NC}"
+
+# Generate service file from template
+echo -e "${YELLOW}Generating service file from template...${NC}"
+if [ -f "$SERVICE_TEMPLATE" ]; then
+  # Use envsubst to replace environment variables in the template
+  if command -v envsubst &> /dev/null; then
+    export SERVICE_NAME SERVICE_USER SERVICE_GROUP SERVICE_WORKING_DIR START_SCRIPT
+    envsubst < "$SERVICE_TEMPLATE" > "$SERVICE_FILE"
+    echo -e "${GREEN}Service file generated successfully.${NC}"
+  else
+    echo -e "${YELLOW}envsubst not found, using sed for basic variable replacement...${NC}"
+    # Basic replacement with sed
+    sed -e "s|\${SERVICE_NAME}|$SERVICE_NAME|g" \
+        -e "s|\${SERVICE_USER}|$SERVICE_USER|g" \
+        -e "s|\${SERVICE_GROUP}|$SERVICE_GROUP|g" \
+        -e "s|\${SERVICE_WORKING_DIR}|$SERVICE_WORKING_DIR|g" \
+        -e "s|\${START_SCRIPT}|$START_SCRIPT|g" \
+        "$SERVICE_TEMPLATE" > "$SERVICE_FILE"
+    echo -e "${GREEN}Service file generated successfully.${NC}"
+  fi
+else
+  echo -e "${RED}Service template not found at $SERVICE_TEMPLATE${NC}"
+  echo -e "${YELLOW}Using existing service file if available.${NC}"
+fi
 
 echo -e "${GREEN}Installing $SERVICE_NAME service...${NC}"
 
@@ -53,20 +99,32 @@ if [ -f "$SYSTEMD_DIR/$SERVICE_NAME.service" ]; then
   echo -e "${YELLOW}Service file already exists. Removing...${NC}"
   rm "$SYSTEMD_DIR/$SERVICE_NAME.service"
 fi
-ln -s "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
+
+# Check if service file exists
+if [ -f "$SERVICE_FILE" ]; then
+  echo -e "${YELLOW}Creating symbolic link from $SERVICE_FILE to $SYSTEMD_DIR/$SERVICE_NAME.service${NC}"
+  ln -sf "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
+else
+  echo -e "${RED}Service file not found at $SERVICE_FILE${NC}"
+  echo -e "${YELLOW}Checking if it exists in the project directory...${NC}"
+  find "$PROJECT_DIR" -name "*.service" -type f 2>/dev/null
+  exit 1
+fi
 
 # Make the start script executable and set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
-echo -e "${YELLOW}Project directory: $PROJECT_DIR${NC}"
-echo -e "${YELLOW}Start script path: $PROJECT_DIR/bin/start.sh${NC}"
 
-if [ -f "$PROJECT_DIR/bin/start.sh" ]; then
-  chmod +x "$PROJECT_DIR/bin/start.sh"
+# Define the start script path
+START_SCRIPT="${START_SCRIPT:-$PROJECT_DIR/bin/start.sh}"
+echo -e "${YELLOW}Start script path: $START_SCRIPT${NC}"
+
+if [ -f "$START_SCRIPT" ]; then
+  chmod +x "$START_SCRIPT"
   echo -e "${GREEN}Successfully set permissions on start script${NC}"
 else
-  echo -e "${RED}Start script not found at $PROJECT_DIR/bin/start.sh${NC}"
-  echo -e "${YELLOW}Checking if it exists in other locations...${NC}"
-  find /home -name "start.sh" -type f 2>/dev/null
+  echo -e "${RED}Start script not found at $START_SCRIPT${NC}"
+  echo -e "${YELLOW}Checking if it exists in the project directory...${NC}"
+  find "$PROJECT_DIR" -name "start.sh" -type f 2>/dev/null
   exit 1
 fi
 
