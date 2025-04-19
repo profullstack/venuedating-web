@@ -25,23 +25,16 @@ echo "SUPABASE_ACCESS_TOKEN is ${SUPABASE_ACCESS_TOKEN:+set}${SUPABASE_ACCESS_TO
 # Run migrations using Supabase CLI
 echo -e "${YELLOW}Running database migrations with Supabase CLI...${NC}"
 
-# Create a temporary .env file with the required credentials
-echo "Creating temporary .env file for migrations..."
-cat > .env.migration << EOF
-SUPABASE_URL=${SUPABASE_URL}
-SUPABASE_KEY=${SUPABASE_KEY}
-SUPABASE_DB_PASSWORD=${SUPABASE_DB_PASSWORD}
-SUPABASE_ACCESS_TOKEN=${SUPABASE_ACCESS_TOKEN}
-EOF
+# Check if required environment variables are set
+if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+  echo -e "${RED}Error: Required Supabase environment variables are not set.${NC}"
+  echo -e "${YELLOW}Make sure SUPABASE_URL, SUPABASE_KEY, SUPABASE_DB_PASSWORD, and SUPABASE_ACCESS_TOKEN are set.${NC}"
+  exit 1
+fi
 
-# Debug: Check if the temporary .env file was created correctly
-echo "Temporary .env file created with $(grep -c '' .env.migration) lines"
-
-# Run migrations with the temporary .env file
-SUPABASE_ENV_FILE=.env.migration ./bin/supabase-db.sh migrate
-
-# Remove the temporary .env file
-rm -f .env.migration
+# Run migrations directly
+echo -e "${YELLOW}Running migrations...${NC}"
+./bin/supabase-db.sh migrate
 
 echo -e "${GREEN}Migrations successful!${NC}"
 

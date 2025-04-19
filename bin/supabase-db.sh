@@ -284,7 +284,8 @@ setup_project() {
   
   if [ "$SUCCESS" = "false" ]; then
     echo -e "${RED}Link failed after $MAX_RETRIES attempts.${NC}"
-    echo -e "${YELLOW}Continuing anyway, will try to push migrations directly...${NC}"
+    echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+    exit 1
   fi
   
   echo -e "${GREEN}Supabase project setup complete!${NC}"
@@ -307,7 +308,7 @@ run_migrations() {
   fi
   
   # Run migrations
-  echo -e "${YELLOW}Pushing migrations to database...${NC}"
+  echo -e "${YELLOW}Applying migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
   # Create a temporary .pgpass file to avoid password prompt
@@ -325,7 +326,7 @@ run_migrations() {
   chmod 600 "$PGPASS_FILE"
   
   # Run the command with retry logic
-  echo "Running supabase db push with retry logic..."
+  echo "Running supabase migration up with retry logic..."
   MAX_RETRIES=3
   RETRY_COUNT=0
   SUCCESS=false
@@ -341,7 +342,7 @@ run_migrations() {
     fi
     
     # Run the command with timeout to prevent hanging
-    timeout 60 supabase db push --password "$SUPABASE_DB_PASSWORD" --debug
+    timeout 60 supabase migration up --password "$SUPABASE_DB_PASSWORD" --debug
     
     if [ $? -eq 0 ]; then
       SUCCESS=true
@@ -354,44 +355,8 @@ run_migrations() {
   
   if [ "$SUCCESS" = "false" ]; then
     echo -e "${RED}Migration failed after $MAX_RETRIES attempts.${NC}"
-    echo -e "${YELLOW}Trying alternative approach...${NC}"
-    
-    # Try with psql directly if available
-    if command -v psql &> /dev/null; then
-      echo -e "${YELLOW}Attempting to apply migrations with psql...${NC}"
-      
-      # Find all migration files
-      MIGRATION_DIR="supabase/migrations"
-      if [ ! -d "$MIGRATION_DIR" ]; then
-        echo -e "${RED}Error: Migration directory not found: $MIGRATION_DIR${NC}"
-        exit 1
-      fi
-      
-      # Apply each migration file
-      for MIGRATION_FILE in $(find "$MIGRATION_DIR" -name "*.sql" | sort); do
-        echo -e "${YELLOW}Applying migration: $MIGRATION_FILE${NC}"
-        
-        # Use PGPASSWORD to avoid password prompt
-        PGPASSWORD="$SUPABASE_DB_PASSWORD" psql -v ON_ERROR_STOP=1 -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres.${PROJECT_REF}" -f "$MIGRATION_FILE"
-        
-        if [ $? -eq 0 ]; then
-          echo -e "${GREEN}Successfully applied migration: $MIGRATION_FILE${NC}"
-          SUCCESS=true
-        else
-          echo -e "${RED}Failed to apply migration: $MIGRATION_FILE${NC}"
-          # Try with postgres user
-          echo -e "${YELLOW}Trying with postgres user...${NC}"
-          PGPASSWORD="$SUPABASE_DB_PASSWORD" psql -v ON_ERROR_STOP=1 -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres" -f "$MIGRATION_FILE"
-          
-          if [ $? -eq 0 ]; then
-            echo -e "${GREEN}Successfully applied migration with postgres user: $MIGRATION_FILE${NC}"
-            SUCCESS=true
-          else
-            echo -e "${RED}Failed to apply migration with postgres user: $MIGRATION_FILE${NC}"
-            exit 1
-          fi
-        fi
-      done
+    echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+    exit 1
     else
       echo -e "${RED}psql not available for fallback. Migration failed.${NC}"
       exit 1
