@@ -79,6 +79,8 @@ class ThemeManager {
       theme = savedTheme;
     } else {
       theme = prefersDarkScheme ? this.darkThemeClass : this.lightThemeClass;
+      // Save the initial theme to localStorage
+      localStorage.setItem(this.storageKey, theme);
     }
     
     this.setTheme(theme);
@@ -105,6 +107,8 @@ class ThemeManager {
       if (!localStorage.getItem(this.storageKey)) {
         const newTheme = event.matches ? this.darkThemeClass : this.lightThemeClass;
         this.setTheme(newTheme);
+        // Save the theme to localStorage
+        localStorage.setItem(this.storageKey, newTheme);
       }
     });
   }

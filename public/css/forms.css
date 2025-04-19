@@ -10,6 +10,64 @@
   padding: 20px;
 }
 
+/* Login and Register containers */
+.login-container,
+.register-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.login-container h2,
+.register-container h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+}
+
+.login-button,
+.register-button {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.login-button:hover,
+.register-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.register-link,
+.login-link {
+  margin-top: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.register-link a,
+.login-link a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.register-link a:hover,
+.login-link a:hover {
+  text-decoration: underline;
+}
+
 /* Form group */
 .form-group {
   margin-bottom: 20px;
@@ -50,7 +108,7 @@
 .form-textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
 }
 
 .form-input::placeholder,
@@ -278,7 +336,7 @@
 
 .payment-option.selected {
   border-color: var(--primary-color);
-  background-color: rgba(37, 99, 235, 0.05);
+  background-color: rgba(224, 35, 55, 0.05);
 }
 
 .payment-option img {
