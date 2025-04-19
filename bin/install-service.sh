@@ -81,6 +81,16 @@ else
   echo -e "${RED}Warning: Start script not found at $START_SCRIPT${NC}"
 fi
 
+# Install system dependencies
+echo -e "${YELLOW}Installing system dependencies...${NC}"
+if command -v apt-get &> /dev/null; then
+  apt-get update
+  apt-get install -y librsvg2-bin
+  echo -e "${GREEN}System dependencies installed.${NC}"
+else
+  echo -e "${YELLOW}apt-get not found. Please install librsvg2-bin manually.${NC}"
+fi
+
 # Install project dependencies automatically
 echo -e "${YELLOW}Installing project dependencies...${NC}"
 
