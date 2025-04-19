@@ -1,4 +1,4 @@
-import CryptAPI from 'cryptapi';
+import cryptapi from 'cryptapi';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
 import dotenv from 'dotenv-flow';
@@ -17,18 +17,30 @@ export const paymentService = {
    * @private
    */
   _getCryptAPIClient(coin) {
-    // Hardcoded cryptocurrency wallet addresses
+    // Get cryptocurrency wallet addresses from environment variables or use defaults
     const addresses = {
-      btc: "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
-      eth: "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
-      sol: "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF"
+      btc: process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
+      eth: process.env.ETHEREUM_ADDRESS || "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
+      sol: process.env.SOLANA_ADDRESS || "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF",
+      usdc: process.env.USDC_ADDRESS || "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11"
     };
     
     if (!addresses[coin]) {
       throw new Error(`Unsupported cryptocurrency: ${coin}`);
     }
     
-    return new CryptAPI(coin, addresses[coin]);
+    // Initialize the CryptAPI client
+    const api = cryptapi();
+    
+    // Return an object with methods for creating addresses and handling callbacks
+    return {
+      createAddress: (options) => {
+        return api._createAddress(coin, addresses[coin], options.callback, {
+          pending: options.pending,
+          parameters: options.parameters
+        });
+      }
+    };
   },
 
   /**
@@ -48,9 +60,9 @@ export const paymentService = {
     }
     
     // Validate coin
-    if (!['btc', 'eth', 'sol'].includes(coin)) {
+    if (!['btc', 'eth', 'sol', 'usdc'].includes(coin)) {
       console.log(`Payment service: Invalid coin "${coin}"`);
-      throw new Error('Invalid cryptocurrency. Must be "btc", "eth", or "sol".');
+      throw new Error('Invalid cryptocurrency. Must be "btc", "eth", "sol", or "usdc".');
     }
     
     // Get amount from environment variables or use default values
@@ -93,11 +105,11 @@ export const paymentService = {
       
       // Generate payment invoice
       console.log('Payment service: Getting CryptAPI client for', coin);
-      const cryptapi = this._getCryptAPIClient(coin);
+      const cryptapiClient = this._getCryptAPIClient(coin);
       const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
       
       console.log('Payment service: Creating address with CryptAPI');
-      const invoice = await cryptapi.createAddress({
+      const invoice = await cryptapiClient.createAddress({
         callback: callbackUrl,
         pending: true,
         parameters: {

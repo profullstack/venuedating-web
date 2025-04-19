@@ -244,6 +244,7 @@ export class SubscriptionForm extends BaseComponent {
             <option value="btc" ${this._coin === 'btc' ? 'selected' : ''}>Bitcoin (BTC)</option>
             <option value="eth" ${this._coin === 'eth' ? 'selected' : ''}>Ethereum (ETH)</option>
             <option value="sol" ${this._coin === 'sol' ? 'selected' : ''}>Solana (SOL)</option>
+            <option value="usdc" ${this._coin === 'usdc' ? 'selected' : ''}>USD Coin (USDC)</option>
           </select>
         </div>
         
@@ -303,7 +304,8 @@ export class SubscriptionForm extends BaseComponent {
     const coins = {
       btc: 'Bitcoin (BTC)',
       eth: 'Ethereum (ETH)',
-      sol: 'Solana (SOL)'
+      sol: 'Solana (SOL)',
+      usdc: 'USD Coin (USDC)'
     };
     
     return coins[coin] || coin;
