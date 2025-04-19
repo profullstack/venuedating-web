@@ -43,29 +43,44 @@ echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
 echo -e "${YELLOW}SERVICE_TEMPLATE: $SERVICE_TEMPLATE${NC}"
 echo -e "${YELLOW}SERVICE_FILE: $SERVICE_FILE${NC}"
 
-# Generate service file from template
-echo -e "${YELLOW}Generating service file from template...${NC}"
-if [ -f "$SERVICE_TEMPLATE" ]; then
-  # Use envsubst to replace environment variables in the template
-  if command -v envsubst &> /dev/null; then
-    export SERVICE_NAME SERVICE_USER SERVICE_GROUP SERVICE_WORKING_DIR START_SCRIPT
-    envsubst < "$SERVICE_TEMPLATE" > "$SERVICE_FILE"
-    echo -e "${GREEN}Service file generated successfully.${NC}"
-  else
-    echo -e "${YELLOW}envsubst not found, using sed for basic variable replacement...${NC}"
-    # Basic replacement with sed
-    sed -e "s|\${SERVICE_NAME}|$SERVICE_NAME|g" \
-        -e "s|\${SERVICE_USER}|$SERVICE_USER|g" \
-        -e "s|\${SERVICE_GROUP}|$SERVICE_GROUP|g" \
-        -e "s|\${SERVICE_WORKING_DIR}|$SERVICE_WORKING_DIR|g" \
-        -e "s|\${START_SCRIPT}|$START_SCRIPT|g" \
-        "$SERVICE_TEMPLATE" > "$SERVICE_FILE"
-    echo -e "${GREEN}Service file generated successfully.${NC}"
-  fi
-else
-  echo -e "${RED}Service template not found at $SERVICE_TEMPLATE${NC}"
-  echo -e "${YELLOW}Using existing service file if available.${NC}"
-fi
+# Create service file directly instead of using a template
+echo -e "${YELLOW}Creating service file...${NC}"
+
+cat > "$SERVICE_FILE" << EOF
+[Unit]
+Description=Document Generation Service
+After=network.target
+
+[Service]
+Type=simple
+User=$SERVICE_USER
+Group=$SERVICE_GROUP
+WorkingDirectory=$SERVICE_WORKING_DIR
+ExecStart=/bin/zsh $START_SCRIPT
+Restart=on-failure
+RestartSec=10
+
+# Log to files instead of journal
+StandardOutput=append:/var/log/$SERVICE_NAME.log
+StandardError=append:/var/log/$SERVICE_NAME.error.log
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/$SERVICE_USER/.local/share/pnpm:/home/$SERVICE_USER/.npm/pnpm/bin
+Environment=HOME=/home/$SERVICE_USER
+
+# Hardening
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo -e "${GREEN}Service file created successfully at $SERVICE_FILE${NC}"
+echo -e "${YELLOW}Service file content:${NC}"
+cat "$SERVICE_FILE"
 
 echo -e "${GREEN}Installing $SERVICE_NAME service...${NC}"
 
