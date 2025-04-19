@@ -1,8 +1,12 @@
-import { exec } from 'node:child_process/promises';
+import { exec as execCallback } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { v4 as uuidv4 } from 'uuid';
+import util from 'util';
+
+// Convert callback-based exec to Promise-based
+const exec = util.promisify(execCallback);
 
 /**
  * Service for generating EPUB documents from HTML content
@@ -46,7 +50,7 @@ export const epubService = {
       }
       
       // Execute pandoc command
-      const { stderr } = await exec(command);
+      const { stdout, stderr } = await exec(command);
       
       if (stderr && !stderr.includes('WARNING')) {
         throw new Error(`Pandoc error: ${stderr}`);
