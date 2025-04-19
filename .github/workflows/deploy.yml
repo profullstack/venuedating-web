@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rsync zsh curl
+          sudo apt-get install -y rsync zsh curl file golang
       
       - name: Create .env file from secret
         run: |

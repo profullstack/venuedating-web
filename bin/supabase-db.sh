@@ -36,20 +36,128 @@ install_cli() {
     echo "Added ~/.local/bin to PATH"
   fi
   
-  # Download and install Supabase CLI
-  SUPABASE_VERSION="1.175.6"  # change to latest if needed
+  # Check if supabase is already installed
+  if command -v supabase &>/dev/null; then
+    echo -e "${GREEN}Supabase CLI already installed: $(supabase --version 2>&1)${NC}"
+    return 0
+  fi
+  
+  SUPABASE_VERSION="2.22.1"  # Latest version as of April 2025
+  
+  # First try to download pre-built binary
+  echo "Trying to download pre-built binary..."
   BINARY_URL="https://github.com/supabase/cli/releases/download/v$SUPABASE_VERSION/supabase_linux_amd64"
   
-  echo "Downloading Supabase CLI..."
   curl -L "$BINARY_URL" -o "$HOME/.local/bin/supabase"
   chmod +x "$HOME/.local/bin/supabase"
   
-  # Verify installation
-  if command -v supabase &>/dev/null; then
-    echo -e "${GREEN}Supabase CLI installed: $(supabase --version)${NC}"
+  # Check if binary works
+  if [ -s "$HOME/.local/bin/supabase" ] && "$HOME/.local/bin/supabase" --version &>/dev/null; then
+    echo -e "${GREEN}Supabase CLI installed from pre-built binary: $("$HOME/.local/bin/supabase" --version 2>&1)${NC}"
+    return 0
   else
-    echo -e "${RED}Supabase CLI installed to $HOME/.local/bin/supabase but not in PATH${NC}"
-    echo "Please run: export PATH=\"$HOME/.local/bin:\$PATH\""
+    echo "Pre-built binary failed, removing it..."
+    rm -f "$HOME/.local/bin/supabase"
+  fi
+  
+  # If binary download failed, compile from source
+  echo "Compiling Supabase CLI from source..."
+  
+  # Check if Go is installed
+  if ! command -v go &>/dev/null; then
+    echo "Go is required to compile Supabase CLI. Installing Go..."
+    
+    # Install Go (this is a simplified version, might need adjustments)
+    if command -v apt-get &>/dev/null; then
+      sudo apt-get update
+      sudo apt-get install -y golang
+    elif command -v pacman &>/dev/null; then
+      sudo pacman -Sy --noconfirm go
+    else
+      echo -e "${RED}Cannot install Go. Please install Go manually and try again.${NC}"
+      exit 1
+    fi
+  fi
+  
+  # Download source code
+  SOURCE_URL="https://github.com/supabase/cli/archive/refs/tags/v$SUPABASE_VERSION.tar.gz"
+  TEMP_DIR=$(mktemp -d)
+  
+  echo "Downloading source code from $SOURCE_URL..."
+  curl -L "$SOURCE_URL" -o "$TEMP_DIR/supabase-src.tar.gz"
+  
+  # Check if download was successful
+  if [ ! -s "$TEMP_DIR/supabase-src.tar.gz" ]; then
+    echo -e "${RED}Error: Failed to download Supabase CLI source code${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+  fi
+  
+  echo "Extracting source code..."
+  tar -xzf "$TEMP_DIR/supabase-src.tar.gz" -C "$TEMP_DIR"
+  
+  # Find the extracted directory
+  SRC_DIR=$(find "$TEMP_DIR" -type d -name "cli-*" | head -n 1)
+  
+  if [ -z "$SRC_DIR" ]; then
+    echo -e "${RED}Error: Could not find source directory after extraction${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+  fi
+  
+  echo "Building Supabase CLI..."
+  cd "$SRC_DIR"
+  
+  # Build the CLI with version information
+  go build -ldflags "-X github.com/supabase/cli/internal/utils.Version=v$SUPABASE_VERSION" -o supabase
+  
+  if [ ! -f "supabase" ]; then
+    echo -e "${RED}Error: Failed to build Supabase CLI${NC}"
+    rm -rf "$TEMP_DIR"
+    exit 1
+  fi
+  
+  echo "Installing Supabase CLI to $HOME/.local/bin..."
+  cp "supabase" "$HOME/.local/bin/supabase"
+  chmod +x "$HOME/.local/bin/supabase"
+  
+  # Clean up
+  cd - > /dev/null
+  rm -rf "$TEMP_DIR"
+  
+  # Verify installation
+  echo "Verifying installation..."
+  
+  if command -v supabase &>/dev/null; then
+    echo -e "${GREEN}Supabase CLI installed from source: $(supabase --version 2>&1)${NC}"
+  else
+    echo -e "${RED}Supabase CLI installation failed${NC}"
+    echo "PATH is: $PATH"
+    
+    # Check if binary exists in local bin
+    if [ -f "$HOME/.local/bin/supabase" ]; then
+      echo "Binary exists at $HOME/.local/bin/supabase"
+      echo "File details: $(ls -la $HOME/.local/bin/supabase)"
+      echo "File type: $(file $HOME/.local/bin/supabase)"
+      
+      # Try to add to PATH again
+      export PATH="$HOME/.local/bin:$PATH"
+      echo "Added $HOME/.local/bin to PATH again"
+      
+      if command -v supabase &>/dev/null; then
+        echo -e "${GREEN}Supabase CLI now available: $(supabase --version 2>&1)${NC}"
+      else
+        echo -e "${RED}Still cannot find supabase in PATH${NC}"
+      fi
+    else
+      echo "Binary not found at $HOME/.local/bin/supabase"
+    fi
+    
+    # If still not found, exit with error
+    if ! command -v supabase &>/dev/null; then
+      echo -e "${RED}Failed to install Supabase CLI${NC}"
+      exit 1
+    fi
   fi
 }
 
