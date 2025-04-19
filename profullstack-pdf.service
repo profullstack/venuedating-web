@@ -1,0 +1,24 @@
+[Unit]
+Description=PDF Generation Service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/home/ubuntu/www/profullstack/pdf
+ExecStart=/home/ubuntu/www/profullstack/pdf/bin/start.sh
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=profullstack-pdf
+Environment=NODE_ENV=production
+
+# Hardening
+ProtectSystem=full
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
