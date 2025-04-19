@@ -33,4 +33,7 @@ test-output.pdf
 
 # OS specific
 .DS_Store
-Thumbs.dbpnpm-lock.yaml
+Thumbs.db
+
+# Roo AI assistant
+.roo
