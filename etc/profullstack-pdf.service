@@ -4,10 +4,10 @@ After=network.target
 
 [Service]
 Type=simple
-User=www-data
-Group=www-data
+User=ubuntu
+Group=ubuntu
 WorkingDirectory=/home/ubuntu/www/profullstack.com/pdf
-ExecStart=/home/ubuntu/www/profullstack.com/pdf/bin/start.sh
+ExecStart=/bin/bash /home/ubuntu/www/profullstack.com/pdf/bin/start.sh
 Restart=on-failure
 RestartSec=10
 
@@ -17,6 +17,8 @@ StandardError=append:/var/log/profullstack-pdf.error.log
 
 # Environment
 Environment=NODE_ENV=production
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/ubuntu/.local/share/pnpm:/home/ubuntu/.npm/pnpm/bin
+Environment=HOME=/home/ubuntu
 
 # Hardening
 ProtectSystem=full
