@@ -185,32 +185,8 @@ setup_project() {
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
   
-  # Test database connection
-  echo -e "${YELLOW}Testing database connection...${NC}"
-  
-  # Create a temporary .pgpass file for the test
-  PGPASS_FILE="$HOME/.pgpass"
-  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
-  
-  # Create .pgpass file with both possible usernames
-  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
-  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
-  chmod 600 "$PGPASS_FILE"
-  
-  # Check if psql is installed
-  if command -v psql &> /dev/null; then
-    # Try connection with postgres.{project_ref} user
-    if psql -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U "postgres.${PROJECT_REF}" -c "SELECT 1" > /dev/null 2>&1; then
-      echo -e "${GREEN}Database connection successful with postgres.${PROJECT_REF} user!${NC}"
-    # Try connection with postgres user
-    elif psql -h "db.${PROJECT_REF}.supabase.co" -p 5432 -d postgres -U postgres -c "SELECT 1" > /dev/null 2>&1; then
-      echo -e "${GREEN}Database connection successful with postgres user!${NC}"
-    else
-      echo -e "${YELLOW}Could not connect to database directly with psql. Continuing with Supabase CLI...${NC}"
-    fi
-  else
-    echo -e "${YELLOW}psql not installed, skipping direct connection test...${NC}"
-  fi
+  # Skip direct database connection test and proceed with Supabase CLI
+  echo -e "${YELLOW}Using Supabase CLI for database operations...${NC}"
   
   # Initialize Supabase project if not already initialized
   if [ ! -d "supabase" ]; then
@@ -224,19 +200,8 @@ setup_project() {
   echo -e "${YELLOW}Linking to Supabase cloud project...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
-  # Create a temporary .pgpass file to avoid password prompt
-  echo "Creating temporary .pgpass file..."
-  PGPASS_FILE="$HOME/.pgpass"
-  
-  # Extract project reference from URL for the hostname pattern
-  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
-  
-  # Create or append to .pgpass file
-  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
-  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
-  
-  # Set proper permissions
-  chmod 600 "$PGPASS_FILE"
+  # Set environment variables for Supabase CLI
+  export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
   
   # Run the command with retry logic
   echo "Running supabase link with retry logic..."
@@ -255,7 +220,11 @@ setup_project() {
     fi
     
     # Run the command with timeout to prevent hanging
-    timeout 60 supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
+    # Set up PGPASSWORD environment variable
+    export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+    
+    # Run the command without --password flag
+    timeout 60 supabase link --project-ref "$PROJECT_REF" --debug
     
     if [ $? -eq 0 ]; then
       SUCCESS=true
@@ -295,19 +264,8 @@ run_migrations() {
   echo -e "${YELLOW}Applying migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
-  # Create a temporary .pgpass file to avoid password prompt
-  echo "Creating temporary .pgpass file..."
-  PGPASS_FILE="$HOME/.pgpass"
-  
-  # Extract project reference from URL for the hostname pattern
-  HOST_PATTERN="db.${PROJECT_REF}.supabase.co"
-  
-  # Create or append to .pgpass file
-  echo "${HOST_PATTERN}:5432:postgres:postgres:${SUPABASE_DB_PASSWORD}" > "$PGPASS_FILE"
-  echo "${HOST_PATTERN}:5432:postgres:postgres.${PROJECT_REF}:${SUPABASE_DB_PASSWORD}" >> "$PGPASS_FILE"
-  
-  # Set proper permissions
-  chmod 600 "$PGPASS_FILE"
+  # Set environment variables for Supabase CLI
+  export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
   
   # Run the command with retry logic
   echo "Running supabase migration up with retry logic..."
@@ -326,7 +284,11 @@ run_migrations() {
     fi
     
     # Run the command with timeout to prevent hanging
-    timeout 60 supabase migration up --password "$SUPABASE_DB_PASSWORD" --debug
+    # Set up PGPASSWORD environment variable
+    export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+    
+    # Run the command without --password flag
+    timeout 60 supabase migration up --debug
     
     if [ $? -eq 0 ]; then
       SUCCESS=true
@@ -342,9 +304,6 @@ run_migrations() {
     echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
     exit 1
   fi
-  
-  # Remove the temporary .pgpass file
-  rm -f "$PGPASS_FILE"
   
   echo -e "${GREEN}Migrations applied successfully!${NC}"
 }
