@@ -191,6 +191,18 @@ html, body {
   width: 40px;
   height: 40px;
   transition: background-color var(--transition-normal), border-color var(--transition-normal);
+  overflow: hidden;
+}
+
+.theme-toggle svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  fill: var(--text-primary);
+  transition: fill var(--transition-normal);
 }
 
 [data-theme="dark"] .theme-toggle {
@@ -202,12 +214,6 @@ html, body {
   background-color: var(--surface-variant);
 }
 
-.theme-toggle svg {
-  width: 24px;
-  height: 24px;
-  fill: var(--text-primary);
-  transition: fill var(--transition-normal);
-}
 
 /* Button styles */
 .btn {
