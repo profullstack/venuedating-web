@@ -122,7 +122,7 @@ class Router {
         // Set current route
         this.currentRoute = route;
         
-        // Create a container for the new view that will be invisible at first
+        // Create a container for the new view that will be completely hidden at first
         const newViewContainer = document.createElement('div');
         newViewContainer.className = 'new-route-container';
         newViewContainer.style.position = 'absolute';
@@ -132,9 +132,8 @@ class Router {
         newViewContainer.style.bottom = '0';
         newViewContainer.style.width = '100%';
         newViewContainer.style.height = '100%';
-        newViewContainer.style.opacity = '0';
+        newViewContainer.style.display = 'none'; // Completely hidden
         newViewContainer.style.zIndex = '5';
-        newViewContainer.style.transition = 'opacity 200ms ease-in-out';
         newViewContainer.style.backgroundColor = 'var(--background-color)';
         newViewContainer.style.overflow = 'auto';
         
@@ -205,21 +204,24 @@ class Router {
         
         // Wait a frame to ensure DOM is updated
         requestAnimationFrame(() => {
-          // Start the transition - fade out current content and fade in new content
-          currentContent.style.opacity = '0';
-          newViewContainer.style.opacity = '1';
+          // First make the new view visible but keep the old content visible too
+          newViewContainer.style.display = 'block';
           
-          // After transition completes, swap the content
+          // Short delay to ensure the new content is ready (50ms is enough)
           setTimeout(() => {
-            // Remove the old content
+            // Now remove the old content
             rootElement.removeChild(currentContent);
             
-            // Move the new content from the container to the root
-            const newContent = Array.from(newViewContainer.children);
-            newContent.forEach(child => rootElement.appendChild(child));
+            // Create a fresh container with the new content
+            const finalContainer = document.createElement('div');
+            finalContainer.className = 'route-content';
+            finalContainer.innerHTML = content;
             
-            // Remove the now-empty container
-            rootElement.removeChild(newViewContainer);
+            // Clear any remaining elements
+            rootElement.innerHTML = '';
+            
+            // Add the new content directly
+            rootElement.appendChild(finalContainer);
             
             // Call afterRender if provided
             if (route.afterRender) {
@@ -250,9 +252,8 @@ class Router {
         newViewContainer.style.bottom = '0';
         newViewContainer.style.width = '100%';
         newViewContainer.style.height = '100%';
-        newViewContainer.style.opacity = '0';
+        newViewContainer.style.display = 'none'; // Completely hidden
         newViewContainer.style.zIndex = '5';
-        newViewContainer.style.transition = 'opacity 200ms ease-in-out';
         newViewContainer.style.backgroundColor = 'var(--background-color)';
         newViewContainer.style.overflow = 'auto';
         
@@ -301,22 +302,28 @@ class Router {
         
         // Wait a frame to ensure DOM is updated
         requestAnimationFrame(() => {
-          // Start the transition - fade out current content and fade in new content
-          currentContent.style.opacity = '0';
-          newViewContainer.style.opacity = '1';
+          // First make the new view visible but keep the old content visible too
+          newViewContainer.style.display = 'block';
           
-          // After transition completes, swap the content
+          // Short delay to ensure the new content is ready
           setTimeout(() => {
-            // Remove the old content
+            // Now remove the old content
             rootElement.removeChild(currentContent);
             
-            // Move the new content from the container to the root
-            const newContent = Array.from(newViewContainer.children);
-            newContent.forEach(child => rootElement.appendChild(child));
+            // Get the content from the container
+            const errorContent = newViewContainer.innerHTML;
             
-            // Remove the now-empty container
-            rootElement.removeChild(newViewContainer);
-          }, 200); // Match the transition duration
+            // Clear any remaining elements
+            rootElement.innerHTML = '';
+            
+            // Create a fresh container with the error content
+            const finalContainer = document.createElement('div');
+            finalContainer.className = 'route-content';
+            finalContainer.innerHTML = errorContent;
+            
+            // Add the new content directly
+            rootElement.appendChild(finalContainer);
+          }, 50); // Short delay is enough since we're not fading
         });
       }
     } catch (error) {

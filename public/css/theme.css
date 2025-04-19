@@ -153,32 +153,63 @@ html, body, #app {
   padding: 0;
 }
 
+/* Route containers */
 .new-route-container,
-.current-route-container {
+.current-route-container,
+.route-content {
   width: 100%;
   min-height: 100vh;
   background-color: var(--background-color);
-  overflow: hidden;
+  color: var(--text-primary);
+}
+
+/* Absolute positioning for transition containers */
+.new-route-container,
+.current-route-container {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
 }
 
 .new-route-container {
   z-index: 5;
+  /* Initially hidden, will be shown via JS */
+  display: none;
 }
 
 .current-route-container {
   z-index: 1;
+  display: block;
 }
 
-/* Ensure content doesn't leak during transitions */
+/* The final route content container */
+.route-content {
+  display: block;
+  position: relative;
+}
+
+/* Ensure proper styling during transitions */
 .new-route-container *,
-.current-route-container * {
-  color: var(--text-primary) !important;
+.current-route-container *,
+.route-content * {
+  color: var(--text-primary);
+  transition: color var(--transition-normal);
+}
+
+/* Prevent any content from showing through during transitions */
+.new-route-container::before,
+.current-route-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: var(--background-color);
+  z-index: -1;
 }
 
 .loading {
