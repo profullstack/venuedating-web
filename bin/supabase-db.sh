@@ -42,25 +42,9 @@ install_cli() {
     return 0
   fi
   
-  SUPABASE_VERSION="2.22.1"  # Latest version as of April 2025
+  SUPABASE_VERSION="2.20.12"  # Known working version
   
-  # First try to download pre-built binary
-  echo "Trying to download pre-built binary..."
-  BINARY_URL="https://github.com/supabase/cli/releases/download/v$SUPABASE_VERSION/supabase_linux_amd64"
-  
-  curl -L "$BINARY_URL" -o "$HOME/.local/bin/supabase"
-  chmod +x "$HOME/.local/bin/supabase"
-  
-  # Check if binary works
-  if [ -s "$HOME/.local/bin/supabase" ] && "$HOME/.local/bin/supabase" --version &>/dev/null; then
-    echo -e "${GREEN}Supabase CLI installed from pre-built binary: $("$HOME/.local/bin/supabase" --version 2>&1)${NC}"
-    return 0
-  else
-    echo "Pre-built binary failed, removing it..."
-    rm -f "$HOME/.local/bin/supabase"
-  fi
-  
-  # If binary download failed, compile from source
+  # Compile from source using ZIP file
   echo "Compiling Supabase CLI from source..."
   
   # Check if Go is installed
@@ -80,21 +64,21 @@ install_cli() {
   fi
   
   # Download source code
-  SOURCE_URL="https://github.com/supabase/cli/archive/refs/tags/v$SUPABASE_VERSION.tar.gz"
+  SOURCE_URL="https://github.com/supabase/cli/archive/refs/tags/v$SUPABASE_VERSION.zip"
   TEMP_DIR=$(mktemp -d)
   
   echo "Downloading source code from $SOURCE_URL..."
-  curl -L "$SOURCE_URL" -o "$TEMP_DIR/supabase-src.tar.gz"
+  curl -L "$SOURCE_URL" -o "$TEMP_DIR/supabase-src.zip"
   
   # Check if download was successful
-  if [ ! -s "$TEMP_DIR/supabase-src.tar.gz" ]; then
+  if [ ! -s "$TEMP_DIR/supabase-src.zip" ]; then
     echo -e "${RED}Error: Failed to download Supabase CLI source code${NC}"
     rm -rf "$TEMP_DIR"
     exit 1
   fi
   
   echo "Extracting source code..."
-  tar -xzf "$TEMP_DIR/supabase-src.tar.gz" -C "$TEMP_DIR"
+  unzip -q "$TEMP_DIR/supabase-src.zip" -d "$TEMP_DIR"
   
   # Find the extracted directory
   SRC_DIR=$(find "$TEMP_DIR" -type d -name "cli-*" | head -n 1)

@@ -106,41 +106,35 @@ fi
 
 echo -e "${GREEN}Dependencies installed.${NC}"
 
-# Install Supabase CLI
-echo -e "${YELLOW}Installing Supabase CLI...${NC}"
+# Run Supabase setup script
+echo -e "${YELLOW}Running Supabase setup script...${NC}"
 
 # Create local bin directory if it doesn't exist
 if [ "$EUID" -eq 0 ]; then
   sudo -u "$ORIGINAL_USER" mkdir -p "/home/$ORIGINAL_USER/.local/bin"
-else
-  mkdir -p "$HOME/.local/bin"
-fi
-
-# Download and install Supabase CLI
-SUPABASE_VERSION="1.175.6"  # change to latest if needed
-BINARY_URL="https://github.com/supabase/cli/releases/download/v$SUPABASE_VERSION/supabase_linux_amd64"
-
-if [ "$EUID" -eq 0 ]; then
-  echo -e "${YELLOW}Downloading Supabase CLI for $ORIGINAL_USER...${NC}"
-  sudo -u "$ORIGINAL_USER" curl -L "$BINARY_URL" -o "/home/$ORIGINAL_USER/.local/bin/supabase"
-  sudo -u "$ORIGINAL_USER" chmod +x "/home/$ORIGINAL_USER/.local/bin/supabase"
   
   # Add to PATH if not already there
   if ! grep -q "export PATH=\"\$HOME/.local/bin:\$PATH\"" "/home/$ORIGINAL_USER/.zshrc"; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' | sudo -u "$ORIGINAL_USER" tee -a "/home/$ORIGINAL_USER/.zshrc" > /dev/null
   fi
+  
+  # Run the setup script as the original user
+  echo -e "${YELLOW}Running Supabase setup as $ORIGINAL_USER...${NC}"
+  sudo -u "$ORIGINAL_USER" zsh -c "cd \"$PROJECT_DIR\" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
 else
-  echo -e "${YELLOW}Downloading Supabase CLI...${NC}"
-  curl -L "$BINARY_URL" -o "$HOME/.local/bin/supabase"
-  chmod +x "$HOME/.local/bin/supabase"
+  mkdir -p "$HOME/.local/bin"
   
   # Add to PATH if not already there
   if ! grep -q "export PATH=\"\$HOME/.local/bin:\$PATH\"" "$HOME/.zshrc"; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
   fi
+  
+  # Run the setup script
+  echo -e "${YELLOW}Running Supabase setup...${NC}"
+  cd "$PROJECT_DIR" && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup
 fi
 
-echo -e "${GREEN}Supabase CLI installed.${NC}"
+echo -e "${GREEN}Supabase setup complete.${NC}"
 
 # Reload systemd
 echo -e "${YELLOW}Reloading systemd...${NC}"
