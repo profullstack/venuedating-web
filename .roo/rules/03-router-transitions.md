@@ -21,6 +21,8 @@
 - Prepare new DOM with display: none before removing old DOM
 - Use a full-screen overlay with fade transitions during route changes
 - Apply smooth fade-in/fade-out effects to minimize visual disruption
+- Use an initial loading overlay in index.html to prevent flashes of unstyled content
+- Move route-specific content to web components to prevent hardcoded content flashes
 
 ## Styling During Transitions
 - Maintain consistent theme colors during transitions

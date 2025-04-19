@@ -7,6 +7,7 @@ import Router from './router.js';
 import './components/pf-header.js';
 import './components/pf-footer.js';
 import './components/pf-dialog.js';
+import './components/pf-hero.js';
 
 // Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {

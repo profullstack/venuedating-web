@@ -186,6 +186,17 @@ class Router {
           detail: { path, route }
         }));
         
+        // Remove the initial loading overlay if it exists
+        const initialOverlay = document.getElementById('initial-loading-overlay');
+        if (initialOverlay) {
+          initialOverlay.style.opacity = '0';
+          setTimeout(() => {
+            if (initialOverlay.parentNode) {
+              initialOverlay.parentNode.removeChild(initialOverlay);
+            }
+          }, 150);
+        }
+        
         // Fade out the overlay
         transitionOverlay.style.opacity = '0';
         

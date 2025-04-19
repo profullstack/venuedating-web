@@ -173,15 +173,24 @@
 <body>
   <!-- App container for SPA mode -->
   <div id="app">
-    <div class="hero">
-      <h2>Generate Documents from HTML with Ease</h2>
-      <p>Convert HTML content to PDF, Word, Excel, PowerPoint, and EPUB formats with a simple API call. Perfect for reports, invoices, presentations, and more.</p>
-      
-      <div class="cta-buttons">
-        <a href="/register" class="cta-primary">Get Started</a>
-        <a href="/login" class="cta-secondary">Login</a>
-      </div>
-    </div>
+    <!-- Content will be loaded by the router -->
+    <div class="loading">Loading...</div>
   </div>
+  
+  <!-- Initial loading overlay -->
+  <div id="initial-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--background-color, #ffffff); z-index: 9999; transition: opacity 150ms ease-in-out;"></div>
+  
+  <script>
+    // Remove the loading overlay once the router has initialized
+    window.addEventListener('route-changed', () => {
+      const overlay = document.getElementById('initial-loading-overlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.parentNode.removeChild(overlay);
+        }, 150);
+      }
+    }, { once: true });
+  </script>
 </body>
 </html>
