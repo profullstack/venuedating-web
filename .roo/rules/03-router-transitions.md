@@ -19,6 +19,8 @@
 - Ensure proper cleanup of transition elements
 - Use display: none/block instead of opacity for complete isolation
 - Prepare new DOM with display: none before removing old DOM
+- Use a full-screen overlay with fade transitions during route changes
+- Apply smooth fade-in/fade-out effects to minimize visual disruption
 
 ## Styling During Transitions
 - Maintain consistent theme colors during transitions
