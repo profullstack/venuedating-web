@@ -201,14 +201,15 @@ setup_project() {
   # Initialize Supabase project if not already initialized
   if [ ! -d "supabase" ]; then
     echo -e "${YELLOW}Initializing Supabase project...${NC}"
-    supabase init
+    supabase init --no-keyring
   else
     echo -e "${YELLOW}Supabase project already initialized.${NC}"
   fi
   
   # Link to existing Supabase project
   echo -e "${YELLOW}Linking to Supabase cloud project...${NC}"
-  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+  echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
+  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --no-keyring --debug
   
   echo -e "${GREEN}Supabase project setup complete!${NC}"
 }
@@ -231,7 +232,8 @@ run_migrations() {
   
   # Run migrations
   echo -e "${YELLOW}Pushing migrations to database...${NC}"
-  supabase db push
+  echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
+  supabase db push --no-keyring --password "$SUPABASE_DB_PASSWORD" --debug
   
   echo -e "${GREEN}Migrations applied successfully!${NC}"
 }
@@ -260,7 +262,7 @@ create_migration() {
   fi
   
   # Create migration
-  supabase migration new $name
+  supabase migration new $name --no-keyring
   
   echo -e "${GREEN}Migration created successfully!${NC}"
   echo -e "${YELLOW}Edit the migration file in supabase/migrations/ and then run:${NC}"
