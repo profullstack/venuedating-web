@@ -61,7 +61,20 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rsync zsh curl file golang postgresql-client
+          sudo apt-get install -y rsync zsh curl file golang postgresql-client gnome-keyring dbus-x11
+          
+          # Set up dbus for gnome-keyring
+          echo "Setting up dbus and gnome-keyring..."
+          mkdir -p ~/.cache
+          dbus-launch --sh-syntax > ~/.cache/dbus-env
+          source ~/.cache/dbus-env
+          
+          # Initialize the keyring
+          echo "Initializing gnome-keyring..."
+          echo -n "password" | gnome-keyring-daemon --unlock
+          
+          # Export environment variables for subsequent steps
+          echo "DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS}" >> $GITHUB_ENV
       
       - name: Create .env file from secret
         run: |

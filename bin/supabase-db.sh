@@ -231,7 +231,7 @@ setup_project() {
   # Initialize Supabase project if not already initialized
   if [ ! -d "supabase" ]; then
     echo -e "${YELLOW}Initializing Supabase project...${NC}"
-    supabase init --no-keyring
+    supabase init
   else
     echo -e "${YELLOW}Supabase project already initialized.${NC}"
   fi
@@ -256,7 +256,7 @@ setup_project() {
   
   # Run the command with debug flag
   echo "Running supabase link with debug flag..."
-  supabase link --project-ref "$PROJECT_REF" --no-keyring --debug
+  supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" --debug
   
   echo -e "${GREEN}Supabase project setup complete!${NC}"
 }
@@ -297,7 +297,7 @@ run_migrations() {
   
   # Run the command with debug flag
   echo "Running supabase db push with debug flag..."
-  supabase db push --no-keyring --debug
+  supabase db push --password "$SUPABASE_DB_PASSWORD" --debug
   
   # Remove the temporary .pgpass file
   rm -f "$PGPASS_FILE"
@@ -329,7 +329,7 @@ create_migration() {
   fi
   
   # Create migration
-  supabase migration new $name --no-keyring
+  supabase migration new $name
   
   echo -e "${GREEN}Migration created successfully!${NC}"
   echo -e "${YELLOW}Edit the migration file in supabase/migrations/ and then run:${NC}"
