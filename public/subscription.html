@@ -4,7 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Subscribe - Document Generation API</title>
+  <meta name="description" content="Subscribe to our document generation service with cryptocurrency payments">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/favicon.light.svg" media="(prefers-color-scheme: light)">
+  <link rel="icon" href="/icons/favicon.dark.svg" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
   <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/register-sw.js"></script>
   <script type="module" src="/js/theme.js"></script>
   <script type="module" src="/js/main.js"></script>
   <script type="module" src="/js/components/subscription-form.js"></script>
@@ -33,6 +40,11 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
+    }
+    
+    .logo img {
+      height: 40px;
+      width: auto;
     }
     
     .logo h1 {
@@ -181,11 +193,37 @@
     footer a:hover {
       text-decoration: underline;
     }
+    
+    /* Offline notification */
+    .offline-notification {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--surface-color);
+      color: var(--text-primary);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+    }
+    
+    .offline-notification.visible {
+      display: block;
+      animation: slideIn 0.3s forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">
+      <img src="/icons/logo.light.svg" alt="ProFullStack Logo" class="logo-light">
+      <img src="/icons/logo.dark.svg" alt="ProFullStack Logo" class="logo-dark" style="display: none;">
       <h1>Document Generation API</h1>
     </div>
   </div>
@@ -234,8 +272,52 @@
   
   <a href="/" class="back-link">Back to Document Generation</a>
   
+  <div class="offline-notification" id="offline-notification">
+    You are currently offline. Some features may be limited.
+  </div>
+  
   <footer>
     <p>&copy; 2025 <a href="https://profullstack.com" target="_blank">ProFullStack</a>. All rights reserved.</p>
   </footer>
+
+  <script>
+    // Handle offline/online status
+    window.addEventListener('online', () => {
+      document.getElementById('offline-notification').classList.remove('visible');
+    });
+    
+    window.addEventListener('offline', () => {
+      document.getElementById('offline-notification').classList.add('visible');
+    });
+    
+    // Switch logo based on theme
+    document.addEventListener('themechange', (event) => {
+      const logoLight = document.querySelector('.logo-light');
+      const logoDark = document.querySelector('.logo-dark');
+      
+      if (event.detail.theme === 'dark') {
+        logoLight.style.display = 'none';
+        logoDark.style.display = 'block';
+      } else {
+        logoLight.style.display = 'block';
+        logoDark.style.display = 'none';
+      }
+    });
+    
+    // Set initial logo based on current theme
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const logoLight = document.querySelector('.logo-light');
+      const logoDark = document.querySelector('.logo-dark');
+      
+      if (currentTheme === 'dark') {
+        logoLight.style.display = 'none';
+        logoDark.style.display = 'block';
+      } else {
+        logoLight.style.display = 'block';
+        logoDark.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,597 @@
+import { BaseComponent } from './base-component.js';
+import { commonStyles } from './common-styles.js';
+import { ApiClient } from '../api-client.js';
+
+/**
+ * API Key Manager component
+ */
+export class ApiKeyManager extends BaseComponent {
+  /**
+   * Create a new API key manager
+   */
+  constructor() {
+    super();
+    this._apiKeys = [];
+    this._loading = false;
+    this._error = null;
+    this._newKeyName = '';
+    this._newKeyValue = null;
+  }
+
+  /**
+   * Get the component's styles
+   * @returns {string} - CSS styles
+   */
+  getStyles() {
+    return `
+      ${commonStyles}
+      
+      :host {
+        display: block;
+        padding: 20px;
+      }
+      
+      h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+      }
+      
+      .api-key-form {
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: var(--surface-color);
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--border-color);
+      }
+      
+      .form-group {
+        margin-bottom: 15px;
+      }
+      
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: var(--font-weight-medium);
+        color: var(--text-secondary);
+      }
+      
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--input-border);
+        border-radius: var(--border-radius-md);
+        background-color: var(--input-background);
+        color: var(--text-primary);
+      }
+      
+      input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      }
+      
+      button {
+        padding: 10px 15px;
+        background-color: var(--primary-color);
+        color: var(--text-on-primary);
+        border: none;
+        border-radius: var(--border-radius-md);
+        cursor: pointer;
+        font-weight: var(--font-weight-medium);
+        transition: background-color var(--transition-fast);
+      }
+      
+      button:hover {
+        background-color: var(--primary-dark);
+      }
+      
+      button:disabled {
+        background-color: var(--text-disabled);
+        cursor: not-allowed;
+      }
+      
+      .delete-button {
+        background-color: var(--error-color);
+      }
+      
+      .delete-button:hover {
+        background-color: #d32f2f;
+      }
+      
+      .toggle-button {
+        background-color: var(--text-tertiary);
+      }
+      
+      .toggle-button:hover {
+        background-color: var(--text-secondary);
+      }
+      
+      .toggle-button.active {
+        background-color: var(--success-color);
+      }
+      
+      .toggle-button.active:hover {
+        background-color: var(--secondary-dark);
+      }
+      
+      .api-keys-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      
+      .api-keys-table th,
+      .api-keys-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+      }
+      
+      .api-keys-table th {
+        font-weight: var(--font-weight-semibold);
+        color: var(--text-secondary);
+        background-color: var(--surface-variant);
+      }
+      
+      .api-keys-table tr:hover {
+        background-color: var(--surface-variant);
+      }
+      
+      .api-keys-table .actions {
+        display: flex;
+        gap: 10px;
+      }
+      
+      .empty-state {
+        padding: 30px;
+        text-align: center;
+        color: var(--text-tertiary);
+        background-color: var(--surface-color);
+        border-radius: var(--border-radius-md);
+        border: 1px dashed var(--border-color);
+      }
+      
+      .error {
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        color: var(--error-color);
+        background-color: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid var(--error-color);
+        border-radius: var(--border-radius-sm);
+      }
+      
+      .success {
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        color: var(--success-color);
+        background-color: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid var(--success-color);
+        border-radius: var(--border-radius-sm);
+      }
+      
+      .new-key {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: var(--surface-variant);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-md);
+      }
+      
+      .new-key-value {
+        font-family: monospace;
+        padding: 10px;
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius-sm);
+        word-break: break-all;
+        margin-bottom: 15px;
+      }
+      
+      .copy-button {
+        background-color: var(--secondary-color);
+        margin-right: 10px;
+      }
+      
+      .copy-button:hover {
+        background-color: var(--secondary-dark);
+      }
+      
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: var(--text-tertiary);
+      }
+      
+      .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: var(--border-radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+      }
+      
+      .status-badge.active {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: var(--success-color);
+      }
+      
+      .status-badge.inactive {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: var(--error-color);
+      }
+    `;
+  }
+
+  /**
+   * Get the component's template
+   * @returns {string} - HTML template
+   */
+  getTemplate() {
+    if (this._loading) {
+      return `
+        <div class="loading">Loading API keys...</div>
+      `;
+    }
+    
+    return `
+      <h2>API Key Management</h2>
+      
+      ${this._error ? `<div class="error">${this._error}</div>` : ''}
+      ${this._newKeyValue ? this._renderNewKey() : ''}
+      
+      <div class="api-key-form">
+        <h3>Create New API Key</h3>
+        <div class="form-group">
+          <label for="key-name">API Key Name</label>
+          <input type="text" id="key-name" placeholder="e.g., Production, Development, Testing" value="${this._newKeyName}">
+        </div>
+        <button id="create-key-button" ${this._newKeyName.trim() === '' ? 'disabled' : ''}>Create API Key</button>
+      </div>
+      
+      <h3>Your API Keys</h3>
+      
+      ${this._renderApiKeys()}
+    `;
+  }
+
+  /**
+   * Render API keys table
+   * @returns {string} - HTML for API keys table
+   * @private
+   */
+  _renderApiKeys() {
+    if (this._apiKeys.length === 0) {
+      return `
+        <div class="empty-state">
+          <p>You don't have any API keys yet. Create one to get started.</p>
+        </div>
+      `;
+    }
+    
+    return `
+      <table class="api-keys-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Last Used</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${this._apiKeys.map(key => `
+            <tr data-key-id="${key.id}">
+              <td>${key.name}</td>
+              <td>
+                <span class="status-badge ${key.is_active ? 'active' : 'inactive'}">
+                  ${key.is_active ? 'Active' : 'Inactive'}
+                </span>
+              </td>
+              <td>${this._formatDate(key.created_at)}</td>
+              <td>${key.last_used_at ? this._formatDate(key.last_used_at) : 'Never'}</td>
+              <td class="actions">
+                <button class="toggle-button ${key.is_active ? 'active' : ''}" data-action="toggle" data-key-id="${key.id}">
+                  ${key.is_active ? 'Deactivate' : 'Activate'}
+                </button>
+                <button class="delete-button" data-action="delete" data-key-id="${key.id}">Delete</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
+  /**
+   * Render new key section
+   * @returns {string} - HTML for new key section
+   * @private
+   */
+  _renderNewKey() {
+    return `
+      <div class="new-key success">
+        <h3>Your New API Key</h3>
+        <p>This is your new API key. Please copy it now as you won't be able to see it again.</p>
+        <div class="new-key-value">${this._newKeyValue}</div>
+        <button id="copy-key-button" class="copy-button">Copy to Clipboard</button>
+        <button id="done-button">Done</button>
+      </div>
+    `;
+  }
+
+  /**
+   * Format a date
+   * @param {string} dateString - ISO date string
+   * @returns {string} - Formatted date
+   * @private
+   */
+  _formatDate(dateString) {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  /**
+   * Initialize event listeners
+   */
+  initEventListeners() {
+    // Create key button
+    const createKeyButton = this.$('#create-key-button');
+    if (createKeyButton) {
+      createKeyButton.addEventListener('click', () => this._createApiKey());
+    }
+    
+    // Key name input
+    const keyNameInput = this.$('#key-name');
+    if (keyNameInput) {
+      keyNameInput.addEventListener('input', (e) => {
+        this._newKeyName = e.target.value;
+        this.render();
+      });
+    }
+    
+    // Copy key button
+    const copyKeyButton = this.$('#copy-key-button');
+    if (copyKeyButton) {
+      copyKeyButton.addEventListener('click', () => this._copyToClipboard());
+    }
+    
+    // Done button
+    const doneButton = this.$('#done-button');
+    if (doneButton) {
+      doneButton.addEventListener('click', () => {
+        this._newKeyValue = null;
+        this._newKeyName = '';
+        this.render();
+      });
+    }
+    
+    // Toggle and delete buttons
+    const apiKeysTable = this.$('.api-keys-table');
+    if (apiKeysTable) {
+      apiKeysTable.addEventListener('click', (e) => {
+        const button = e.target.closest('button');
+        if (!button) return;
+        
+        const action = button.dataset.action;
+        const keyId = button.dataset.keyId;
+        
+        if (action === 'toggle') {
+          const key = this._apiKeys.find(k => k.id === keyId);
+          if (key) {
+            this._toggleApiKey(keyId, !key.is_active);
+          }
+        } else if (action === 'delete') {
+          this._deleteApiKey(keyId);
+        }
+      });
+    }
+  }
+
+  /**
+   * Called when the element is connected to the DOM
+   */
+  connectedCallback() {
+    super.connectedCallback();
+    this._loadApiKeys();
+  }
+
+  /**
+   * Load API keys
+   * @private
+   */
+  async _loadApiKeys() {
+    try {
+      this._loading = true;
+      this._error = null;
+      this.render();
+      
+      const response = await fetch('/api/1/api-keys', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this._getApiKey()}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to load API keys');
+      }
+      
+      const data = await response.json();
+      this._apiKeys = data.api_keys || [];
+      this._loading = false;
+      this.render();
+    } catch (error) {
+      console.error('Error loading API keys:', error);
+      this._error = `Error loading API keys: ${error.message}`;
+      this._loading = false;
+      this.render();
+    }
+  }
+
+  /**
+   * Create a new API key
+   * @private
+   */
+  async _createApiKey() {
+    try {
+      if (!this._newKeyName.trim()) {
+        this._error = 'API key name is required';
+        this.render();
+        return;
+      }
+      
+      this._loading = true;
+      this._error = null;
+      this.render();
+      
+      const response = await fetch('/api/1/api-keys', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this._getApiKey()}`
+        },
+        body: JSON.stringify({
+          name: this._newKeyName
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create API key');
+      }
+      
+      const data = await response.json();
+      this._newKeyValue = data.key;
+      await this._loadApiKeys();
+    } catch (error) {
+      console.error('Error creating API key:', error);
+      this._error = `Error creating API key: ${error.message}`;
+      this._loading = false;
+      this.render();
+    }
+  }
+
+  /**
+   * Toggle an API key's active status
+   * @param {string} keyId - API key ID
+   * @param {boolean} isActive - Whether the key should be active
+   * @private
+   */
+  async _toggleApiKey(keyId, isActive) {
+    try {
+      this._loading = true;
+      this._error = null;
+      this.render();
+      
+      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this._getApiKey()}`
+        },
+        body: JSON.stringify({
+          is_active: isActive
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update API key');
+      }
+      
+      await this._loadApiKeys();
+    } catch (error) {
+      console.error('Error updating API key:', error);
+      this._error = `Error updating API key: ${error.message}`;
+      this._loading = false;
+      this.render();
+    }
+  }
+
+  /**
+   * Delete an API key
+   * @param {string} keyId - API key ID
+   * @private
+   */
+  async _deleteApiKey(keyId) {
+    try {
+      this._loading = true;
+      this._error = null;
+      this.render();
+      
+      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${this._getApiKey()}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete API key');
+      }
+      
+      await this._loadApiKeys();
+    } catch (error) {
+      console.error('Error deleting API key:', error);
+      this._error = `Error deleting API key: ${error.message}`;
+      this._loading = false;
+      this.render();
+    }
+  }
+
+  /**
+   * Copy API key to clipboard
+   * @private
+   */
+  _copyToClipboard() {
+    if (!this._newKeyValue) return;
+    
+    navigator.clipboard.writeText(this._newKeyValue)
+      .then(() => {
+        const copyButton = this.$('#copy-key-button');
+        if (copyButton) {
+          const originalText = copyButton.textContent;
+          copyButton.textContent = 'Copied!';
+          setTimeout(() => {
+            copyButton.textContent = originalText;
+          }, 2000);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+        this._error = 'Failed to copy to clipboard. Please copy the key manually.';
+        this.render();
+      });
+  }
+
+  /**
+   * Get API key from localStorage or URL
+   * @returns {string|null} - API key
+   * @private
+   */
+  _getApiKey() {
+    // Try to get from localStorage
+    const apiKey = localStorage.getItem('api_key');
+    if (apiKey) {
+      return apiKey;
+    }
+    
+    // Try to get from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('api_key');
+  }
+}
+
+// Define the custom element
+customElements.define('api-key-manager', ApiKeyManager);

@@ -11,10 +11,11 @@ import {
   paymentCallbackRoute, 
   subscriptionStatusRoute 
 } from './subscription.js';
-import { subscriptionCheck } from '../middleware/subscription-check.js';
+import { apiKeyRoutes } from './api-keys.js';
+import { authMiddleware } from '../middleware/auth-middleware.js';
 
-// Routes that require subscription
-const paidRoutes = [
+// Routes that require authentication
+const protectedRoutes = [
   htmlToPdfRoute,
   htmlToDocRoute,
   htmlToExcelRoute,
@@ -25,16 +26,16 @@ const paidRoutes = [
   documentHistoryRoute
 ];
 
-// Apply subscription check middleware to paid routes
-paidRoutes.forEach(route => {
+// Apply auth middleware to protected routes
+protectedRoutes.forEach(route => {
   if (!route.middleware) {
     route.middleware = [];
   }
-  route.middleware.unshift(subscriptionCheck);
+  route.middleware.unshift(authMiddleware);
 });
 
-// Free routes (no subscription required)
-const freeRoutes = [
+// Public routes (no authentication required)
+const publicRoutes = [
   subscriptionRoute,
   paymentCallbackRoute,
   subscriptionStatusRoute
@@ -44,8 +45,9 @@ const freeRoutes = [
  * All API routes
  */
 export const routes = [
-  ...paidRoutes,
-  ...freeRoutes
+  ...protectedRoutes,
+  ...publicRoutes,
+  ...apiKeyRoutes
 ];
 
 /**

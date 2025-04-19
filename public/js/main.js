@@ -7,6 +7,7 @@ import './components/tab-container.js';
 import './components/about-section.js';
 import './components/document-history.js';
 import './components/subscription-form.js';
+import './components/api-key-manager.js';
 
 // Wait for the DOM to be loaded
 document.addEventListener('DOMContentLoaded', () => {

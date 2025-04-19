@@ -1,0 +1,251 @@
+import { supabase } from '../utils/supabase.js';
+import crypto from 'crypto';
+
+/**
+ * Service for managing API keys
+ */
+export const apiKeyService = {
+  /**
+   * Generate a random API key
+   * @returns {string} - Random API key
+   * @private
+   */
+  _generateApiKey() {
+    return `pfs_${crypto.randomBytes(32).toString('hex')}`;
+  },
+
+  /**
+   * Get user by email
+   * @param {string} email - User email
+   * @returns {Promise<Object|null>} - User object or null if not found
+   * @private
+   */
+  async _getUserByEmail(email) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+    
+    if (error) {
+      if (error.code === 'PGRST116') { // Record not found
+        return null;
+      }
+      throw error;
+    }
+    
+    return data;
+  },
+
+  /**
+   * Create user if not exists
+   * @param {string} email - User email
+   * @param {boolean} isAdmin - Whether the user is an admin
+   * @returns {Promise<Object>} - User object
+   * @private
+   */
+  async _createUserIfNotExists(email, isAdmin = false) {
+    // Check if user exists
+    const user = await this._getUserByEmail(email);
+    
+    if (user) {
+      return user;
+    }
+    
+    // Create user
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{
+        email,
+        is_admin: isAdmin
+      }])
+      .select()
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  },
+
+  /**
+   * Create a new API key
+   * @param {string} email - User email
+   * @param {string} name - API key name
+   * @returns {Promise<Object>} - API key object
+   */
+  async createApiKey(email, name) {
+    // Create user if not exists
+    const user = await this._createUserIfNotExists(email);
+    
+    // Generate API key
+    const key = this._generateApiKey();
+    
+    // Create API key
+    const { data, error } = await supabase
+      .from('api_keys')
+      .insert([{
+        user_id: user.id,
+        name,
+        key
+      }])
+      .select()
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  },
+
+  /**
+   * Get API keys for a user
+   * @param {string} email - User email
+   * @returns {Promise<Array>} - Array of API key objects
+   */
+  async getApiKeys(email) {
+    // Get user
+    const user = await this._getUserByEmail(email);
+    
+    if (!user) {
+      return [];
+    }
+    
+    // Get API keys
+    const { data, error } = await supabase
+      .from('api_keys')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data || [];
+  },
+
+  /**
+   * Update an API key
+   * @param {string} email - User email
+   * @param {string} keyId - API key ID
+   * @param {Object} updates - Updates to apply
+   * @returns {Promise<Object>} - Updated API key object
+   */
+  async updateApiKey(email, keyId, updates) {
+    // Get user
+    const user = await this._getUserByEmail(email);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Validate updates
+    const validUpdates = {};
+    if (updates.name !== undefined) validUpdates.name = updates.name;
+    if (updates.is_active !== undefined) validUpdates.is_active = updates.is_active;
+    
+    // Update API key
+    const { data, error } = await supabase
+      .from('api_keys')
+      .update(validUpdates)
+      .eq('id', keyId)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+    
+    return data;
+  },
+
+  /**
+   * Delete an API key
+   * @param {string} email - User email
+   * @param {string} keyId - API key ID
+   * @returns {Promise<boolean>} - Whether the API key was deleted
+   */
+  async deleteApiKey(email, keyId) {
+    // Get user
+    const user = await this._getUserByEmail(email);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Delete API key
+    const { error } = await supabase
+      .from('api_keys')
+      .delete()
+      .eq('id', keyId)
+      .eq('user_id', user.id);
+    
+    if (error) {
+      throw error;
+    }
+    
+    return true;
+  },
+
+  /**
+   * Validate an API key
+   * @param {string} apiKey - API key to validate
+   * @returns {Promise<Object|null>} - User object if valid, null otherwise
+   */
+  async validateApiKey(apiKey) {
+    // Get API key
+    const { data: keyData, error: keyError } = await supabase
+      .from('api_keys')
+      .select('*, user:user_id(*)')
+      .eq('key', apiKey)
+      .eq('is_active', true)
+      .single();
+    
+    if (keyError || !keyData) {
+      return null;
+    }
+    
+    // Update last used timestamp
+    await supabase
+      .from('api_keys')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('id', keyData.id);
+    
+    return keyData.user;
+  },
+
+  /**
+   * Check if a user has an active subscription or is an admin
+   * @param {string} email - User email
+   * @returns {Promise<boolean>} - Whether the user has access
+   */
+  async hasAccess(email) {
+    // Get user
+    const user = await this._getUserByEmail(email);
+    
+    if (!user) {
+      return false;
+    }
+    
+    // Check if user is an admin
+    if (user.is_admin) {
+      return true;
+    }
+    
+    // Check if user has an active subscription
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('email', email)
+      .eq('status', 'active')
+      .gte('expiration_date', new Date().toISOString())
+      .order('expiration_date', { ascending: false })
+      .limit(1);
+    
+    return subscription && subscription.length > 0;
+  }
+};
