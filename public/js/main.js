@@ -18,16 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
  * Initialize the application
  */
 function initApp() {
-  // Check if we're using SPA mode
-  const useSPA = localStorage.getItem('use_spa') !== 'false';
-  
-  if (useSPA) {
-    // Initialize the router
-    initRouter();
-  } else {
-    // Initialize components for non-SPA mode
-    initComponents();
-  }
+  // Initialize the router for SPA mode
+  initRouter();
 }
 
 /**
@@ -37,8 +29,7 @@ function initRouter() {
   // Define routes
   const routes = {
     '/': {
-      view: () => loadPage('/views/home.html'),
-      afterRender: () => initComponents()
+      view: () => loadPage('/views/home.html')
     },
     '/login': {
       view: () => loadPage('/views/login.html'),
@@ -49,8 +40,7 @@ function initRouter() {
       afterRender: () => initRegisterPage()
     },
     '/api-docs': {
-      view: () => loadPage('/views/api-docs.html'),
-      afterRender: () => initComponents()
+      view: () => loadPage('/views/api-docs.html')
     },
     '/api-keys': {
       view: () => loadPage('/views/api-keys.html'),
@@ -129,21 +119,7 @@ async function loadPage(url) {
   }
 }
 
-/**
- * Initialize components for non-SPA mode
- */
-function initComponents() {
-  // Add header and footer if they don't exist
-  if (!document.querySelector('pf-header')) {
-    const header = document.createElement('pf-header');
-    document.body.insertBefore(header, document.body.firstChild);
-  }
-  
-  if (!document.querySelector('pf-footer')) {
-    const footer = document.createElement('pf-footer');
-    document.body.appendChild(footer);
-  }
-}
+// No longer needed since we're using SPA mode exclusively
 
 /**
  * Initialize login page
@@ -357,6 +333,5 @@ function initSubscriptionPage() {
 // Expose functions globally
 window.app = {
   initApp,
-  initRouter,
-  initComponents
+  initRouter
 };

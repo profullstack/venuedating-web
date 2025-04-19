@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Document Generation API</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo img {
+      height: 40px;
+      width: auto;
+    }
+    
+    .logo h1 {
+      margin: 0;
+      color: #2563eb;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .nav-link {
+      padding: 8px 15px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+    
+    .nav-link:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .subscription-link {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    
+    .subscription-link:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .user-dropdown {
+      position: relative;
+    }
+    
+    .dropdown-button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 15px;
+      background-color: transparent;
+      border: none;
+      border-radius: 5px;
+      color: #333;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .dropdown-button:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .username {
+      font-weight: 500;
+    }
+    
+    .dropdown-icon {
+      transition: transform 0.2s;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 200px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 5px 0;
+      margin-top: 5px;
+      display: none;
+      z-index: 100;
+    }
+    
+    .dropdown-menu.show {
+      display: block;
+    }
+    
+    .dropdown-item {
+      display: block;
+      padding: 8px 15px;
+      color: #333;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .logout-button {
+      color: #dc2626;
+    }
+    
+    .settings-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .settings-container h2 {
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #2563eb;
+    }
+    
+    .settings-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .settings-section h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #666;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: white;
+      color: #333;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+    
+    .save-button {
+      display: inline-block;
+      padding: 8px 20px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .save-button:hover {
+      background-color: #1d4ed8;
+    }
+    
+    .danger-zone {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #dc2626;
+      border-radius: 5px;
+    }
+    
+    .danger-zone h4 {
+      color: #dc2626;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    
+    .danger-button {
+      display: inline-block;
+      padding: 8px 20px;
+      background-color: #dc2626;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .danger-button:hover {
+      background-color: #b91c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <img src="/icons/logo.svg" alt="Profullstack, Inc. Logo">
+      <h1>Document Generation API</h1>
+    </div>
+    
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/api-docs.html" class="nav-link">API Docs</a>
+      <a href="/api-keys.html" class="nav-link">API Keys</a>
+      <a href="/login.html" class="nav-link">Login</a>
+      <a href="/register.html" class="subscription-link">Register</a>
+    </div>
+  </div>
+  
+  <div class="settings-container">
+    <h2>Account Settings</h2>
+    
+    <div class="settings-section">
+      <h3>Profile Information</h3>
+      <form id="profile-form">
+        <div class="form-group">
+          <label for="display-name">Display Name</label>
+          <input type="text" id="display-name" name="display-name">
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" readonly>
+        </div>
+        
+        <button type="submit" class="save-button">Save Changes</button>
+      </form>
+    </div>
+    
+    <div class="settings-section">
+      <h3>Change Password</h3>
+      <form id="password-form">
+        <div class="form-group">
+          <label for="current-password">Current Password</label>
+          <input type="password" id="current-password" name="current-password" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" name="new-password" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirm-password">Confirm New Password</label>
+          <input type="password" id="confirm-password" name="confirm-password" required>
+        </div>
+        
+        <button type="submit" class="save-button">Change Password</button>
+      </form>
+    </div>
+    
+    <div class="settings-section">
+      <h3>Subscription</h3>
+      <p>Current Plan: <span id="current-plan">Monthly ($5/month)</span></p>
+      <p>Next Billing Date: <span id="next-billing">May 18, 2025</span></p>
+      <p>Payment Method: <span id="payment-method">Bitcoin</span></p>
+      
+      <a href="/subscription.html" class="save-button">Manage Subscription</a>
+      
+      <div class="danger-zone">
+        <h4>Danger Zone</h4>
+        <p>Cancel your subscription and delete your account. This action cannot be undone.</p>
+        <button id="delete-account" class="danger-button">Delete Account</button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Check if user is logged in
+    const apiKey = localStorage.getItem('api_key');
+    if (!apiKey) {
+      // Redirect to login page if not logged in
+      window.location.href = '/login.html';
+    }
+    
+    // Populate form fields
+    document.getElementById('email').value = apiKey;
+    document.getElementById('display-name').value = localStorage.getItem('username') || apiKey;
+    
+    // Handle profile form submission
+    document.getElementById('profile-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const displayName = document.getElementById('display-name').value;
+      
+      // Update username in localStorage
+      localStorage.setItem('username', displayName);
+      
+      alert('Profile updated successfully!');
+    });
+    
+    // Handle password form submission
+    document.getElementById('password-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      if (newPassword !== confirmPassword) {
+        alert('New passwords do not match');
+        return;
+      }
+      
+      // In a real implementation, this would validate the current password
+      // and update the password on the server
+      
+      alert('Password changed successfully!');
+      
+      // Clear form
+      e.target.reset();
+    });
+    
+    // Handle delete account button
+    document.getElementById('delete-account').addEventListener('click', () => {
+      const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.');
+      
+      if (confirmed) {
+        // In a real implementation, this would delete the account on the server
+        
+        // Clear localStorage
+        localStorage.removeItem('api_key');
+        localStorage.removeItem('username');
+        
+        // Redirect to home page
+        window.location.href = '/';
+      }
+    });
+    
+    // Hide login and register links if user is logged in
+    const loginLink = document.querySelector('a[href="/login.html"]');
+    const registerLink = document.querySelector('a[href="/register.html"]');
+    
+    if (loginLink) loginLink.style.display = 'none';
+    if (registerLink) registerLink.style.display = 'none';
+    
+    // Add user dropdown
+    const navLinks = document.querySelector('.nav-links');
+    const username = localStorage.getItem('username') || apiKey;
+    
+    const dropdownHtml = `
+      <div class="user-dropdown">
+        <button class="dropdown-button">
+          <span class="username">${username}</span>
+          <svg class="dropdown-icon" width="12" height="6" viewBox="0 0 12 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L6 5L11 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="dropdown-menu">
+          <a href="/settings.html" class="dropdown-item">Settings</a>
+          <a href="#" class="dropdown-item logout-button">Logout</a>
+        </div>
+      </div>
+    `;
+    
+    navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+    
+    // Add event listener for dropdown toggle
+    const dropdownButton = document.querySelector('.dropdown-button');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    dropdownButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      dropdownMenu.classList.toggle('show');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('show');
+      }
+    });
+    
+    // Add event listener for logout
+    const logoutButton = document.querySelector('.logout-button');
+    logoutButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Clear localStorage
+      localStorage.removeItem('api_key');
+      localStorage.removeItem('username');
+      
+      // Redirect to home page
+      window.location.href = '/';
+    });
+  </script>
+</body>
+</html>

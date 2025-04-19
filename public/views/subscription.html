@@ -1,0 +1,90 @@
+<h1>Subscribe to Document Generation API</h1>
+
+<div class="pricing-table">
+  <div class="pricing-plan">
+    <div class="plan-name">Monthly</div>
+    <div class="plan-price">$5<small>/month</small></div>
+    <ul class="plan-features">
+      <li>Unlimited PDF Generation</li>
+      <li>Unlimited Word Documents</li>
+      <li>Unlimited Excel Spreadsheets</li>
+      <li>Unlimited PowerPoint Presentations</li>
+      <li>Unlimited EPUB E-books</li>
+      <li>Markdown Conversion</li>
+      <li>Email Support</li>
+    </ul>
+  </div>
+  
+  <div class="pricing-plan popular">
+    <div class="plan-name">Yearly</div>
+    <div class="plan-price">$30<small>/year</small></div>
+    <ul class="plan-features">
+      <li>Save over 50%!</li>
+      <li>Unlimited PDF Generation</li>
+      <li>Unlimited Word Documents</li>
+      <li>Unlimited Excel Spreadsheets</li>
+      <li>Unlimited PowerPoint Presentations</li>
+      <li>Unlimited EPUB E-books</li>
+      <li>Markdown Conversion</li>
+      <li>Priority Email Support</li>
+    </ul>
+  </div>
+</div>
+
+<div class="payment-methods">
+  <p>We accept cryptocurrency payments:</p>
+  <img src="/images/crypto/bitcoin.svg" alt="Bitcoin (BTC)" style="height: 30px; width: auto; margin: 0 10px;">
+  <img src="/images/crypto/ethereum.svg" alt="Ethereum (ETH)" style="height: 30px; width: auto; margin: 0 10px;">
+  <img src="/images/crypto/solana.svg" alt="Solana (SOL)" style="height: 30px; width: auto; margin: 0 10px;">
+  <img src="/images/crypto/usdc.svg" alt="USD Coin (USDC)" style="height: 30px; width: auto; margin: 0 10px;">
+</div>
+
+<subscription-form></subscription-form>
+
+<a href="/" class="back-link">Back to Document Generation</a>
+
+<div class="offline-notification" id="offline-notification">
+  You are currently offline. Some features may be limited.
+</div>
+
+<script type="module">
+  import { ApiClient } from '/js/api-client.js';
+  
+  // Check if we have subscription data in localStorage
+  document.addEventListener('DOMContentLoaded', () => {
+    const subscriptionData = localStorage.getItem('subscription_data');
+    
+    if (subscriptionData) {
+      try {
+        // Parse the subscription data
+        const data = JSON.parse(subscriptionData);
+        
+        // Get the subscription form component
+        const subscriptionForm = document.querySelector('subscription-form');
+        
+        // Set the subscription data
+        if (subscriptionForm) {
+          // Use the component's API to set the data
+          subscriptionForm._subscription = data.subscription;
+          subscriptionForm._paymentInfo = data.payment_info;
+          subscriptionForm._email = data.subscription.email;
+          subscriptionForm.render();
+          
+          // Clear the localStorage data to prevent reuse
+          localStorage.removeItem('subscription_data');
+        }
+      } catch (error) {
+        console.error('Error parsing subscription data:', error);
+      }
+    }
+  });
+  
+  // Handle offline/online status
+  window.addEventListener('online', () => {
+    document.getElementById('offline-notification').classList.remove('visible');
+  });
+  
+  window.addEventListener('offline', () => {
+    document.getElementById('offline-notification').classList.add('visible');
+  });
+</script>
