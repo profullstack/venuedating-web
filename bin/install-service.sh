@@ -41,28 +41,6 @@ else
   echo -e "${GREEN}Pandoc is already installed.${NC}"
 fi
 
-# Check Node.js version
-if command -v node &> /dev/null; then
-  echo -e "${GREEN}Node.js is already installed: $(node -v)${NC}"
-else
-  echo -e "${RED}Node.js not found. Please install Node.js before continuing.${NC}"
-  exit 1
-fi
-
-# Install pnpm if not already installed
-if ! command -v pnpm &> /dev/null; then
-  echo -e "${YELLOW}pnpm not found. Installing pnpm...${NC}"
-  npm install -g pnpm
-  if [ $? -eq 0 ]; then
-    echo -e "${GREEN}pnpm installed successfully: $(pnpm -v)${NC}"
-  else
-    echo -e "${RED}Failed to install pnpm. Please install it manually.${NC}"
-    exit 1
-  fi
-else
-  echo -e "${GREEN}pnpm is already installed: $(pnpm -v)${NC}"
-fi
-
 # Create log directory in systemd journal
 echo -e "${YELLOW}Setting up logging...${NC}"
 systemctl --user enable systemd-journald
@@ -79,15 +57,20 @@ ln -s "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
 echo -e "${YELLOW}Setting permissions...${NC}"
 chmod +x "$PROJECT_DIR/bin/start.sh"
 
-# Ensure node_modules is writable
-if [ -d "$PROJECT_DIR/node_modules" ]; then
-  echo -e "${YELLOW}Setting node_modules permissions...${NC}"
-  chmod -R 755 "$PROJECT_DIR/node_modules"
-fi
-
 # Install project dependencies
 echo -e "${YELLOW}Installing project dependencies...${NC}"
-cd "$PROJECT_DIR" && pnpm install
+# Get the original user who ran sudo
+ORIGINAL_USER=${SUDO_USER:-$USER}
+echo -e "${YELLOW}Running as original user: $ORIGINAL_USER${NC}"
+
+# Run pnpm install as the original user
+if [ "$EUID" -eq 0 ]; then
+  echo -e "${YELLOW}Running pnpm install as $ORIGINAL_USER...${NC}"
+  sudo -u "$ORIGINAL_USER" bash -c "cd \"$PROJECT_DIR\" && pnpm install"
+else
+  echo -e "${YELLOW}Running pnpm install as current user...${NC}"
+  cd "$PROJECT_DIR" && pnpm install
+fi
 
 # Reload systemd
 echo -e "${YELLOW}Reloading systemd...${NC}"
