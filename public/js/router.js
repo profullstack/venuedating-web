@@ -145,8 +145,8 @@ class Router {
       // Add the overlay to the body
       document.body.appendChild(transitionOverlay);
       
-      // Prevent scrolling during transition
-      document.body.style.overflow = 'hidden';
+      // We no longer need to prevent scrolling during transition
+      // document.body.style.overflow = 'hidden';
       
       // Fade in the overlay
       setTimeout(() => {
@@ -217,6 +217,7 @@ class Router {
         // Remove the overlay after the transition completes
         setTimeout(() => {
           document.body.removeChild(transitionOverlay);
+          // Ensure overflow is always reset
           document.body.style.overflow = '';
         }, 150); // Match the transition duration
       } else {
@@ -232,6 +233,7 @@ class Router {
         // Remove the overlay after the transition completes
         setTimeout(() => {
           document.body.removeChild(transitionOverlay);
+          // Ensure overflow is always reset
           document.body.style.overflow = '';
         }, 150); // Match the transition duration
       }
@@ -244,8 +246,10 @@ class Router {
       // Remove the overlay
       if (document.querySelector('.transition-overlay')) {
         document.body.removeChild(document.querySelector('.transition-overlay'));
-        document.body.style.overflow = '';
       }
+      
+      // Always ensure overflow is reset, even in error cases
+      document.body.style.overflow = '';
     } finally {
       // Clear loading state
       this.loading = false;
