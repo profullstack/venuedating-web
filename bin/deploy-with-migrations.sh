@@ -26,15 +26,21 @@ REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
 # Create SSH options
 SSH_OPTS="-p $REMOTE_PORT"
 
-# Deploy the code first
+# Deploy the code first using deploy.sh
 echo -e "${YELLOW}Running deployment script...${NC}"
 ./bin/deploy.sh
 
 echo -e "${GREEN}Deployment successful!${NC}"
 
-# Run install-service.sh on the remote server to install dependencies and set up the service
-echo -e "${YELLOW}Installing service and dependencies on remote server...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/install-service.sh && sudo ./bin/install-service.sh"
+# Check if INSTALL_SERVICE was set to true in the .env file
+# If it was, the service was already installed by deploy.sh
+if [ "$INSTALL_SERVICE" != "true" ]; then
+  # Run install-service.sh on the remote server to install dependencies and set up the service
+  echo -e "${YELLOW}Installing service and dependencies on remote server...${NC}"
+  ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/install-service.sh && sudo ./bin/install-service.sh"
+else
+  echo -e "${YELLOW}Skipping service installation as it was already done by deploy.sh...${NC}"
+fi
 
 # Run Supabase setup and migrations on the remote server
 echo -e "${YELLOW}Running Supabase setup and migrations on remote server...${NC}"
@@ -61,7 +67,7 @@ else
   exit 1
 fi
 
-# The service is already started by install-service.sh, but we'll restart it to be sure
+# Restart the service after all operations are complete
 echo -e "${YELLOW}Restarting service...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart profullstack-pdf.service"
 

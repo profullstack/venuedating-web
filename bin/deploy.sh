@@ -90,7 +90,8 @@ if ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
             echo -e "  cd $REMOTE_DIR && sudo ./bin/install-service.sh"
         fi
         
-        # Always reload systemd daemon after deployment
+        # We don't restart services here - that's handled by deploy-with-migrations.sh
+        # Just reload the systemd daemon
         echo -e "${YELLOW}Reloading systemd daemon on remote host...${NC}"
         ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl daemon-reload"
     else
