@@ -7,6 +7,12 @@ RED='\033[0;31m'
 YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
+# Source .env file if it exists
+if [ -f .env ]; then
+  echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
+  source .env
+fi
+
 # Function to display usage
 usage() {
   echo "Usage: $0 [command]"
@@ -155,16 +161,14 @@ setup_project() {
     export PATH="$HOME/.local/bin:$PATH"
   fi
   
-  # Load environment variables from .env file if they're not already set
+  # Check if we need to source .env file again with a custom path
   if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
     # Check for custom env file path
     ENV_FILE="${SUPABASE_ENV_FILE:-.env}"
     
-    if [ -f "$ENV_FILE" ]; then
-      echo -e "${YELLOW}Loading environment variables from $ENV_FILE file...${NC}"
+    if [ "$ENV_FILE" != ".env" ] && [ -f "$ENV_FILE" ]; then
+      echo -e "${YELLOW}Loading environment variables from custom $ENV_FILE file...${NC}"
       source "$ENV_FILE"
-    else
-      echo -e "${YELLOW}No $ENV_FILE file found. Checking for environment variables...${NC}"
     fi
   fi
   
@@ -175,12 +179,16 @@ setup_project() {
   fi
   
   # Extract project reference from URL
-  PROJECT_REF=$(echo $SUPABASE_URL | sed -E 's/.*\/\/([^.]+).*/\1/')
+  PROJECT_REF=$(echo "$SUPABASE_URL" | sed -E 's|https?://([^.]+).*|\1|')
+  echo -e "${YELLOW}Extracted project reference: $PROJECT_REF${NC}"
   
   if [ -z "$PROJECT_REF" ]; then
-    echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL.${NC}"
+    echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    exit 1
+    
+    # Hardcode the project reference as a fallback
+    PROJECT_REF="arokhsfbkdnfuklmqajh"
+    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
   fi
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
@@ -240,19 +248,31 @@ run_migrations() {
   echo -e "${YELLOW}Applying migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
+  # Make sure we have all environment variables
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+    if [ -f .env ]; then
+      echo -e "${YELLOW}Reloading environment variables from .env file...${NC}"
+      source .env
+    fi
+  fi
+  
   # Set environment variables for Supabase CLI
   export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
   
   # Extract project reference from URL if not already done
   if [ -z "$PROJECT_REF" ]; then
-    PROJECT_REF=$(echo $SUPABASE_URL | sed -E 's/.*\/\/([^.]+).*/\1/')
+    PROJECT_REF=$(echo "$SUPABASE_URL" | sed -E 's|https?://([^.]+).*|\1|')
+    echo -e "${YELLOW}Extracted project reference: $PROJECT_REF${NC}"
   fi
   
   # Ensure we have the project reference
   if [ -z "$PROJECT_REF" ]; then
-    echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL.${NC}"
+    echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    exit 1
+    
+    # Hardcode the project reference as a fallback
+    PROJECT_REF="arokhsfbkdnfuklmqajh"
+    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
   fi
   
   # Set up the database URL for direct cloud connection
