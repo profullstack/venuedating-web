@@ -85,21 +85,10 @@ fi
 echo -e "${YELLOW}Installing system dependencies...${NC}"
 if command -v apt-get &> /dev/null; then
   apt-get update
-  apt-get install -y librsvg2-bin gnome-keyring dbus-x11
-  
-  # Set up dbus for gnome-keyring
-  echo -e "${YELLOW}Setting up dbus and gnome-keyring...${NC}"
-  mkdir -p /var/cache
-  dbus-launch --sh-syntax > /var/cache/dbus-env
-  source /var/cache/dbus-env
-  
-  # Initialize the keyring
-  echo -e "${YELLOW}Initializing gnome-keyring...${NC}"
-  echo -n "password" | gnome-keyring-daemon --unlock
-  
+  apt-get install -y librsvg2-bin
   echo -e "${GREEN}System dependencies installed.${NC}"
 else
-  echo -e "${YELLOW}apt-get not found. Please install librsvg2-bin, gnome-keyring, and dbus-x11 manually.${NC}"
+  echo -e "${YELLOW}apt-get not found. Please install librsvg2-bin manually.${NC}"
 fi
 
 # Install project dependencies automatically
