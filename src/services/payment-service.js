@@ -13,10 +13,11 @@ export const paymentService = {
    * @private
    */
   _getCryptAPIClient(coin) {
+    // Hardcoded cryptocurrency wallet addresses
     const addresses = {
-      btc: process.env.BITCOIN_ADDRESS,
-      eth: process.env.ETHEREUM_ADDRESS,
-      sol: process.env.SOLANA_ADDRESS
+      btc: "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
+      eth: "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
+      sol: "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF"
     };
     
     if (!addresses[coin]) {
@@ -44,10 +45,8 @@ export const paymentService = {
       throw new Error('Invalid cryptocurrency. Must be "btc", "eth", or "sol".');
     }
     
-    // Calculate amount and expiration date
-    const amount = plan === 'monthly' 
-      ? (process.env.MONTHLY_SUBSCRIPTION_PRICE || 5) 
-      : (process.env.YEARLY_SUBSCRIPTION_PRICE || 30);
+    // Calculate amount and expiration date with hardcoded prices
+    const amount = plan === 'monthly' ? 5 : 30;
     
     const now = new Date();
     const expirationDate = new Date(now);
@@ -76,7 +75,7 @@ export const paymentService = {
     
     // Generate payment invoice
     const cryptapi = this._getCryptAPIClient(coin);
-    const callbackUrl = `${process.env.API_BASE_URL || 'https://pdf.profullstack.com'}/api/1/payment-callback`;
+    const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
     
     const invoice = await cryptapi.createAddress({
       callback: callbackUrl,

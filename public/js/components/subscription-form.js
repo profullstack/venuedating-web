@@ -229,11 +229,11 @@ export class SubscriptionForm extends BaseComponent {
           <div class="radio-group">
             <div class="radio-option">
               <input type="radio" id="monthly" name="plan" value="monthly" ${this._plan === 'monthly' ? 'checked' : ''}>
-              <label for="monthly">Monthly - $${process.env.MONTHLY_SUBSCRIPTION_PRICE || 5}/month</label>
+              <label for="monthly">Monthly - $5/month</label>
             </div>
             <div class="radio-option">
               <input type="radio" id="yearly" name="plan" value="yearly" ${this._plan === 'yearly' ? 'checked' : ''}>
-              <label for="yearly">Yearly - $${process.env.YEARLY_SUBSCRIPTION_PRICE || 30}/year (Save over 50%!)</label>
+              <label for="yearly">Yearly - $30/year (Save over 50%!)</label>
             </div>
           </div>
         </div>
