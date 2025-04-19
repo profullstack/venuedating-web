@@ -76,6 +76,18 @@ jobs:
           # Make scripts executable
           chmod +x ./bin/supabase-db.sh
           
+          # Debug: Check .env file existence
+          echo "Checking .env file..."
+          if [ -f .env ]; then
+            echo ".env file exists with $(grep -c '' .env) lines"
+            # Check if required variables are in .env (without showing values)
+            grep -q "SUPABASE_URL" .env && echo "SUPABASE_URL is set" || echo "SUPABASE_URL is missing"
+            grep -q "SUPABASE_KEY" .env && echo "SUPABASE_KEY is set" || echo "SUPABASE_KEY is missing"
+            grep -q "SUPABASE_DB_PASSWORD" .env && echo "SUPABASE_DB_PASSWORD is set" || echo "SUPABASE_DB_PASSWORD is missing"
+          else
+            echo ".env file does not exist"
+          fi
+          
           # Setup Supabase project
           ./bin/supabase-db.sh setup
           
@@ -84,6 +96,10 @@ jobs:
           
           # Verify installation
           supabase --version
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       
       - name: Deploy to server with migrations
         run: |
@@ -108,3 +124,6 @@ jobs:
           DEPLOY_REMOTE_USER: ubuntu
           DEPLOY_REMOTE_DIR: www/profullstack.com/pdf
           INSTALL_SERVICE: true
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}

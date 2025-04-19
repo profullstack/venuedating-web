@@ -41,7 +41,23 @@ This repository is configured to automatically deploy to the production server w
    - Value: Copy the entire content of your .env file
    - Click "Add secret"
    
-   c. **Server Known Hosts** (as a fallback):
+   c. **Supabase Configuration**:
+   - Click "New repository secret"
+   - Name: `SUPABASE_URL`
+   - Value: Your Supabase project URL (e.g., https://your-project-ref.supabase.co)
+   - Click "Add secret"
+   
+   - Click "New repository secret"
+   - Name: `SUPABASE_KEY`
+   - Value: Your Supabase service role API key
+   - Click "Add secret"
+   
+   - Click "New repository secret"
+   - Name: `SUPABASE_DB_PASSWORD`
+   - Value: Your Supabase database password
+   - Click "Add secret"
+   
+   d. **Server Known Hosts** (as a fallback):
    - Run this command locally to get the server's SSH key fingerprint (using the correct port):
      ```bash
      ssh-keyscan -p 2048 104.36.23.197

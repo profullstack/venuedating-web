@@ -63,18 +63,19 @@ setup_project() {
     export PATH="$HOME/.local/bin:$PATH"
   fi
   
-  # Load environment variables from .env file
-  if [ -f .env ]; then
-    echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
-    source .env
-  else
-    echo -e "${RED}No .env file found. Please create one with SUPABASE_URL, SUPABASE_KEY, and SUPABASE_DB_PASSWORD.${NC}"
-    exit 1
+  # Load environment variables from .env file if they're not already set
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
+    if [ -f .env ]; then
+      echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
+      source .env
+    else
+      echo -e "${YELLOW}No .env file found. Checking for environment variables...${NC}"
+    fi
   fi
   
   # Check if required environment variables are set
   if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
-    echo -e "${RED}Error: SUPABASE_URL, SUPABASE_KEY, and SUPABASE_DB_PASSWORD must be set in .env file.${NC}"
+    echo -e "${RED}Error: SUPABASE_URL, SUPABASE_KEY, and SUPABASE_DB_PASSWORD must be set either in .env file or as environment variables.${NC}"
     exit 1
   fi
   
