@@ -66,6 +66,7 @@ Available environment variables:
 | DEPLOY_REMOTE_HOST | Hostname for deployment | profullstack |
 | DEPLOY_REMOTE_DIR | Remote directory path for deployment | www/profullstack.com/pdf |
 | INSTALL_SERVICE | Whether to install the systemd service during deployment | false |
+| FIX_SERVICE | Whether to run the service fix script during deployment | false |
 | SERVICE_NAME | Name of the systemd service | profullstack-pdf |
 | SERVICE_USER | User to run the service as | ubuntu |
 | SERVICE_GROUP | Group to run the service as | ubuntu |

@@ -47,7 +47,15 @@ if ssh $REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
             if [ "$CAN_SUDO" = "yes" ]; then
                 # Run the install-service.sh script on the remote host
                 echo -e "${YELLOW}Running install-service.sh on remote host...${NC}"
+                # Make sure the install-service.sh script is executable
+                ssh $REMOTE_HOST "chmod +x $REMOTE_DIR/bin/install-service.sh"
+                
+                # Run the install-service.sh script with verbose output
                 ssh $REMOTE_HOST "cd $REMOTE_DIR && sudo ./bin/install-service.sh"
+                
+                # Check if the service is running
+                echo -e "${YELLOW}Checking service status on remote host...${NC}"
+                ssh $REMOTE_HOST "sudo systemctl status $SERVICE_NAME"
                 
                 if [ $? -eq 0 ]; then
                     echo -e "${GREEN}Service installed successfully!${NC}"
@@ -66,6 +74,10 @@ if ssh $REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
             echo -e "${YELLOW}or connect to the remote host and run:${NC}"
             echo -e "  cd $REMOTE_DIR && sudo ./bin/install-service.sh"
         fi
+        
+        # Always reload systemd daemon after deployment
+        echo -e "${YELLOW}Reloading systemd daemon on remote host...${NC}"
+        ssh $REMOTE_HOST "sudo systemctl daemon-reload"
     else
         echo -e "${RED}Deployment failed. Please check the error messages above.${NC}"
         exit 1

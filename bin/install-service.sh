@@ -28,31 +28,11 @@ SERVICE_USER=${SERVICE_USER:-"ubuntu"}
 SERVICE_GROUP=${SERVICE_GROUP:-"ubuntu"}
 SERVICE_WORKING_DIR=${SERVICE_WORKING_DIR:-"$PROJECT_DIR"}
 START_SCRIPT=${START_SCRIPT:-"$PROJECT_DIR/bin/start.sh"}
-SYSTEMD_DIR="/etc/systemd/system"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
-# Print environment for debugging
-echo -e "${YELLOW}Environment:${NC}"
-echo -e "${YELLOW}PROJECT_DIR: $PROJECT_DIR${NC}"
-echo -e "${YELLOW}SERVICE_NAME: $SERVICE_NAME${NC}"
-echo -e "${YELLOW}SERVICE_USER: $SERVICE_USER${NC}"
-echo -e "${YELLOW}SERVICE_GROUP: $SERVICE_GROUP${NC}"
-echo -e "${YELLOW}SERVICE_WORKING_DIR: $SERVICE_WORKING_DIR${NC}"
-echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
-echo -e "${YELLOW}SERVICE_FILE: $SERVICE_FILE${NC}"
+echo -e "${YELLOW}Creating service file at $SERVICE_FILE${NC}"
 
-# Create service file directly in the systemd directory
-echo -e "${YELLOW}Creating service file directly in systemd directory...${NC}"
-
-# Print actual values for debugging
-echo -e "${YELLOW}Using actual values:${NC}"
-echo -e "${YELLOW}SERVICE_USER: $SERVICE_USER${NC}"
-echo -e "${YELLOW}SERVICE_GROUP: $SERVICE_GROUP${NC}"
-echo -e "${YELLOW}SERVICE_WORKING_DIR: $SERVICE_WORKING_DIR${NC}"
-echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
-echo -e "${YELLOW}SERVICE_NAME: $SERVICE_NAME${NC}"
-
-# Write directly to systemd directory with explicit values
+# Create service file with explicit values
 cat > "$SERVICE_FILE" << EOF
 [Unit]
 Description=Document Generation Service
@@ -60,21 +40,21 @@ After=network.target
 
 [Service]
 Type=simple
-User=${EXPANDED_SERVICE_USER}
-Group=${EXPANDED_SERVICE_GROUP}
-WorkingDirectory=${EXPANDED_SERVICE_WORKING_DIR}
-ExecStart=/bin/zsh ${EXPANDED_START_SCRIPT}
+User=$SERVICE_USER
+Group=$SERVICE_GROUP
+WorkingDirectory=$SERVICE_WORKING_DIR
+ExecStart=/bin/zsh $START_SCRIPT
 Restart=on-failure
 RestartSec=10
 
 # Log to files instead of journal
-StandardOutput=append:/var/log/${EXPANDED_SERVICE_NAME}.log
-StandardError=append:/var/log/${EXPANDED_SERVICE_NAME}.error.log
+StandardOutput=append:/var/log/$SERVICE_NAME.log
+StandardError=append:/var/log/$SERVICE_NAME.error.log
 
 # Environment
 Environment=NODE_ENV=production
-Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/${EXPANDED_SERVICE_USER}/.local/share/pnpm:/home/${EXPANDED_SERVICE_USER}/.npm/pnpm/bin
-Environment=HOME=/home/${EXPANDED_SERVICE_USER}
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/$SERVICE_USER/.local/share/pnpm:/home/$SERVICE_USER/.npm/pnpm/bin
+Environment=HOME=/home/$SERVICE_USER
 
 # Hardening
 ProtectSystem=full
@@ -85,59 +65,20 @@ NoNewPrivileges=true
 WantedBy=multi-user.target
 EOF
 
-echo -e "${GREEN}Service file created successfully at $SERVICE_FILE${NC}"
-echo -e "${YELLOW}Service file content:${NC}"
-cat "$SERVICE_FILE"
-
-# Ensure proper permissions on the service file
-echo -e "${YELLOW}Setting proper permissions on service file...${NC}"
+# Set proper permissions
 chmod 644 "$SERVICE_FILE"
 
-echo -e "${GREEN}Installing $SERVICE_NAME service...${NC}"
-
-# Install dependencies
-echo -e "${YELLOW}Checking and installing dependencies...${NC}"
-
-# Install pandoc if not already installed
-if ! command -v pandoc &> /dev/null; then
-  echo -e "${YELLOW}Pandoc not found. Installing pandoc...${NC}"
-  apt-get update
-  apt-get install -y pandoc
-  if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Pandoc installed successfully.${NC}"
-  else
-    echo -e "${RED}Failed to install pandoc. Please install it manually.${NC}"
-    exit 1
-  fi
-else
-  echo -e "${GREEN}Pandoc is already installed.${NC}"
-fi
-
-# Ensure log directories exist
-echo -e "${YELLOW}Setting up logging...${NC}"
+# Ensure log files exist
 mkdir -p /var/log
 touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 
-# Verify the content of the service file
-echo -e "${YELLOW}Verifying service file content:${NC}"
-cat "$SERVICE_FILE"
-
-# Make the start script executable and set permissions
-echo -e "${YELLOW}Setting permissions...${NC}"
-
-# Define the start script path
-START_SCRIPT="${START_SCRIPT:-$PROJECT_DIR/bin/start.sh}"
-echo -e "${YELLOW}Start script path: $START_SCRIPT${NC}"
-
+# Make start script executable
 if [ -f "$START_SCRIPT" ]; then
   chmod +x "$START_SCRIPT"
-  echo -e "${GREEN}Successfully set permissions on start script${NC}"
+  echo -e "${GREEN}Made start script executable${NC}"
 else
-  echo -e "${RED}Start script not found at $START_SCRIPT${NC}"
-  echo -e "${YELLOW}Checking if it exists in the project directory...${NC}"
-  find "$PROJECT_DIR" -name "start.sh" -type f 2>/dev/null
-  exit 1
+  echo -e "${RED}Warning: Start script not found at $START_SCRIPT${NC}"
 fi
 
 # Install project dependencies
@@ -165,7 +106,13 @@ echo -e "${YELLOW}Enabling and starting the service...${NC}"
 systemctl enable $SERVICE_NAME
 systemctl start $SERVICE_NAME
 
-# Check the status
+# Check for any unexpanded variables
+if grep -q "\${" "$SERVICE_FILE"; then
+  echo -e "${RED}ERROR: Service file contains unexpanded variables!${NC}"
+  exit 1
+fi
+
+# Show status
 echo -e "${YELLOW}Service status:${NC}"
 systemctl status $SERVICE_NAME
 
