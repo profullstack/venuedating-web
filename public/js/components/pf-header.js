@@ -137,10 +137,10 @@ class PfHeader extends HTMLElement {
         
         <div class="nav-links">
           <a href="/" class="nav-link">Home</a>
-          <a href="/api-docs.html" class="nav-link">API Docs</a>
-          <a href="/api-keys.html" class="nav-link">API Keys</a>
-          <a href="/login.html" class="nav-link login-link">Login</a>
-          <a href="/register.html" class="subscription-link register-link">Register</a>
+          <a href="/api-docs" class="nav-link">API Docs</a>
+          <a href="/api-keys" class="nav-link">API Keys</a>
+          <a href="/login" class="nav-link login-link">Login</a>
+          <a href="/register" class="subscription-link register-link">Register</a>
         </div>
       </div>
     `;
@@ -189,7 +189,7 @@ class PfHeader extends HTMLElement {
             </svg>
           </button>
           <div class="dropdown-menu">
-            <a href="/settings.html" class="dropdown-item">Settings</a>
+            <a href="/settings" class="dropdown-item">Settings</a>
             <a href="#" class="dropdown-item logout-button">Logout</a>
           </div>
         </div>
@@ -241,7 +241,7 @@ class PfHeader extends HTMLElement {
     
     // Redirect to home page if on a protected page
     const currentPath = window.location.pathname;
-    const protectedPages = ['/api-keys.html', '/settings.html'];
+    const protectedPages = ['/api-keys', '/settings'];
     
     if (protectedPages.includes(currentPath)) {
       window.location.href = '/';

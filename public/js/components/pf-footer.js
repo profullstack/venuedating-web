@@ -86,15 +86,15 @@ class PfFooter extends HTMLElement {
             <h3>Document Generation API</h3>
             <ul class="footer-links">
               <li><a href="/">Home</a></li>
-              <li><a href="/api-docs.html">API Documentation</a></li>
-              <li><a href="/subscription.html">Pricing</a></li>
+              <li><a href="/api-docs">API Documentation</a></li>
+              <li><a href="/subscription">Pricing</a></li>
             </ul>
           </div>
           
           <div class="footer-section">
             <h3>Resources</h3>
             <ul class="footer-links">
-              <li><a href="/api-keys.html">API Keys</a></li>
+              <li><a href="/api-keys">API Keys</a></li>
               <li><a href="https://github.com/profullstack/pdf" target="_blank">GitHub</a></li>
               <li><a href="mailto:support@profullstack.com">Support</a></li>
             </ul>
@@ -103,8 +103,8 @@ class PfFooter extends HTMLElement {
           <div class="footer-section">
             <h3>Legal</h3>
             <ul class="footer-links">
-              <li><a href="/terms.html">Terms of Service</a></li>
-              <li><a href="/privacy.html">Privacy Policy</a></li>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
             </ul>
           </div>
         </div>

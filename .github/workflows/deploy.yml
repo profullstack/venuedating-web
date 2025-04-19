@@ -84,52 +84,30 @@ jobs:
           # Print confirmation (without showing the content for security)
           echo "Created .env file with $(grep -c '' .env) lines"
           
-      - name: Install Supabase CLI and setup project
+      - name: Prepare for deployment
         run: |
           # Make scripts executable
           chmod +x ./bin/supabase-db.sh
+          chmod +x ./bin/deploy.sh
+          chmod +x ./bin/deploy-with-migrations.sh
           
           # Debug: Check .env file existence
           echo "Checking .env file..."
           if [ -f .env ]; then
             echo ".env file exists with $(grep -c '' .env) lines"
-            # Check if required variables are in .env (without showing values)
-            grep -q "SUPABASE_URL" .env && echo "SUPABASE_URL is set" || echo "SUPABASE_URL is missing"
-            grep -q "SUPABASE_KEY" .env && echo "SUPABASE_KEY is set" || echo "SUPABASE_KEY is missing"
-            grep -q "SUPABASE_DB_PASSWORD" .env && echo "SUPABASE_DB_PASSWORD is set" || echo "SUPABASE_DB_PASSWORD is missing"
-            grep -q "SUPABASE_ACCESS_TOKEN" .env && echo "SUPABASE_ACCESS_TOKEN is set" || echo "SUPABASE_ACCESS_TOKEN is missing"
           else
             echo ".env file does not exist"
           fi
-          
-          # Setup Supabase project
-          ./bin/supabase-db.sh setup
-          
-          # Add to PATH
-          export PATH="$HOME/.local/bin:$PATH"
-          
-          # Verify installation
-          supabase --version
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       
       - name: Deploy to server with migrations
         run: |
-          # Make deploy scripts executable
-          chmod +x ./bin/deploy.sh
-          chmod +x ./bin/deploy-with-migrations.sh
-          
           # Print debug info
           echo "Current directory: $(pwd)"
           echo "Files in bin directory:"
           ls -la ./bin
           
           # Run deploy script with migrations
-          DEPLOY_REMOTE_HOST=104.36.23.197 DEPLOY_REMOTE_PORT=2048 DEPLOY_REMOTE_USER=ubuntu ./bin/deploy-with-migrations.sh
+          ./bin/deploy-with-migrations.sh
           
           # Run test script to verify deployment
           echo "Running test script on remote server..."
@@ -140,7 +118,3 @@ jobs:
           DEPLOY_REMOTE_USER: ubuntu
           DEPLOY_REMOTE_DIR: www/profullstack.com/pdf
           INSTALL_SERVICE: true
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

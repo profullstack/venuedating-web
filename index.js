@@ -5,6 +5,7 @@ import puppeteer from 'puppeteer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenvFlow from 'dotenv-flow';
+import fs from 'fs/promises';
 import { marked } from 'marked';
 import * as XLSX from 'xlsx';
 import { JSDOM } from 'jsdom';
@@ -17,8 +18,64 @@ dotenvFlow.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = new Hono();
 
+// SPA routing middleware
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  const pathname = url.pathname;
+  
+  // Skip API routes
+  if (pathname.startsWith('/api/')) {
+    return next();
+  }
+  
+  // If the path has no extension, it might be an SPA route
+  if (pathname !== '/' && !pathname.includes('.')) {
+    // Try to serve the HTML file with the same name
+    const htmlPath = path.join(__dirname, 'public', `${pathname}.html`);
+    const viewsPath = path.join(__dirname, 'public', 'views', `${pathname}.html`);
+    
+    try {
+      // Check if the HTML file exists in public directory
+      await fs.access(htmlPath);
+      // If it exists, rewrite the URL to the HTML file
+      c.req.url = new URL(`${pathname}.html`, c.req.url).toString();
+      return next();
+    } catch (e) {
+      try {
+        // Check if the HTML file exists in views directory
+        await fs.access(viewsPath);
+        // If it exists, rewrite the URL to the views HTML file
+        c.req.url = new URL(`/views${pathname}.html`, c.req.url).toString();
+        return next();
+      } catch (e) {
+        // If neither exists, let it fall through to the SPA handler
+      }
+    }
+  }
+  
+  return next();
+});
+
 // Serve static files from the public directory
 app.use('/*', serveStatic({ root: './public' }));
+
+// SPA fallback for routes that don't match any static files
+app.get('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  const pathname = url.pathname;
+  
+  // Skip API routes and files with extensions
+  if (pathname.startsWith('/api/') || pathname.includes('.')) {
+    return next();
+  }
+  
+  // If we got here, it's a client-side route, serve the index.html
+  // This allows the client-side router to handle the route
+  console.log(`Serving index.html for SPA route: ${pathname}`);
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  const indexContent = await fs.readFile(indexPath, 'utf-8');
+  return c.html(indexContent);
+});
 
 // Health check endpoint
 app.get('/', (c) => {
