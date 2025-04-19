@@ -128,11 +128,15 @@ class Router {
         newViewContainer.style.position = 'absolute';
         newViewContainer.style.top = '0';
         newViewContainer.style.left = '0';
+        newViewContainer.style.right = '0';
+        newViewContainer.style.bottom = '0';
         newViewContainer.style.width = '100%';
         newViewContainer.style.height = '100%';
         newViewContainer.style.opacity = '0';
         newViewContainer.style.zIndex = '5';
         newViewContainer.style.transition = 'opacity 200ms ease-in-out';
+        newViewContainer.style.backgroundColor = 'var(--background-color)';
+        newViewContainer.style.overflow = 'auto';
         
         // Get view content
         let content;
@@ -175,11 +179,24 @@ class Router {
         currentContent.style.zIndex = '1';
         currentContent.style.opacity = '1';
         currentContent.style.transition = 'opacity 200ms ease-in-out';
+        currentContent.style.backgroundColor = 'var(--background-color)';
+        currentContent.style.width = '100%';
+        currentContent.style.height = '100%';
+        currentContent.style.overflow = 'hidden';
         
-        // Move all current children (except the new view container) into the wrapper
+        // Clone all current children (except the new view container) into the wrapper
+        // Using cloneNode to avoid DOM manipulation issues
         Array.from(rootElement.children).forEach(child => {
           if (child !== newViewContainer) {
-            currentContent.appendChild(child);
+            const clone = child.cloneNode(true);
+            currentContent.appendChild(clone);
+          }
+        });
+        
+        // Clear the root element except for the new view container
+        Array.from(rootElement.children).forEach(child => {
+          if (child !== newViewContainer) {
+            rootElement.removeChild(child);
           }
         });
         
@@ -229,11 +246,15 @@ class Router {
         newViewContainer.style.position = 'absolute';
         newViewContainer.style.top = '0';
         newViewContainer.style.left = '0';
+        newViewContainer.style.right = '0';
+        newViewContainer.style.bottom = '0';
         newViewContainer.style.width = '100%';
         newViewContainer.style.height = '100%';
         newViewContainer.style.opacity = '0';
         newViewContainer.style.zIndex = '5';
         newViewContainer.style.transition = 'opacity 200ms ease-in-out';
+        newViewContainer.style.backgroundColor = 'var(--background-color)';
+        newViewContainer.style.overflow = 'auto';
         
         // Call the error handler to get the 404 content
         this.errorHandler(path, newViewContainer);
@@ -254,11 +275,24 @@ class Router {
         currentContent.style.zIndex = '1';
         currentContent.style.opacity = '1';
         currentContent.style.transition = 'opacity 200ms ease-in-out';
+        currentContent.style.backgroundColor = 'var(--background-color)';
+        currentContent.style.width = '100%';
+        currentContent.style.height = '100%';
+        currentContent.style.overflow = 'hidden';
         
-        // Move all current children (except the new view container) into the wrapper
+        // Clone all current children (except the new view container) into the wrapper
+        // Using cloneNode to avoid DOM manipulation issues
         Array.from(rootElement.children).forEach(child => {
           if (child !== newViewContainer) {
-            currentContent.appendChild(child);
+            const clone = child.cloneNode(true);
+            currentContent.appendChild(clone);
+          }
+        });
+        
+        // Clear the root element except for the new view container
+        Array.from(rootElement.children).forEach(child => {
+          if (child !== newViewContainer) {
+            rootElement.removeChild(child);
           }
         });
         
