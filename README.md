@@ -57,6 +57,11 @@ This repository is configured to automatically deploy to the production server w
    - Value: Your Supabase database password
    - Click "Add secret"
    
+   - Click "New repository secret"
+   - Name: `SUPABASE_ACCESS_TOKEN`
+   - Value: Your Supabase access token (from https://supabase.com/dashboard/account/tokens)
+   - Click "Add secret"
+   
    d. **Server Known Hosts** (as a fallback):
    - Run this command locally to get the server's SSH key fingerprint (using the correct port):
      ```bash

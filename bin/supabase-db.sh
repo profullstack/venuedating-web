@@ -172,7 +172,7 @@ setup_project() {
   fi
   
   # Load environment variables from .env file if they're not already set
-  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
     if [ -f .env ]; then
       echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
       source .env
@@ -182,8 +182,8 @@ setup_project() {
   fi
   
   # Check if required environment variables are set
-  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
-    echo -e "${RED}Error: SUPABASE_URL, SUPABASE_KEY, and SUPABASE_DB_PASSWORD must be set either in .env file or as environment variables.${NC}"
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+    echo -e "${RED}Error: SUPABASE_URL, SUPABASE_KEY, SUPABASE_DB_PASSWORD, and SUPABASE_ACCESS_TOKEN must be set either in .env file or as environment variables.${NC}"
     exit 1
   fi
   
