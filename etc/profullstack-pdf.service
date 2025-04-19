@@ -7,7 +7,7 @@ Type=simple
 User=ubuntu
 Group=ubuntu
 WorkingDirectory=/home/ubuntu/www/profullstack.com/pdf
-ExecStart=/home/ubuntu/www/profullstack.com/pdf/bin/start.sh
+ExecStart=/bin/zsh /home/ubuntu/www/profullstack.com/pdf/bin/start.sh
 Restart=on-failure
 RestartSec=10
 

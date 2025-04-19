@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -41,9 +41,11 @@ else
   echo -e "${GREEN}Pandoc is already installed.${NC}"
 fi
 
-# Create log directory in systemd journal
+# Ensure log directories exist
 echo -e "${YELLOW}Setting up logging...${NC}"
-systemctl --user enable systemd-journald
+mkdir -p /var/log
+touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
+chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 
 # Create symbolic link to the service file
 echo -e "${YELLOW}Creating symbolic link to service file...${NC}"
@@ -59,17 +61,18 @@ chmod +x "$PROJECT_DIR/bin/start.sh"
 
 # Install project dependencies
 echo -e "${YELLOW}Installing project dependencies...${NC}"
+
 # Get the original user who ran sudo
 ORIGINAL_USER=${SUDO_USER:-$USER}
-echo -e "${YELLOW}Running as original user: $ORIGINAL_USER${NC}"
+echo -e "${YELLOW}Original user: $ORIGINAL_USER${NC}"
 
-# Run pnpm install as the original user
+# Run pnpm install with zsh and loading .zshrc
 if [ "$EUID" -eq 0 ]; then
-  echo -e "${YELLOW}Running pnpm install as $ORIGINAL_USER...${NC}"
-  sudo -u "$ORIGINAL_USER" bash -c "cd \"$PROJECT_DIR\" && pnpm install"
+  echo -e "${YELLOW}Running pnpm install as $ORIGINAL_USER with zsh...${NC}"
+  sudo -u "$ORIGINAL_USER" zsh -c "source /home/$ORIGINAL_USER/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 else
   echo -e "${YELLOW}Running pnpm install as current user...${NC}"
-  cd "$PROJECT_DIR" && pnpm install
+  zsh -c "source $HOME/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 fi
 
 # Reload systemd
