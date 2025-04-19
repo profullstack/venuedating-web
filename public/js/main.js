@@ -8,11 +8,17 @@ import './components/pf-header.js';
 import './components/pf-footer.js';
 import './components/pf-dialog.js';
 
-// Wait for DOM to be ready
+// Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize the application
+  console.log('DOM fully loaded, initializing app');
   initApp();
 });
+
+// Also initialize immediately to handle direct navigation
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  console.log('Document already ready, initializing app');
+  initApp();
+}
 
 /**
  * Initialize the application
@@ -56,6 +62,13 @@ function initRouter() {
     }
   };
   
+  // Add aliases for routes with .html extension
+  Object.keys(routes).forEach(path => {
+    if (path !== '/') {
+      routes[`${path}.html`] = routes[path];
+    }
+  });
+  
   // Create router
   const router = new Router({
     routes,
@@ -84,7 +97,10 @@ function initRouter() {
  */
 async function loadPage(url) {
   try {
-    const response = await fetch(url);
+    console.log(`Loading page: ${url}`);
+    // Add cache-busting parameter to prevent caching
+    const cacheBuster = `?_=${Date.now()}`;
+    const response = await fetch(`${url}${cacheBuster}`);
     if (!response.ok) {
       throw new Error(`Failed to load page: ${response.status} ${response.statusText}`);
     }
@@ -95,8 +111,17 @@ async function loadPage(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Get the content
-    const content = doc.querySelector('body').innerHTML;
+    // Get the content - either from body or the first element
+    let content;
+    if (doc.body.children.length === 0) {
+      content = doc.body.innerHTML;
+    } else if (doc.body.children.length === 1) {
+      // If there's a single container, use it directly
+      content = doc.body.innerHTML;
+    } else {
+      // Otherwise wrap all content
+      content = doc.body.innerHTML;
+    }
     
     // Wrap with our components
     return `
@@ -144,14 +169,10 @@ function initLoginPage() {
       window.dispatchEvent(new CustomEvent('auth-changed'));
       
       // Redirect to the API keys page
-      if (window.router) {
-        window.router.navigate('/api-keys');
-      } else {
-        window.location.href = '/api-keys.html';
-      }
+      window.router.navigate('/api-keys');
     } catch (error) {
       console.error('Login error:', error);
-      PfDialog.alert('Login failed. Please try again.');
+      alert('Login failed. Please try again.');
     }
   });
 }
@@ -163,6 +184,28 @@ function initRegisterPage() {
   const form = document.getElementById('register-form');
   if (!form) return;
   
+  // Set up plan selection
+  const planOptions = document.querySelectorAll('.plan-option');
+  if (planOptions.length > 0) {
+    planOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        planOptions.forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+  }
+  
+  // Set up payment method selection
+  const paymentMethods = document.querySelectorAll('.payment-method');
+  if (paymentMethods.length > 0) {
+    paymentMethods.forEach(method => {
+      method.addEventListener('click', () => {
+        paymentMethods.forEach(m => m.classList.remove('selected'));
+        method.classList.add('selected');
+      });
+    });
+  }
+  
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -171,8 +214,22 @@ function initRegisterPage() {
     const confirmPassword = document.getElementById('confirm-password').value;
     
     if (password !== confirmPassword) {
-      PfDialog.alert('Passwords do not match');
+      alert('Passwords do not match');
       return;
+    }
+    
+    // Get selected plan and payment method if they exist
+    let selectedPlan = 'monthly';
+    let selectedPayment = 'btc';
+    
+    const selectedPlanElement = document.querySelector('.plan-option.selected');
+    if (selectedPlanElement) {
+      selectedPlan = selectedPlanElement.dataset.plan;
+    }
+    
+    const selectedPaymentElement = document.querySelector('.payment-method.selected');
+    if (selectedPaymentElement) {
+      selectedPayment = selectedPaymentElement.dataset.payment;
     }
     
     try {
@@ -181,40 +238,76 @@ function initRegisterPage() {
       localStorage.setItem('api_key', email);
       localStorage.setItem('username', email);
       
+      // Create a mock subscription for testing
+      const mockSubscription = createMockSubscription(email, selectedPlan, selectedPayment);
+      localStorage.setItem('subscription_data', JSON.stringify(mockSubscription));
+      
       // Dispatch auth changed event
       window.dispatchEvent(new CustomEvent('auth-changed'));
       
       // Redirect to the API keys page
-      if (window.router) {
-        window.router.navigate('/api-keys');
-      } else {
-        window.location.href = '/api-keys.html';
-      }
+      window.router.navigate('/api-keys');
     } catch (error) {
       console.error('Registration error:', error);
       
       // Show error dialog with option to continue as test account
-      const proceed = await PfDialog.confirm(
-        'There was an error with the payment system, but you can continue with a test account. Proceed?',
-        'Registration Error'
+      const proceed = confirm(
+        'There was an error with the payment system, but you can continue with a test account. Proceed?'
       );
       
       if (proceed) {
         localStorage.setItem('api_key', email);
         localStorage.setItem('username', email);
         
+        // Create a mock subscription for testing
+        const mockSubscription = createMockSubscription(email, selectedPlan, selectedPayment);
+        localStorage.setItem('subscription_data', JSON.stringify(mockSubscription));
+        
         // Dispatch auth changed event
         window.dispatchEvent(new CustomEvent('auth-changed'));
         
         // Redirect to the API keys page
-        if (window.router) {
-          window.router.navigate('/api-keys');
-        } else {
-          window.location.href = '/api-keys.html';
-        }
+        window.router.navigate('/api-keys');
       }
     }
   });
+}
+
+// Create a mock subscription for testing
+function createMockSubscription(email, plan, coin) {
+  const now = new Date();
+  const expirationDate = new Date(now);
+  expirationDate.setMonth(expirationDate.getMonth() + (plan === 'monthly' ? 1 : 12));
+  
+  // Hardcoded cryptocurrency wallet addresses
+  const addresses = {
+    btc: "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
+    eth: "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
+    sol: "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF"
+  };
+  
+  const amount = plan === 'monthly' ? 5 : 30;
+  
+  return {
+    subscription: {
+      id: `sub_${Date.now()}`,
+      email,
+      plan,
+      amount,
+      interval: plan === 'monthly' ? 'month' : 'year',
+      payment_method: coin,
+      status: 'pending',
+      start_date: now.toISOString(),
+      expiration_date: expirationDate.toISOString(),
+      payment_address: addresses[coin]
+    },
+    payment_info: {
+      address: addresses[coin],
+      coin,
+      amount_fiat: amount,
+      currency: 'USD'
+    }
+  };
 }
 
 /**
@@ -225,11 +318,7 @@ function initApiKeysPage() {
   const apiKey = localStorage.getItem('api_key');
   if (!apiKey) {
     // Redirect to login page
-    if (window.router) {
-      window.router.navigate('/login');
-    } else {
-      window.location.href = '/login.html';
-    }
+    window.router.navigate('/login');
     return;
   }
   
@@ -245,11 +334,7 @@ function initSettingsPage() {
   const apiKey = localStorage.getItem('api_key');
   if (!apiKey) {
     // Redirect to login page
-    if (window.router) {
-      window.router.navigate('/login');
-    } else {
-      window.location.href = '/login.html';
-    }
+    window.router.navigate('/login');
     return;
   }
   
@@ -312,11 +397,7 @@ function initSettingsPage() {
         window.dispatchEvent(new CustomEvent('auth-changed'));
         
         // Redirect to home page
-        if (window.router) {
-          window.router.navigate('/');
-        } else {
-          window.location.href = '/';
-        }
+        window.router.navigate('/');
       }
     });
   }

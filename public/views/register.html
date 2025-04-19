@@ -16,8 +16,130 @@
       <input type="password" id="confirm-password" name="confirm-password" required>
     </div>
     
-    <button type="submit" class="register-button">Create Account</button>
+    <div class="form-group">
+      <label>Subscription Plan</label>
+      <div class="plan-options">
+        <div class="plan-option selected" data-plan="monthly">
+          <h3>Monthly</h3>
+          <div class="price">$5/month</div>
+          <div class="description">Billed monthly, cancel anytime</div>
+        </div>
+        <div class="plan-option" data-plan="yearly">
+          <h3>Yearly</h3>
+          <div class="price">$30/year</div>
+          <div class="description">Save $30 with annual billing</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="payment-options">
+      <h3>Payment Method</h3>
+      <div class="payment-methods">
+        <div class="payment-method selected" data-payment="btc">
+          <div>Bitcoin</div>
+        </div>
+        <div class="payment-method" data-payment="eth">
+          <div>Ethereum</div>
+        </div>
+        <div class="payment-method" data-payment="sol">
+          <div>Solana</div>
+        </div>
+      </div>
+    </div>
+    
+    <button type="submit" class="register-button">Register & Subscribe</button>
   </form>
   
   <p class="login-link">Already have an account? <a href="/login">Login</a> instead.</p>
 </div>
+
+<style>
+  .plan-options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .plan-option {
+    flex: 1;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  
+  .plan-option.selected {
+    border-color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+  
+  .plan-option h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #2563eb;
+  }
+  
+  .plan-option .price {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .plan-option .description {
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .payment-options {
+    margin-bottom: 15px;
+  }
+  
+  .payment-options h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .payment-methods {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .payment-method {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  
+  .payment-method.selected {
+    border-color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.1);
+  }
+</style>
+
+<script>
+  // Plan selection
+  const planOptions = document.querySelectorAll('.plan-option');
+  planOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      planOptions.forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+  
+  // Payment method selection
+  const paymentMethods = document.querySelectorAll('.payment-method');
+  paymentMethods.forEach(method => {
+    method.addEventListener('click', () => {
+      paymentMethods.forEach(m => m.classList.remove('selected'));
+      method.classList.add('selected');
+    });
+  });
+</script>

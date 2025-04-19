@@ -31,9 +31,29 @@ if (fs.existsSync(publicPath)) {
 // Create Hono app for both static files and API endpoints
 const app = new Hono();
 
-// Log when requests are received
+// Log when requests are received and add cache control headers
 app.use('*', async (c, next) => {
   console.log(`Request for: ${c.req.path}`);
+  
+  // Add cache control headers to prevent caching for SPA routes
+  c.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  c.header('Pragma', 'no-cache');
+  c.header('Expires', '0');
+  c.header('Surrogate-Control', 'no-store');
+  
+  // Handle SPA routes (paths without extensions)
+  const reqPath = c.req.path;
+  if (reqPath !== '/' && !reqPath.includes('.') && !reqPath.startsWith('/api/')) {
+    console.log(`SPA route detected: ${reqPath}`);
+    try {
+      const indexPath = path.resolve(__dirname, '../public/index.html');
+      const content = fs.readFileSync(indexPath, 'utf-8');
+      return c.html(content);
+    } catch (error) {
+      console.error(`Error serving index.html: ${error.message}`);
+    }
+  }
+  
   await next();
 });
 
@@ -41,7 +61,35 @@ app.use('*', async (c, next) => {
 app.use('*', errorHandler);
 
 // Serve static files from the public directory
-app.use('*', serveStatic({ root: './public' }));
+app.use('*', serveStatic({
+  root: './public',
+  rewriteRequestPath: (path) => {
+    console.log(`Static file request for: ${path}`);
+    return path;
+  }
+}));
+
+// SPA fallback for routes that don't match any static files
+app.get('*', async (c) => {
+  const reqPath = c.req.path;
+  
+  // Skip API routes and files with extensions
+  if (reqPath.startsWith('/api/') || reqPath.includes('.')) {
+    return c.notFound();
+  }
+  
+  console.log(`SPA fallback for: ${reqPath}`);
+  
+  // Serve index.html for client-side routes
+  try {
+    const indexPath = path.resolve(__dirname, '../public/index.html');
+    const content = fs.readFileSync(indexPath, 'utf-8');
+    return c.html(content);
+  } catch (error) {
+    console.error(`Error serving index.html: ${error.message}`);
+    return c.text('Internal Server Error', 500);
+  }
+});
 
 // Health check endpoint
 app.get('/', (c) => {

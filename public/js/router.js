@@ -24,11 +24,23 @@ class Router {
    * Initialize the router
    */
   init() {
-    // Handle initial route
-    this.navigate(window.location.pathname, false);
+    console.log('Router initializing...');
+    
+    // Handle initial route immediately if document is already loaded
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      console.log('Document already loaded, navigating to:', window.location.pathname);
+      this.navigate(window.location.pathname, false);
+    }
+    
+    // Also handle when DOM is fully loaded
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('DOMContentLoaded event, navigating to:', window.location.pathname);
+      this.navigate(window.location.pathname, false);
+    });
     
     // Handle popstate events (browser back/forward)
     window.addEventListener('popstate', (e) => {
+      console.log('Popstate event, navigating to:', window.location.pathname);
       this.navigate(window.location.pathname, false);
     });
     
@@ -67,8 +79,13 @@ class Router {
    * @param {boolean} pushState - Whether to push state to history
    */
   async navigate(path, pushState = true) {
+    console.log(`Router navigating to: ${path}`);
+    
     // Skip if already loading
-    if (this.loading) return;
+    if (this.loading) {
+      console.log('Already loading, skipping navigation');
+      return;
+    }
     
     // Set loading state
     this.loading = true;
@@ -81,10 +98,12 @@ class Router {
     
     // Find matching route
     const route = this.findRoute(path);
+    console.log('Found route:', route ? 'yes' : 'no');
     
     // Update history if needed
     if (pushState) {
-      window.history.pushState(null, '', path);
+      console.log('Updating history with path:', path);
+      window.history.pushState({path}, document.title, path);
     }
     
     // Get root element
@@ -101,6 +120,8 @@ class Router {
     try {
       // Handle route
       if (route) {
+        console.log('Handling route for path:', path);
+        
         // Set current route
         this.currentRoute = route;
         
@@ -109,25 +130,37 @@ class Router {
         
         if (typeof route.view === 'function') {
           // If view is a function, call it
+          console.log('Calling view function');
           content = await route.view();
         } else if (typeof route.view === 'string') {
           // If view is a string, treat it as HTML
+          console.log('Using string view');
           content = route.view;
         } else if (route.component) {
           // If route has a component, create it
+          console.log('Creating component:', route.component);
           const component = document.createElement(route.component);
           content = component.outerHTML;
         } else {
           // Default to empty content
+          console.log('No view or component found, using empty content');
           content = '';
         }
         
         // Update the DOM
+        console.log('Updating DOM with content');
         rootElement.innerHTML = content;
         
         // Call afterRender if provided
         if (route.afterRender) {
-          route.afterRender();
+          console.log('Calling afterRender function');
+          setTimeout(() => {
+            try {
+              route.afterRender();
+            } catch (error) {
+              console.error('Error in afterRender:', error);
+            }
+          }, 0);
         }
         
         // Dispatch route changed event

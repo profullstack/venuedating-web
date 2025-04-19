@@ -244,7 +244,11 @@ class PfHeader extends HTMLElement {
     const protectedPages = ['/api-keys', '/settings'];
     
     if (protectedPages.includes(currentPath)) {
-      window.location.href = '/';
+      if (window.router) {
+        window.router.navigate('/');
+      } else {
+        window.location.href = '/';
+      }
     }
   }
 }

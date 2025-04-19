@@ -18,7 +18,7 @@ dotenvFlow.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = new Hono();
 
-// SPA routing middleware
+// SPA routing middleware - all routes without extensions go to index.html
 app.use('*', async (c, next) => {
   const url = new URL(c.req.url);
   const pathname = url.pathname;
@@ -28,28 +28,17 @@ app.use('*', async (c, next) => {
     return next();
   }
   
-  // If the path has no extension, it might be an SPA route
+  // If the path has no extension, it's an SPA route
   if (pathname !== '/' && !pathname.includes('.')) {
-    // Try to serve the HTML file with the same name
-    const htmlPath = path.join(__dirname, 'public', `${pathname}.html`);
-    const viewsPath = path.join(__dirname, 'public', 'views', `${pathname}.html`);
-    
+    console.log(`SPA route detected: ${pathname}`);
+    // Serve index.html for all SPA routes
+    const indexPath = path.join(__dirname, 'public', 'index.html');
     try {
-      // Check if the HTML file exists in public directory
-      await fs.access(htmlPath);
-      // If it exists, rewrite the URL to the HTML file
-      c.req.url = new URL(`${pathname}.html`, c.req.url).toString();
-      return next();
-    } catch (e) {
-      try {
-        // Check if the HTML file exists in views directory
-        await fs.access(viewsPath);
-        // If it exists, rewrite the URL to the views HTML file
-        c.req.url = new URL(`/views${pathname}.html`, c.req.url).toString();
-        return next();
-      } catch (e) {
-        // If neither exists, let it fall through to the SPA handler
-      }
+      const indexContent = await fs.readFile(indexPath, 'utf-8');
+      return c.html(indexContent);
+    } catch (error) {
+      console.error(`Error serving index.html: ${error.message}`);
+      return c.text('Internal Server Error', 500);
     }
   }
   
@@ -59,22 +48,27 @@ app.use('*', async (c, next) => {
 // Serve static files from the public directory
 app.use('/*', serveStatic({ root: './public' }));
 
-// SPA fallback for routes that don't match any static files
-app.get('*', async (c, next) => {
+// Final fallback for any routes that weren't handled
+app.get('*', async (c) => {
   const url = new URL(c.req.url);
   const pathname = url.pathname;
   
-  // Skip API routes and files with extensions
-  if (pathname.startsWith('/api/') || pathname.includes('.')) {
-    return next();
+  console.log(`Fallback handler for: ${pathname}`);
+  
+  // If we got here and it's not an API route or a file with extension, serve index.html
+  if (!pathname.startsWith('/api/') && !pathname.includes('.')) {
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    try {
+      const indexContent = await fs.readFile(indexPath, 'utf-8');
+      return c.html(indexContent);
+    } catch (error) {
+      console.error(`Error serving index.html: ${error.message}`);
+      return c.text('Internal Server Error', 500);
+    }
   }
   
-  // If we got here, it's a client-side route, serve the index.html
-  // This allows the client-side router to handle the route
-  console.log(`Serving index.html for SPA route: ${pathname}`);
-  const indexPath = path.join(__dirname, 'public', 'index.html');
-  const indexContent = await fs.readFile(indexPath, 'utf-8');
-  return c.html(indexContent);
+  // If we got here, it's a 404
+  return c.text('Not Found', 404);
 });
 
 // Health check endpoint
