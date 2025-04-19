@@ -29,8 +29,7 @@ SERVICE_GROUP=${SERVICE_GROUP:-"ubuntu"}
 SERVICE_WORKING_DIR=${SERVICE_WORKING_DIR:-"$PROJECT_DIR"}
 START_SCRIPT=${START_SCRIPT:-"$PROJECT_DIR/bin/start.sh"}
 SYSTEMD_DIR="/etc/systemd/system"
-SERVICE_FILE="$PROJECT_DIR/etc/$SERVICE_NAME.service"
-SERVICE_TEMPLATE="$PROJECT_DIR/etc/$SERVICE_NAME.service.template"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
 # Print environment for debugging
 echo -e "${YELLOW}Environment:${NC}"
@@ -40,26 +39,20 @@ echo -e "${YELLOW}SERVICE_USER: $SERVICE_USER${NC}"
 echo -e "${YELLOW}SERVICE_GROUP: $SERVICE_GROUP${NC}"
 echo -e "${YELLOW}SERVICE_WORKING_DIR: $SERVICE_WORKING_DIR${NC}"
 echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
-echo -e "${YELLOW}SERVICE_TEMPLATE: $SERVICE_TEMPLATE${NC}"
 echo -e "${YELLOW}SERVICE_FILE: $SERVICE_FILE${NC}"
 
-# Create service file directly instead of using a template
-echo -e "${YELLOW}Creating service file...${NC}"
+# Create service file directly in the systemd directory
+echo -e "${YELLOW}Creating service file directly in systemd directory...${NC}"
 
-# Ensure variables are properly expanded
-EXPANDED_SERVICE_USER="${SERVICE_USER}"
-EXPANDED_SERVICE_GROUP="${SERVICE_GROUP}"
-EXPANDED_SERVICE_WORKING_DIR="${SERVICE_WORKING_DIR}"
-EXPANDED_START_SCRIPT="${START_SCRIPT}"
-EXPANDED_SERVICE_NAME="${SERVICE_NAME}"
+# Print actual values for debugging
+echo -e "${YELLOW}Using actual values:${NC}"
+echo -e "${YELLOW}SERVICE_USER: $SERVICE_USER${NC}"
+echo -e "${YELLOW}SERVICE_GROUP: $SERVICE_GROUP${NC}"
+echo -e "${YELLOW}SERVICE_WORKING_DIR: $SERVICE_WORKING_DIR${NC}"
+echo -e "${YELLOW}START_SCRIPT: $START_SCRIPT${NC}"
+echo -e "${YELLOW}SERVICE_NAME: $SERVICE_NAME${NC}"
 
-echo -e "${YELLOW}Using expanded values:${NC}"
-echo -e "${YELLOW}EXPANDED_SERVICE_USER: $EXPANDED_SERVICE_USER${NC}"
-echo -e "${YELLOW}EXPANDED_SERVICE_GROUP: $EXPANDED_SERVICE_GROUP${NC}"
-echo -e "${YELLOW}EXPANDED_SERVICE_WORKING_DIR: $EXPANDED_SERVICE_WORKING_DIR${NC}"
-echo -e "${YELLOW}EXPANDED_START_SCRIPT: $EXPANDED_START_SCRIPT${NC}"
-echo -e "${YELLOW}EXPANDED_SERVICE_NAME: $EXPANDED_SERVICE_NAME${NC}"
-
+# Write directly to systemd directory with explicit values
 cat > "$SERVICE_FILE" << EOF
 [Unit]
 Description=Document Generation Service
@@ -96,6 +89,10 @@ echo -e "${GREEN}Service file created successfully at $SERVICE_FILE${NC}"
 echo -e "${YELLOW}Service file content:${NC}"
 cat "$SERVICE_FILE"
 
+# Ensure proper permissions on the service file
+echo -e "${YELLOW}Setting proper permissions on service file...${NC}"
+chmod 644 "$SERVICE_FILE"
+
 echo -e "${GREEN}Installing $SERVICE_NAME service...${NC}"
 
 # Install dependencies
@@ -122,27 +119,9 @@ mkdir -p /var/log
 touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
 
-# Copy the service file to systemd directory instead of creating a symbolic link
-echo -e "${YELLOW}Copying service file to systemd directory...${NC}"
-if [ -f "$SYSTEMD_DIR/$SERVICE_NAME.service" ]; then
-  echo -e "${YELLOW}Service file already exists in systemd directory. Removing...${NC}"
-  rm "$SYSTEMD_DIR/$SERVICE_NAME.service"
-fi
-
-# Check if service file exists
-if [ -f "$SERVICE_FILE" ]; then
-  echo -e "${YELLOW}Copying $SERVICE_FILE to $SYSTEMD_DIR/$SERVICE_NAME.service${NC}"
-  cp "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
-  
-  # Verify the content of the copied file
-  echo -e "${YELLOW}Verifying copied service file content:${NC}"
-  cat "$SYSTEMD_DIR/$SERVICE_NAME.service"
-else
-  echo -e "${RED}Service file not found at $SERVICE_FILE${NC}"
-  echo -e "${YELLOW}Checking if it exists in the project directory...${NC}"
-  find "$PROJECT_DIR" -name "*.service" -type f 2>/dev/null
-  exit 1
-fi
+# Verify the content of the service file
+echo -e "${YELLOW}Verifying service file content:${NC}"
+cat "$SERVICE_FILE"
 
 # Make the start script executable and set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"

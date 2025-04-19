@@ -66,6 +66,10 @@ Available environment variables:
 | DEPLOY_REMOTE_HOST | Hostname for deployment | profullstack |
 | DEPLOY_REMOTE_DIR | Remote directory path for deployment | www/profullstack.com/pdf |
 | INSTALL_SERVICE | Whether to install the systemd service during deployment | false |
+| SERVICE_NAME | Name of the systemd service | profullstack-pdf |
+| SERVICE_USER | User to run the service as | ubuntu |
+| SERVICE_GROUP | Group to run the service as | ubuntu |
+| SERVICE_WORKING_DIR | Working directory for the service | (project directory) |
 | SUPABASE_KEY | Supabase API key for storage and database | (required for storage) |
 | MAILGUN_API_KEY | Mailgun API key for sending emails | (required for notifications) |
 | MAILGUN_DOMAIN | Mailgun domain for sending emails | (required for notifications) |
@@ -118,3 +122,65 @@ When using the PWA offline, you'll still have access to:
 - Basic document editing features
 
 API requests that require server connectivity will show an offline notification when you're not connected to the internet.
+
+## Deployment
+
+This project includes scripts for easy deployment to a remote server and setting up as a systemd service.
+
+### Deploying to a Remote Server
+
+1. Configure your deployment settings in the `.env` file:
+   ```
+   DEPLOY_REMOTE_HOST=your-server-hostname
+   DEPLOY_REMOTE_DIR=path/to/remote/directory
+   INSTALL_SERVICE=true  # Set to true if you want to install as a service
+   ```
+
+2. If you want to install as a systemd service, also configure these variables:
+   ```
+   SERVICE_NAME=profullstack-pdf
+   SERVICE_USER=ubuntu  # User that will run the service
+   SERVICE_GROUP=ubuntu  # Group for the service
+   SERVICE_WORKING_DIR=/path/to/installation/directory
+   ```
+
+3. Run the deployment script:
+   ```bash
+   ./bin/deploy.sh
+   ```
+
+### Manual Service Installation
+
+If you need to manually install the service on your server:
+
+1. SSH into your server
+2. Navigate to the project directory
+3. Run the install-service script with sudo:
+   ```bash
+   sudo ./bin/install-service.sh
+   ```
+
+### Service Management
+
+Once installed, you can manage the service using standard systemd commands:
+
+```bash
+# Start the service
+sudo systemctl start profullstack-pdf
+
+# Stop the service
+sudo systemctl stop profullstack-pdf
+
+# Restart the service
+sudo systemctl restart profullstack-pdf
+
+# Check service status
+sudo systemctl status profullstack-pdf
+
+# View service logs
+sudo journalctl -u profullstack-pdf
+
+# View application logs
+tail -f /var/log/profullstack-pdf.log
+tail -f /var/log/profullstack-pdf.error.log
+```
