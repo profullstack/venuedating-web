@@ -114,8 +114,28 @@ class Router {
       return;
     }
     
-    // Show loading state
-    rootElement.innerHTML = '<div class="loading">Loading...</div>';
+    // Create a transition container
+    const transitionContainer = document.createElement('div');
+    transitionContainer.className = 'route-transition-container';
+    transitionContainer.style.position = 'absolute';
+    transitionContainer.style.top = '0';
+    transitionContainer.style.left = '0';
+    transitionContainer.style.width = '100%';
+    transitionContainer.style.height = '100%';
+    transitionContainer.style.backgroundColor = 'var(--background-color)';
+    transitionContainer.style.color = 'var(--text-primary)';
+    transitionContainer.style.opacity = '0';
+    transitionContainer.style.transition = 'opacity 150ms ease-in-out';
+    transitionContainer.innerHTML = '<div class="loading">Loading...</div>';
+    
+    // Add the transition container to the root element
+    rootElement.style.position = 'relative';
+    rootElement.appendChild(transitionContainer);
+    
+    // Fade in the transition container
+    setTimeout(() => {
+      transitionContainer.style.opacity = '1';
+    }, 0);
     
     try {
       // Handle route
@@ -147,26 +167,47 @@ class Router {
           content = '';
         }
         
-        // Update the DOM
-        console.log('Updating DOM with content');
-        rootElement.innerHTML = content;
+        // Prepare the new content in the background
+        const tempContainer = document.createElement('div');
+        tempContainer.innerHTML = content;
         
-        // Call afterRender if provided
-        if (route.afterRender) {
-          console.log('Calling afterRender function');
-          setTimeout(() => {
-            try {
-              route.afterRender();
-            } catch (error) {
-              console.error('Error in afterRender:', error);
-            }
-          }, 0);
-        }
+        // Apply theme-related styles to ensure proper coloring
+        const themeStyles = document.createElement('style');
+        themeStyles.textContent = `
+          * {
+            color: var(--text-primary);
+            background-color: var(--background-color);
+            transition: none !important;
+          }
+        `;
+        tempContainer.appendChild(themeStyles);
         
-        // Dispatch route changed event
-        window.dispatchEvent(new CustomEvent('route-changed', {
-          detail: { path, route }
-        }));
+        // Fade out the transition container
+        transitionContainer.style.opacity = '0';
+        
+        // Wait for the fade out transition to complete
+        setTimeout(() => {
+          // Update the DOM with the prepared content
+          console.log('Updating DOM with content');
+          rootElement.innerHTML = content;
+          
+          // Call afterRender if provided
+          if (route.afterRender) {
+            console.log('Calling afterRender function');
+            setTimeout(() => {
+              try {
+                route.afterRender();
+              } catch (error) {
+                console.error('Error in afterRender:', error);
+              }
+            }, 0);
+          }
+          
+          // Dispatch route changed event
+          window.dispatchEvent(new CustomEvent('route-changed', {
+            detail: { path, route }
+          }));
+        }, 150); // Match the transition duration
       } else {
         // Handle 404
         this.errorHandler(path, rootElement);
