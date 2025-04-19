@@ -24,13 +24,31 @@ This repository is configured to automatically deploy to the production server w
    ssh ubuntu@profullstack "echo 'your-public-key-here' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
    ```
 
-3. **Add the private key to GitHub Secrets**:
+3. **Add the required secrets to GitHub**:
    - Go to your GitHub repository
    - Click on "Settings" > "Secrets and variables" > "Actions"
+   - Add the following secrets:
+   
+   a. **SSH Private Key**:
    - Click "New repository secret"
    - Name: `SSH_PRIVATE_KEY`
    - Value: Copy the entire content of your private key file (`~/.ssh/id_ed25519`)
    - Click "Add secret"
+   
+   b. **Environment Variables**:
+   - Click "New repository secret"
+   - Name: `ENV_FILE_CONTENT`
+   - Value: Copy the entire content of your .env file
+   - Click "Add secret"
+
+4. **Important Note About SSH Configuration**:
+   - GitHub Actions doesn't have access to your local `~/.ssh/config` file
+   - All scripts use the full hostname `profullstack.com` instead of any aliases
+   - If you need to use a different hostname, update it in:
+     - `.github/workflows/deploy.yml`
+     - `bin/deploy.sh`
+     - `bin/check-deployment.sh`
+     - `bin/manual-deploy.sh`
 
 4. **Verify GitHub Actions is enabled**:
    - Go to your repository on GitHub
@@ -60,6 +78,87 @@ If the deployment fails, check the following:
    - Ensure the deploy script has execute permissions
    - Check if the user has permission to write to the deployment directory
 
-4. **Script Issues**:
+4. **Environment Variables Issues**:
+   - Make sure the `ENV_FILE_CONTENT` secret is properly set in GitHub Secrets
+   - Verify that all required environment variables are included in the secret
+   - Check if the .env file is being created correctly in the workflow logs
+
+5. **Script Issues**:
    - Review the deploy.sh script for any errors
    - Check the GitHub Actions logs for detailed error messages
+
+## Deployment Troubleshooting Scripts
+
+This repository includes several scripts to help troubleshoot deployment issues:
+
+### Check Deployment Status
+
+Run the following script to check if GitHub Actions deployment is working correctly:
+
+```bash
+./bin/check-deployment.sh
+```
+
+This script will:
+- Test SSH connection to the server
+- Check if the remote directory exists
+- Look for GitHub Actions test files
+- Create a new test file to verify write access
+- Check local Git configuration
+
+### Manual Deployment
+
+If GitHub Actions deployment isn't working, you can manually deploy using:
+
+```bash
+./bin/manual-deploy.sh
+```
+
+This script will:
+- Deploy your code using rsync
+- Make scripts executable on the remote host
+- Run the test script to verify deployment
+- Reload systemd daemon
+- Optionally install/restart the service
+
+### Test Script
+
+The test script creates a timestamped file on the server to verify deployment:
+
+```bash
+./bin/test-github-actions.sh
+```
+
+This is automatically run by both GitHub Actions and the manual deployment script.
+
+### Check GitHub Actions Status
+
+To check the status of your GitHub Actions workflows:
+
+```bash
+./bin/check-github-actions.sh
+```
+
+This script will:
+- Determine your GitHub repository from git remote
+- Check workflow status using GitHub CLI (if installed)
+- Fall back to using curl with a GITHUB_TOKEN
+- Show recent workflow runs and their status
+
+This is particularly useful for diagnosing issues with GitHub Actions not running or failing.
+
+### Test File for Triggering Workflows
+
+The repository includes a test file that can be modified to trigger a workflow run:
+
+```
+github-actions-test.txt
+```
+
+To trigger a new workflow run:
+1. Edit the file
+2. Increment the "Deployment test" number
+3. Commit and push to master/main
+4. Check the Actions tab on GitHub to see if the workflow runs
+
+This provides a simple way to test if GitHub Actions is properly configured without making significant code changes.
