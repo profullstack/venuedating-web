@@ -21,31 +21,42 @@ jobs:
       - name: Add server to known hosts
         run: |
           mkdir -p ~/.ssh
-          # Try with verbose output to see what's happening
-          echo "Running ssh-keyscan with verbose output and custom port..."
-          ssh-keyscan -v -p 2048 -H 104.36.23.197 >> ~/.ssh/known_hosts || true
-          
-          # If the above fails, create a known_hosts file manually
-          echo "Creating known_hosts file manually as fallback..."
-          echo "${{ secrets.SERVER_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
-          chmod 644 ~/.ssh/known_hosts
           
           # Create SSH config file with custom port and user
           echo "Creating SSH config file..."
           cat > ~/.ssh/config << EOF
-          Host profullstack.com
+          Host profullstack.com 104.36.23.197
             HostName 104.36.23.197
             User ubuntu
             Port 2048
           EOF
           chmod 600 ~/.ssh/config
           
+          # Run ssh-keyscan with the correct port
+          echo "Running ssh-keyscan with custom port..."
+          # The -p flag is for the port, -T disables pseudo-terminal allocation
+          ssh-keyscan -p 2048 -T 60 104.36.23.197 > /tmp/known_hosts_entry
+          
+          # Check if ssh-keyscan succeeded
+          if [ -s /tmp/known_hosts_entry ]; then
+            echo "Successfully retrieved host key:"
+            cat /tmp/known_hosts_entry
+            
+            # Add the host key to known_hosts
+            cat /tmp/known_hosts_entry >> ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          else
+            echo "Failed to retrieve host key via ssh-keyscan, using provided key..."
+            echo "${{ secrets.SERVER_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+            chmod 644 ~/.ssh/known_hosts
+          fi
+          
           # Verify the files exist and have content
           ls -la ~/.ssh/
           echo "Content of SSH config:"
           cat ~/.ssh/config
           echo "Lines in known_hosts:"
-          wc -l ~/.ssh/known_hosts || true
+          wc -l ~/.ssh/known_hosts
       
       - name: Install dependencies
         run: |

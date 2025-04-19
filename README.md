@@ -41,10 +41,10 @@ This repository is configured to automatically deploy to the production server w
    - Value: Copy the entire content of your .env file
    - Click "Add secret"
    
-   c. **Server Known Hosts**:
+   c. **Server Known Hosts** (as a fallback):
    - Run this command locally to get the server's SSH key fingerprint (using the correct port):
      ```bash
-     ssh-keyscan -p 2048 -H 104.36.23.197
+     ssh-keyscan -p 2048 104.36.23.197
      ```
    - Click "New repository secret"
    - Name: `SERVER_KNOWN_HOSTS`
