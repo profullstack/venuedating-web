@@ -1,6 +1,6 @@
 /**
  * Common styles for all components
- * Using ProFullStack theme variables
+ * Using Profullstack, Inc. theme variables
  */
 export const commonStyles = `
   :host {

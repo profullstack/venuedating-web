@@ -1,11 +1,11 @@
 /**
- * ProFullStack Document Generation API
+ * Profullstack, Inc. Document Generation API
  * Theme CSS with light and dark mode support
  */
 
 :root {
   /* Base colors - Light theme (default) */
-  --primary-color: #2563eb;        /* ProFullStack blue */
+  --primary-color: #2563eb;        /* Profullstack, Inc. blue */
   --primary-light: #3b82f6;        /* Lighter blue */
   --primary-dark: #1d4ed8;         /* Darker blue */
   --secondary-color: #10b981;      /* Accent green */

@@ -70,7 +70,7 @@ Your subscription gives you full access to all document generation features.
 If you have any questions, please reply to this email.
 
 Thank you,
-The ProFullStack Team
+The Profullstack, Inc. Team
 `;
 
     return this.sendEmail(to, subject, text);
@@ -103,7 +103,7 @@ You can renew your subscription by visiting: https://pdf.profullstack.com/subscr
 If you have any questions, please reply to this email.
 
 Thank you,
-The ProFullStack Team
+The Profullstack, Inc. Team
 `;
 
     return this.sendEmail(to, subject, text);
@@ -135,7 +135,7 @@ You can renew your subscription by visiting: https://pdf.profullstack.com/subscr
 If you have any questions, please reply to this email.
 
 Thank you,
-The ProFullStack Team
+The Profullstack, Inc. Team
 `;
 
     return this.sendEmail(to, subject, text);
@@ -163,7 +163,7 @@ Your subscription has been extended until ${new Date(payment.subscription.expira
 If you have any questions, please reply to this email.
 
 Thank you,
-The ProFullStack Team
+The Profullstack, Inc. Team
 `;
 
     return this.sendEmail(to, subject, text);

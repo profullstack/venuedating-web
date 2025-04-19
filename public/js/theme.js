@@ -1,5 +1,5 @@
 /**
- * ProFullStack Document Generation API
+ * Profullstack, Inc. Document Generation API
  * Theme switching functionality
  */
 
