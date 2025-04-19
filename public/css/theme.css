@@ -5,12 +5,13 @@
 
 :root {
   /* Base colors - Light theme (default) */
-  --primary-color: #2563eb;        /* Profullstack, Inc. blue */
-  --primary-light: #3b82f6;        /* Lighter blue */
-  --primary-dark: #1d4ed8;         /* Darker blue */
-  --secondary-color: #10b981;      /* Accent green */
-  --secondary-light: #34d399;      /* Lighter green */
-  --secondary-dark: #059669;       /* Darker green */
+  --primary-color: #e02337;        /* Profullstack, Inc. red */
+  --primary-light: #e54d5d;        /* Lighter red */
+  --primary-dark: #c01d2f;         /* Darker red */
+  --secondary-color: #fc7e3e;      /* Accent orange */
+  --secondary-light: #fd9c6a;      /* Lighter orange */
+  --secondary-dark: #e66a2c;       /* Darker orange */
+  --accent-color: #ba18aa;         /* Accent magenta */
   
   /* Neutral colors - Light theme */
   --background-color: #ffffff;     /* White background */
@@ -29,9 +30,9 @@
   
   /* Status colors - Light theme */
   --success-color: #10b981;        /* Success green */
-  --warning-color: #f59e0b;        /* Warning yellow/orange */
-  --error-color: #ef4444;          /* Error red */
-  --info-color: #3b82f6;           /* Info blue */
+  --warning-color: #fc7e3e;        /* Warning orange */
+  --error-color: #e02337;          /* Error red */
+  --info-color: #ba18aa;           /* Info magenta */
   
   /* Component colors - Light theme */
   --card-background: #ffffff;      /* Card background */
@@ -87,12 +88,13 @@
 /* Dark theme */
 [data-theme="dark"] {
   /* Base colors - Dark theme */
-  --primary-color: #3b82f6;        /* Brighter blue for dark mode */
-  --primary-light: #60a5fa;        /* Lighter blue */
-  --primary-dark: #2563eb;         /* Darker blue */
-  --secondary-color: #10b981;      /* Accent green */
-  --secondary-light: #34d399;      /* Lighter green */
-  --secondary-dark: #059669;       /* Darker green */
+  --primary-color: #e54d5d;        /* Brighter red for dark mode */
+  --primary-light: #e97683;        /* Lighter red */
+  --primary-dark: #e02337;         /* Darker red */
+  --secondary-color: #fd9c6a;      /* Accent orange */
+  --secondary-light: #feba96;      /* Lighter orange */
+  --secondary-dark: #fc7e3e;       /* Darker orange */
+  --accent-color: #d34bc1;         /* Accent magenta */
   
   /* Neutral colors - Dark theme */
   --background-color: #111827;     /* Dark background */
@@ -111,9 +113,9 @@
   
   /* Status colors - Dark theme */
   --success-color: #34d399;        /* Brighter success green */
-  --warning-color: #fbbf24;        /* Brighter warning yellow */
-  --error-color: #f87171;          /* Brighter error red */
-  --info-color: #60a5fa;           /* Brighter info blue */
+  --warning-color: #fd9c6a;        /* Brighter warning orange */
+  --error-color: #e54d5d;          /* Brighter error red */
+  --info-color: #d34bc1;           /* Brighter info magenta */
   
   /* Component colors - Dark theme */
   --card-background: #1f2937;      /* Card background */
@@ -235,6 +237,15 @@ html, body {
   background-color: var(--secondary-dark);
 }
 
+.btn-amber {
+  background-color: var(--secondary-color);
+  color: var(--text-on-secondary);
+}
+
+.btn-amber:hover {
+  background-color: var(--secondary-dark);
+}
+
 .btn-outline {
   background-color: transparent;
   border: 1px solid var(--border-color);
@@ -282,7 +293,7 @@ html, body {
 .form-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
 }
 
 /* Table styles */
@@ -335,7 +346,7 @@ html, body {
 }
 
 .alert-info {
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: rgba(186, 24, 170, 0.1);
   border-left: 4px solid var(--info-color);
   color: var(--info-color);
 }
@@ -379,7 +390,7 @@ html, body {
 }
 
 .pricing-plan.popular {
-  border: 2px solid var(--primary-color);
+  border: 2px solid var(--accent-color);
   position: relative;
   z-index: 1;
 }
@@ -390,7 +401,7 @@ html, body {
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--primary-color);
+  background-color: var(--accent-color);
   color: var(--text-on-primary);
   padding: 4px 12px;
   border-radius: var(--border-radius-full);
@@ -454,7 +465,7 @@ html, body {
 .back-link {
   display: inline-block;
   margin-top: var(--spacing-xl);
-  color: var(--primary-color);
+  color: var(--accent-color);
   text-decoration: none;
   font-weight: var(--font-weight-medium);
 }

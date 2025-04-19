@@ -18,7 +18,7 @@ class PfHeader extends HTMLElement {
       <style>
         :host {
           display: block;
-          font-family: Arial, sans-serif;
+          font-family: var(--font-primary, 'SpaceMono', monospace);
         }
         
         .header {
@@ -66,7 +66,7 @@ class PfHeader extends HTMLElement {
         
         .logo h1 {
           margin: 0;
-          color: #2563eb;
+          color: #e02337;
           font-weight: bold;
         }
         
@@ -77,20 +77,21 @@ class PfHeader extends HTMLElement {
         
         .nav-link {
           padding: 8px 15px;
-          color: #333;
+          color: var(--text-primary);
           text-decoration: none;
           border-radius: 5px;
-          transition: background-color 0.2s;
+          transition: background-color 0.2s, color 0.2s;
         }
         
         .nav-link:hover {
-          background-color: #f0f0f0;
+          background-color: var(--surface-variant);
+          color: var(--primary-color);
         }
         
         .subscription-link {
           display: inline-block;
           padding: 8px 15px;
-          background-color: #2563eb;
+          background-color: #e02337;
           color: white;
           text-decoration: none;
           border-radius: 5px;
@@ -99,7 +100,7 @@ class PfHeader extends HTMLElement {
         }
         
         .subscription-link:hover {
-          background-color: #1d4ed8;
+          background-color: #c01d2f;
         }
 
         /* User dropdown styles */
@@ -156,13 +157,14 @@ class PfHeader extends HTMLElement {
       </style>
       
       <div class="header">
-        <div class="logo">
-          <img src="/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg" alt="Profullstack, Inc. Logo">
-          <h1>Document Generation API</h1>
-        </div>
+        <a href="/" class="logo-link" style="text-decoration: none;">
+          <div class="logo">
+            <img src="/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg" alt="Profullstack, Inc. Logo">
+            <h1>convert2doc</h1>
+          </div>
+        </a>
         
         <div class="nav-links">
-          <a href="/" class="nav-link">Home</a>
           <a href="/api-docs" class="nav-link">API Docs</a>
           <a href="/api-keys" class="nav-link">API Keys</a>
           <a href="/login" class="nav-link login-link">Login</a>

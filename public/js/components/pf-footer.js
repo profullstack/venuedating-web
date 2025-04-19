@@ -18,13 +18,13 @@ class PfFooter extends HTMLElement {
       <style>
         :host {
           display: block;
-          font-family: Arial, sans-serif;
+          font-family: var(--font-primary, 'SpaceMono', monospace);
           margin-top: 60px;
         }
         
         .footer {
           padding: 30px 0;
-          border-top: 1px solid #e5e7eb;
+          border-top: 1px solid var(--border-color);
         }
         
         .footer-content {
@@ -40,7 +40,7 @@ class PfFooter extends HTMLElement {
         }
         
         .footer-section h3 {
-          color: #2563eb;
+          color: var(--primary-color);
           margin-top: 0;
           margin-bottom: 15px;
           font-size: 18px;
@@ -57,19 +57,19 @@ class PfFooter extends HTMLElement {
         }
         
         .footer-links a {
-          color: #4b5563;
+          color: var(--text-secondary);
           text-decoration: none;
           transition: color 0.2s;
         }
         
         .footer-links a:hover {
-          color: #2563eb;
+          color: var(--primary-color);
         }
         
         .copyright {
           margin-top: 30px;
           text-align: center;
-          color: #6b7280;
+          color: var(--text-tertiary);
           font-size: 14px;
         }
         
@@ -83,7 +83,7 @@ class PfFooter extends HTMLElement {
       <div class="footer">
         <div class="footer-content">
           <div class="footer-section">
-            <h3>Document Generation API</h3>
+            <h3>convert2doc</h3>
             <ul class="footer-links">
               <li><a href="/">Home</a></li>
               <li><a href="/api-docs">API Documentation</a></li>
