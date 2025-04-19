@@ -59,7 +59,7 @@ Available environment variables:
 |----------|-------------|---------|
 | PORT | The port on which the server will run | 3000 |
 | PUPPETEER_EXECUTABLE_PATH | Optional path to Chrome executable | (auto-detected) |
-| DEPLOY_REMOTE_HOST | Hostname for deployment | profulltack |
+| DEPLOY_REMOTE_HOST | Hostname for deployment | profullstack |
 | DEPLOY_REMOTE_DIR | Remote directory path for deployment | www/profullstack/pdf |
 | INSTALL_SERVICE | Whether to install the systemd service during deployment | false |
 | SUPABASE_KEY | Supabase API key for storage and database | (required for storage) |
