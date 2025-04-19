@@ -57,7 +57,18 @@ ln -s "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
 
 # Make the start script executable and set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
-chmod +x "$PROJECT_DIR/bin/start.sh"
+echo -e "${YELLOW}Project directory: $PROJECT_DIR${NC}"
+echo -e "${YELLOW}Start script path: $PROJECT_DIR/bin/start.sh${NC}"
+
+if [ -f "$PROJECT_DIR/bin/start.sh" ]; then
+  chmod +x "$PROJECT_DIR/bin/start.sh"
+  echo -e "${GREEN}Successfully set permissions on start script${NC}"
+else
+  echo -e "${RED}Start script not found at $PROJECT_DIR/bin/start.sh${NC}"
+  echo -e "${YELLOW}Checking if it exists in other locations...${NC}"
+  find /home -name "start.sh" -type f 2>/dev/null
+  exit 1
+fi
 
 # Install project dependencies
 echo -e "${YELLOW}Installing project dependencies...${NC}"
