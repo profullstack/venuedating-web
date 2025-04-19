@@ -9,4 +9,4 @@ fi
 export NODE_ENV=${NODE_ENV:-production}
 
 # Start the server
-node src/index.js
+pnpm start
