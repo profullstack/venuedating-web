@@ -10,7 +10,7 @@ fi
 
 # Define variables with fallbacks
 REMOTE_HOST="${DEPLOY_REMOTE_HOST:-profullstack}"
-REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack/pdf}"
+REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
 LOCAL_DIR="."
 INSTALL_SERVICE="${INSTALL_SERVICE:-false}"
 

@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/home/ubuntu/www/profullstack/pdf
-ExecStart=/home/ubuntu/www/profullstack/pdf/bin/start.sh
+WorkingDirectory=/home/ubuntu/www/profullstack.com/pdf
+ExecStart=/home/ubuntu/www/profullstack.com/pdf/bin/start.sh
 Restart=on-failure
 RestartSec=10
 
