@@ -91,14 +91,8 @@ class PfHero extends HTMLElement {
       </div>
     `;
     
-    // Add event listeners to the links to use the router
-    this.shadowRoot.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = link.getAttribute('href');
-        window.router.navigate(href);
-      });
-    });
+    // No need for specific click handlers anymore
+    // The global router click handler will handle all links
   }
 }
 

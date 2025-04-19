@@ -44,16 +44,28 @@ class Router {
       this.navigate(window.location.pathname, false);
     });
     
-    // Intercept link clicks
+    // Intercept all clicks at the document level (including those from Shadow DOM)
     document.addEventListener('click', (e) => {
-      // Find closest anchor element
-      const anchor = e.target.closest('a');
+      // Check if the click path includes an anchor element
+      // This works for both regular DOM and shadow DOM
+      let anchor = null;
+      let path = e.composedPath();
+      
+      // Find the first anchor element in the event path
+      for (let i = 0; i < path.length; i++) {
+        if (path[i].tagName === 'A') {
+          anchor = path[i];
+          break;
+        }
+      }
       
       // Skip if no anchor or if modifier keys are pressed
       if (!anchor || e.metaKey || e.ctrlKey || e.shiftKey) return;
       
-      // Skip if it's an external link or has a target
+      // Get the href attribute
       const href = anchor.getAttribute('href');
+      
+      // Skip if it's an external link or has a target
       if (!href || href.startsWith('http') || href.startsWith('//') || anchor.hasAttribute('target')) return;
       
       // Skip if it's a download link
@@ -70,7 +82,9 @@ class Router {
       
       // Navigate to the link
       this.navigate(href);
-    });
+      
+      console.log('Intercepted click on link:', href);
+    }, { capture: true }); // Use capture to get events before they reach the shadow DOM
   }
 
   /**

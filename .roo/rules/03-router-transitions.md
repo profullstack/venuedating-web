@@ -23,6 +23,7 @@
 - Apply smooth fade-in/fade-out effects to minimize visual disruption
 - Use an initial loading overlay in index.html to prevent flashes of unstyled content
 - Move route-specific content to web components to prevent hardcoded content flashes
+- Implement a global click handler that works with Shadow DOM to intercept all internal links
 
 ## Styling During Transitions
 - Maintain consistent theme colors during transitions
