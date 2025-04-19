@@ -1,4 +1,4 @@
-import cryptapi from 'cryptapi';
+import { createCryptAPIClient } from '../utils/cryptapi-wrapper.js';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
 import dotenv from 'dotenv-flow';
@@ -17,6 +17,8 @@ export const paymentService = {
    * @private
    */
   _getCryptAPIClient(coin) {
+    console.log(`Payment service: Getting CryptAPI client for coin: ${coin}`);
+    
     // Get cryptocurrency wallet addresses from environment variables or use defaults
     const addresses = {
       btc: process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
@@ -25,20 +27,39 @@ export const paymentService = {
       usdc: process.env.USDC_ADDRESS || "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11"
     };
     
+    console.log(`Payment service: Using address for ${coin}: ${addresses[coin]}`);
+    
     if (!addresses[coin]) {
+      console.error(`Payment service: Unsupported cryptocurrency: ${coin}`);
       throw new Error(`Unsupported cryptocurrency: ${coin}`);
     }
     
-    // Initialize the CryptAPI client
-    const api = cryptapi();
+    // Initialize the CryptAPI client using our wrapper
+    console.log('Payment service: Initializing CryptAPI client with wrapper');
+    const api = createCryptAPIClient();
+    console.log('Payment service: CryptAPI client initialized with wrapper');
     
     // Return an object with methods for creating addresses and handling callbacks
     return {
       createAddress: (options) => {
-        return api._createAddress(coin, addresses[coin], options.callback, {
-          pending: options.pending,
-          parameters: options.parameters
-        });
+        console.log('Payment service: Creating address with CryptAPI with options:', JSON.stringify(options));
+        console.log(`Payment service: CryptAPI endpoint: /${coin}/create`);
+        console.log(`Payment service: CryptAPI address: ${addresses[coin]}`);
+        console.log(`Payment service: CryptAPI callback URL: ${options.callback}`);
+        
+        try {
+          const result = api._createAddress(coin, addresses[coin], options.callback, {
+            pending: options.pending,
+            parameters: options.parameters
+          });
+          
+          console.log('Payment service: CryptAPI createAddress successful');
+          return result;
+        } catch (error) {
+          console.error('Payment service: Error in CryptAPI createAddress:', error);
+          console.error('Payment service: Error stack:', error.stack);
+          throw error;
+        }
       }
     };
   },
@@ -104,37 +125,57 @@ export const paymentService = {
       console.log('Payment service: Subscription created in Supabase:', JSON.stringify(subscription));
       
       // Generate payment invoice
+      console.log('Payment service: Preparing to generate payment invoice');
       console.log('Payment service: Getting CryptAPI client for', coin);
-      const cryptapiClient = this._getCryptAPIClient(coin);
-      const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
       
-      console.log('Payment service: Creating address with CryptAPI');
-      const invoice = await cryptapiClient.createAddress({
-        callback: callbackUrl,
-        pending: true,
-        parameters: {
-          subscription_id: subscription.id,
-          email
+      try {
+        const cryptapiClient = this._getCryptAPIClient(coin);
+        const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
+        
+        console.log('Payment service: Creating address with CryptAPI');
+        console.log('Payment service: Using callback URL:', callbackUrl);
+        
+        const requestParams = {
+          callback: callbackUrl,
+          pending: true,
+          parameters: {
+            subscription_id: subscription.id,
+            email
+          }
+        };
+        
+        console.log('Payment service: CryptAPI request parameters:', JSON.stringify(requestParams));
+        
+        const invoice = await cryptapiClient.createAddress(requestParams);
+        
+        if (!invoice) {
+          console.error('Payment service: CryptAPI returned null or undefined response');
+          throw new Error('CryptAPI returned null or undefined response');
         }
-      });
-      
-      console.log('Payment service: CryptAPI response:', JSON.stringify(invoice));
-      
-      // Update subscription with payment details
-      console.log('Payment service: Updating subscription with payment details');
-      const { error: updateError } = await supabase
-        .from('subscriptions')
-        .update({
-          payment_address: invoice.address_in,
-          payment_info: invoice
-        })
-        .eq('id', subscription.id);
-      
-      if (updateError) {
-        console.error('Payment service: Error updating subscription with payment details:', updateError);
-        console.error('Error details:', JSON.stringify(updateError));
-        throw updateError;
-      }
+        
+        console.log('Payment service: CryptAPI response:', JSON.stringify(invoice));
+        
+        // Validate the response
+        if (!invoice.address_in) {
+          console.error('Payment service: CryptAPI response missing address_in:', JSON.stringify(invoice));
+          throw new Error('CryptAPI response missing payment address');
+        }
+        
+        // Update subscription with payment details
+        console.log('Payment service: Updating subscription with payment details');
+        const { error: updateError } = await supabase
+          .from('subscriptions')
+          .update({
+            payment_address: invoice.address_in,
+            payment_info: invoice
+          })
+          .eq('id', subscription.id);
+        
+        if (updateError) {
+          console.error('Payment service: Error updating subscription with payment details:', updateError);
+          console.error('Error details:', JSON.stringify(updateError));
+          throw updateError;
+        }
       
       // Send subscription confirmation email
       try {
@@ -158,9 +199,68 @@ export const paymentService = {
       
       console.log('Payment service: Returning subscription result:', JSON.stringify(result));
       return result;
+      } catch (cryptapiError) {
+        console.error('Payment service: Error in CryptAPI operations:', cryptapiError);
+        console.error('Payment service: Error stack:', cryptapiError.stack);
+        
+        // Add more detailed error information for CryptAPI errors
+        if (cryptapiError.response) {
+          console.error('Payment service: CryptAPI error response status:', cryptapiError.response.status);
+          console.error('Payment service: CryptAPI error response headers:', JSON.stringify(cryptapiError.response.headers));
+          console.error('Payment service: CryptAPI error response data:', JSON.stringify(cryptapiError.response.data));
+        }
+        
+        // Check if it's a 404 error from Unirest
+        if (cryptapiError.message && cryptapiError.message.includes('got 404 response')) {
+          console.error('Payment service: 404 error detected - CryptAPI endpoint might be incorrect or service might be down');
+        }
+        
+        throw cryptapiError;
+      }
     } catch (error) {
       console.error('Payment service: Unexpected error in createSubscription:', error);
       console.error('Error stack:', error.stack);
+      
+      // Add more detailed error information
+      if (error.response) {
+        console.error('Payment service: Error response status:', error.response.status);
+        console.error('Payment service: Error response headers:', JSON.stringify(error.response.headers));
+        console.error('Payment service: Error response data:', JSON.stringify(error.response.data));
+      } else if (error.request) {
+        console.error('Payment service: Error request sent but no response received');
+        console.error('Payment service: Error request details:', JSON.stringify(error.request));
+      } else {
+        console.error('Payment service: Error message:', error.message);
+      }
+      
+      // Check if it's a 404 error from Unirest
+      if (error.message && error.message.includes('got 404 response')) {
+        console.error('Payment service: 404 error detected - CryptAPI endpoint might be incorrect or service might be down');
+        
+        // Generate a curl command for manual testing of the CryptAPI endpoint
+        try {
+          const baseURL = 'https://cryptapi.io/api/';
+          const testCoin = coin || 'btc';
+          const testAddress = process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt";
+          const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
+          
+          // Build query parameters
+          const queryParams = new URLSearchParams();
+          queryParams.append('address', testAddress);
+          queryParams.append('callback', callbackUrl);
+          queryParams.append('pending', 'true');
+          
+          const fullURL = `${baseURL}${testCoin}/create?${queryParams.toString()}`;
+          const curlCommand = `curl -v "${fullURL}"`;
+          
+          console.error('Payment service: Try testing the CryptAPI endpoint with this curl command:');
+          console.error(curlCommand);
+          console.error('Payment service: If this also fails, the CryptAPI service might be down or the endpoint might have changed.');
+        } catch (curlError) {
+          console.error('Payment service: Error generating test curl command:', curlError);
+        }
+      }
+      
       throw error;
     }
   },
