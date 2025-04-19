@@ -212,7 +212,6 @@
       text-decoration: underline;
     }
   </style>
-  <script type="module" src="/js/api-client.js"></script>
 </head>
 <body>
   <div class="header">
@@ -285,7 +284,10 @@
     <p class="login-link">Already have an account? <a href="/login.html">Login</a></p>
   </div>
   
-  <script>
+  <script type="module">
+    // Import ApiClient at the top level of the module
+    import { ApiClient } from '/js/api-client.js';
+    
     // Plan selection
     const planOptions = document.querySelectorAll('.plan-option');
     planOptions.forEach(option => {
@@ -303,9 +305,6 @@
         method.classList.add('selected');
       });
     });
-    
-    // Import ApiClient
-    import { ApiClient } from '/js/api-client.js';
     
     // Form submission
     document.getElementById('register-form').addEventListener('submit', async (e) => {
