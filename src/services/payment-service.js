@@ -1,6 +1,10 @@
 import CryptAPI from 'cryptapi';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
+import dotenv from 'dotenv-flow';
+
+// Load environment variables
+dotenv.config();
 
 /**
  * Payment service for handling cryptocurrency payments
@@ -49,8 +53,10 @@ export const paymentService = {
       throw new Error('Invalid cryptocurrency. Must be "btc", "eth", or "sol".');
     }
     
-    // Calculate amount and expiration date with hardcoded prices
-    const amount = plan === 'monthly' ? 5 : 30;
+    // Get amount from environment variables or use default values
+    const amount = plan === 'monthly'
+      ? parseFloat(process.env.MONTHLY_SUBSCRIPTION_PRICE || '5')
+      : parseFloat(process.env.YEARLY_SUBSCRIPTION_PRICE || '30');
     
     const now = new Date();
     const expirationDate = new Date(now);
