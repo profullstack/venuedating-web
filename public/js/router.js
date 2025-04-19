@@ -114,29 +114,6 @@ class Router {
       return;
     }
     
-    // Create a transition container
-    const transitionContainer = document.createElement('div');
-    transitionContainer.className = 'route-transition-container';
-    transitionContainer.style.position = 'absolute';
-    transitionContainer.style.top = '0';
-    transitionContainer.style.left = '0';
-    transitionContainer.style.width = '100%';
-    transitionContainer.style.height = '100%';
-    transitionContainer.style.backgroundColor = 'var(--background-color)';
-    transitionContainer.style.color = 'var(--text-primary)';
-    transitionContainer.style.opacity = '0';
-    transitionContainer.style.transition = 'opacity 150ms ease-in-out';
-    transitionContainer.innerHTML = '<div class="loading">Loading...</div>';
-    
-    // Add the transition container to the root element
-    rootElement.style.position = 'relative';
-    rootElement.appendChild(transitionContainer);
-    
-    // Fade in the transition container
-    setTimeout(() => {
-      transitionContainer.style.opacity = '1';
-    }, 0);
-    
     try {
       // Handle route
       if (route) {
@@ -144,6 +121,18 @@ class Router {
         
         // Set current route
         this.currentRoute = route;
+        
+        // Create a container for the new view that will be invisible at first
+        const newViewContainer = document.createElement('div');
+        newViewContainer.className = 'new-route-container';
+        newViewContainer.style.position = 'absolute';
+        newViewContainer.style.top = '0';
+        newViewContainer.style.left = '0';
+        newViewContainer.style.width = '100%';
+        newViewContainer.style.height = '100%';
+        newViewContainer.style.opacity = '0';
+        newViewContainer.style.zIndex = '5';
+        newViewContainer.style.transition = 'opacity 200ms ease-in-out';
         
         // Get view content
         let content;
@@ -167,54 +156,146 @@ class Router {
           content = '';
         }
         
-        // Prepare the new content in the background
-        const tempContainer = document.createElement('div');
-        tempContainer.innerHTML = content;
+        // Set the content of the new view container
+        newViewContainer.innerHTML = content;
         
-        // Apply theme-related styles to ensure proper coloring
-        const themeStyles = document.createElement('style');
-        themeStyles.textContent = `
-          * {
-            color: var(--text-primary);
-            background-color: var(--background-color);
-            transition: none !important;
+        // Make the root element a positioned container if it's not already
+        const rootPosition = window.getComputedStyle(rootElement).position;
+        if (rootPosition === 'static') {
+          rootElement.style.position = 'relative';
+        }
+        
+        // Add the new view container to the DOM but keep it invisible
+        rootElement.appendChild(newViewContainer);
+        
+        // Create a wrapper for the current content
+        const currentContent = document.createElement('div');
+        currentContent.className = 'current-route-container';
+        currentContent.style.position = 'relative';
+        currentContent.style.zIndex = '1';
+        currentContent.style.opacity = '1';
+        currentContent.style.transition = 'opacity 200ms ease-in-out';
+        
+        // Move all current children (except the new view container) into the wrapper
+        Array.from(rootElement.children).forEach(child => {
+          if (child !== newViewContainer) {
+            currentContent.appendChild(child);
           }
-        `;
-        tempContainer.appendChild(themeStyles);
+        });
         
-        // Fade out the transition container
-        transitionContainer.style.opacity = '0';
+        // Add the current content wrapper back to the root
+        rootElement.appendChild(currentContent);
         
-        // Wait for the fade out transition to complete
-        setTimeout(() => {
-          // Update the DOM with the prepared content
-          console.log('Updating DOM with content');
-          rootElement.innerHTML = content;
+        // Wait a frame to ensure DOM is updated
+        requestAnimationFrame(() => {
+          // Start the transition - fade out current content and fade in new content
+          currentContent.style.opacity = '0';
+          newViewContainer.style.opacity = '1';
           
-          // Call afterRender if provided
-          if (route.afterRender) {
-            console.log('Calling afterRender function');
-            setTimeout(() => {
-              try {
-                route.afterRender();
-              } catch (error) {
-                console.error('Error in afterRender:', error);
-              }
-            }, 0);
-          }
-          
-          // Dispatch route changed event
-          window.dispatchEvent(new CustomEvent('route-changed', {
-            detail: { path, route }
-          }));
-        }, 150); // Match the transition duration
+          // After transition completes, swap the content
+          setTimeout(() => {
+            // Remove the old content
+            rootElement.removeChild(currentContent);
+            
+            // Move the new content from the container to the root
+            const newContent = Array.from(newViewContainer.children);
+            newContent.forEach(child => rootElement.appendChild(child));
+            
+            // Remove the now-empty container
+            rootElement.removeChild(newViewContainer);
+            
+            // Call afterRender if provided
+            if (route.afterRender) {
+              console.log('Calling afterRender function');
+              setTimeout(() => {
+                try {
+                  route.afterRender();
+                } catch (error) {
+                  console.error('Error in afterRender:', error);
+                }
+              }, 0);
+            }
+            
+            // Dispatch route changed event
+            window.dispatchEvent(new CustomEvent('route-changed', {
+              detail: { path, route }
+            }));
+          }, 200); // Match the transition duration
+        });
       } else {
-        // Handle 404
-        this.errorHandler(path, rootElement);
+        // Handle 404 with the same transition approach
+        const newViewContainer = document.createElement('div');
+        newViewContainer.className = 'new-route-container';
+        newViewContainer.style.position = 'absolute';
+        newViewContainer.style.top = '0';
+        newViewContainer.style.left = '0';
+        newViewContainer.style.width = '100%';
+        newViewContainer.style.height = '100%';
+        newViewContainer.style.opacity = '0';
+        newViewContainer.style.zIndex = '5';
+        newViewContainer.style.transition = 'opacity 200ms ease-in-out';
+        
+        // Call the error handler to get the 404 content
+        this.errorHandler(path, newViewContainer);
+        
+        // Make the root element a positioned container if it's not already
+        const rootPosition = window.getComputedStyle(rootElement).position;
+        if (rootPosition === 'static') {
+          rootElement.style.position = 'relative';
+        }
+        
+        // Add the new view container to the DOM but keep it invisible
+        rootElement.appendChild(newViewContainer);
+        
+        // Create a wrapper for the current content
+        const currentContent = document.createElement('div');
+        currentContent.className = 'current-route-container';
+        currentContent.style.position = 'relative';
+        currentContent.style.zIndex = '1';
+        currentContent.style.opacity = '1';
+        currentContent.style.transition = 'opacity 200ms ease-in-out';
+        
+        // Move all current children (except the new view container) into the wrapper
+        Array.from(rootElement.children).forEach(child => {
+          if (child !== newViewContainer) {
+            currentContent.appendChild(child);
+          }
+        });
+        
+        // Add the current content wrapper back to the root
+        rootElement.appendChild(currentContent);
+        
+        // Wait a frame to ensure DOM is updated
+        requestAnimationFrame(() => {
+          // Start the transition - fade out current content and fade in new content
+          currentContent.style.opacity = '0';
+          newViewContainer.style.opacity = '1';
+          
+          // After transition completes, swap the content
+          setTimeout(() => {
+            // Remove the old content
+            rootElement.removeChild(currentContent);
+            
+            // Move the new content from the container to the root
+            const newContent = Array.from(newViewContainer.children);
+            newContent.forEach(child => rootElement.appendChild(child));
+            
+            // Remove the now-empty container
+            rootElement.removeChild(newViewContainer);
+          }, 200); // Match the transition duration
+        });
       }
     } catch (error) {
       console.error('Error rendering route:', error);
-      rootElement.innerHTML = `<div class="error">Error loading page: ${error.message}</div>`;
+      
+      // Handle errors with the same transition approach
+      const errorContainer = document.createElement('div');
+      errorContainer.className = 'error';
+      errorContainer.innerHTML = `<div class="error">Error loading page: ${error.message}</div>`;
+      
+      // Replace the content with the error message
+      rootElement.innerHTML = '';
+      rootElement.appendChild(errorContainer);
     } finally {
       // Clear loading state
       this.loading = false;
@@ -269,16 +350,24 @@ class Router {
   /**
    * Default 404 error handler
    * @param {string} path - Route path
-   * @param {HTMLElement} rootElement - Root element
+   * @param {HTMLElement} container - Container element for the error content
    */
-  defaultErrorHandler(path, rootElement) {
-    rootElement.innerHTML = `
-      <div class="error-page">
+  defaultErrorHandler(path, container) {
+    // Create error content
+    const errorContent = document.createElement('div');
+    errorContent.className = 'error-page';
+    errorContent.innerHTML = `
+      <pf-header></pf-header>
+      <div class="error-content">
         <h1>404 - Page Not Found</h1>
         <p>The page "${path}" could not be found.</p>
         <a href="/" class="back-link">Go back to home</a>
       </div>
+      <pf-footer></pf-footer>
     `;
+    
+    // Add to container
+    container.appendChild(errorContent);
   }
 }
 
