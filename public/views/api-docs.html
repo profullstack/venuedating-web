@@ -268,12 +268,6 @@
 </head>
 <body>
   <div class="header">
-    <div class="logo">
-      <img src="/icons/logo.light.svg" alt="Profullstack, Inc. Logo" class="logo-light">
-      <img src="/icons/logo.dark.svg" alt="Profullstack, Inc. Logo" class="logo-dark" style="display: none;">
-      <h1>Document Generation API</h1>
-    </div>
-    
     <div class="nav-links">
       <a href="/" class="nav-link">Home</a>
       <a href="/api-docs.html" class="nav-link">API Docs</a>
@@ -604,34 +598,7 @@
   </footer>
 
   <script>
-    // Switch logo based on theme
-    document.addEventListener('themechange', (event) => {
-      const logoLight = document.querySelector('.logo-light');
-      const logoDark = document.querySelector('.logo-dark');
-      
-      if (event.detail.theme === 'dark') {
-        logoLight.style.display = 'none';
-        logoDark.style.display = 'block';
-      } else {
-        logoLight.style.display = 'block';
-        logoDark.style.display = 'none';
-      }
-    });
-    
-    // Set initial logo based on current theme
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      const logoLight = document.querySelector('.logo-light');
-      const logoDark = document.querySelector('.logo-dark');
-      
-      if (currentTheme === 'dark') {
-        logoLight.style.display = 'none';
-        logoDark.style.display = 'block';
-      } else {
-        logoLight.style.display = 'block';
-        logoDark.style.display = 'none';
-      }
-    });
+    // No logo switching needed anymore
   </script>
 </body>
 </html>
