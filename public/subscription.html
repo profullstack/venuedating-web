@@ -10,36 +10,28 @@
   <link rel="icon" href="/icons/favicon.light.svg" media="(prefers-color-scheme: light)">
   <link rel="icon" href="/icons/favicon.dark.svg" media="(prefers-color-scheme: dark)">
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-  <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/register-sw.js"></script>
-  <script type="module" src="/js/theme.js"></script>
   <script type="module" src="/js/main.js"></script>
   <script type="module" src="/js/components/subscription-form.js"></script>
   <style>
     body {
-      max-width: 800px;
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: var(--spacing-lg);
-    }
-    
-    h1 {
-      text-align: center;
-      margin-bottom: var(--spacing-xl);
-      color: var(--primary-color);
-      font-weight: var(--font-weight-bold);
+      padding: 20px;
     }
     
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: var(--spacing-xl);
+      margin-bottom: 30px;
     }
     
     .logo {
       display: flex;
       align-items: center;
-      gap: var(--spacing-sm);
+      gap: 10px;
     }
     
     .logo img {
@@ -49,61 +41,103 @@
     
     .logo h1 {
       margin: 0;
+      color: #2563eb;
+      font-weight: bold;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .nav-link {
+      padding: 8px 15px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+    
+    .nav-link:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .subscription-link {
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    
+    .subscription-link:hover {
+      background-color: #1d4ed8;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      color: #2563eb;
+      font-weight: bold;
+      font-size: 32px;
     }
     
     .pricing-table {
       display: flex;
-      gap: var(--spacing-lg);
-      margin-bottom: var(--spacing-xxl);
+      gap: 30px;
+      margin-bottom: 60px;
     }
     
     .pricing-plan {
       flex: 1;
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-lg);
-      padding: var(--spacing-lg);
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 30px;
       text-align: center;
-      background-color: var(--card-background);
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
     }
     
     .pricing-plan:hover {
       transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
     .plan-name {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-bold);
-      margin-bottom: var(--spacing-sm);
-      color: var(--text-primary);
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #111827;
     }
     
     .plan-price {
-      font-size: var(--font-size-4xl);
-      font-weight: var(--font-weight-bold);
-      margin-bottom: var(--spacing-lg);
-      color: var(--primary-color);
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #2563eb;
     }
     
     .plan-price small {
-      font-size: var(--font-size-md);
-      font-weight: var(--font-weight-normal);
-      color: var(--text-secondary);
+      font-size: 16px;
+      font-weight: normal;
+      color: #6b7280;
     }
     
     .plan-features {
       list-style: none;
       padding: 0;
-      margin-bottom: var(--spacing-lg);
+      margin-bottom: 20px;
       text-align: left;
     }
     
     .plan-features li {
-      padding: var(--spacing-xs) 0;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-secondary);
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+      color: #4b5563;
     }
     
     .plan-features li:last-child {
@@ -112,14 +146,14 @@
     
     .plan-features li::before {
       content: "✓";
-      color: var(--success-color);
-      margin-right: var(--spacing-sm);
-      font-weight: var(--font-weight-bold);
+      color: #10b981;
+      margin-right: 8px;
+      font-weight: bold;
     }
     
     .popular {
-      background-color: var(--surface-variant);
-      border-color: var(--secondary-color);
+      background-color: #f9fafb;
+      border-color: #10b981;
       position: relative;
     }
     
@@ -128,32 +162,32 @@
       position: absolute;
       top: -10px;
       right: -10px;
-      background-color: var(--secondary-color);
-      color: var(--text-on-secondary);
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-sm);
-      font-size: var(--font-size-xs);
-      font-weight: var(--font-weight-bold);
+      background-color: #10b981;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
     }
     
     .payment-methods {
       text-align: center;
-      margin-bottom: var(--spacing-xl);
-      padding: var(--spacing-md);
-      background-color: var(--surface-color);
-      border-radius: var(--border-radius-md);
+      margin-bottom: 40px;
+      padding: 20px;
+      background-color: #f9fafb;
+      border-radius: 8px;
     }
     
     .payment-methods p {
-      margin-bottom: var(--spacing-md);
-      color: var(--text-secondary);
+      margin-bottom: 15px;
+      color: #4b5563;
     }
     
     .payment-methods img {
       height: 30px;
-      margin: 0 var(--spacing-sm);
+      margin: 0 10px;
       filter: grayscale(0.2);
-      transition: filter var(--transition-fast), transform var(--transition-fast);
+      transition: filter 0.2s, transform 0.2s;
     }
     
     .payment-methods img:hover {
@@ -164,29 +198,29 @@
     .back-link {
       display: block;
       text-align: center;
-      margin-top: var(--spacing-xl);
-      color: var(--primary-color);
+      margin-top: 40px;
+      color: #2563eb;
       text-decoration: none;
-      font-weight: var(--font-weight-medium);
-      transition: color var(--transition-fast);
+      font-weight: 500;
+      transition: color 0.2s;
     }
     
     .back-link:hover {
-      color: var(--primary-dark);
+      color: #1d4ed8;
       text-decoration: underline;
     }
     
     footer {
-      margin-top: var(--spacing-xxl);
-      padding-top: var(--spacing-lg);
-      border-top: 1px solid var(--border-color);
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
       text-align: center;
-      color: var(--text-tertiary);
-      font-size: var(--font-size-sm);
+      color: #6b7280;
+      font-size: 14px;
     }
     
     footer a {
-      color: var(--primary-color);
+      color: #2563eb;
       text-decoration: none;
     }
     
@@ -200,11 +234,11 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: var(--surface-color);
-      color: var(--text-primary);
-      padding: var(--spacing-md);
-      border-radius: var(--border-radius-md);
-      box-shadow: var(--shadow-md);
+      background-color: #f9fafb;
+      color: #111827;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 1000;
     }
     
@@ -222,9 +256,16 @@
 <body>
   <div class="header">
     <div class="logo">
-      <img src="/icons/logo.light.svg" alt="ProFullStack Logo" class="logo-light">
-      <img src="/icons/logo.dark.svg" alt="ProFullStack Logo" class="logo-dark" style="display: none;">
+      <img src="/icons/logo.svg" alt="ProFullStack Logo">
       <h1>Document Generation API</h1>
+    </div>
+    
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/api-docs.html" class="nav-link">API Docs</a>
+      <a href="/api-keys.html" class="nav-link">API Keys</a>
+      <a href="/login.html" class="nav-link">Login</a>
+      <a href="/register.html" class="subscription-link">Register</a>
     </div>
   </div>
   
@@ -288,35 +329,6 @@
     
     window.addEventListener('offline', () => {
       document.getElementById('offline-notification').classList.add('visible');
-    });
-    
-    // Switch logo based on theme
-    document.addEventListener('themechange', (event) => {
-      const logoLight = document.querySelector('.logo-light');
-      const logoDark = document.querySelector('.logo-dark');
-      
-      if (event.detail.theme === 'dark') {
-        logoLight.style.display = 'none';
-        logoDark.style.display = 'block';
-      } else {
-        logoLight.style.display = 'block';
-        logoDark.style.display = 'none';
-      }
-    });
-    
-    // Set initial logo based on current theme
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      const logoLight = document.querySelector('.logo-light');
-      const logoDark = document.querySelector('.logo-dark');
-      
-      if (currentTheme === 'dark') {
-        logoLight.style.display = 'none';
-        logoDark.style.display = 'block';
-      } else {
-        logoLight.style.display = 'block';
-        logoDark.style.display = 'none';
-      }
     });
   </script>
 </body>

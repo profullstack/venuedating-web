@@ -150,12 +150,37 @@ export class ApiClient {
    * @param {string} coin - Cryptocurrency code (btc, eth, sol)
    * @returns {Promise<Object>} - Subscription details
    */
+  /**
+   * Create a new subscription
+   * @param {string} email - User email
+   * @param {string} plan - Subscription plan (monthly, yearly)
+   * @param {string} coin - Cryptocurrency code (btc, eth, sol)
+   * @returns {Promise<Object>} - Subscription details with payment info
+   */
   static async createSubscription(email, plan, coin) {
-    return this.fetchJsonResponse(`${this.baseUrl}/subscription`, {
-      email,
-      plan,
-      coin
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}/subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          plan,
+          coin
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create subscription');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      throw error;
+    }
   }
 
   /**

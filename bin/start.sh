@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/zsh
 
 # Load environment variables from .env file if it exists
 if [ -f .env ]; then

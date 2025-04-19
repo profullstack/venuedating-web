@@ -30,12 +30,18 @@ export class SubscriptionForm extends BaseComponent {
       
       :host {
         display: block;
-        padding: 20px;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
       }
       
       h2 {
         margin-top: 0;
         margin-bottom: 20px;
+        color: #2563eb;
+        font-weight: bold;
       }
       
       .form-group {
@@ -44,17 +50,26 @@ export class SubscriptionForm extends BaseComponent {
       
       label {
         display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #4b5563;
       }
       
       input[type="email"],
       select {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 5px;
         font-size: 16px;
+        transition: border-color 0.2s;
+      }
+      
+      input[type="email"]:focus,
+      select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
       }
       
       .radio-group {
@@ -66,99 +81,117 @@ export class SubscriptionForm extends BaseComponent {
       .radio-option {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 8px;
       }
       
       .submit-button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
+        padding: 12px 24px;
+        background-color: #2563eb;
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 5px;
         cursor: pointer;
         font-size: 16px;
+        font-weight: 500;
+        transition: background-color 0.2s, transform 0.2s;
       }
       
       .submit-button:hover {
-        background-color: #45a049;
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
       }
       
       .submit-button:disabled {
-        background-color: #cccccc;
+        background-color: #9ca3af;
         cursor: not-allowed;
+        transform: none;
       }
       
       .error {
-        padding: 10px;
-        background-color: #f8d7da;
-        color: #721c24;
-        border-radius: 4px;
+        padding: 12px;
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border-radius: 5px;
         margin-bottom: 20px;
+        border-left: 4px solid #ef4444;
       }
       
       .payment-info {
         margin-top: 30px;
-        padding: 20px;
-        background-color: #f9f9f9;
-        border-radius: 4px;
-        border: 1px solid #ddd;
+        padding: 25px;
+        background-color: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
       }
       
       .payment-info h3 {
         margin-top: 0;
         margin-bottom: 15px;
+        color: #111827;
+        font-weight: bold;
       }
       
       .payment-address {
         font-family: monospace;
-        padding: 10px;
+        padding: 15px;
         background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        border: 1px solid #e5e7eb;
+        border-radius: 5px;
         word-break: break-all;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
       }
       
       .payment-details {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
       }
       
       .payment-details p {
-        margin: 5px 0;
+        margin: 8px 0;
+        color: #4b5563;
+      }
+      
+      .payment-details strong {
+        color: #111827;
       }
       
       .payment-qr {
         text-align: center;
-        margin-top: 20px;
+        margin-top: 25px;
       }
       
       .payment-qr img {
         max-width: 200px;
         height: auto;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
       
       .subscription-info {
         margin-top: 30px;
-        padding: 20px;
-        background-color: #d4edda;
-        color: #155724;
-        border-radius: 4px;
+        padding: 25px;
+        background-color: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-radius: 8px;
+        border-left: 4px solid #10b981;
       }
       
       .subscription-info h3 {
         margin-top: 0;
         margin-bottom: 15px;
+        color: #10b981;
+        font-weight: bold;
       }
       
       .subscription-details p {
-        margin: 5px 0;
+        margin: 8px 0;
+        color: #065f46;
       }
       
       .loading {
         text-align: center;
-        padding: 20px;
+        padding: 30px;
         font-style: italic;
-        color: #666;
+        color: #6b7280;
       }
     `;
   }
@@ -179,16 +212,16 @@ export class SubscriptionForm extends BaseComponent {
     }
     
     return `
-      <h2>Subscribe to Document Generation API</h2>
+      <h2>Complete Your Subscription</h2>
       
-      <p>Subscribe to our document generation service to access all features.</p>
+      <p>Fill out the form below to subscribe to our document generation service and access all features.</p>
       
       ${this._error ? `<div class="error">${this._error}</div>` : ''}
       
       <form id="subscription-form">
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" required value="${this._email}">
+          <input type="email" id="email" name="email" required value="${this._email}" placeholder="your@email.com">
         </div>
         
         <div class="form-group">
@@ -226,14 +259,14 @@ export class SubscriptionForm extends BaseComponent {
    */
   _renderPaymentInfo() {
     return `
-      <h2>Complete Your Subscription</h2>
+      <h2>Complete Your Payment</h2>
       
       ${this._error ? `<div class="error">${this._error}</div>` : ''}
       
       <div class="payment-info">
         <h3>Payment Information</h3>
         
-        <p>Please send the exact amount to the following address:</p>
+        <p>Please send the exact amount to the following cryptocurrency address:</p>
         
         <div class="payment-address">
           ${this._paymentInfo.address}
@@ -243,17 +276,20 @@ export class SubscriptionForm extends BaseComponent {
           <p><strong>Amount:</strong> $${this._subscription.amount} USD</p>
           <p><strong>Cryptocurrency:</strong> ${this._getCoinName(this._subscription.payment_method)}</p>
           <p><strong>Plan:</strong> ${this._subscription.plan === 'monthly' ? 'Monthly' : 'Yearly'}</p>
+          <p><strong>Email:</strong> ${this._subscription.email}</p>
         </div>
         
         <div class="payment-qr">
           <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${this._paymentInfo.address}" alt="Payment QR Code">
         </div>
         
-        <p>Once your payment is confirmed, your subscription will be activated automatically.</p>
+        <p>Once your payment is confirmed, your subscription will be activated automatically. This usually takes a few minutes, but can take longer depending on network congestion.</p>
       </div>
       
-      <button id="check-status-button" class="submit-button">Check Payment Status</button>
-      <button id="new-subscription-button" class="submit-button">Create New Subscription</button>
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+        <button id="check-status-button" class="submit-button">Check Payment Status</button>
+        <button id="new-subscription-button" class="submit-button" style="background-color: #6b7280;">Create New Subscription</button>
+      </div>
     `;
   }
 
@@ -328,30 +364,23 @@ export class SubscriptionForm extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch('/api/1/subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: this._email,
-          plan: this._plan,
-          coin: this._coin
-        })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create subscription');
-      }
-      
-      const data = await response.json();
+      // Use the ApiClient to create a subscription
+      const data = await ApiClient.createSubscription(this._email, this._plan, this._coin);
       
       this._subscription = data.subscription;
       this._paymentInfo = data.payment_info;
       this._loading = false;
       
       this.render();
+      
+      // Track conversion event
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'subscription_created', {
+          'event_category': 'subscription',
+          'event_label': this._plan,
+          'value': this._plan === 'monthly' ? 5 : 30
+        });
+      }
     } catch (error) {
       console.error('Error creating subscription:', error);
       this._error = error.message;
@@ -420,12 +449,23 @@ export class SubscriptionForm extends BaseComponent {
           <h3>Subscription Active!</h3>
           
           <div class="subscription-details">
-            <p>Your subscription is now active. You can start using the API with your email as the API key.</p>
+            <p>Your subscription is now active! You can start using the API immediately.</p>
             <p><strong>API Key:</strong> ${this._email}</p>
+            <p><strong>Plan:</strong> ${this._subscription.plan === 'monthly' ? 'Monthly' : 'Yearly'}</p>
             <p><strong>Expiration Date:</strong> ${new Date(this._subscription.expiration_date).toLocaleDateString()}</p>
+            <p>You can view your API usage and manage your subscription in your account dashboard.</p>
           </div>
         </div>
       `);
+      
+      // Track conversion event
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'subscription_activated', {
+          'event_category': 'subscription',
+          'event_label': this._subscription.plan,
+          'value': this._subscription.amount
+        });
+      }
     }
   }
 
