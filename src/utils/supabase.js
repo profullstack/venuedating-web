@@ -43,7 +43,8 @@ const envVars = readEnvFile();
  * Supabase configuration
  */
 const supabaseUrl = envVars.SUPABASE_URL || process.env.SUPABASE_URL || 'https://arokhsfbkdnfuklmqajh.supabase.co';
-const supabaseKey = envVars.SUPABASE_KEY || process.env.SUPABASE_KEY;
+// Use service role key for server-side operations to bypass RLS
+const supabaseKey = envVars.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || envVars.SUPABASE_KEY || process.env.SUPABASE_KEY;
 
 // Log environment variables for debugging
 console.log('Supabase configuration:');
@@ -51,7 +52,10 @@ console.log('SUPABASE_URL:', supabaseUrl);
 console.log('SUPABASE_KEY exists:', !!supabaseKey);
 console.log('SUPABASE_KEY from .env file:', !!envVars.SUPABASE_KEY);
 console.log('SUPABASE_KEY from process.env:', !!process.env.SUPABASE_KEY);
+console.log('SUPABASE_SERVICE_ROLE_KEY from .env file:', !!envVars.SUPABASE_SERVICE_ROLE_KEY);
+console.log('SUPABASE_SERVICE_ROLE_KEY from process.env:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 console.log('SUPABASE_KEY length:', supabaseKey ? supabaseKey.length : 0);
+console.log('Using service role key:', !!(envVars.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY));
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
 // Log all environment variables for debugging (without showing sensitive values)
