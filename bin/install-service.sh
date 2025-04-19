@@ -41,19 +41,12 @@ else
   echo -e "${GREEN}Pandoc is already installed.${NC}"
 fi
 
-# Install Node.js if not already installed
-if ! command -v node &> /dev/null; then
-  echo -e "${YELLOW}Node.js not found. Installing Node.js...${NC}"
-  curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-  apt-get install -y nodejs
-  if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Node.js installed successfully.${NC}"
-  else
-    echo -e "${RED}Failed to install Node.js. Please install it manually.${NC}"
-    exit 1
-  fi
-else
+# Check Node.js version
+if command -v node &> /dev/null; then
   echo -e "${GREEN}Node.js is already installed: $(node -v)${NC}"
+else
+  echo -e "${RED}Node.js not found. Please install Node.js before continuing.${NC}"
+  exit 1
 fi
 
 # Install pnpm if not already installed
@@ -70,10 +63,9 @@ else
   echo -e "${GREEN}pnpm is already installed: $(pnpm -v)${NC}"
 fi
 
-# Create log files
-echo -e "${YELLOW}Creating log files...${NC}"
-touch /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
-chmod 644 /var/log/$SERVICE_NAME.log /var/log/$SERVICE_NAME.error.log
+# Create log directory in systemd journal
+echo -e "${YELLOW}Setting up logging...${NC}"
+systemctl --user enable systemd-journald
 
 # Create symbolic link to the service file
 echo -e "${YELLOW}Creating symbolic link to service file...${NC}"
@@ -86,11 +78,6 @@ ln -s "$SERVICE_FILE" "$SYSTEMD_DIR/$SERVICE_NAME.service"
 # Make the start script executable and set permissions
 echo -e "${YELLOW}Setting permissions...${NC}"
 chmod +x "$PROJECT_DIR/bin/start.sh"
-
-# Ensure www-data has access to the project directory
-echo -e "${YELLOW}Setting directory permissions for www-data...${NC}"
-chown -R www-data:www-data "$PROJECT_DIR"
-chmod -R 755 "$PROJECT_DIR"
 
 # Ensure node_modules is writable
 if [ -d "$PROJECT_DIR/node_modules" ]; then

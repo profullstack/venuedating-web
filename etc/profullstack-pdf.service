@@ -4,21 +4,18 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-Group=ubuntu
-WorkingDirectory=/home/ubuntu/www/profullstack.com/pdf
-ExecStart=/bin/bash /home/ubuntu/www/profullstack.com/pdf/bin/start.sh
+WorkingDirectory=%h/www/profullstack.com/pdf
+ExecStart=/bin/bash %h/www/profullstack.com/pdf/bin/start.sh
 Restart=on-failure
 RestartSec=10
 
 # Log to files instead of journal
-StandardOutput=append:/var/log/profullstack-pdf.log
-StandardError=append:/var/log/profullstack-pdf.error.log
+StandardOutput=journal
+StandardError=journal
 
 # Environment
 Environment=NODE_ENV=production
-Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/ubuntu/.local/share/pnpm:/home/ubuntu/.npm/pnpm/bin
-Environment=HOME=/home/ubuntu
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:%h/.local/share/pnpm:%h/.npm/pnpm/bin
 
 # Hardening
 ProtectSystem=full
