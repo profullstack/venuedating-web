@@ -78,59 +78,25 @@ try {
   if (supabaseKey) {
     supabaseClient = createClient(supabaseUrl, supabaseKey);
     console.log('Supabase client created successfully with API key');
+    
+    // Add URL and key to the client for debugging
+    supabaseClient.supabaseUrl = supabaseUrl;
+    supabaseClient.supabaseKey = !!supabaseKey;
   } else {
-    console.warn('No Supabase key found, creating mock client');
-    supabaseClient = createMockSupabaseClient();
+    console.error('ERROR: No Supabase key found in environment variables.');
+    console.error('Please create a .env file with SUPABASE_URL and SUPABASE_KEY or SUPABASE_SERVICE_ROLE_KEY.');
+    console.error('See .env.example for reference.');
+    
+    // Throw an error to prevent the application from starting without proper configuration
+    throw new Error('Missing Supabase credentials. Check server logs for details.');
   }
-  
-  // Add URL and key to the client for debugging
-  supabaseClient.supabaseUrl = supabaseUrl;
-  supabaseClient.supabaseKey = !!supabaseKey;
 } catch (error) {
   console.error('Error creating Supabase client:', error);
   console.error('Error stack:', error.stack);
-  supabaseClient = createMockSupabaseClient();
+  throw error; // Re-throw the error to prevent the application from starting with invalid configuration
 }
 
 export const supabase = supabaseClient;
-
-/**
- * Create a mock Supabase client for development without credentials
- */
-function createMockSupabaseClient() {
-  console.warn('SUPABASE_KEY not found in environment variables. Using mock Supabase client.');
-  
-  // Create a mock storage object
-  const mockStorage = {
-    from: (bucket) => ({
-      upload: (path, data, options) => {
-        console.log(`[MOCK] Uploading to ${bucket}/${path} with options:`, options);
-        return Promise.resolve({
-          data: { path, fullPath: `${bucket}/${path}` },
-          error: null
-        });
-      }
-    })
-  };
-  
-  // Create a mock database object
-  const mockFrom = (table) => ({
-    insert: (data) => ({
-      select: () => Promise.resolve({ data, error: null })
-    }),
-    select: () => ({
-      order: () => ({
-        range: () => Promise.resolve({ data: [], error: null })
-      })
-    })
-  });
-  
-  // Return a mock client
-  return {
-    storage: mockStorage,
-    from: mockFrom
-  };
-}
 
 /**
  * Utility functions for Supabase operations

@@ -160,20 +160,52 @@ function initLoginPage() {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     
+    // Show loading state
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Logging in...';
+    submitButton.disabled = true;
+    
     try {
-      // For now, just store the email in localStorage as if it were an API key
-      // In a real implementation, this would validate credentials with the server
-      localStorage.setItem('api_key', email);
-      localStorage.setItem('username', email);
+      // Import the API client
+      const { ApiClient } = await import('./api-client.js');
       
-      // Dispatch auth changed event
-      window.dispatchEvent(new CustomEvent('auth-changed'));
+      // Check subscription status
+      const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+      console.log('Subscription status:', subscriptionStatus);
       
-      // Redirect to the API keys page
-      window.router.navigate('/api-keys');
+      if (subscriptionStatus.has_subscription) {
+        // User has an active subscription, store the email as an API key
+        localStorage.setItem('api_key', email);
+        localStorage.setItem('username', email);
+        localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
+        
+        // Dispatch auth changed event
+        window.dispatchEvent(new CustomEvent('auth-changed'));
+        
+        // Redirect to the API keys page
+        window.router.navigate('/api-keys');
+      } else {
+        // User doesn't have an active subscription
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
+        
+        // Show error message with option to register
+        const register = confirm(
+          'No active subscription found for this email. Would you like to register and subscribe?'
+        );
+        
+        if (register) {
+          window.router.navigate('/register');
+        }
+      }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+      submitButton.textContent = originalButtonText;
+      submitButton.disabled = false;
+      
+      // Show error message
+      alert('Login failed: ' + (error.message || 'Unable to check subscription status'));
     }
   });
 }
@@ -233,83 +265,49 @@ function initRegisterPage() {
       selectedPayment = selectedPaymentElement.dataset.payment;
     }
     
+    // Show loading state
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Processing...';
+    submitButton.disabled = true;
+    
     try {
-      // For now, just store the email in localStorage as if it were an API key
-      // In a real implementation, this would register the user with the server
+      // Import the API client
+      const { ApiClient } = await import('./api-client.js');
+      
+      // Create subscription using the API
+      const subscriptionData = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
+      console.log('Subscription created:', subscriptionData);
+      
+      // Store user data in localStorage
       localStorage.setItem('api_key', email);
       localStorage.setItem('username', email);
-      
-      // Create a mock subscription for testing
-      const mockSubscription = createMockSubscription(email, selectedPlan, selectedPayment);
-      localStorage.setItem('subscription_data', JSON.stringify(mockSubscription));
+      localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
       
       // Dispatch auth changed event
       window.dispatchEvent(new CustomEvent('auth-changed'));
+      
+      // Show success message with payment information
+      const paymentAddress = subscriptionData.subscription.payment_address;
+      const amount = subscriptionData.subscription.amount;
+      const coin = subscriptionData.subscription.payment_method.toUpperCase();
+      
+      alert(`Registration successful! Please send ${amount} USD worth of ${coin} to: ${paymentAddress}`);
       
       // Redirect to the API keys page
       window.router.navigate('/api-keys');
     } catch (error) {
       console.error('Registration error:', error);
+      submitButton.textContent = originalButtonText;
+      submitButton.disabled = false;
       
-      // Show error dialog with option to continue as test account
-      const proceed = confirm(
-        'There was an error with the payment system, but you can continue with a test account. Proceed?'
-      );
-      
-      if (proceed) {
-        localStorage.setItem('api_key', email);
-        localStorage.setItem('username', email);
-        
-        // Create a mock subscription for testing
-        const mockSubscription = createMockSubscription(email, selectedPlan, selectedPayment);
-        localStorage.setItem('subscription_data', JSON.stringify(mockSubscription));
-        
-        // Dispatch auth changed event
-        window.dispatchEvent(new CustomEvent('auth-changed'));
-        
-        // Redirect to the API keys page
-        window.router.navigate('/api-keys');
-      }
+      // Show error message
+      alert('Registration failed: ' + (error.message || 'Unable to create subscription'));
     }
   });
 }
 
-// Create a mock subscription for testing
-function createMockSubscription(email, plan, coin) {
-  const now = new Date();
-  const expirationDate = new Date(now);
-  expirationDate.setMonth(expirationDate.getMonth() + (plan === 'monthly' ? 1 : 12));
-  
-  // Hardcoded cryptocurrency wallet addresses
-  const addresses = {
-    btc: "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
-    eth: "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
-    sol: "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF"
-  };
-  
-  const amount = plan === 'monthly' ? 5 : 30;
-  
-  return {
-    subscription: {
-      id: `sub_${Date.now()}`,
-      email,
-      plan,
-      amount,
-      interval: plan === 'monthly' ? 'month' : 'year',
-      payment_method: coin,
-      status: 'pending',
-      start_date: now.toISOString(),
-      expiration_date: expirationDate.toISOString(),
-      payment_address: addresses[coin]
-    },
-    payment_info: {
-      address: addresses[coin],
-      coin,
-      amount_fiat: amount,
-      currency: 'USD'
-    }
-  };
-}
+// Function removed - no more mock data
 
 /**
  * Initialize API keys page
@@ -408,8 +406,55 @@ function initSettingsPage() {
  * Initialize subscription page
  */
 function initSubscriptionPage() {
-  // Initialize subscription page
-  // ...
+  // Import the subscription form component
+  import('./components/subscription-form.js').then(() => {
+    console.log('Subscription form component loaded');
+    
+    // Check if user is logged in
+    const apiKey = localStorage.getItem('api_key');
+    const email = localStorage.getItem('username');
+    
+    // If user is logged in, pre-fill the email field
+    if (email) {
+      const subscriptionForm = document.querySelector('subscription-form');
+      if (subscriptionForm) {
+        subscriptionForm._email = email;
+        subscriptionForm.render();
+      }
+    }
+    
+    // Check if we have subscription data in localStorage
+    const subscriptionData = localStorage.getItem('subscription_data');
+    if (subscriptionData) {
+      try {
+        // Parse the subscription data
+        const data = JSON.parse(subscriptionData);
+        
+        // Get the subscription form component
+        const subscriptionForm = document.querySelector('subscription-form');
+        
+        // Set the subscription data
+        if (subscriptionForm) {
+          // Use the component's API to set the data
+          if (data.subscription) {
+            subscriptionForm._subscription = data.subscription;
+          }
+          if (data.payment_info) {
+            subscriptionForm._paymentInfo = data.payment_info;
+          }
+          subscriptionForm._email = data.subscription?.email || email || '';
+          subscriptionForm.render();
+          
+          // Clear the localStorage data to prevent reuse
+          localStorage.removeItem('subscription_data');
+        }
+      } catch (error) {
+        console.error('Error parsing subscription data:', error);
+      }
+    }
+  }).catch(error => {
+    console.error('Error loading subscription form component:', error);
+  });
 }
 
 // Expose functions globally
