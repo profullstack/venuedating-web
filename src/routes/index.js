@@ -6,10 +6,11 @@ import { htmlToMarkdownRoute } from './html-to-markdown.js';
 import { markdownToHtmlRoute } from './markdown-to-html.js';
 import { htmlToEpubRoute } from './html-to-epub.js';
 import { documentHistoryRoute } from './document-history.js';
-import { 
-  subscriptionRoute, 
-  paymentCallbackRoute, 
-  subscriptionStatusRoute 
+import {
+  subscriptionRoute,
+  paymentCallbackRoute,
+  subscriptionStatusRoute,
+  paymentLogsRoute
 } from './subscription.js';
 import { apiKeyRoutes } from './api-keys.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
@@ -38,7 +39,8 @@ protectedRoutes.forEach(route => {
 const publicRoutes = [
   subscriptionRoute,
   paymentCallbackRoute,
-  subscriptionStatusRoute
+  subscriptionStatusRoute,
+  paymentLogsRoute
 ];
 
 /**

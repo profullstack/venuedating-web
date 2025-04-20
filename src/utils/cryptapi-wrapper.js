@@ -27,27 +27,23 @@ export function createCryptAPIClient() {
     
     // Construct the full URL that will be called
     const baseURL = 'https://api.cryptapi.io/';
-    const endpoint = `${coin}/create`;
     
-    // Build query parameters
+    // Build query parameters according to official documentation
     const queryParams = new URLSearchParams();
     queryParams.append('address', address);
     queryParams.append('callback', callback);
+    queryParams.append('pending', options?.pending ? '1' : '0');
+    queryParams.append('confirmations', '1');
+    queryParams.append('json', '1'); // Always use JSON response format
     
     // Add any additional parameters from options
-    if (options) {
-      if (options.pending) {
-        queryParams.append('pending', '1');
-      }
-      
-      if (options.parameters) {
-        for (const [key, value] of Object.entries(options.parameters)) {
-          queryParams.append(`parameters[${key}]`, value);
-        }
+    if (options?.parameters) {
+      for (const [key, value] of Object.entries(options.parameters)) {
+        queryParams.append(`parameters[${key}]`, value);
       }
     }
     
-    const fullURL = `${baseURL}${endpoint}?${queryParams.toString()}`;
+    const fullURL = `${baseURL}${coin}/create/?${queryParams.toString()}`;
     console.log(`CryptAPI Wrapper: Full URL that will be called: ${fullURL}`);
     
     // Generate a curl command for manual testing
@@ -136,6 +132,44 @@ export function createCryptAPIClient() {
       };
     } catch (error) {
       console.error('CryptAPI Wrapper: Error in convertUsdToCrypto:', error);
+      console.error('CryptAPI Wrapper: Error details:', error.message);
+      throw error;
+    }
+  };
+  
+  // Add a method to check payment logs
+  originalClient.checkPaymentLogs = async function(coin, callbackUrl) {
+    console.log(`CryptAPI Wrapper: Checking payment logs for ${coin} with callback URL: ${callbackUrl}`);
+    
+    try {
+      // Construct the URL for the logs endpoint
+      const baseURL = 'https://api.cryptapi.io/';
+      
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('callback', callbackUrl);
+      
+      const fullURL = `${baseURL}${coin}/logs/?${queryParams.toString()}`;
+      console.log(`CryptAPI Wrapper: Logs URL: ${fullURL}`);
+      
+      // Generate a curl command for manual testing
+      const curlCommand = `curl -v "${fullURL}"`;
+      console.log(`CryptAPI Wrapper: Equivalent curl command for testing:`);
+      console.log(curlCommand);
+      
+      // Make the request to get the logs
+      const response = await fetch(fullURL);
+      
+      if (!response.ok) {
+        throw new Error(`CryptAPI logs request failed with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('CryptAPI Wrapper: Logs response:', JSON.stringify(data));
+      
+      return data;
+    } catch (error) {
+      console.error('CryptAPI Wrapper: Error in checkPaymentLogs:', error);
       console.error('CryptAPI Wrapper: Error details:', error.message);
       throw error;
     }

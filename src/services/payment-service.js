@@ -146,7 +146,7 @@ export const paymentService = {
       
       try {
         const cryptapiClient = this._getCryptAPIClient(coin);
-        const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
+        const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
         
         // Convert USD amount to cryptocurrency
         console.log(`Payment service: Converting ${amount} USD to ${coin}`);
@@ -163,6 +163,8 @@ export const paymentService = {
         const requestParams = {
           callback: callbackUrl,
           pending: 1,
+          confirmations: 1,
+          json: 1,
           parameters: {
             subscription_id: subscription.id,
             email,
@@ -282,15 +284,17 @@ export const paymentService = {
           };
           
           const testAddress = addresses[testCoin];
-          const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
+          const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
           
-          // Build query parameters
+          // Build query parameters according to official documentation
           const queryParams = new URLSearchParams();
           queryParams.append('address', testAddress);
           queryParams.append('callback', callbackUrl);
           queryParams.append('pending', '1');
+          queryParams.append('confirmations', '1');
+          queryParams.append('json', '1');
           
-          const fullURL = `${baseURL}${testCoin}/create?${queryParams.toString()}`;
+          const fullURL = `${baseURL}${testCoin}/create/?${queryParams.toString()}`;
           const curlCommand = `curl -v "${fullURL}"`;
           
           console.error('Payment service: Try testing the CryptAPI endpoint with this curl command:');
@@ -311,11 +315,14 @@ export const paymentService = {
    * @returns {Promise<Object>} - Updated subscription
    */
   async processPaymentCallback(callbackData) {
+    console.log('Payment service: Processing payment callback:', JSON.stringify(callbackData));
+    
     // Extract subscription ID from parameters
     const subscriptionId = callbackData.parameters?.subscription_id;
     const email = callbackData.parameters?.email;
     
     if (!subscriptionId || !email) {
+      console.error('Payment service: Missing subscription ID or email in callback parameters');
       throw new Error('Missing subscription ID or email in callback parameters');
     }
     
@@ -327,66 +334,186 @@ export const paymentService = {
       .single();
     
     if (error || !subscription) {
-      console.error('Error fetching subscription:', error);
+      console.error('Payment service: Error fetching subscription:', error);
       throw error || new Error(`Subscription not found: ${subscriptionId}`);
     }
     
-    // Check if payment is confirmed
-    if (callbackData.status_code === 2) { // 2 = Confirmed
-      // Record payment in Supabase
+    // Check if this is a pending or confirmed callback
+    const isPending = callbackData.pending === '1' || callbackData.pending === 1;
+    console.log(`Payment service: Callback type: ${isPending ? 'Pending' : 'Confirmed'}`);
+    
+    if (isPending) {
+      // This is a pending payment notification
+      console.log(`Payment service: Pending payment received for subscription ${subscriptionId}`);
+      console.log(`Payment service: Transaction ID: ${callbackData.txid_in}, Amount: ${callbackData.value_coin}`);
+      
+      // Record pending payment in Supabase
       const { data: payment, error: paymentError } = await supabase
         .from('payments')
         .insert([{
           subscription_id: subscriptionId,
-          amount: subscription.amount,
-          currency: subscription.payment_method,
+          amount: parseFloat(callbackData.value_coin),
+          currency: callbackData.coin,
           transaction_id: callbackData.txid_in,
-          status: 'completed',
+          status: 'pending',
           payment_data: callbackData
         }])
         .select()
         .single();
       
       if (paymentError) {
-        console.error('Error recording payment:', paymentError);
+        console.error('Payment service: Error recording pending payment:', paymentError);
         throw paymentError;
       }
+      
+      // Update subscription status to pending_payment
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          status: 'pending_payment'
+        })
+        .eq('id', subscriptionId);
+      
+      if (updateError) {
+        console.error('Payment service: Error updating subscription status:', updateError);
+        throw updateError;
+      }
+      
+      return {
+        ...subscription,
+        status: 'pending_payment',
+        payment
+      };
+    } else {
+      // This is a confirmed payment notification
+      console.log(`Payment service: Confirmed payment received for subscription ${subscriptionId}`);
+      console.log(`Payment service: Transaction ID: ${callbackData.txid_in}, Amount: ${callbackData.value_coin}`);
+      console.log(`Payment service: Forwarded Amount: ${callbackData.value_forwarded_coin}, Fee: ${callbackData.fee_coin}`);
+      
+      // Find the pending payment record
+      const { data: pendingPayments, error: findError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('subscription_id', subscriptionId)
+        .eq('transaction_id', callbackData.txid_in)
+        .eq('status', 'pending');
+      
+      if (findError) {
+        console.error('Payment service: Error finding pending payment:', findError);
+        throw findError;
+      }
+      
+      let paymentId;
+      
+      if (pendingPayments && pendingPayments.length > 0) {
+        // Update existing payment record
+        console.log(`Payment service: Updating existing payment record ${pendingPayments[0].id}`);
+        
+        const { error: updatePaymentError } = await supabase
+          .from('payments')
+          .update({
+            status: 'completed',
+            amount: parseFloat(callbackData.value_coin),
+            amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
+            fee: parseFloat(callbackData.fee_coin),
+            transaction_id_out: callbackData.txid_out,
+            confirmations: parseInt(callbackData.confirmations),
+            payment_data: callbackData
+          })
+          .eq('id', pendingPayments[0].id);
+        
+        if (updatePaymentError) {
+          console.error('Payment service: Error updating payment record:', updatePaymentError);
+          throw updatePaymentError;
+        }
+        
+        paymentId = pendingPayments[0].id;
+      } else {
+        // Create new payment record
+        console.log('Payment service: Creating new payment record');
+        
+        const { data: newPayment, error: createPaymentError } = await supabase
+          .from('payments')
+          .insert([{
+            subscription_id: subscriptionId,
+            amount: parseFloat(callbackData.value_coin),
+            amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
+            fee: parseFloat(callbackData.fee_coin),
+            currency: callbackData.coin,
+            transaction_id: callbackData.txid_in,
+            transaction_id_out: callbackData.txid_out,
+            confirmations: parseInt(callbackData.confirmations),
+            status: 'completed',
+            payment_data: callbackData
+          }])
+          .select()
+          .single();
+        
+        if (createPaymentError) {
+          console.error('Payment service: Error creating payment record:', createPaymentError);
+          throw createPaymentError;
+        }
+        
+        paymentId = newPayment.id;
+      }
+      
+      // Calculate subscription expiration date
+      const now = new Date();
+      const expirationDate = new Date(now);
+      expirationDate.setMonth(expirationDate.getMonth() + (subscription.plan === 'monthly' ? 1 : 12));
       
       // Update subscription status
       const { error: updateError } = await supabase
         .from('subscriptions')
         .update({
           status: 'active',
-          last_payment_date: new Date().toISOString()
+          last_payment_date: now.toISOString(),
+          expiration_date: expirationDate.toISOString()
         })
         .eq('id', subscriptionId);
       
       if (updateError) {
-        console.error('Error updating subscription status:', updateError);
+        console.error('Payment service: Error updating subscription status:', updateError);
         throw updateError;
+      }
+      
+      // Get the updated payment record
+      const { data: payment, error: getPaymentError } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('id', paymentId)
+        .single();
+      
+      if (getPaymentError) {
+        console.error('Payment service: Error fetching updated payment:', getPaymentError);
+        throw getPaymentError;
       }
       
       // Send payment received email
       try {
         await emailService.sendPaymentReceived(email, {
           ...payment,
-          subscription
+          subscription: {
+            ...subscription,
+            status: 'active',
+            last_payment_date: now.toISOString(),
+            expiration_date: expirationDate.toISOString()
+          }
         });
+        console.log(`Payment service: Payment confirmation email sent to ${email}`);
       } catch (emailError) {
-        console.error('Error sending payment received email:', emailError);
+        console.error('Payment service: Error sending payment received email:', emailError);
         // Don't throw error here, as the payment was processed successfully
       }
       
       return {
         ...subscription,
         status: 'active',
-        last_payment_date: new Date().toISOString(),
+        last_payment_date: now.toISOString(),
+        expiration_date: expirationDate.toISOString(),
         payment
       };
     }
-    
-    // Payment is still pending
-    return subscription;
   },
 
   /**
@@ -431,6 +558,52 @@ export const paymentService = {
     }
     
     return data && data.length > 0 ? data[0] : null;
+  },
+  
+  /**
+   * Check payment logs for a subscription
+   * @param {string} subscriptionId - Subscription ID
+   * @returns {Promise<Object>} - Payment logs
+   */
+  async checkPaymentLogs(subscriptionId) {
+    console.log(`Payment service: Checking payment logs for subscription ${subscriptionId}`);
+    
+    try {
+      // Get subscription from Supabase
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('id', subscriptionId)
+        .single();
+      
+      if (error || !subscription) {
+        console.error('Error fetching subscription:', error);
+        throw error || new Error(`Subscription not found: ${subscriptionId}`);
+      }
+      
+      const coin = subscription.payment_method;
+      const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
+      
+      // Get CryptAPI client
+      const cryptapiClient = this._getCryptAPIClient(coin);
+      
+      // Check payment logs
+      console.log(`Payment service: Checking payment logs for ${coin} with callback URL: ${callbackUrl}`);
+      const logs = await cryptapiClient.checkPaymentLogs(coin, callbackUrl);
+      
+      // Filter logs for this subscription
+      const subscriptionLogs = logs.filter(log =>
+        log.parameters && log.parameters.subscription_id === subscriptionId
+      );
+      
+      console.log(`Payment service: Found ${subscriptionLogs.length} logs for subscription ${subscriptionId}`);
+      
+      return subscriptionLogs;
+    } catch (error) {
+      console.error(`Payment service: Error checking payment logs for subscription ${subscriptionId}:`, error);
+      console.error('Error stack:', error.stack);
+      throw error;
+    }
   },
 
   /**
