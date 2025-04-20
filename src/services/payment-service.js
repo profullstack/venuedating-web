@@ -19,12 +19,12 @@ export const paymentService = {
   _getCryptAPIClient(coin) {
     console.log(`Payment service: Getting CryptAPI client for coin: ${coin}`);
     
-    // Get cryptocurrency wallet addresses from environment variables or use defaults
+    // Get cryptocurrency wallet addresses from environment variables
     const addresses = {
-      btc: process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt",
-      eth: process.env.ETHEREUM_ADDRESS || "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11",
-      sol: process.env.SOLANA_ADDRESS || "CsTWZTbDryjcb229RQ9b7wny5qytH9jwoJy6Lu98xpeF",
-      usdc: process.env.USDC_ADDRESS || "0x402282c72a2f2b9f059C3b39Fa63932D6AA09f11"
+      btc: process.env.BITCOIN_ADDRESS,
+      eth: process.env.ETHEREUM_ADDRESS,
+      sol: process.env.SOLANA_ADDRESS,
+      usdc: process.env.USDC_ADDRESS
     };
     
     console.log(`Payment service: Using address for ${coin}: ${addresses[coin]}`);
@@ -162,7 +162,7 @@ export const paymentService = {
         
         const requestParams = {
           callback: callbackUrl,
-          pending: true,
+          pending: 1,
           parameters: {
             subscription_id: subscription.id,
             email,
@@ -272,14 +272,23 @@ export const paymentService = {
         try {
           const baseURL = 'https://api.cryptapi.io/';
           const testCoin = coin || 'btc';
-          const testAddress = process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt";
+          
+          // Get the correct address for the selected coin from environment variables
+          const addresses = {
+            btc: process.env.BITCOIN_ADDRESS,
+            eth: process.env.ETHEREUM_ADDRESS,
+            sol: process.env.SOLANA_ADDRESS,
+            usdc: process.env.USDC_ADDRESS
+          };
+          
+          const testAddress = addresses[testCoin];
           const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
           
           // Build query parameters
           const queryParams = new URLSearchParams();
           queryParams.append('address', testAddress);
           queryParams.append('callback', callbackUrl);
-          queryParams.append('pending', 'true');
+          queryParams.append('pending', '1');
           
           const fullURL = `${baseURL}${testCoin}/create?${queryParams.toString()}`;
           const curlCommand = `curl -v "${fullURL}"`;

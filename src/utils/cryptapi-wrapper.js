@@ -37,7 +37,7 @@ export function createCryptAPIClient() {
     // Add any additional parameters from options
     if (options) {
       if (options.pending) {
-        queryParams.append('pending', options.pending);
+        queryParams.append('pending', '1');
       }
       
       if (options.parameters) {
