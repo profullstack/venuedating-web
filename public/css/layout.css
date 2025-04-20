@@ -8,7 +8,7 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-md-lg);
 }
 
 .container-sm {
@@ -314,7 +314,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-md-lg);
 }
 
 #app {

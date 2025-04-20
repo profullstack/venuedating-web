@@ -52,6 +52,7 @@
   --spacing-xs: 4px;               /* Extra small spacing */
   --spacing-sm: 8px;               /* Small spacing */
   --spacing-md: 16px;              /* Medium spacing */
+  --spacing-md-lg: 1.2rem;         /* Medium-large spacing (19.2px at default font size) */
   --spacing-lg: 24px;              /* Large spacing */
   --spacing-xl: 32px;              /* Extra large spacing */
   --spacing-xxl: 48px;             /* Double extra large spacing */

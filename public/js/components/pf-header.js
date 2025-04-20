@@ -41,10 +41,12 @@ class PfHeader extends HTMLElement {
           justify-content: center;
           cursor: pointer;
           transition: background-color 0.2s;
+          color: var(--text-primary, #111827); /* Add explicit color for default state */
         }
         
         .theme-toggle:hover {
-          background-color: #f0f0f0;
+          background-color: var(--surface-variant, #f3f4f6); /* Use theme-appropriate background */
+          color: var(--text-primary, #111827); /* Maintain text color on hover */
         }
         
         .theme-toggle svg {
