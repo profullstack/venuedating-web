@@ -239,7 +239,7 @@ export const paymentService = {
         
         // Generate a curl command for manual testing of the CryptAPI endpoint
         try {
-          const baseURL = 'https://cryptapi.io/api/';
+          const baseURL = 'https://api.cryptapi.io/';
           const testCoin = coin || 'btc';
           const testAddress = process.env.BITCOIN_ADDRESS || "bc1q254klmlgtanf8xez28gy7r0enpyhk88r2499pt";
           const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';

@@ -26,8 +26,8 @@ export function createCryptAPIClient() {
     console.log(`  - Options: ${util.inspect(options, { depth: null })}`);
     
     // Construct the full URL that will be called
-    const baseURL = 'https://cryptapi.io/api/';
-    const endpoint = `/${coin}/create`;
+    const baseURL = 'https://api.cryptapi.io/';
+    const endpoint = `${coin}/create`;
     
     // Build query parameters
     const queryParams = new URLSearchParams();
@@ -47,7 +47,7 @@ export function createCryptAPIClient() {
       }
     }
     
-    const fullURL = `${baseURL}${coin}/create?${queryParams.toString()}`;
+    const fullURL = `${baseURL}${endpoint}?${queryParams.toString()}`;
     console.log(`CryptAPI Wrapper: Full URL that will be called: ${fullURL}`);
     
     // Generate a curl command for manual testing
