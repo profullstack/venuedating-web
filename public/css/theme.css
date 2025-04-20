@@ -173,46 +173,7 @@ html, body {
   pointer-events: none; /* Allow clicks to pass through when faded out */
 }
 
-/* Theme toggle styles */
-.theme-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-full);
-  padding: 8px;
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: background-color var(--transition-normal), border-color var(--transition-normal);
-  overflow: hidden;
-}
-
-.theme-toggle svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 24px;
-  height: 24px;
-  fill: var(--text-primary);
-  transition: fill var(--transition-normal);
-}
-
-[data-theme="dark"] .theme-toggle {
-  background-color: var(--surface-variant);
-  border-color: var(--border-color);
-}
-
-.theme-toggle:hover {
-  background-color: var(--surface-variant);
-}
+/* Theme toggle styles are now defined in the pf-header component */
 
 
 /* Button styles */
