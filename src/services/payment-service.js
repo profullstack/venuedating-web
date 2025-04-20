@@ -132,6 +132,15 @@ export const paymentService = {
         const cryptapiClient = this._getCryptAPIClient(coin);
         const callbackUrl = 'https://pdf.profullstack.com/api/1/payment-callback';
         
+        // Convert USD amount to cryptocurrency
+        console.log(`Payment service: Converting ${amount} USD to ${coin}`);
+        const conversion = await cryptapiClient.convertUsdToCrypto(coin, amount);
+        console.log(`Payment service: Conversion result: ${JSON.stringify(conversion)}`);
+        
+        // Store the converted amount and rate
+        const cryptoAmount = conversion.value;
+        const conversionRate = conversion.rate;
+        
         console.log('Payment service: Creating address with CryptAPI');
         console.log('Payment service: Using callback URL:', callbackUrl);
         
@@ -140,7 +149,9 @@ export const paymentService = {
           pending: true,
           parameters: {
             subscription_id: subscription.id,
-            email
+            email,
+            crypto_amount: cryptoAmount,
+            conversion_rate: conversionRate
           }
         };
         
@@ -167,7 +178,9 @@ export const paymentService = {
           .from('subscriptions')
           .update({
             payment_address: invoice.address_in,
-            payment_info: invoice
+            payment_info: invoice,
+            crypto_amount: cryptoAmount,
+            conversion_rate: conversionRate
           })
           .eq('id', subscription.id);
         
@@ -194,7 +207,9 @@ export const paymentService = {
       const result = {
         ...subscription,
         payment_address: invoice.address_in,
-        payment_info: invoice
+        payment_info: invoice,
+        crypto_amount: cryptoAmount,
+        conversion_rate: conversionRate
       };
       
       console.log('Payment service: Returning subscription result:', JSON.stringify(result));

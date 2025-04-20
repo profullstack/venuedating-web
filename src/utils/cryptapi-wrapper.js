@@ -86,5 +86,52 @@ export function createCryptAPIClient() {
     }
   };
   
+  // Add a new method to convert USD to cryptocurrency
+  originalClient.convertUsdToCrypto = async function(coin, amount) {
+    console.log(`CryptAPI Wrapper: Converting USD to ${coin}, amount: ${amount}`);
+    
+    try {
+      // Construct the URL for the convert endpoint
+      const baseURL = 'https://api.cryptapi.io/';
+      const endpoint = `convert`;
+      
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('from', 'USD');
+      queryParams.append('to', coin);
+      queryParams.append('value', amount);
+      
+      const fullURL = `${baseURL}${endpoint}?${queryParams.toString()}`;
+      console.log(`CryptAPI Wrapper: Convert URL: ${fullURL}`);
+      
+      // Generate a curl command for manual testing
+      const curlCommand = `curl -v "${fullURL}"`;
+      console.log(`CryptAPI Wrapper: Equivalent curl command for testing:`);
+      console.log(curlCommand);
+      
+      // Make the request
+      const response = await fetch(fullURL);
+      
+      if (!response.ok) {
+        throw new Error(`CryptAPI convert request failed with status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('CryptAPI Wrapper: Convert response:', data);
+      
+      if (!data.success) {
+        throw new Error(`CryptAPI convert failed: ${data.error || 'Unknown error'}`);
+      }
+      
+      return {
+        value: data.value,
+        rate: data.rate
+      };
+    } catch (error) {
+      console.error('CryptAPI Wrapper: Error in convertUsdToCrypto:', error);
+      throw error;
+    }
+  };
+  
   return originalClient;
 }

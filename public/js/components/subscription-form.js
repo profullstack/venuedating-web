@@ -1,6 +1,7 @@
 import { BaseComponent } from './base-component.js';
 import { commonStyles } from './common-styles.js';
 import { ApiClient } from '../api-client.js';
+import { generateQRCode } from '../utils/qrcode-generator.js';
 
 /**
  * Subscription form component
@@ -171,6 +172,13 @@ export class SubscriptionForm extends BaseComponent {
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
       
+      .qr-caption {
+        margin-top: 10px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: var(--font-weight-medium);
+      }
+      
       .subscription-info {
         margin-top: 30px;
         padding: 25px;
@@ -281,12 +289,15 @@ export class SubscriptionForm extends BaseComponent {
         <div class="payment-details">
           <p><strong>Amount:</strong> $${this._subscription.amount} USD</p>
           <p><strong>Cryptocurrency:</strong> ${this._getCoinName(this._subscription.payment_method)}</p>
+          <p><strong>Crypto Amount:</strong> ${this._subscription.crypto_amount} ${this._subscription.payment_method.toUpperCase()}</p>
+          <p><strong>Exchange Rate:</strong> 1 USD = ${this._subscription.conversion_rate} ${this._subscription.payment_method.toUpperCase()}</p>
           <p><strong>Plan:</strong> ${this._subscription.plan === 'monthly' ? 'Monthly' : 'Yearly'}</p>
           <p><strong>Email:</strong> ${this._subscription.email}</p>
         </div>
         
         <div class="payment-qr">
-          <img src="https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${this._paymentInfo.address}" alt="Payment QR Code">
+          <canvas id="qr-code-canvas" width="200" height="200"></canvas>
+          <p class="qr-caption">Scan to pay ${this._subscription.crypto_amount} ${this._subscription.payment_method.toUpperCase()}</p>
         </div>
         
         <p>Once your payment is confirmed, your subscription will be activated automatically. This usually takes a few minutes, but can take longer depending on network congestion.</p>
@@ -330,6 +341,9 @@ export class SubscriptionForm extends BaseComponent {
       
       checkStatusButton.addEventListener('click', () => this.checkSubscriptionStatus());
       newSubscriptionButton.addEventListener('click', () => this.resetForm());
+      
+      // Generate QR code
+      this._generateQRCode();
       
       return;
     }
@@ -484,6 +498,51 @@ export class SubscriptionForm extends BaseComponent {
     this._paymentInfo = null;
     this._error = null;
     this.render();
+  }
+  
+  /**
+   * Generate QR code for payment
+   * @private
+   */
+  async _generateQRCode() {
+    try {
+      const canvas = this.$('#qr-code-canvas');
+      if (!canvas) {
+        console.error('QR code canvas element not found');
+        return;
+      }
+      
+      // Create payment URL with amount
+      const paymentUrl = `${this._paymentInfo.address}?amount=${this._subscription.crypto_amount}`;
+      console.log('Generating QR code for payment URL:', paymentUrl);
+      
+      // Import the QR code generator
+      const { generateQRCodeToCanvas } = await import('../utils/qrcode-generator.js');
+      
+      // Generate QR code
+      await generateQRCodeToCanvas(paymentUrl, canvas, {
+        width: 200,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: 'H',
+        margin: 4
+      });
+      
+      console.log('QR code generated successfully');
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      
+      // Fallback to text if QR code generation fails
+      const qrContainer = this.$('.payment-qr');
+      if (qrContainer) {
+        qrContainer.innerHTML = `
+          <div class="payment-address" style="word-break: break-all; margin-bottom: 10px;">
+            ${this._paymentInfo.address}
+          </div>
+          <p class="qr-caption">Send ${this._subscription.crypto_amount} ${this._subscription.payment_method.toUpperCase()}</p>
+        `;
+      }
+    }
   }
 }
 
