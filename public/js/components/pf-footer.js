@@ -105,6 +105,7 @@ class PfFooter extends HTMLElement {
             <ul class="footer-links">
               <li><a href="/terms">Terms of Service</a></li>
               <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="/refund">Refund Policy</a></li>
             </ul>
           </div>
         </div>

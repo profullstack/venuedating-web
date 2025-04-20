@@ -20,3 +20,6 @@
 
 /* Import forms CSS for form styling */
 @import url('forms.css');
+
+/* Import legal CSS for legal pages styling */
+@import url('legal.css');

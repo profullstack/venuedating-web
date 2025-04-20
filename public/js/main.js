@@ -60,6 +60,15 @@ function initRouter() {
     '/subscription': {
       view: () => loadPage('/views/subscription.html'),
       afterRender: () => initSubscriptionPage()
+    },
+    '/terms': {
+      view: () => loadPage('/views/terms.html')
+    },
+    '/privacy': {
+      view: () => loadPage('/views/privacy.html')
+    },
+    '/refund': {
+      view: () => loadPage('/views/refund.html')
     }
   };
   
