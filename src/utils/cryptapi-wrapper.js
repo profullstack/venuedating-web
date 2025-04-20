@@ -115,17 +115,19 @@ export function createCryptAPIClient() {
       const data = await response.json();
       console.log('CryptAPI Wrapper: Info response:', JSON.stringify(data));
       
-      // Check if the response contains the ticker data
-      if (!data.ticker || !data.ticker.USD) {
+      // Check if the response contains the prices data
+      if (!data.prices || !data.prices.USD) {
         console.error('CryptAPI Wrapper: Invalid response format:', JSON.stringify(data));
-        throw new Error(`CryptAPI info response missing ticker data`);
+        throw new Error(`CryptAPI info response missing prices data`);
       }
       
       // Calculate the conversion
-      const rate = 1 / data.ticker.USD; // This gives us the rate of 1 USD to the cryptocurrency
+      const usdPrice = parseFloat(data.prices.USD);
+      const rate = 1 / usdPrice; // This gives us the rate of 1 USD to the cryptocurrency
       const value = amount * rate;
       
-      console.log(`CryptAPI Wrapper: Conversion result: 1 USD = ${rate} ${coin.toUpperCase()}`);
+      console.log(`CryptAPI Wrapper: Price of 1 ${coin.toUpperCase()} = $${usdPrice} USD`);
+      console.log(`CryptAPI Wrapper: Conversion rate: 1 USD = ${rate} ${coin.toUpperCase()}`);
       console.log(`CryptAPI Wrapper: ${amount} USD = ${value} ${coin.toUpperCase()}`);
       
       return {
