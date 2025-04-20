@@ -39,7 +39,7 @@ export const paymentService = {
     const api = createCryptAPIClient();
     console.log('Payment service: CryptAPI client initialized with wrapper');
     
-    // Return an object with methods for creating addresses and handling callbacks
+    // Return an object with methods for creating addresses, converting currency, and handling callbacks
     return {
       createAddress: (options) => {
         console.log('Payment service: Creating address with CryptAPI with options:', JSON.stringify(options));
@@ -57,6 +57,22 @@ export const paymentService = {
           return result;
         } catch (error) {
           console.error('Payment service: Error in CryptAPI createAddress:', error);
+          console.error('Payment service: Error stack:', error.stack);
+          throw error;
+        }
+      },
+      
+      // Add the convertUsdToCrypto method to the returned object
+      convertUsdToCrypto: async (coinType, amount) => {
+        console.log(`Payment service: Converting USD to ${coinType}, amount: ${amount}`);
+        
+        try {
+          // Use the original client's convertUsdToCrypto method
+          const result = await api.convertUsdToCrypto(coinType, amount);
+          console.log('Payment service: Currency conversion successful:', result);
+          return result;
+        } catch (error) {
+          console.error('Payment service: Error in convertUsdToCrypto:', error);
           console.error('Payment service: Error stack:', error.stack);
           throw error;
         }
