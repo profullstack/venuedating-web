@@ -147,14 +147,14 @@ export class ApiClient {
    * Create a new subscription
    * @param {string} email - User email
    * @param {string} plan - Subscription plan (monthly, yearly)
-   * @param {string} coin - Cryptocurrency code (btc, eth, sol)
+   * @param {string} coin - Cryptocurrency code (btc, eth, sol, usdc)
    * @returns {Promise<Object>} - Subscription details
    */
   /**
    * Create a new subscription
    * @param {string} email - User email
    * @param {string} plan - Subscription plan (monthly, yearly)
-   * @param {string} coin - Cryptocurrency code (btc, eth, sol)
+   * @param {string} coin - Cryptocurrency code (btc, eth, sol, usdc)
    * @returns {Promise<Object>} - Subscription details with payment info
    */
   static async createSubscription(email, plan, coin) {
