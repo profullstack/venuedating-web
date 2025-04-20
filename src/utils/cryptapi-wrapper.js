@@ -91,44 +91,50 @@ export function createCryptAPIClient() {
     console.log(`CryptAPI Wrapper: Converting USD to ${coin}, amount: ${amount}`);
     
     try {
-      // Construct the URL for the convert endpoint
+      // Construct the URL for the convert endpoint - using the ticker endpoint instead
+      // CryptAPI doesn't have a direct USD conversion endpoint, but we can get the ticker
+      // and calculate the conversion ourselves
       const baseURL = 'https://api.cryptapi.io/';
-      const endpoint = `convert`;
+      const endpoint = `${coin}/info`;
       
-      // Build query parameters
-      const queryParams = new URLSearchParams();
-      queryParams.append('from', 'USD');
-      queryParams.append('to', coin);
-      queryParams.append('value', amount);
-      
-      const fullURL = `${baseURL}${endpoint}?${queryParams.toString()}`;
-      console.log(`CryptAPI Wrapper: Convert URL: ${fullURL}`);
+      const fullURL = `${baseURL}${endpoint}`;
+      console.log(`CryptAPI Wrapper: Info URL: ${fullURL}`);
       
       // Generate a curl command for manual testing
       const curlCommand = `curl -v "${fullURL}"`;
       console.log(`CryptAPI Wrapper: Equivalent curl command for testing:`);
       console.log(curlCommand);
       
-      // Make the request
+      // Make the request to get the current ticker info
       const response = await fetch(fullURL);
       
       if (!response.ok) {
-        throw new Error(`CryptAPI convert request failed with status: ${response.status}`);
+        throw new Error(`CryptAPI info request failed with status: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log('CryptAPI Wrapper: Convert response:', data);
+      console.log('CryptAPI Wrapper: Info response:', JSON.stringify(data));
       
-      if (!data.success) {
-        throw new Error(`CryptAPI convert failed: ${data.error || 'Unknown error'}`);
+      // Check if the response contains the ticker data
+      if (!data.ticker || !data.ticker.USD) {
+        console.error('CryptAPI Wrapper: Invalid response format:', JSON.stringify(data));
+        throw new Error(`CryptAPI info response missing ticker data`);
       }
       
+      // Calculate the conversion
+      const rate = 1 / data.ticker.USD; // This gives us the rate of 1 USD to the cryptocurrency
+      const value = amount * rate;
+      
+      console.log(`CryptAPI Wrapper: Conversion result: 1 USD = ${rate} ${coin.toUpperCase()}`);
+      console.log(`CryptAPI Wrapper: ${amount} USD = ${value} ${coin.toUpperCase()}`);
+      
       return {
-        value: data.value,
-        rate: data.rate
+        value: value,
+        rate: rate
       };
     } catch (error) {
       console.error('CryptAPI Wrapper: Error in convertUsdToCrypto:', error);
+      console.error('CryptAPI Wrapper: Error details:', error.message);
       throw error;
     }
   };
