@@ -28,6 +28,67 @@ class PfHeader extends HTMLElement {
           margin-bottom: 30px;
         }
 
+        /* Mobile menu styles */
+        .hamburger-menu {
+          display: none;
+          flex-direction: column;
+          justify-content: space-between;
+          width: 30px;
+          height: 21px;
+          cursor: pointer;
+          z-index: 200;
+        }
+        
+        .hamburger-menu span {
+          display: block;
+          height: 3px;
+          width: 100%;
+          background-color: var(--text-primary);
+          border-radius: 3px;
+          transition: all 0.3s ease;
+        }
+        
+        .hamburger-menu.active span:nth-child(1) {
+          transform: translateY(9px) rotate(45deg);
+        }
+        
+        .hamburger-menu.active span:nth-child(2) {
+          opacity: 0;
+        }
+        
+        .hamburger-menu.active span:nth-child(3) {
+          transform: translateY(-9px) rotate(-45deg);
+        }
+        
+        .mobile-menu {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: var(--background-color);
+          z-index: 100;
+          padding: 80px var(--spacing-md-lg) var(--spacing-md-lg);
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 20px;
+          overflow-y: auto;
+        }
+        
+        .mobile-menu.active {
+          display: flex;
+        }
+        
+        .mobile-menu a {
+          font-size: 1.2rem;
+          padding: 12px 0;
+          width: 100%;
+          text-align: center;
+          border-bottom: 1px solid var(--border-color);
+        }
+
         /* Theme toggle styles */
         .theme-toggle {
           margin-left: 15px;
@@ -162,6 +223,24 @@ class PfHeader extends HTMLElement {
         .dropdown-item:hover {
           background-color: #f0f0f0;
         }
+        
+        /* Media queries for responsive design */
+        @media (max-width: 768px) {
+          .nav-links {
+            display: none; /* Hide regular nav links on mobile */
+          }
+          
+          .hamburger-menu {
+            display: flex; /* Show hamburger menu on mobile */
+          }
+          
+          .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 70px;
+            z-index: 200;
+          }
+        }
       </style>
       
       <div class="header">
@@ -171,6 +250,13 @@ class PfHeader extends HTMLElement {
             <h1>convert2doc</h1>
           </div>
         </a>
+        
+        <!-- Hamburger menu for mobile -->
+        <div class="hamburger-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
         
         <div class="nav-links">
           <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
@@ -188,6 +274,14 @@ class PfHeader extends HTMLElement {
             }
           </button>
         </div>
+      </div>
+      
+      <!-- Mobile menu container -->
+      <div class="mobile-menu">
+        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link">API Docs</a>
+        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link">API Keys</a>
+        <a href="/login" class="nav-link login-link" id="mobile-login-link">Login</a>
+        <a href="/register" class="subscription-link register-link" id="mobile-register-link">Register</a>
       </div>
     `;
   }
@@ -213,6 +307,28 @@ class PfHeader extends HTMLElement {
     if (themeToggle) {
       themeToggle.addEventListener('click', () => {
         this.toggleTheme();
+      });
+    }
+    
+    // Add event listener for hamburger menu toggle
+    const hamburgerMenu = this.shadowRoot.querySelector('.hamburger-menu');
+    const mobileMenu = this.shadowRoot.querySelector('.mobile-menu');
+    if (hamburgerMenu && mobileMenu) {
+      hamburgerMenu.addEventListener('click', () => {
+        hamburgerMenu.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+        // Prevent scrolling when mobile menu is open
+        document.body.style.overflow = hamburgerMenu.classList.contains('active') ? 'hidden' : '';
+      });
+      
+      // Close mobile menu when clicking on a link
+      const mobileLinks = mobileMenu.querySelectorAll('a');
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          hamburgerMenu.classList.remove('active');
+          mobileMenu.classList.remove('active');
+          document.body.style.overflow = '';
+        });
       });
     }
     
@@ -290,6 +406,7 @@ class PfHeader extends HTMLElement {
     const username = localStorage.getItem('username') || apiKey;
     const isLoggedIn = !!apiKey;
     
+    // Update desktop navigation
     const navLinks = this.shadowRoot.querySelector('.nav-links');
     if (!navLinks) return;
     
@@ -301,14 +418,23 @@ class PfHeader extends HTMLElement {
     const authElements = navLinks.querySelectorAll('.user-dropdown');
     authElements.forEach(el => el.remove());
     
+    // Update mobile navigation
+    const mobileMenu = this.shadowRoot.querySelector('.mobile-menu');
+    const mobileLoginLink = mobileMenu?.querySelector('#mobile-login-link');
+    const mobileRegisterLink = mobileMenu?.querySelector('#mobile-register-link');
+    
     if (isLoggedIn) {
       // User is logged in
       
-      // Hide the static login and register links
+      // Hide the static login and register links in desktop nav
       if (loginLink) loginLink.style.display = 'none';
       if (registerLink) registerLink.style.display = 'none';
       
-      // Add the user dropdown
+      // Hide the login and register links in mobile nav
+      if (mobileLoginLink) mobileLoginLink.style.display = 'none';
+      if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
+      
+      // Add the user dropdown to desktop nav
       const dropdownHtml = `
         <div class="user-dropdown">
           <button class="dropdown-button">
@@ -325,6 +451,24 @@ class PfHeader extends HTMLElement {
       `;
       
       navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+      
+      // Add user-related links to mobile menu
+      if (mobileMenu && !mobileMenu.querySelector('.mobile-settings-link')) {
+        const mobileUserLinksHtml = `
+          <a href="/settings" class="nav-link mobile-settings-link">Settings</a>
+          <a href="#" class="nav-link mobile-logout-link">Logout</a>
+        `;
+        mobileMenu.insertAdjacentHTML('beforeend', mobileUserLinksHtml);
+        
+        // Add event listener for mobile logout
+        const mobileLogoutLink = mobileMenu.querySelector('.mobile-logout-link');
+        if (mobileLogoutLink) {
+          mobileLogoutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.logout();
+          });
+        }
+      }
       
       // Add event listener for dropdown toggle
       const dropdownButton = navLinks.querySelector('.dropdown-button');
@@ -351,9 +495,19 @@ class PfHeader extends HTMLElement {
     } else {
       // User is not logged in
       
-      // Show the static login and register links
+      // Show the static login and register links in desktop nav
       if (loginLink) loginLink.style.display = '';
       if (registerLink) registerLink.style.display = '';
+      
+      // Show the login and register links in mobile nav
+      if (mobileLoginLink) mobileLoginLink.style.display = '';
+      if (mobileRegisterLink) mobileRegisterLink.style.display = '';
+      
+      // Remove any user-specific links from mobile menu
+      const mobileSettingsLink = mobileMenu?.querySelector('.mobile-settings-link');
+      const mobileLogoutLink = mobileMenu?.querySelector('.mobile-logout-link');
+      if (mobileSettingsLink) mobileSettingsLink.remove();
+      if (mobileLogoutLink) mobileLogoutLink.remove();
     }
   }
 
