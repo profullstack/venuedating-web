@@ -1,8 +1,12 @@
 /**
  * CryptAPI wrapper with enhanced logging
  */
+// PATCH: Force all CryptAPI requests to use the correct base URL (https://api.cryptapi.io/)
+// This override ensures that even if the underlying cryptapi package is outdated or buggy, we always hit the right endpoint.
 import cryptapi from 'cryptapi';
 import util from 'util';
+
+const FORCED_CRYPTAPI_BASE_URL = 'https://api.cryptapi.io/';
 
 /**
  * Create a wrapped CryptAPI client with enhanced logging
@@ -17,67 +21,46 @@ export function createCryptAPIClient() {
   // Get the original _createAddress method
   const originalCreateAddress = originalClient._createAddress;
   
-  // Override the _createAddress method with our enhanced version
-  originalClient._createAddress = function(coin, address, callback, options) {
+  // Override the _createAddress method to use fetch directly instead of the cryptapi package
+  // This guarantees we always hit the correct endpoint and avoid any package bugs or hardcoded URLs
+  originalClient._createAddress = async function(coin, address, callback, options) {
     console.log('CryptAPI Wrapper: _createAddress called with:');
     console.log(`  - Coin: ${coin}`);
     console.log(`  - Address: ${address}`);
     console.log(`  - Callback URL: ${callback}`);
     console.log(`  - Options: ${util.inspect(options, { depth: null })}`);
-    
-    // Construct the full URL that will be called
-    const baseURL = 'https://api.cryptapi.io/';
-    
-    // Build query parameters according to official documentation
+
+    const baseURL = FORCED_CRYPTAPI_BASE_URL;
     const queryParams = new URLSearchParams();
     queryParams.append('address', address);
     queryParams.append('callback', callback);
     queryParams.append('pending', options?.pending ? '1' : '0');
     queryParams.append('confirmations', '1');
-    queryParams.append('json', '1'); // Always use JSON response format
-    
-    // Add any additional parameters from options
+    queryParams.append('json', '1');
     if (options?.parameters) {
       for (const [key, value] of Object.entries(options.parameters)) {
         queryParams.append(`parameters[${key}]`, value);
       }
     }
-    
     const fullURL = `${baseURL}${coin}/create/?${queryParams.toString()}`;
     console.log(`CryptAPI Wrapper: Full URL that will be called: ${fullURL}`);
-    
-    // Generate a curl command for manual testing
     const curlCommand = `curl -v "${fullURL}"`;
     console.log(`CryptAPI Wrapper: Equivalent curl command for testing:`);
     console.log(curlCommand);
-    
     try {
-      // Call the original method
-      const result = originalCreateAddress.call(originalClient, coin, address, callback, options);
-      
-      // Log the result
+      const response = await fetch(fullURL);
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('CryptAPI Wrapper: Error response from fetch:', text);
+        throw new Error(`CryptAPI create address failed: ${response.status}`);
+      }
+      const result = await response.json();
       console.log('CryptAPI Wrapper: _createAddress result:');
       console.log(util.inspect(result, { depth: null }));
-      
-      // Return the result
       return result;
     } catch (error) {
       console.error('CryptAPI Wrapper: Error in _createAddress:');
       console.error(error);
-      
-      // Log detailed error information
-      if (error.response) {
-        console.error('CryptAPI Wrapper: Error response status:', error.response.status);
-        console.error('CryptAPI Wrapper: Error response headers:', JSON.stringify(error.response.headers));
-        console.error('CryptAPI Wrapper: Error response data:', JSON.stringify(error.response.data));
-      } else if (error.request) {
-        console.error('CryptAPI Wrapper: Error request sent but no response received');
-        console.error('CryptAPI Wrapper: Error request details:', JSON.stringify(error.request));
-      } else {
-        console.error('CryptAPI Wrapper: Error message:', error.message);
-      }
-      
-      // Rethrow the error
       throw error;
     }
   };
@@ -90,7 +73,7 @@ export function createCryptAPIClient() {
       // Construct the URL for the convert endpoint - using the ticker endpoint instead
       // CryptAPI doesn't have a direct USD conversion endpoint, but we can get the ticker
       // and calculate the conversion ourselves
-      const baseURL = 'https://api.cryptapi.io/';
+      const baseURL = FORCED_CRYPTAPI_BASE_URL;
       const endpoint = `${coin}/info`;
       
       const fullURL = `${baseURL}${endpoint}`;
@@ -143,7 +126,7 @@ export function createCryptAPIClient() {
     
     try {
       // Construct the URL for the logs endpoint
-      const baseURL = 'https://api.cryptapi.io/';
+      const baseURL = FORCED_CRYPTAPI_BASE_URL;
       
       // Build query parameters
       const queryParams = new URLSearchParams();
