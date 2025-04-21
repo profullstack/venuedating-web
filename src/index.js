@@ -132,6 +132,7 @@ serve({
   console.log(`- Document History: http://localhost:${info.port}/api/1/document-history`);
   console.log(`- Subscription: http://localhost:${info.port}/api/1/subscription`);
   console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
-  console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payment-callback`);
+  console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payments/cryptapi/callback`);
+  console.log(`- Payment Logs: http://localhost:${info.port}/api/1/payments/cryptapi/logs`);
   console.log(`- Web interface: http://localhost:${info.port}`);
 });

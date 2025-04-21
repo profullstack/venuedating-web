@@ -11,7 +11,7 @@ export async function subscriptionCheck(c, next) {
   try {
     // Skip subscription check for free endpoints
     const freeEndpoints = [
-      '/api/1/payment-callback',
+      '/api/1/payments/cryptapi/callback',
       '/api/1/subscription',
       '/api/1/subscription-status'
     ];

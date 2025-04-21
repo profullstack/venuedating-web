@@ -11,7 +11,7 @@ export async function authMiddleware(c, next) {
   try {
     // Skip authentication for public endpoints
     const publicEndpoints = [
-      '/api/1/payment-callback',
+      '/api/1/payments/cryptapi/callback',
       '/api/1/subscription',
       '/api/1/subscription-status'
     ];
