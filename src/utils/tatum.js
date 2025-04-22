@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+// Using Node.js built-in fetch API
 
 const getApiKey = () => {
   const apiKey = process.env.TATUM_API_KEY;
