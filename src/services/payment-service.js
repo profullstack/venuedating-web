@@ -1,6 +1,7 @@
 import { createCryptAPIClient } from '../utils/cryptapi-wrapper.js';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
+import { apiKeyService } from './api-key-service.js';
 import dotenv from 'dotenv-flow';
 
 // Load environment variables
@@ -89,6 +90,14 @@ export const paymentService = {
    */
   async createSubscription(email, plan, coin) {
     console.log(`Payment service: Creating subscription for ${email}, plan: ${plan}, coin: ${coin}`);
+    // Ensure user exists in Supabase
+    try {
+      await apiKeyService._createUserIfNotExists(email);
+      console.log('Payment service: Ensured user exists in Supabase');
+    } catch (userError) {
+      console.error('Payment service: Error ensuring user exists in Supabase:', userError);
+      throw userError;
+    }
     
     // Validate plan
     if (!['monthly', 'yearly'].includes(plan)) {
