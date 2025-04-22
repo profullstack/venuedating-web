@@ -152,6 +152,33 @@
       text-decoration: underline;
     }
     
+    /* Tab styles */
+    .dashboard-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab-button {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+      border-bottom-color: var(--primary-color);
+      font-weight: bold;
+    }
+    
+    .tab-content {
+      background-color: var(--background-color);
+      border-radius: 4px;
+      padding: 20px;
+    }
+    
     @media (max-width: 768px) {
       .header {
         flex-direction: column;
@@ -177,27 +204,36 @@
   
   <h1>API Key Management</h1>
   
-  <div class="intro-section">
-    <h2>About API Keys</h2>
-    <p>API keys are used to authenticate your requests to the Document Generation API. Each key is associated with your account and can be used to access the API endpoints.</p>
-    
-    <h3>Best Practices</h3>
-    <ul>
-      <li>Create separate API keys for different environments (development, staging, production)</li>
-      <li>Rotate your API keys periodically for enhanced security</li>
-      <li>Deactivate or delete API keys that are no longer in use</li>
-      <li>Never share your API keys or commit them to version control</li>
-    </ul>
-    
-    <h3>Using Your API Keys</h3>
-    <p>Include your API key in the request headers using one of the following methods:</p>
-    <p><code>Authorization: Bearer pfs_your_api_key_here</code></p>
-    <p>Or for backward compatibility:</p>
-    <p><code>X-API-Key: your_email@example.com</code></p>
+  <div class="dashboard-tabs">
+    <button class="tab-button active" data-tab="manage">Manage Keys</button>
+    <button class="tab-button" data-tab="docs">API Documentation</button>
   </div>
   
-  <div id="api-key-container" class="api-key-container">
-    <api-key-manager></api-key-manager>
+  <div class="tab-content" id="manage-tab">
+    <div id="api-key-container" class="api-key-container">
+      <api-key-manager></api-key-manager>
+    </div>
+  </div>
+  
+  <div class="tab-content" id="docs-tab" style="display: none;">
+    <div class="intro-section">
+      <h2>About API Keys</h2>
+      <p>API keys are used to authenticate your requests to the Document Generation API. Each key is associated with your account and can be used to access the API endpoints.</p>
+      
+      <h3>Best Practices</h3>
+      <ul>
+        <li>Create separate API keys for different environments (development, staging, production)</li>
+        <li>Rotate your API keys periodically for enhanced security</li>
+        <li>Deactivate or delete API keys that are no longer in use</li>
+        <li>Never share your API keys or commit them to version control</li>
+      </ul>
+      
+      <h3>Using Your API Keys</h3>
+      <p>Include your API key in the request headers using one of the following methods:</p>
+      <p><code>Authorization: Bearer pfs_your_api_key_here</code></p>
+      <p>Or for backward compatibility:</p>
+      <p><code>X-API-Key: your_email@example.com</code></p>
+    </div>
   </div>
   
   <div id="login-prompt" class="login-prompt" style="display: none;">
@@ -211,9 +247,7 @@
   </footer>
 
   <script>
-    // No logo switching needed anymore
     document.addEventListener('DOMContentLoaded', () => {
-      
       // Check if user is logged in
       const apiKey = localStorage.getItem('api_key') || new URLSearchParams(window.location.search).get('api_key');
       
@@ -224,6 +258,27 @@
         document.getElementById('api-key-container').style.display = 'block';
         document.getElementById('login-prompt').style.display = 'none';
       }
+      
+      // Set up tab switching
+      const tabButtons = document.querySelectorAll('.tab-button');
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          
+          // Add active class to clicked button
+          button.classList.add('active');
+          
+          // Hide all tab content
+          document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+          });
+          
+          // Show selected tab content
+          const tabId = button.dataset.tab;
+          document.getElementById(`${tabId}-tab`).style.display = 'block';
+        });
+      });
     });
   </script>
 </body>
