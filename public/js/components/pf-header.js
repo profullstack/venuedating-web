@@ -6,6 +6,10 @@ class PfHeader extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    
+    // Initialize properties
+    this._documentClickListenerAdded = false;
+    this._dropdownEventListeners = new Map();
   }
 
   connectedCallback() {
@@ -224,7 +228,8 @@ class PfHeader extends HTMLElement {
           width: 200px;
           background-color: var(--background-color, white);
           border-radius: 5px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--border-color, #ddd);
           padding: 8px 0;
           display: none;
           z-index: 100;
@@ -451,9 +456,12 @@ class PfHeader extends HTMLElement {
     const loginLink = navLinks.querySelector('.login-link');
     const registerLink = navLinks.querySelector('.register-link');
     
-    // Clear existing dynamic auth-related elements
-    const authElements = navLinks.querySelectorAll('.user-dropdown');
-    authElements.forEach(el => el.remove());
+    // Only remove existing dropdown if we're going to add a new one
+    // (when user is logged in) or if we're switching from logged in to logged out
+    if (isLoggedIn || navLinks.querySelector('.user-dropdown')) {
+      const authElements = navLinks.querySelectorAll('.user-dropdown');
+      authElements.forEach(el => el.remove());
+    }
     
     // Update mobile navigation
     const mobileMenu = this.shadowRoot.querySelector('.mobile-menu');
@@ -488,53 +496,113 @@ class PfHeader extends HTMLElement {
       `;
       
       // Insert the dropdown before the theme toggle
-      const themeToggle = navLinks.querySelector('.theme-toggle');
-      if (themeToggle) {
-        themeToggle.insertAdjacentHTML('beforebegin', dropdownHtml);
-      } else {
-        navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+      try {
+        const themeToggle = navLinks.querySelector('.theme-toggle');
+        if (themeToggle) {
+          // Insert before the theme toggle
+          themeToggle.insertAdjacentHTML('beforebegin', dropdownHtml);
+          console.log('Dropdown inserted before theme toggle');
+        } else {
+          // Fallback: append to the end of nav links
+          navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+          console.log('Dropdown appended to nav links (theme toggle not found)');
+        }
+        
+        // Verify the dropdown was added
+        const dropdown = navLinks.querySelector('.user-dropdown');
+        if (!dropdown) {
+          console.error('Failed to insert dropdown menu');
+        }
+      } catch (error) {
+        console.error('Error inserting dropdown menu:', error);
+        // Fallback: try one more time with direct append
+        try {
+          navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+        } catch (e) {
+          console.error('Final attempt to insert dropdown failed:', e);
+        }
       }
       
       // Add user-related links to mobile menu
-      if (mobileMenu && !mobileMenu.querySelector('.mobile-settings-link')) {
-        const mobileUserLinksHtml = `
-          <a href="/settings" class="nav-link mobile-settings-link">Settings</a>
-          <a href="#" class="nav-link mobile-logout-link">Logout</a>
-        `;
-        mobileMenu.insertAdjacentHTML('beforeend', mobileUserLinksHtml);
-        
-        // Add event listener for mobile logout
-        const mobileLogoutLink = mobileMenu.querySelector('.mobile-logout-link');
-        if (mobileLogoutLink) {
-          mobileLogoutLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.logout();
-          });
+      if (mobileMenu) {
+        // Only add if they don't already exist
+        if (!mobileMenu.querySelector('.mobile-settings-link')) {
+          try {
+            const mobileUserLinksHtml = `
+              <a href="/settings" class="nav-link mobile-settings-link">Settings</a>
+              <a href="#" class="nav-link mobile-logout-link">Logout</a>
+            `;
+            mobileMenu.insertAdjacentHTML('beforeend', mobileUserLinksHtml);
+            console.log('Mobile menu items added');
+            
+            // Add event listener for mobile logout
+            const mobileLogoutLink = mobileMenu.querySelector('.mobile-logout-link');
+            if (mobileLogoutLink) {
+              const handleMobileLogout = (e) => {
+                e.preventDefault();
+                this.logout();
+              };
+              
+              // Remove any existing event listeners (to prevent duplicates)
+              mobileLogoutLink.removeEventListener('click', handleMobileLogout);
+              // Add the event listener
+              mobileLogoutLink.addEventListener('click', handleMobileLogout);
+            } else {
+              console.error('Mobile logout link not found after insertion');
+            }
+          } catch (error) {
+            console.error('Error adding mobile menu items:', error);
+          }
+        } else {
+          console.log('Mobile menu items already exist');
         }
+      } else {
+        console.error('Mobile menu element not found');
       }
       
       // Add event listener for dropdown toggle
       const dropdownButton = navLinks.querySelector('.dropdown-button');
       const dropdownMenu = navLinks.querySelector('.dropdown-menu');
       
-      dropdownButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        dropdownMenu.classList.toggle('show');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-          dropdownMenu.classList.remove('show');
+      if (dropdownButton && dropdownMenu) {
+        // Use a named function so we can remove it if needed
+        const toggleDropdown = (e) => {
+          e.preventDefault();
+          dropdownMenu.classList.toggle('show');
+        };
+        
+        // Remove any existing event listeners (to prevent duplicates)
+        dropdownButton.removeEventListener('click', toggleDropdown);
+        // Add the event listener
+        dropdownButton.addEventListener('click', toggleDropdown);
+        
+        // Close dropdown when clicking outside
+        const closeDropdown = (e) => {
+          if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+          }
+        };
+        
+        // Use a flag in the DOM to track if we've already added the document listener
+        if (!this._documentClickListenerAdded) {
+          document.addEventListener('click', closeDropdown);
+          this._documentClickListenerAdded = true;
         }
-      });
+      }
       
       // Add event listener for logout
       const logoutButton = navLinks.querySelector('.logout-button');
-      logoutButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.logout();
-      });
+      if (logoutButton) {
+        const handleLogout = (e) => {
+          e.preventDefault();
+          this.logout();
+        };
+        
+        // Remove any existing event listeners (to prevent duplicates)
+        logoutButton.removeEventListener('click', handleLogout);
+        // Add the event listener
+        logoutButton.addEventListener('click', handleLogout);
+      }
     } else {
       // User is not logged in
       
