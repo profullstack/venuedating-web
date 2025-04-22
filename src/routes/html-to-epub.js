@@ -28,8 +28,11 @@ export async function htmlToEpubHandler(c) {
           timestamp: new Date().toISOString()
         };
         
-        // Store the EPUB
-        const result = await storageService.storeEpub(epubBuffer, filename, metadata);
+        // Get user email from context
+        const userEmail = c.get('userEmail');
+        
+        // Store the EPUB with user association
+        const result = await storageService.storeEpub(epubBuffer, filename, metadata, userEmail);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);

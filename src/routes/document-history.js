@@ -21,11 +21,14 @@ export async function documentHistoryHandler(c) {
       return c.json({ error: 'Invalid offset parameter. Must be a non-negative integer.' }, 400);
     }
     
-    // Get document history from storage service
-    const history = await storageService.getDocumentHistory(limit, offset);
+    // Get user email from auth context
+    const userEmail = c.get('userEmail');
+    
+    // Get document history from storage service, filtered by user
+    const history = await storageService.getDocumentHistory(limit, offset, userEmail);
     
     // Return the document history
-    return c.json({ 
+    return c.json({
       data: history,
       pagination: {
         limit,
