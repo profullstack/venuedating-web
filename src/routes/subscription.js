@@ -49,6 +49,9 @@ export async function createSubscriptionHandler(c) {
         status: subscription.status,
         start_date: subscription.start_date,
         expiration_date: subscription.expiration_date,
+        crypto_amount: subscription.crypto_amount,
+        crypto_currency: subscription.crypto_currency,
+        exchange_rate_usd: subscription.exchange_rate_usd,
         payment_method: subscription.payment_method,
         payment_address: subscription.payment_address
       },
