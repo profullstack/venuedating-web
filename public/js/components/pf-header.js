@@ -8,8 +8,7 @@ class PfHeader extends HTMLElement {
     this.currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     
     // Initialize properties
-    this._documentClickListenerAdded = false;
-    this._dropdownEventListeners = new Map();
+    this._documentClickHandler = null;
   }
 
   connectedCallback() {
@@ -345,30 +344,30 @@ class PfHeader extends HTMLElement {
     // Add event listeners for theme toggle buttons (both desktop and mobile)
     const themeToggles = this.shadowRoot.querySelectorAll('.theme-toggle');
     themeToggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
+      toggle.onclick = () => {
         this.toggleTheme();
-      });
+      };
     });
     
     // Add event listener for hamburger menu toggle
     const hamburgerMenu = this.shadowRoot.querySelector('.hamburger-menu');
     const mobileMenu = this.shadowRoot.querySelector('.mobile-menu');
     if (hamburgerMenu && mobileMenu) {
-      hamburgerMenu.addEventListener('click', () => {
+      hamburgerMenu.onclick = () => {
         hamburgerMenu.classList.toggle('active');
         mobileMenu.classList.toggle('active');
         // Prevent scrolling when mobile menu is open
         document.body.style.overflow = hamburgerMenu.classList.contains('active') ? 'hidden' : '';
-      });
+      };
       
       // Close mobile menu when clicking on a link
       const mobileLinks = mobileMenu.querySelectorAll('a');
       mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
+        link.onclick = () => {
           hamburgerMenu.classList.remove('active');
           mobileMenu.classList.remove('active');
           document.body.style.overflow = '';
-        });
+        };
       });
     }
     
@@ -538,15 +537,12 @@ class PfHeader extends HTMLElement {
             // Add event listener for mobile logout
             const mobileLogoutLink = mobileMenu.querySelector('.mobile-logout-link');
             if (mobileLogoutLink) {
-              const handleMobileLogout = (e) => {
+              // Use direct onclick assignment
+              mobileLogoutLink.onclick = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 this.logout();
               };
-              
-              // Remove any existing event listeners (to prevent duplicates)
-              mobileLogoutLink.removeEventListener('click', handleMobileLogout);
-              // Add the event listener
-              mobileLogoutLink.addEventListener('click', handleMobileLogout);
             } else {
               console.error('Mobile logout link not found after insertion');
             }
@@ -565,43 +561,53 @@ class PfHeader extends HTMLElement {
       const dropdownMenu = navLinks.querySelector('.dropdown-menu');
       
       if (dropdownButton && dropdownMenu) {
-        // Use a named function so we can remove it if needed
-        const toggleDropdown = (e) => {
+        // Use direct onclick assignment for more reliable event handling
+        dropdownButton.onclick = (e) => {
           e.preventDefault();
+          e.stopPropagation();
+          console.log('Dropdown button clicked, toggling show class');
           dropdownMenu.classList.toggle('show');
         };
         
-        // Remove any existing event listeners (to prevent duplicates)
-        dropdownButton.removeEventListener('click', toggleDropdown);
-        // Add the event listener
-        dropdownButton.addEventListener('click', toggleDropdown);
-        
-        // Close dropdown when clicking outside
-        const closeDropdown = (e) => {
-          if (!dropdownButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-            dropdownMenu.classList.remove('show');
-          }
-        };
-        
-        // Use a flag in the DOM to track if we've already added the document listener
-        if (!this._documentClickListenerAdded) {
-          document.addEventListener('click', closeDropdown);
-          this._documentClickListenerAdded = true;
+        // Set up document click handler if not already done
+        if (!this._documentClickHandler) {
+          this._documentClickHandler = (e) => {
+            const dropdownButtons = this.shadowRoot.querySelectorAll('.dropdown-button');
+            const dropdownMenus = this.shadowRoot.querySelectorAll('.dropdown-menu');
+            
+            // Check if click is outside all dropdowns
+            let outsideClick = true;
+            dropdownButtons.forEach(btn => {
+              if (btn.contains(e.target)) outsideClick = false;
+            });
+            dropdownMenus.forEach(menu => {
+              if (menu.contains(e.target)) outsideClick = false;
+            });
+            
+            // If click is outside, close all dropdowns
+            if (outsideClick) {
+              console.log('Outside click detected, closing dropdowns');
+              dropdownMenus.forEach(menu => {
+                menu.classList.remove('show');
+              });
+            }
+          };
+          
+          // Add the document click handler
+          document.addEventListener('click', this._documentClickHandler);
         }
       }
       
       // Add event listener for logout
       const logoutButton = navLinks.querySelector('.logout-button');
       if (logoutButton) {
-        const handleLogout = (e) => {
+        // Use direct onclick assignment
+        logoutButton.onclick = (e) => {
           e.preventDefault();
+          e.stopPropagation();
+          console.log('Logout button clicked');
           this.logout();
         };
-        
-        // Remove any existing event listeners (to prevent duplicates)
-        logoutButton.removeEventListener('click', handleLogout);
-        // Add the event listener
-        logoutButton.addEventListener('click', handleLogout);
       }
     } else {
       // User is not logged in
