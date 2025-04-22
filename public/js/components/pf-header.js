@@ -459,6 +459,7 @@ class PfHeader extends HTMLElement {
     const loginLink = navLinks.querySelector('.login-link');
     const registerLink = navLinks.querySelector('.register-link');
     const dashboardLink = navLinks.querySelector('#dashboard-link');
+    const apiKeysLink = navLinks.querySelector('#api-keys-link');
     
     // Only remove existing dropdown if we're going to add a new one
     // (when user is logged in) or if we're switching from logged in to logged out
@@ -472,6 +473,7 @@ class PfHeader extends HTMLElement {
     const mobileLoginLink = mobileMenu?.querySelector('#mobile-login-link');
     const mobileRegisterLink = mobileMenu?.querySelector('#mobile-register-link');
     const mobileDashboardLink = mobileMenu?.querySelector('#mobile-dashboard-link');
+    const mobileApiKeysLink = mobileMenu?.querySelector('#mobile-api-keys-link');
     
     if (isLoggedIn) {
       // User is logged in
@@ -480,15 +482,17 @@ class PfHeader extends HTMLElement {
       if (loginLink) loginLink.style.display = 'none';
       if (registerLink) registerLink.style.display = 'none';
       
-      // Show the dashboard link in desktop nav
+      // Show the dashboard and API keys links in desktop nav
       if (dashboardLink) dashboardLink.style.display = '';
+      if (apiKeysLink) apiKeysLink.style.display = '';
       
       // Hide the login and register links in mobile nav
       if (mobileLoginLink) mobileLoginLink.style.display = 'none';
       if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
       
-      // Show the dashboard link in mobile nav
+      // Show the dashboard and API keys links in mobile nav
       if (mobileDashboardLink) mobileDashboardLink.style.display = '';
+      if (mobileApiKeysLink) mobileApiKeysLink.style.display = '';
       
       // Add the user dropdown to desktop nav
       const dropdownHtml = `
@@ -628,15 +632,17 @@ class PfHeader extends HTMLElement {
       if (loginLink) loginLink.style.display = '';
       if (registerLink) registerLink.style.display = '';
       
-      // Hide the dashboard link in desktop nav
+      // Hide the dashboard and API keys links in desktop nav
       if (dashboardLink) dashboardLink.style.display = 'none';
+      if (apiKeysLink) apiKeysLink.style.display = 'none';
       
       // Show the login and register links in mobile nav
       if (mobileLoginLink) mobileLoginLink.style.display = '';
       if (mobileRegisterLink) mobileRegisterLink.style.display = '';
       
-      // Hide the dashboard link in mobile nav
+      // Hide the dashboard and API keys links in mobile nav
       if (mobileDashboardLink) mobileDashboardLink.style.display = 'none';
+      if (mobileApiKeysLink) mobileApiKeysLink.style.display = 'none';
       
       // Remove any user-specific links from mobile menu
       const mobileSettingsLink = mobileMenu?.querySelector('.mobile-settings-link');
