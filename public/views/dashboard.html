@@ -108,12 +108,20 @@
 </div>
 
 <script>
-  // Import document-history component
-  import('../js/components/document-history.js');
-  
   // Initialize dashboard
   document.addEventListener('DOMContentLoaded', () => {
-    initDashboard();
+    // Import document-history component
+    import('../js/components/document-history.js')
+      .then(() => {
+        console.log('Document history component loaded successfully');
+        // Initialize the dashboard after the component is loaded
+        initDashboard();
+      })
+      .catch(error => {
+        console.error('Error loading document history component:', error);
+        // Still initialize the dashboard even if component fails to load
+        initDashboard();
+      });
   });
   
   function initDashboard() {
@@ -122,6 +130,30 @@
     if (!apiKey) {
       // Redirect to login page
       window.router.navigate('/login');
+      return;
+    }
+    
+    // Check if user has an active subscription
+    const userJson = localStorage.getItem('user');
+    let user = null;
+    
+    if (userJson) {
+      try {
+        user = JSON.parse(userJson);
+      } catch (e) {
+        console.error('Error parsing user JSON:', e);
+      }
+    }
+    
+    // Verify subscription status
+    const hasActiveSubscription = user &&
+                                 user.subscription &&
+                                 user.subscription.status === 'active';
+    
+    if (!hasActiveSubscription) {
+      // Redirect to subscription page
+      alert('You need an active subscription to access the dashboard.');
+      window.router.navigate('/subscription');
       return;
     }
     
@@ -143,6 +175,18 @@
         // Show selected tab content
         const tabId = button.dataset.tab;
         document.getElementById(`${tabId}-tab`).style.display = 'block';
+        
+        // If history tab is selected, refresh the document history
+        if (tabId === 'history') {
+          // Get the document-history component and refresh it
+          const historyComponent = document.querySelector('document-history');
+          if (historyComponent) {
+            console.log('Refreshing document history...');
+            historyComponent.loadHistory();
+          } else {
+            console.error('Document history component not found');
+          }
+        }
       });
     });
     
@@ -394,7 +438,7 @@
   }
   
   .primary-button:hover {
-    background-color: var(--primary-color-dark);
+    background-color: var(--primary-dark);
   }
   
   .primary-button:disabled {
