@@ -361,6 +361,33 @@ function checkAuthAndInitPage(pageType) {
     return;
   }
   
+  // For protected pages that require an active subscription
+  if (pageType === 'dashboard') {
+    // Check if user has an active subscription
+    const userJson = localStorage.getItem('user');
+    let user = null;
+    
+    if (userJson) {
+      try {
+        user = JSON.parse(userJson);
+      } catch (e) {
+        console.error('Error parsing user JSON:', e);
+      }
+    }
+    
+    // Verify subscription status
+    const hasActiveSubscription = user &&
+                                 user.subscription &&
+                                 user.subscription.status === 'active';
+    
+    if (!hasActiveSubscription) {
+      // Redirect to subscription page
+      alert('You need an active subscription to access the dashboard.');
+      window.router.navigate('/subscription');
+      return;
+    }
+  }
+  
   // Initialize specific page if needed
   switch (pageType) {
     case 'dashboard':
