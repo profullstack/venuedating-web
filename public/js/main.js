@@ -329,12 +329,36 @@ function initRegisterPage() {
       // Show success message with payment information
       const paymentAddress = subscriptionData.subscription.payment_address;
       const amount = subscriptionData.subscription.amount;
+      const cryptoAmount = subscriptionData.subscription.crypto_amount ? subscriptionData.subscription.crypto_amount.toFixed(8) : 'calculating...';
       const coin = subscriptionData.subscription.payment_method.toUpperCase();
       
-      alert(`Registration successful! Please send ${amount} USD worth of ${coin} to: ${paymentAddress}`);
-      
-      // Redirect to the API keys page
-      window.router.navigate('/api-keys');
+      // Enhanced dialog with the payment information and copyable fields
+      PfDialog.alert(`
+        <div class="payment-success">
+          <h3 style="color: #2563eb; margin-bottom: 15px;">Registration Successful!</h3>
+          <p style="margin-bottom: 20px;">Please send <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) to the address below:</p>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Amount:</label>
+            <div style="display: flex; align-items: center;">
+              <input type="text" value="${cryptoAmount} ${coin}" readonly 
+                style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
+              <button onclick="navigator.clipboard.writeText('${cryptoAmount} ${coin}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+                style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Address:</label>
+            <div style="display: flex; align-items: center;">
+              <input type="text" value="${paymentAddress}" readonly 
+                style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
+              <button onclick="navigator.clipboard.writeText('${paymentAddress}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+                style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
+            </div>
+          </div>
+        </div>
+      `, 'Payment Details', () => window.router.navigate('/api-keys'), 'Continue');
     } catch (error) {
       console.error('Registration error:', error);
       submitButton.textContent = originalButtonText;

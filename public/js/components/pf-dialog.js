@@ -97,7 +97,7 @@ class PfDialog extends HTMLElement {
           border-radius: 8px;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
           width: 90%;
-          max-width: 400px;
+          max-width: 450px;
           max-height: 90vh;
           overflow-y: auto;
           padding: 0;
