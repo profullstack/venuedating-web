@@ -2,6 +2,13 @@ import { createCryptAPIClient } from '../utils/cryptapi-wrapper.js';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
 import { apiKeyService } from './api-key-service.js';
+import { 
+  getBitcoinAddressBalance,
+  getEthereumAddressBalance,
+  getSolanaAddressBalance,
+  getUsdcAddressBalance,
+  getTatumExchangeRateRest
+} from '../utils/tatum.js';
 import dotenv from 'dotenv-flow';
 
 // Load environment variables
@@ -125,6 +132,17 @@ export const paymentService = {
     console.log('Supabase key exists:', !!supabase.supabaseKey);
     
     try {
+      // Get current exchange rate for the cryptocurrency
+      let cryptoAmount;
+      try {
+        const rate = await getTatumExchangeRateRest(coin.toUpperCase(), 'USD');
+        cryptoAmount = amount / rate;
+        console.log(`Payment service: Converted ${amount} USD to ${cryptoAmount} ${coin} at rate ${rate}`);
+      } catch (rateError) {
+        console.error('Payment service: Error getting exchange rate:', rateError);
+        throw rateError;
+      }
+
       // Create subscription record in Supabase
       const { data: subscription, error } = await supabase
         .from('subscriptions')
@@ -132,6 +150,9 @@ export const paymentService = {
           email,
           plan,
           amount,
+          crypto_amount: cryptoAmount,
+          crypto_currency: coin,
+          exchange_rate_usd: amount / cryptoAmount,
           interval: plan === 'monthly' ? 'month' : 'year',
           payment_method: coin,
           status: 'pending',
@@ -356,16 +377,46 @@ export const paymentService = {
       console.log(`Payment service: Pending payment received for subscription ${subscriptionId}`);
       console.log(`Payment service: Transaction ID: ${callbackData.txid_in}, Amount: ${callbackData.value_coin}`);
       
+      // Primary verification using Tatum
+      let verifiedAmount;
+      let tatumBalance;
+      try {
+        // Get balance from appropriate Tatum endpoint based on coin type
+        switch (callbackData.coin.toLowerCase()) {
+          case 'btc':
+            tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
+            break;
+          case 'eth':
+            tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
+            break;
+          case 'sol':
+            tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
+            break;
+          case 'usdc':
+            tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
+            break;
+          default:
+            throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
+        }
+        console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
+        verifiedAmount = tatumBalance.incoming || tatumBalance.balance || tatumBalance.incoming_amount || 0;
+      } catch (tatumError) {
+        console.error('Payment service: Error verifying balance with Tatum:', tatumError);
+        console.log('Payment service: Falling back to CryptAPI data');
+        verifiedAmount = parseFloat(callbackData.value_coin);
+      }
+
       // Record pending payment in Supabase
       const { data: payment, error: paymentError } = await supabase
         .from('payments')
         .insert([{
           subscription_id: subscriptionId,
-          amount: parseFloat(callbackData.value_coin),
+          amount: verifiedAmount,
           currency: callbackData.coin,
           transaction_id: callbackData.txid_in,
           status: 'pending',
-          payment_data: callbackData
+          payment_data: callbackData,
+          tatum_balance: tatumBalance
         }])
         .select()
         .single();
@@ -415,6 +466,35 @@ export const paymentService = {
       let paymentId;
       
       if (pendingPayments && pendingPayments.length > 0) {
+        // Primary verification using Tatum for confirmation
+        let verifiedAmount;
+        let tatumBalance;
+        try {
+          // Get balance from appropriate Tatum endpoint based on coin type
+          switch (callbackData.coin.toLowerCase()) {
+            case 'btc':
+              tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
+              break;
+            case 'eth':
+              tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
+              break;
+            case 'sol':
+              tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
+              break;
+            case 'usdc':
+              tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
+              break;
+            default:
+              throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
+          }
+          console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
+          verifiedAmount = tatumBalance.incoming || tatumBalance.balance || tatumBalance.incoming_amount || 0;
+        } catch (tatumError) {
+          console.error('Payment service: Error verifying balance with Tatum:', tatumError);
+          console.log('Payment service: Falling back to CryptAPI data');
+          verifiedAmount = parseFloat(callbackData.value_coin);
+        }
+
         // Update existing payment record
         console.log(`Payment service: Updating existing payment record ${pendingPayments[0].id}`);
         
@@ -422,12 +502,14 @@ export const paymentService = {
           .from('payments')
           .update({
             status: 'completed',
-            amount: parseFloat(callbackData.value_coin),
+            amount: verifiedAmount,
             amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
             fee: parseFloat(callbackData.fee_coin),
             transaction_id_out: callbackData.txid_out,
             confirmations: parseInt(callbackData.confirmations),
-            payment_data: callbackData
+            payment_data: callbackData,
+            tatum_balance: tatumBalance,
+            verification_source: tatumBalance ? 'tatum' : 'cryptapi'
           })
           .eq('id', pendingPayments[0].id);
         
@@ -438,6 +520,33 @@ export const paymentService = {
         
         paymentId = pendingPayments[0].id;
       } else {
+        // Verify payment using Tatum for new payment
+        let tatumBalance;
+        try {
+          // Get balance from appropriate Tatum endpoint based on coin type
+          switch (callbackData.coin.toLowerCase()) {
+            case 'btc':
+              tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
+              break;
+            case 'eth':
+              tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
+              break;
+            case 'sol':
+              tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
+              break;
+            case 'usdc':
+              tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
+              break;
+            default:
+              throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
+          }
+          console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
+        } catch (tatumError) {
+          console.error('Payment service: Error verifying balance with Tatum:', tatumError);
+          // Continue with CryptAPI data if Tatum verification fails
+          console.log('Payment service: Continuing with CryptAPI data due to Tatum error');
+        }
+
         // Create new payment record
         console.log('Payment service: Creating new payment record');
         
@@ -445,7 +554,7 @@ export const paymentService = {
           .from('payments')
           .insert([{
             subscription_id: subscriptionId,
-            amount: parseFloat(callbackData.value_coin),
+            amount: verifiedAmount,
             amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
             fee: parseFloat(callbackData.fee_coin),
             currency: callbackData.coin,
@@ -453,7 +562,9 @@ export const paymentService = {
             transaction_id_out: callbackData.txid_out,
             confirmations: parseInt(callbackData.confirmations),
             status: 'completed',
-            payment_data: callbackData
+            payment_data: callbackData,
+            tatum_balance: tatumBalance,
+            verification_source: tatumBalance ? 'tatum' : 'cryptapi'
           }])
           .select()
           .single();
