@@ -23,3 +23,6 @@
 
 /* Import legal CSS for legal pages styling */
 @import url('legal.css');
+
+/* Import settings CSS for settings page styling */
+@import url('settings.css');
