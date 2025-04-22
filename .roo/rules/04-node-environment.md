@@ -27,3 +27,9 @@
 - Check for running processes before starting new ones
 - Use proper shutdown signals to terminate processes
 - Monitor the terminal output for errors and warnings
+
+## HTTP Requests
+
+- Never rely on node-fetch for HTTP requests
+- Use native fetch API or other modern HTTP clients
+- Ensure proper error handling for all network requests
