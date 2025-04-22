@@ -59,6 +59,9 @@ export async function authMiddleware(c, next) {
     // Set user in context for later use
     c.set('user', user);
     
+    // Also set user email for easier access
+    c.set('userEmail', user.email);
+    
     // Continue to the next middleware or route handler
     return next();
   } catch (error) {

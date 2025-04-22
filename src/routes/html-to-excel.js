@@ -1,4 +1,5 @@
 import { excelService } from '../services/excel-service.js';
+import { storageService } from '../services/storage-service.js';
 import { validateBody, validators } from '../middleware/error-handler.js';
 import { errorUtils } from '../utils/error-utils.js';
 
@@ -9,10 +10,35 @@ import { errorUtils } from '../utils/error-utils.js';
  */
 export async function htmlToExcelHandler(c) {
   try {
-    const { html, filename = 'document.xlsx', sheetName = 'Sheet1' } = c.get('body');
+    const { html, filename = 'document.xlsx', sheetName = 'Sheet1', store = false } = c.get('body');
     
     // Generate Excel spreadsheet from HTML tables
     const excelBuffer = excelService.generateExcel(html, sheetName);
+    
+    // Store the Excel file in Supabase if requested
+    if (store) {
+      try {
+        // Extract metadata from the request
+        const metadata = {
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          sheetName,
+          userAgent: c.req.header('user-agent'),
+          timestamp: new Date().toISOString()
+        };
+        
+        // Get user email from context
+        const userEmail = c.get('userEmail');
+        
+        // Store the Excel file with user association
+        const result = await storageService.storeExcel(excelBuffer, filename, metadata, userEmail);
+        
+        // Add storage information to the response headers
+        c.header('X-Storage-Path', result.path);
+      } catch (storageError) {
+        // Log the error but don't fail the request
+        console.error('Error storing Excel file in Supabase:', storageError);
+      }
+    }
     
     // Set response headers
     c.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

@@ -46,6 +46,10 @@ function initRouter() {
       view: () => loadPage('/views/register.html'),
       afterRender: () => initRegisterPage()
     },
+    '/dashboard': {
+      view: () => loadPage('/views/dashboard.html'),
+      afterRender: () => checkAuthAndInitPage('dashboard')
+    },
     '/api-docs': {
       view: () => loadPage('/views/api-docs.html')
     },
@@ -345,6 +349,29 @@ function initRegisterPage() {
 // Function removed - no more mock data
 
 /**
+ * Check if user is authenticated and initialize page
+ * @param {string} pageType - Type of page to initialize
+ */
+function checkAuthAndInitPage(pageType) {
+  // Check if user is logged in
+  const apiKey = localStorage.getItem('api_key');
+  if (!apiKey) {
+    // Redirect to login page
+    window.router.navigate('/login');
+    return;
+  }
+  
+  // Initialize specific page if needed
+  switch (pageType) {
+    case 'dashboard':
+      // Dashboard initialization is handled by the page's own script
+      break;
+    default:
+      break;
+  }
+}
+
+/**
  * Initialize API keys page
  */
 function initApiKeysPage() {
@@ -495,5 +522,6 @@ function initSubscriptionPage() {
 // Expose functions globally
 window.app = {
   initApp,
-  initRouter
+  initRouter,
+  checkAuthAndInitPage
 };

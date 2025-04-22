@@ -26,8 +26,11 @@ export async function htmlToPdfHandler(c) {
           timestamp: new Date().toISOString()
         };
         
-        // Store the PDF
-        const result = await storageService.storePdf(pdfBuffer, filename, metadata);
+        // Get user email from context
+        const userEmail = c.get('userEmail');
+        
+        // Store the PDF with user association
+        const result = await storageService.storePdf(pdfBuffer, filename, metadata, userEmail);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);

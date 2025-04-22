@@ -284,6 +284,7 @@ class PfHeader extends HTMLElement {
         </div>
         
         <div class="nav-links">
+          <a href="/dashboard" class="nav-link" id="dashboard-link">Dashboard</a>
           <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
           <a href="/api-keys" class="nav-link" id="api-keys-link">API Keys</a>
           <a href="/login" class="nav-link login-link" id="login-link">Login</a>
@@ -303,6 +304,7 @@ class PfHeader extends HTMLElement {
       
       <!-- Mobile menu container -->
       <div class="mobile-menu">
+        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link">Dashboard</a>
         <a href="/api-docs" class="nav-link" id="mobile-api-docs-link">API Docs</a>
         <a href="/api-keys" class="nav-link" id="mobile-api-keys-link">API Keys</a>
         <a href="/login" class="nav-link login-link" id="mobile-login-link">Login</a>
@@ -390,7 +392,9 @@ class PfHeader extends HTMLElement {
     });
     
     // Add active class to the current link
-    if (currentPath.startsWith('/api-docs')) {
+    if (currentPath.startsWith('/dashboard')) {
+      this.shadowRoot.querySelector('#dashboard-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/api-docs')) {
       this.shadowRoot.querySelector('#api-docs-link')?.classList.add('active');
     } else if (currentPath.startsWith('/api-keys')) {
       this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
@@ -649,7 +653,7 @@ class PfHeader extends HTMLElement {
     
     // Redirect to home page if on a protected page
     const currentPath = window.location.pathname;
-    const protectedPages = ['/api-keys', '/settings'];
+    const protectedPages = ['/api-keys', '/settings', '/dashboard'];
     
     if (protectedPages.includes(currentPath)) {
       if (window.router) {

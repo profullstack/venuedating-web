@@ -141,18 +141,40 @@ export const supabaseUtils = {
    * @param {string} documentType - Document type (pdf, doc, excel, etc.)
    * @param {string} storagePath - Path in Supabase storage
    * @param {Object} metadata - Additional metadata
+   * @param {string} userEmail - User email for associating with user_id
    * @returns {Promise<Object>} - Database record
    */
-  async recordDocumentGeneration(documentType, storagePath, metadata = {}) {
+  async recordDocumentGeneration(documentType, storagePath, metadata = {}, userEmail = null) {
     try {
+      // Create the document generation record
+      const documentRecord = {
+        document_type: documentType,
+        storage_path: storagePath,
+        generated_at: new Date().toISOString(),
+        metadata
+      };
+      
+      // If user email is provided, look up the user_id
+      if (userEmail) {
+        // Get the user_id from the users table
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', userEmail)
+          .single();
+        
+        if (userError) {
+          console.warn(`User not found for email: ${userEmail}`, userError);
+        } else if (userData) {
+          // Add the user_id to the document record
+          documentRecord.user_id = userData.id;
+        }
+      }
+      
+      // Insert the document generation record
       const { data, error } = await supabase
         .from('document_generations')
-        .insert([{
-          document_type: documentType,
-          storage_path: storagePath,
-          generated_at: new Date().toISOString(),
-          metadata
-        }])
+        .insert([documentRecord])
         .select();
       
       if (error) {
@@ -170,15 +192,36 @@ export const supabaseUtils = {
    * Get document generation history
    * @param {number} limit - Maximum number of records to return
    * @param {number} offset - Offset for pagination
+   * @param {string} userEmail - User email to filter by (optional)
    * @returns {Promise<Array>} - Document generation records
    */
-  async getDocumentGenerationHistory(limit = 10, offset = 0) {
+  async getDocumentGenerationHistory(limit = 10, offset = 0, userEmail = null) {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('document_generations')
         .select('*')
-        .order('generated_at', { ascending: false })
-        .range(offset, offset + limit - 1);
+        .order('generated_at', { ascending: false });
+      
+      // If user email is provided, filter by user_id
+      if (userEmail) {
+        // First get the user_id
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', userEmail)
+          .single();
+        
+        if (!userError && userData) {
+          // Filter by user_id
+          query = query.eq('user_id', userData.id);
+        }
+      }
+      
+      // Apply pagination
+      query = query.range(offset, offset + limit - 1);
+      
+      // Execute the query
+      const { data, error } = await query;
       
       if (error) {
         throw error;
