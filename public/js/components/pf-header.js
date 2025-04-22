@@ -114,7 +114,7 @@ class PfHeader extends HTMLElement {
         .theme-toggle {
           margin-left: 15px;
           background-color: transparent;
-          border: 1px solid #ddd;
+          border: 1px solid var(--border-color, #ddd);
           border-radius: 50%;
           width: 36px;
           height: 36px;
@@ -208,12 +208,13 @@ class PfHeader extends HTMLElement {
           border-radius: 5px;
           cursor: pointer;
           font-size: 16px;
-          color: #333;
-          transition: background-color 0.2s;
+          color: var(--text-primary, #333);
+          transition: background-color 0.2s, color 0.2s;
         }
         
         .dropdown-button:hover {
-          background-color: #f0f0f0;
+          background-color: var(--surface-variant, #f0f0f0);
+          color: var(--primary-color, #e02337);
         }
         
         .dropdown-menu {
@@ -221,7 +222,7 @@ class PfHeader extends HTMLElement {
           top: 100%;
           right: 0;
           width: 200px;
-          background-color: white;
+          background-color: var(--background-color, white);
           border-radius: 5px;
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           padding: 8px 0;
@@ -236,13 +237,14 @@ class PfHeader extends HTMLElement {
         .dropdown-item {
           display: block;
           padding: 8px 15px;
-          color: #333;
+          color: var(--text-primary, #333);
           text-decoration: none;
-          transition: background-color 0.2s;
+          transition: background-color 0.2s, color 0.2s;
         }
         
         .dropdown-item:hover {
-          background-color: #f0f0f0;
+          background-color: var(--surface-variant, #f0f0f0);
+          color: var(--primary-color, #e02337);
         }
         
         /* Media queries for responsive design */
@@ -485,7 +487,13 @@ class PfHeader extends HTMLElement {
         </div>
       `;
       
-      navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+      // Insert the dropdown before the theme toggle
+      const themeToggle = navLinks.querySelector('.theme-toggle');
+      if (themeToggle) {
+        themeToggle.insertAdjacentHTML('beforebegin', dropdownHtml);
+      } else {
+        navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
+      }
       
       // Add user-related links to mobile menu
       if (mobileMenu && !mobileMenu.querySelector('.mobile-settings-link')) {
