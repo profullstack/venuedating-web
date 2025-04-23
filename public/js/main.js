@@ -8,6 +8,7 @@ import './components/pf-header.js';
 import './components/pf-footer.js';
 import './components/pf-dialog.js';
 import './components/pf-hero.js';
+import './components/api-key-manager.js';
 
 // Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
@@ -183,13 +184,34 @@ function initLoginPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
-      // Check subscription status
+      // Import Supabase client for JWT authentication
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
+      // Sign in with Supabase to get JWT token
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (authError) {
+        console.error('Supabase auth error:', authError);
+        // Continue with subscription check even if Supabase auth fails
+        // This allows backward compatibility with existing users
+      } else if (authData && authData.session) {
+        // Store JWT token in localStorage
+        localStorage.setItem('jwt_token', authData.session.access_token);
+        console.log('JWT token stored successfully');
+      }
+      
+      // Check subscription status (existing flow)
       const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
       console.log('Subscription status:', subscriptionStatus);
       
       if (subscriptionStatus.has_subscription) {
-        // User has an active subscription, store the email as an API key
-        localStorage.setItem('api_key', email);
+        // User has an active subscription
         localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
@@ -301,12 +323,39 @@ function initRegisterPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
+      // Import Supabase client for JWT authentication
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
+      // Register user with Supabase to get JWT token
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            plan: selectedPlan,
+            payment_method: selectedPayment
+          }
+        }
+      });
+      
+      if (authError) {
+        console.error('Supabase auth error:', authError);
+        // Continue with subscription creation even if Supabase auth fails
+        // This allows backward compatibility with existing users
+      } else if (authData && authData.session) {
+        // Store JWT token in localStorage
+        localStorage.setItem('jwt_token', authData.session.access_token);
+        console.log('JWT token stored successfully');
+      }
+      
       // Create subscription using the API
       const subscriptionData = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
       console.log('Subscription created:', subscriptionData);
       
       // Store user data in localStorage
-      localStorage.setItem('api_key', email);
       localStorage.setItem('username', email);
       localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
       
@@ -397,9 +446,9 @@ function initRegisterPage() {
           <div style="margin-bottom: 15px;">
             <label style="display: block; font-weight: 600; margin-bottom: 5px;">Amount:</label>
             <div style="display: flex; align-items: center;">
-              <input type="text" value="${cryptoAmount} ${coin}" readonly 
+              <input type="text" value="${cryptoAmount} ${coin}" readonly
                 style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
-              <button onclick="navigator.clipboard.writeText('${cryptoAmount} ${coin}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+              <button onclick="navigator.clipboard.writeText('${cryptoAmount} ${coin}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)"
                 style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
             </div>
           </div>
@@ -407,9 +456,9 @@ function initRegisterPage() {
           <div style="margin-bottom: 15px;">
             <label style="display: block; font-weight: 600; margin-bottom: 5px;">Address:</label>
             <div style="display: flex; align-items: center;">
-              <input type="text" value="${paymentAddress}" readonly 
+              <input type="text" value="${paymentAddress}" readonly
                 style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
-              <button onclick="navigator.clipboard.writeText('${paymentAddress}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+              <button onclick="navigator.clipboard.writeText('${paymentAddress}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)"
                 style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
             </div>
           </div>
@@ -516,8 +565,8 @@ function initRegisterPage() {
  */
 function checkAuthAndInitPage(pageType) {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
@@ -565,15 +614,70 @@ function checkAuthAndInitPage(pageType) {
  */
 function initApiKeysPage() {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
   
   // Initialize API keys page
-  // ...
+  console.log('Initializing API keys page');
+  
+  // Make sure the API key manager component is loaded
+  import('./components/api-key-manager.js').then(() => {
+    console.log('API key manager component loaded');
+    
+    // Force refresh the API key manager component
+    setTimeout(() => {
+      const apiKeyManager = document.querySelector('api-key-manager');
+      if (apiKeyManager) {
+        console.log('Found API key manager component, refreshing');
+        // Try to force a re-render
+        apiKeyManager.render();
+        
+        // Also try to reload the API keys
+        if (typeof apiKeyManager._loadApiKeys === 'function') {
+          console.log('Reloading API keys');
+          apiKeyManager._loadApiKeys();
+        }
+      } else {
+        console.error('API key manager component not found in the DOM');
+      }
+    }, 500);
+  }).catch(error => {
+    console.error('Error loading API key manager component:', error);
+  });
+  
+  // Set up tab switching
+  const tabButtons = document.querySelectorAll('.tab-button');
+  tabButtons.forEach(button => {
+    button.onclick = () => {
+      console.log('Tab button clicked:', button.dataset.tab);
+      
+      // Remove active class from all buttons
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to clicked button
+      button.classList.add('active');
+      
+      // Hide all tab content
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+      });
+      
+      // Show selected tab content
+      const tabId = button.dataset.tab;
+      const tabContent = document.getElementById(`${tabId}-tab`);
+      
+      if (tabContent) {
+        tabContent.style.display = 'block';
+        console.log('Tab content displayed:', tabId);
+      } else {
+        console.error('Tab content not found:', tabId);
+      }
+    };
+  });
 }
 
 /**
@@ -581,8 +685,8 @@ function initApiKeysPage() {
  */
 function initSettingsPage() {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
@@ -640,7 +744,7 @@ function initSettingsPage() {
         // ...
         
         // Clear authentication data
-        localStorage.removeItem('api_key');
+        localStorage.removeItem('jwt_token');
         localStorage.removeItem('username');
         
         // Dispatch auth changed event
@@ -662,7 +766,7 @@ function initSubscriptionPage() {
     console.log('Subscription form component loaded');
     
     // Check if user is logged in
-    const apiKey = localStorage.getItem('api_key');
+    const jwtToken = localStorage.getItem('jwt_token');
     const email = localStorage.getItem('username');
     
     // If user is logged in, pre-fill the email field

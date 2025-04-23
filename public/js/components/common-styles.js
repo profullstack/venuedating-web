@@ -207,4 +207,113 @@ export const commonStyles = `
     border-radius: var(--border-radius-sm);
     overflow-x: auto;
   }
+
+  /* API Key Manager specific styles */
+  .api-key-form {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-help {
+    margin-top: 5px;
+    font-size: var(--font-size-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .api-keys-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  .api-keys-table th,
+  .api-keys-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .api-keys-table th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    background-color: var(--surface-variant);
+  }
+  
+  .api-keys-table tr:hover {
+    background-color: var(--surface-variant);
+  }
+  
+  .api-keys-table .actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .empty-state {
+    padding: 30px;
+    text-align: center;
+    color: var(--text-tertiary);
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    border: 1px dashed var(--border-color);
+    margin-bottom: 30px;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+  
+  .btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .delete-button {
+    background-color: var(--error-color);
+    color: white;
+  }
+  
+  .delete-button:hover {
+    background-color: #d32f2f;
+  }
+  
+  .toggle-button {
+    background-color: var(--text-tertiary);
+    color: white;
+  }
+  
+  .toggle-button:hover {
+    background-color: var(--text-secondary);
+  }
+  
+  .toggle-button.active {
+    background-color: var(--success-color);
+  }
+  
+  .toggle-button.active:hover {
+    background-color: var(--secondary-dark);
+  }
 `;

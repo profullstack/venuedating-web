@@ -4,6 +4,7 @@ import { ApiClient } from '../api-client.js';
 
 /**
  * API Key Manager component
+ * Manages API keys for the user
  */
 export class ApiKeyManager extends BaseComponent {
   /**
@@ -34,6 +35,13 @@ export class ApiKeyManager extends BaseComponent {
       h2 {
         margin-top: 0;
         margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+      
+      h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: var(--text-primary);
       }
       
       .api-key-form {
@@ -46,6 +54,12 @@ export class ApiKeyManager extends BaseComponent {
       
       .form-group {
         margin-bottom: 15px;
+      }
+      
+      .form-help {
+        margin-top: 5px;
+        font-size: var(--font-size-sm);
+        color: var(--text-tertiary);
       }
       
       label {
@@ -67,31 +81,37 @@ export class ApiKeyManager extends BaseComponent {
       input:focus {
         outline: none;
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 0 0 2px rgba(224, 35, 55, 0.2);
       }
       
-      button {
+      .btn {
+        display: inline-block;
         padding: 10px 15px;
-        background-color: var(--primary-color);
-        color: var(--text-on-primary);
         border: none;
         border-radius: var(--border-radius-md);
         cursor: pointer;
         font-weight: var(--font-weight-medium);
         transition: background-color var(--transition-fast);
+        text-align: center;
       }
       
-      button:hover {
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: var(--text-on-primary);
+      }
+      
+      .btn-primary:hover {
         background-color: var(--primary-dark);
       }
       
       button:disabled {
-        background-color: var(--text-disabled);
+        opacity: 0.6;
         cursor: not-allowed;
       }
       
       .delete-button {
         background-color: var(--error-color);
+        color: white;
       }
       
       .delete-button:hover {
@@ -100,6 +120,7 @@ export class ApiKeyManager extends BaseComponent {
       
       .toggle-button {
         background-color: var(--text-tertiary);
+        color: white;
       }
       
       .toggle-button:hover {
@@ -112,6 +133,11 @@ export class ApiKeyManager extends BaseComponent {
       
       .toggle-button.active:hover {
         background-color: var(--secondary-dark);
+      }
+      
+      .table-responsive {
+        overflow-x: auto;
+        margin-bottom: 20px;
       }
       
       .api-keys-table {
@@ -149,6 +175,11 @@ export class ApiKeyManager extends BaseComponent {
         background-color: var(--surface-color);
         border-radius: var(--border-radius-md);
         border: 1px dashed var(--border-color);
+        margin-bottom: 30px;
+      }
+      
+      .empty-state button {
+        margin-top: 15px;
       }
       
       .error {
@@ -190,6 +221,7 @@ export class ApiKeyManager extends BaseComponent {
       .copy-button {
         background-color: var(--secondary-color);
         margin-right: 10px;
+        color: white;
       }
       
       .copy-button:hover {
@@ -198,8 +230,23 @@ export class ApiKeyManager extends BaseComponent {
       
       .loading {
         text-align: center;
-        padding: 20px;
+        padding: 40px;
         color: var(--text-tertiary);
+      }
+      
+      .spinner {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--primary-color);
+        animation: spin 1s ease-in-out infinite;
+        margin-top: 15px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
       
       .status-badge {
@@ -229,7 +276,10 @@ export class ApiKeyManager extends BaseComponent {
   getTemplate() {
     if (this._loading) {
       return `
-        <div class="loading">Loading API keys...</div>
+        <div class="loading">
+          <p>Loading API keys...</p>
+          <div class="spinner"></div>
+        </div>
       `;
     }
     
@@ -244,8 +294,9 @@ export class ApiKeyManager extends BaseComponent {
         <div class="form-group">
           <label for="key-name">API Key Name</label>
           <input type="text" id="key-name" placeholder="e.g., Production, Development, Testing" value="${this._newKeyName}">
+          <p class="form-help">Give your API key a descriptive name to identify its purpose.</p>
         </div>
-        <button id="create-key-button" ${this._newKeyName.trim() === '' ? 'disabled' : ''}>Create API Key</button>
+        <button id="create-key-button" class="btn btn-primary" ${this._newKeyName.trim() === '' ? 'disabled' : ''}>Create API Key</button>
       </div>
       
       <h3>Your API Keys</h3>
@@ -264,42 +315,46 @@ export class ApiKeyManager extends BaseComponent {
       return `
         <div class="empty-state">
           <p>You don't have any API keys yet. Create one to get started.</p>
+          <p>API keys are used to authenticate your requests to our API endpoints.</p>
+          <button id="create-empty-key-button" class="btn btn-primary">Create Your First API Key</button>
         </div>
       `;
     }
     
     return `
-      <table class="api-keys-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Last Used</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this._apiKeys.map(key => `
-            <tr data-key-id="${key.id}">
-              <td>${key.name}</td>
-              <td>
-                <span class="status-badge ${key.is_active ? 'active' : 'inactive'}">
-                  ${key.is_active ? 'Active' : 'Inactive'}
-                </span>
-              </td>
-              <td>${this._formatDate(key.created_at)}</td>
-              <td>${key.last_used_at ? this._formatDate(key.last_used_at) : 'Never'}</td>
-              <td class="actions">
-                <button class="toggle-button ${key.is_active ? 'active' : ''}" data-action="toggle" data-key-id="${key.id}">
-                  ${key.is_active ? 'Deactivate' : 'Activate'}
-                </button>
-                <button class="delete-button" data-action="delete" data-key-id="${key.id}">Delete</button>
-              </td>
+      <div class="table-responsive">
+        <table class="api-keys-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Last Used</th>
+              <th>Actions</th>
             </tr>
-          `).join('')}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${this._apiKeys.map(key => `
+              <tr data-key-id="${key.id}">
+                <td>${key.name}</td>
+                <td>
+                  <span class="status-badge ${key.is_active ? 'active' : 'inactive'}">
+                    ${key.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td>${this._formatDate(key.created_at)}</td>
+                <td>${key.last_used_at ? this._formatDate(key.last_used_at) : 'Never'}</td>
+                <td class="actions">
+                  <button class="toggle-button ${key.is_active ? 'active' : ''}" data-action="toggle" data-key-id="${key.id}" title="${key.is_active ? 'Deactivate this API key' : 'Activate this API key'}">
+                    ${key.is_active ? 'Deactivate' : 'Activate'}
+                  </button>
+                  <button class="delete-button" data-action="delete" data-key-id="${key.id}" title="Delete this API key permanently">Delete</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
     `;
   }
 
@@ -342,38 +397,54 @@ export class ApiKeyManager extends BaseComponent {
     // Create key button
     const createKeyButton = this.$('#create-key-button');
     if (createKeyButton) {
-      createKeyButton.addEventListener('click', () => this._createApiKey());
+      createKeyButton.onclick = () => this._createApiKey();
+    }
+    
+    // Create empty key button (when no keys exist)
+    const createEmptyKeyButton = this.$('#create-empty-key-button');
+    if (createEmptyKeyButton) {
+      createEmptyKeyButton.onclick = () => {
+        this._newKeyName = 'My First API Key';
+        this._createApiKey();
+      };
     }
     
     // Key name input
     const keyNameInput = this.$('#key-name');
     if (keyNameInput) {
-      keyNameInput.addEventListener('input', (e) => {
+      keyNameInput.oninput = (e) => {
         this._newKeyName = e.target.value;
         this.render();
-      });
+      };
+      
+      // Also handle Enter key press
+      keyNameInput.onkeydown = (e) => {
+        if (e.key === 'Enter' && this._newKeyName.trim() !== '') {
+          this._createApiKey();
+        }
+      };
     }
     
     // Copy key button
     const copyKeyButton = this.$('#copy-key-button');
     if (copyKeyButton) {
-      copyKeyButton.addEventListener('click', () => this._copyToClipboard());
+      copyKeyButton.onclick = () => this._copyToClipboard();
     }
     
     // Done button
     const doneButton = this.$('#done-button');
     if (doneButton) {
-      doneButton.addEventListener('click', () => {
+      doneButton.onclick = () => {
         this._newKeyValue = null;
         this._newKeyName = '';
         this.render();
-      });
+      };
     }
     
     // Toggle and delete buttons
     const apiKeysTable = this.$('.api-keys-table');
     if (apiKeysTable) {
-      apiKeysTable.addEventListener('click', (e) => {
+      apiKeysTable.onclick = (e) => {
         const button = e.target.closest('button');
         if (!button) return;
         
@@ -386,9 +457,11 @@ export class ApiKeyManager extends BaseComponent {
             this._toggleApiKey(keyId, !key.is_active);
           }
         } else if (action === 'delete') {
-          this._deleteApiKey(keyId);
+          if (confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+            this._deleteApiKey(keyId);
+          }
         }
-      });
+      };
     }
   }
 
@@ -410,7 +483,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch('/api/1/api-keys', {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -451,7 +528,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch('/api/1/api-keys', {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -491,7 +572,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -528,7 +613,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
@@ -594,4 +683,7 @@ export class ApiKeyManager extends BaseComponent {
 }
 
 // Define the custom element
-customElements.define('api-key-manager', ApiKeyManager);
+if (!customElements.get('api-key-manager')) {
+  customElements.define('api-key-manager', ApiKeyManager);
+  console.log('API key manager component registered');
+}
