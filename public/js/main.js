@@ -479,7 +479,7 @@ function initRegisterPage() {
       
       // Find the dialog in the DOM and get references to status elements
       // We need to wait for the dialog to be fully rendered
-      const userEmail = document.getElementById('register-email').value;
+      const userEmail = document.getElementById('email').value;
       let pollingInterval = null;
       
       setTimeout(() => {
