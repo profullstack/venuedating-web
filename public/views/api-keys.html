@@ -16,9 +16,7 @@
   <script type="module" src="/js/main.js"></script>
   <script type="module" src="/js/components/api-key-manager.js"></script>
 </head>
-<body>
-  <pf-header></pf-header>
-  
+<body>  
   <div class="container">
     <div class="dashboard-tabs">
       <button class="tab-button active" data-tab="manage">Manage Keys</button>
@@ -57,9 +55,6 @@
     <p>You need to be logged in with an active subscription to manage API keys.</p>
     <a href="/subscription.html" class="login-button">Subscribe Now</a>
   </div>
-  
-  <pf-footer></pf-footer>
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // Check if user is logged in
