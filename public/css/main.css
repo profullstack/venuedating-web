@@ -26,3 +26,6 @@
 
 /* Import settings CSS for settings page styling */
 @import url('settings.css');
+
+/* Import API keys CSS for API keys page styling */
+@import url('api-keys.css');
