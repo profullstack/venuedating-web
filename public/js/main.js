@@ -211,8 +211,7 @@ function initLoginPage() {
       console.log('Subscription status:', subscriptionStatus);
       
       if (subscriptionStatus.has_subscription) {
-        // User has an active subscription, store the email as an API key (for backward compatibility)
-        localStorage.setItem('api_key', email);
+        // User has an active subscription
         localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
@@ -357,7 +356,6 @@ function initRegisterPage() {
       console.log('Subscription created:', subscriptionData);
       
       // Store user data in localStorage
-      localStorage.setItem('api_key', email);
       localStorage.setItem('username', email);
       localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
       
@@ -429,8 +427,8 @@ function initRegisterPage() {
  */
 function checkAuthAndInitPage(pageType) {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
@@ -478,8 +476,8 @@ function checkAuthAndInitPage(pageType) {
  */
 function initApiKeysPage() {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
@@ -549,8 +547,8 @@ function initApiKeysPage() {
  */
 function initSettingsPage() {
   // Check if user is logged in
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) {
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
     // Redirect to login page
     window.router.navigate('/login');
     return;
@@ -608,7 +606,7 @@ function initSettingsPage() {
         // ...
         
         // Clear authentication data
-        localStorage.removeItem('api_key');
+        localStorage.removeItem('jwt_token');
         localStorage.removeItem('username');
         
         // Dispatch auth changed event
@@ -630,7 +628,7 @@ function initSubscriptionPage() {
     console.log('Subscription form component loaded');
     
     // Check if user is logged in
-    const apiKey = localStorage.getItem('api_key');
+    const jwtToken = localStorage.getItem('jwt_token');
     const email = localStorage.getItem('username');
     
     // If user is logged in, pre-fill the email field

@@ -83,9 +83,8 @@ function updateNavbar() {
 
 function logout() {
   // Clear authentication data
-  localStorage.removeItem('api_key');
   localStorage.removeItem('username');
-  localStorage.removeItem('jwt_token'); // Also clear JWT token
+  localStorage.removeItem('jwt_token');
   
   // Update UI
   updateNavbar();

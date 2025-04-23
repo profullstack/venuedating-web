@@ -128,19 +128,16 @@ export class ApiClient {
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('offset', offset.toString());
     
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
     const headers = {
       'Accept': 'application/json',
     };
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url.toString(), {
@@ -208,19 +205,16 @@ export class ApiClient {
    * @private
    */
   static async fetchBinaryResponse(url, body) {
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
     const headers = {
       'Content-Type': 'application/json',
     };
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
@@ -245,19 +239,16 @@ export class ApiClient {
    * @private
    */
   static async fetchJsonResponse(url, body) {
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
     const headers = {
       'Content-Type': 'application/json',
     };
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
@@ -305,15 +296,12 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
@@ -342,15 +330,12 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
@@ -381,15 +366,12 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
@@ -418,15 +400,12 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get authentication tokens from localStorage
+    // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
-    const apiKey = localStorage.getItem('api_key');
     
-    // Add Authorization header with JWT token if available, otherwise use API key
+    // Add Authorization header with JWT token if available
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
-    } else if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
     const response = await fetch(url, {
