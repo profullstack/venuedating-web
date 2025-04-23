@@ -20,8 +20,6 @@
   <pf-header></pf-header>
   
   <div class="container">
-    <h1>API Key Management</h1>
-    
     <div class="dashboard-tabs">
       <button class="tab-button active" data-tab="manage">Manage Keys</button>
       <button class="tab-button" data-tab="docs">API Documentation</button>
@@ -78,7 +76,9 @@
       // Set up tab switching
       const tabButtons = document.querySelectorAll('.tab-button');
       tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.onclick = () => {
+          console.log('Tab button clicked:', button.dataset.tab);
+          
           // Remove active class from all buttons
           tabButtons.forEach(btn => btn.classList.remove('active'));
           
@@ -92,8 +92,15 @@
           
           // Show selected tab content
           const tabId = button.dataset.tab;
-          document.getElementById(`${tabId}-tab`).style.display = 'block';
-        });
+          const tabContent = document.getElementById(`${tabId}-tab`);
+          
+          if (tabContent) {
+            tabContent.style.display = 'block';
+            console.log('Tab content displayed:', tabId);
+          } else {
+            console.error('Tab content not found:', tabId);
+          }
+        };
       });
       
       // Force refresh of the API key manager component

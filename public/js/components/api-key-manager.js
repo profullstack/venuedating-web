@@ -34,6 +34,13 @@ export class ApiKeyManager extends BaseComponent {
       h2 {
         margin-top: 0;
         margin-bottom: 20px;
+        color: var(--primary-color);
+      }
+      
+      h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: var(--text-primary);
       }
       
       .api-key-form {
@@ -46,6 +53,12 @@ export class ApiKeyManager extends BaseComponent {
       
       .form-group {
         margin-bottom: 15px;
+      }
+      
+      .form-help {
+        margin-top: 5px;
+        font-size: var(--font-size-sm);
+        color: var(--text-tertiary);
       }
       
       label {
@@ -280,6 +293,7 @@ export class ApiKeyManager extends BaseComponent {
         <div class="form-group">
           <label for="key-name">API Key Name</label>
           <input type="text" id="key-name" placeholder="e.g., Production, Development, Testing" value="${this._newKeyName}">
+          <p class="form-help">Give your API key a descriptive name to identify its purpose.</p>
         </div>
         <button id="create-key-button" class="btn btn-primary" ${this._newKeyName.trim() === '' ? 'disabled' : ''}>Create API Key</button>
       </div>
@@ -300,6 +314,7 @@ export class ApiKeyManager extends BaseComponent {
       return `
         <div class="empty-state">
           <p>You don't have any API keys yet. Create one to get started.</p>
+          <p>API keys are used to authenticate your requests to our API endpoints.</p>
           <button id="create-empty-key-button" class="btn btn-primary">Create Your First API Key</button>
         </div>
       `;
@@ -329,10 +344,10 @@ export class ApiKeyManager extends BaseComponent {
                 <td>${this._formatDate(key.created_at)}</td>
                 <td>${key.last_used_at ? this._formatDate(key.last_used_at) : 'Never'}</td>
                 <td class="actions">
-                  <button class="toggle-button ${key.is_active ? 'active' : ''}" data-action="toggle" data-key-id="${key.id}">
+                  <button class="toggle-button ${key.is_active ? 'active' : ''}" data-action="toggle" data-key-id="${key.id}" title="${key.is_active ? 'Deactivate this API key' : 'Activate this API key'}">
                     ${key.is_active ? 'Deactivate' : 'Activate'}
                   </button>
-                  <button class="delete-button" data-action="delete" data-key-id="${key.id}">Delete</button>
+                  <button class="delete-button" data-action="delete" data-key-id="${key.id}" title="Delete this API key permanently">Delete</button>
                 </td>
               </tr>
             `).join('')}
