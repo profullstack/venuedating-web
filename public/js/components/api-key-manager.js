@@ -483,7 +483,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch('/api/1/api-keys', {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -524,7 +528,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch('/api/1/api-keys', {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -564,7 +572,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -601,7 +613,11 @@ export class ApiKeyManager extends BaseComponent {
       this._error = null;
       this.render();
       
-      const response = await fetch(`/api/1/api-keys/${keyId}`, {
+      // Use the ApiClient class for consistency
+      const { ApiClient } = await import('../api-client.js');
+      const baseUrl = ApiClient.baseUrl || '/api/1';
+      
+      const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',

@@ -158,13 +158,6 @@ export class ApiClient {
    * @param {string} email - User email
    * @param {string} plan - Subscription plan (monthly, yearly)
    * @param {string} coin - Cryptocurrency code (btc, eth, sol, usdc)
-   * @returns {Promise<Object>} - Subscription details
-   */
-  /**
-   * Create a new subscription
-   * @param {string} email - User email
-   * @param {string} plan - Subscription plan (monthly, yearly)
-   * @param {string} coin - Cryptocurrency code (btc, eth, sol, usdc)
    * @returns {Promise<Object>} - Subscription details with payment info
    */
   static async createSubscription(email, plan, coin) {
@@ -286,5 +279,137 @@ export class ApiClient {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * API Key Management
+   */
+
+  /**
+   * Get API keys
+   * @returns {Promise<Object>} - API keys
+   */
+  static async getApiKeys() {
+    const url = `${this.baseUrl}/api-keys`;
+    
+    const headers = {
+      'Accept': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    const apiKey = localStorage.getItem('api_key');
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || response.statusText);
+    }
+    
+    return await response.json();
+  }
+  
+  /**
+   * Create a new API key
+   * @param {string} name - API key name
+   * @returns {Promise<Object>} - New API key
+   */
+  static async createApiKey(name) {
+    const url = `${this.baseUrl}/api-keys`;
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    const apiKey = localStorage.getItem('api_key');
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ name })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || response.statusText);
+    }
+    
+    return await response.json();
+  }
+  
+  /**
+   * Update an API key
+   * @param {string} keyId - API key ID
+   * @param {Object} updates - Updates to apply
+   * @returns {Promise<Object>} - Updated API key
+   */
+  static async updateApiKey(keyId, updates) {
+    const url = `${this.baseUrl}/api-keys/${keyId}`;
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    const apiKey = localStorage.getItem('api_key');
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(updates)
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || response.statusText);
+    }
+    
+    return await response.json();
+  }
+  
+  /**
+   * Delete an API key
+   * @param {string} keyId - API key ID
+   * @returns {Promise<Object>} - Success status
+   */
+  static async deleteApiKey(keyId) {
+    const url = `${this.baseUrl}/api-keys/${keyId}`;
+    
+    const headers = {
+      'Accept': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    const apiKey = localStorage.getItem('api_key');
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || response.statusText);
+    }
+    
+    return await response.json();
   }
 }
