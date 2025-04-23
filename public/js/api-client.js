@@ -128,11 +128,21 @@ export class ApiClient {
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('offset', offset.toString());
     
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem('api_key');
+    
+    const headers = {
+      'Accept': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -202,11 +212,21 @@ export class ApiClient {
    * @private
    */
   static async fetchBinaryResponse(url, body) {
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem('api_key');
+    
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     });
 
@@ -226,11 +246,21 @@ export class ApiClient {
    * @private
    */
   static async fetchJsonResponse(url, body) {
+    // Get API key from localStorage
+    const apiKey = localStorage.getItem('api_key');
+    
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    
+    // Add Authorization header if API key exists
+    if (apiKey) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(body),
     });
 

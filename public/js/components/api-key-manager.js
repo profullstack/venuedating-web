@@ -4,6 +4,7 @@ import { ApiClient } from '../api-client.js';
 
 /**
  * API Key Manager component
+ * Manages API keys for the user
  */
 export class ApiKeyManager extends BaseComponent {
   /**
@@ -666,4 +667,7 @@ export class ApiKeyManager extends BaseComponent {
 }
 
 // Define the custom element
-customElements.define('api-key-manager', ApiKeyManager);
+if (!customElements.get('api-key-manager')) {
+  customElements.define('api-key-manager', ApiKeyManager);
+  console.log('API key manager component registered');
+}
