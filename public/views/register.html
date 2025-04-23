@@ -137,22 +137,4 @@
   }
 </style>
 
-<script>
-  // Plan selection
-  const planOptions = document.querySelectorAll('.plan-option');
-  planOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      planOptions.forEach(opt => opt.classList.remove('selected'));
-      option.classList.add('selected');
-    });
-  });
-  
-  // Payment method selection
-  const paymentMethods = document.querySelectorAll('.payment-method');
-  paymentMethods.forEach(method => {
-    method.addEventListener('click', () => {
-      paymentMethods.forEach(m => m.classList.remove('selected'));
-      method.classList.add('selected');
-    });
-  });
-</script>
+<!-- Event handlers for plan and payment selection are managed by initRegisterPage in main.js -->

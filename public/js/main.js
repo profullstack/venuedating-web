@@ -332,8 +332,64 @@ function initRegisterPage() {
       const cryptoAmount = subscriptionData.subscription.crypto_amount ? subscriptionData.subscription.crypto_amount.toFixed(8) : 'calculating...';
       const coin = subscriptionData.subscription.payment_method.toUpperCase();
       
-      // Enhanced dialog with the payment information and copyable fields
-      PfDialog.alert(`
+      // Create elements to store references for updating later
+      const statusDisplay = {
+        container: null,
+        text: null,
+        spinner: null
+      };
+      
+      // Function to check payment status and update UI
+      const checkPaymentStatus = async (email, paymentAddress, coin) => {
+        try {
+          const response = await fetch('/api/subscription/status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to check payment status');
+          }
+          
+          const data = await response.json();
+          console.log('Payment status check result:', data);
+          
+          // Check if we have valid references to the elements
+          if (!statusDisplay.container || !statusDisplay.text || !statusDisplay.spinner) {
+            console.error('Status elements not found');
+            return false;
+          }
+          
+          if (data.has_subscription && data.subscription.status === 'active') {
+            // Payment received, show success message
+            statusDisplay.container.style.backgroundColor = '#d1fae5'; // Light green
+            statusDisplay.text.textContent = 'Payment received! Redirecting to your dashboard...';
+            statusDisplay.spinner.style.display = 'none';
+            
+            // Wait 3 seconds and redirect
+            setTimeout(() => {
+              // Use the dialog completion handler instead of trying to click a button
+              window.router.navigate('/api-keys');
+            }, 3000);
+            
+            // Clear the polling interval
+            return true;
+          }
+          
+          // Payment not received yet, keep polling
+          return false;
+        } catch (error) {
+          console.error('Error checking payment status:', error);
+          return false;
+        }
+      };
+      
+      // Enhanced dialog with the payment information, copyable fields and payment verification
+      // Using classes instead of IDs to make them easier to query
+      const paymentDialog = PfDialog.alert(`
         <div class="payment-success">
           <h3 style="color: #2563eb; margin-bottom: 15px;">Registration Successful!</h3>
           <p style="margin-bottom: 20px;">Please send <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) to the address below:</p>
@@ -357,8 +413,90 @@ function initRegisterPage() {
                 style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
             </div>
           </div>
+          
+          <div class="payment-status-container" style="margin-top: 20px; padding: 12px; border-radius: 6px; background-color: #f0f9ff; display: flex; align-items: center;">
+            <div class="payment-spinner" style="margin-right: 12px; width: 20px; height: 20px; border: 3px solid rgba(37, 99, 235, 0.3); border-radius: 50%; border-top-color: #2563eb; animation: spin 1s linear infinite;"></div>
+            <p class="payment-status-text" style="margin: 0; color: #1e40af;">Waiting for payment confirmation...</p>
+          </div>
+          
+          <style>
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          </style>
         </div>
-      `, 'Payment Details', () => window.router.navigate('/api-keys'), 'Continue');
+      `, 'Payment Details', null, 'Check Payment Status');
+      
+      // Find the dialog in the DOM and get references to status elements
+      // We need to wait for the dialog to be fully rendered
+      const userEmail = document.getElementById('register-email').value;
+      let pollingInterval = null;
+      
+      setTimeout(() => {
+        // Find dialog in the document
+        const dialog = document.querySelector('pf-dialog');
+        if (dialog && dialog.shadowRoot) {
+          // Query the dialog's shadow DOM for elements
+          const dialogBody = dialog.shadowRoot.querySelector('.dialog-body');
+          const continueButton = dialog.shadowRoot.querySelector('.confirm-button');
+          
+          if (dialogBody && continueButton) {
+            // Get references to status elements
+            statusDisplay.container = dialogBody.querySelector('.payment-status-container');
+            statusDisplay.spinner = dialogBody.querySelector('.payment-spinner');
+            statusDisplay.text = dialogBody.querySelector('.payment-status-text');
+            
+            // Initial state - hide the status container until Continue is clicked
+            if (statusDisplay.container) {
+              statusDisplay.container.style.display = 'none';
+            }
+            
+            // Replace the Continue button click handler to handle polling
+            continueButton.removeEventListener('click', continueButton.onclick);
+            continueButton.addEventListener('click', async function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              // Show the spinner in the button and disable it
+              const originalButtonText = continueButton.textContent;
+              continueButton.innerHTML = `<span style="display: inline-block; width: 15px; height: 15px; border: 2px solid white; border-radius: 50%; border-top-color: transparent; margin-right: 8px; animation: spin 1s linear infinite;"></span> Checking...`;
+              continueButton.disabled = true;
+              
+              // Show the status container
+              if (statusDisplay.container) {
+                statusDisplay.container.style.display = 'flex';
+              }
+              
+              // First check if payment is already received
+              const paymentReceived = await checkPaymentStatus(userEmail, paymentAddress, coin);
+              if (paymentReceived) {
+                // Already paid, will redirect shortly
+                return;
+              }
+              
+              // Start polling for payment status every 5 seconds
+              pollingInterval = setInterval(async () => {
+                const paymentReceived = await checkPaymentStatus(userEmail, paymentAddress, coin);
+                if (paymentReceived) {
+                  clearInterval(pollingInterval);
+                }
+              }, 5000); // Check every 5 seconds
+            });
+            
+            console.log('Payment verification components initialized');
+          }
+        }
+      }, 300); // Short delay to ensure dialog is rendered
+      
+      // Add an event listener to clean up the interval when the dialog is closed
+      // The continue button already has the click handler from the PfDialog.alert call
+      document.addEventListener('dialog-closed', function dialogClosedHandler() {
+        if (pollingInterval) {
+          clearInterval(pollingInterval);
+        }
+        document.removeEventListener('dialog-closed', dialogClosedHandler);
+      }, { once: true });
     } catch (error) {
       console.error('Registration error:', error);
       submitButton.textContent = originalButtonText;
