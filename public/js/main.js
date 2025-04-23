@@ -184,12 +184,34 @@ function initLoginPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
-      // Check subscription status
+      // Import Supabase client for JWT authentication
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
+      // Sign in with Supabase to get JWT token
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (authError) {
+        console.error('Supabase auth error:', authError);
+        // Continue with subscription check even if Supabase auth fails
+        // This allows backward compatibility with existing users
+      } else if (authData && authData.session) {
+        // Store JWT token in localStorage
+        localStorage.setItem('jwt_token', authData.session.access_token);
+        console.log('JWT token stored successfully');
+      }
+      
+      // Check subscription status (existing flow)
       const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
       console.log('Subscription status:', subscriptionStatus);
       
       if (subscriptionStatus.has_subscription) {
-        // User has an active subscription, store the email as an API key
+        // User has an active subscription, store the email as an API key (for backward compatibility)
         localStorage.setItem('api_key', email);
         localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
@@ -302,6 +324,34 @@ function initRegisterPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
+      // Import Supabase client for JWT authentication
+      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
+      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      
+      // Register user with Supabase to get JWT token
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            plan: selectedPlan,
+            payment_method: selectedPayment
+          }
+        }
+      });
+      
+      if (authError) {
+        console.error('Supabase auth error:', authError);
+        // Continue with subscription creation even if Supabase auth fails
+        // This allows backward compatibility with existing users
+      } else if (authData && authData.session) {
+        // Store JWT token in localStorage
+        localStorage.setItem('jwt_token', authData.session.access_token);
+        console.log('JWT token stored successfully');
+      }
+      
       // Create subscription using the API
       const subscriptionData = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
       console.log('Subscription created:', subscriptionData);
@@ -342,9 +392,9 @@ function initRegisterPage() {
           <div style="margin-bottom: 15px;">
             <label style="display: block; font-weight: 600; margin-bottom: 5px;">Amount:</label>
             <div style="display: flex; align-items: center;">
-              <input type="text" value="${cryptoAmount} ${coin}" readonly 
+              <input type="text" value="${cryptoAmount} ${coin}" readonly
                 style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
-              <button onclick="navigator.clipboard.writeText('${cryptoAmount} ${coin}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+              <button onclick="navigator.clipboard.writeText('${cryptoAmount} ${coin}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)"
                 style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
             </div>
           </div>
@@ -352,9 +402,9 @@ function initRegisterPage() {
           <div style="margin-bottom: 15px;">
             <label style="display: block; font-weight: 600; margin-bottom: 5px;">Address:</label>
             <div style="display: flex; align-items: center;">
-              <input type="text" value="${paymentAddress}" readonly 
+              <input type="text" value="${paymentAddress}" readonly
                 style="flex: 1; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; background-color: #f9fafb;">
-              <button onclick="navigator.clipboard.writeText('${paymentAddress}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)" 
+              <button onclick="navigator.clipboard.writeText('${paymentAddress}').then(() => this.textContent = 'Copied!'); setTimeout(() => this.textContent = 'Copy', 2000)"
                 style="margin-left: 8px; padding: 8px 12px; background-color: #f3f4f6; border: 1px solid #d1d5db; border-radius: 4px; cursor: pointer;">Copy</button>
             </div>
           </div>

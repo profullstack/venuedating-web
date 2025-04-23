@@ -85,6 +85,7 @@ function logout() {
   // Clear authentication data
   localStorage.removeItem('api_key');
   localStorage.removeItem('username');
+  localStorage.removeItem('jwt_token'); // Also clear JWT token
   
   // Update UI
   updateNavbar();

@@ -1,61 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
-import fs from 'fs';
+import dotenvFlow from 'dotenv-flow';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-/**
- * Read environment variables directly from .env file
- */
-function readEnvFile() {
-  try {
-    const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const envPath = path.resolve(__dirname, '../../.env');
-    
-    if (fs.existsSync(envPath)) {
-      const envContent = fs.readFileSync(envPath, 'utf8');
-      const envVars = {};
-      
-      envContent.split('\n').forEach(line => {
-        // Skip comments and empty lines
-        if (line.startsWith('#') || !line.trim()) return;
-        
-        // Parse key=value pairs
-        const match = line.match(/^([^=]+)=(.*)$/);
-        if (match) {
-          const key = match[1].trim();
-          const value = match[2].trim();
-          envVars[key] = value;
-        }
-      });
-      
-      return envVars;
-    }
-  } catch (error) {
-    console.error('Error reading .env file:', error);
-  }
-  
-  return {};
-}
-
-const envVars = readEnvFile();
+// Load environment variables from .env files
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.resolve(__dirname, '../../');
+dotenvFlow.config({ path: rootDir });
 
 /**
  * Supabase configuration
  */
-const supabaseUrl = envVars.SUPABASE_URL || process.env.SUPABASE_URL || 'https://arokhsfbkdnfuklmqajh.supabase.co';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://arokhsfbkdnfuklmqajh.supabase.co';
 // Use service role key for server-side operations to bypass RLS
-const supabaseKey = envVars.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || envVars.SUPABASE_KEY || process.env.SUPABASE_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY;
 
 // Log environment variables for debugging
 console.log('Supabase configuration:');
 console.log('SUPABASE_URL:', supabaseUrl);
 console.log('SUPABASE_KEY exists:', !!supabaseKey);
-console.log('SUPABASE_KEY from .env file:', !!envVars.SUPABASE_KEY);
 console.log('SUPABASE_KEY from process.env:', !!process.env.SUPABASE_KEY);
-console.log('SUPABASE_SERVICE_ROLE_KEY from .env file:', !!envVars.SUPABASE_SERVICE_ROLE_KEY);
 console.log('SUPABASE_SERVICE_ROLE_KEY from process.env:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 console.log('SUPABASE_KEY length:', supabaseKey ? supabaseKey.length : 0);
-console.log('Using service role key:', !!(envVars.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY));
+console.log('Using service role key:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
 // Log all environment variables for debugging (without showing sensitive values)
@@ -102,6 +69,27 @@ export const supabase = supabaseClient;
  * Utility functions for Supabase operations
  */
 export const supabaseUtils = {
+  /**
+   * Verify a JWT token
+   * @param {string} token - JWT token to verify
+   * @returns {Promise<Object|null>} - User data if valid, null otherwise
+   */
+  async verifyJwtToken(token) {
+    try {
+      const { data, error } = await supabase.auth.getUser(token);
+      
+      if (error) {
+        console.error('JWT verification error:', error);
+        return null;
+      }
+      
+      return data.user;
+    } catch (error) {
+      console.error('Error verifying JWT token:', error);
+      return null;
+    }
+  },
+
   /**
    * Store a document in Supabase storage
    * @param {Buffer} buffer - Document buffer
