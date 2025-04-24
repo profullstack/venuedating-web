@@ -33,19 +33,3 @@ CREATE TRIGGER on_auth_user_created
 
 -- Add a comment explaining the auth integration
 COMMENT ON TABLE public.users IS 'Custom users table that integrates with auth.users. The id column should match the id in auth.users.';
-
--- Create a view to help monitor the sync between auth.users and public.users
-CREATE OR REPLACE VIEW user_auth_status AS
-SELECT 
-    p.id AS public_user_id,
-    p.email AS email,
-    a.id AS auth_user_id,
-    CASE WHEN a.id IS NOT NULL THEN true ELSE false END AS has_auth_account,
-    p.created_at AS public_created_at,
-    a.created_at AS auth_created_at
-FROM 
-    public.users p
-LEFT JOIN 
-    auth.users a ON p.email = a.email;
-
-COMMENT ON VIEW user_auth_status IS 'View to monitor sync between public.users and auth.users';
