@@ -564,13 +564,18 @@ function initRegisterPage() {
  * @param {string} pageType - Type of page to initialize
  */
 function checkAuthAndInitPage(pageType) {
-  // Check if user is logged in
+  console.log(`Checking auth for page type: ${pageType}`);
+  
+  // Check if user is logged in using JWT token (not API key)
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
+  
+  console.log('JWT token found, user is authenticated');
   
   // For protected pages that require an active subscription
   if (pageType === 'dashboard') {
@@ -581,6 +586,7 @@ function checkAuthAndInitPage(pageType) {
     if (userJson) {
       try {
         user = JSON.parse(userJson);
+        console.log('User data found:', user.email);
       } catch (e) {
         console.error('Error parsing user JSON:', e);
       }
@@ -592,11 +598,14 @@ function checkAuthAndInitPage(pageType) {
                                  user.subscription.status === 'active';
     
     if (!hasActiveSubscription) {
+      console.log('No active subscription found, redirecting to subscription page');
       // Redirect to subscription page
       alert('You need an active subscription to access the dashboard.');
       window.router.navigate('/subscription');
       return;
     }
+    
+    console.log('Active subscription verified');
   }
   
   // Initialize specific page if needed
@@ -613,16 +622,17 @@ function checkAuthAndInitPage(pageType) {
  * Initialize API keys page
  */
 function initApiKeysPage() {
-  // Check if user is logged in
+  // Check if user is logged in using JWT token
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
   
   // Initialize API keys page
-  console.log('Initializing API keys page');
+  console.log('JWT token found, initializing API keys page');
   
   // Make sure the API key manager component is loaded
   import('./components/api-key-manager.js').then(() => {
@@ -684,13 +694,16 @@ function initApiKeysPage() {
  * Initialize settings page
  */
 function initSettingsPage() {
-  // Check if user is logged in
+  // Check if user is logged in using JWT token
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
+  
+  console.log('JWT token found, initializing settings page');
   
   // Initialize profile form
   const profileForm = document.getElementById('profile-form');
@@ -765,12 +778,15 @@ function initSubscriptionPage() {
   import('./components/subscription-form.js').then(() => {
     console.log('Subscription form component loaded');
     
-    // Check if user is logged in
+    // Check if user is logged in using JWT token
     const jwtToken = localStorage.getItem('jwt_token');
     const email = localStorage.getItem('username');
     
+    console.log('Initializing subscription page, JWT token exists:', !!jwtToken);
+    
     // If user is logged in, pre-fill the email field
-    if (email) {
+    if (jwtToken && email) {
+      console.log('User is logged in, pre-filling email:', email);
       const subscriptionForm = document.querySelector('subscription-form');
       if (subscriptionForm) {
         subscriptionForm._email = email;
