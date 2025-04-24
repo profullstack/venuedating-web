@@ -318,3 +318,4 @@ CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user
 
 For more information on Supabase migrations, see the [Supabase CLI documentation](https://supabase.com/docs/reference/cli/supabase-db-push).
 
+
