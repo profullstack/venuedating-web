@@ -391,20 +391,12 @@ function initRegisterPage() {
       // Function to check payment status and update UI
       const checkPaymentStatus = async (email, paymentAddress, coin) => {
         try {
-          const response = await fetch('/api/subscription/status', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email })
-          });
+          // Use the ApiClient class for consistency with the correct API path
+          const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+          console.log('Payment status check result:', subscriptionStatus);
           
-          if (!response.ok) {
-            throw new Error('Failed to check payment status');
-          }
-          
-          const data = await response.json();
-          console.log('Payment status check result:', data);
+          // Use the result from the API client
+          const data = subscriptionStatus;
           
           // Check if we have valid references to the elements
           if (!statusDisplay.container || !statusDisplay.text || !statusDisplay.spinner) {
