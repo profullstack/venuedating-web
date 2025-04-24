@@ -198,15 +198,18 @@ function initLoginPage() {
       
       if (authError) {
         console.error('Supabase auth error:', authError);
-        // Continue with subscription check even if Supabase auth fails
-        // This allows backward compatibility with existing users
-      } else if (authData && authData.session) {
-        // Store JWT token in localStorage
-        localStorage.setItem('jwt_token', authData.session.access_token);
-        console.log('JWT token stored successfully');
+        throw new Error('Authentication failed: ' + authError.message);
       }
       
-      // Check subscription status (existing flow)
+      if (!authData || !authData.session) {
+        throw new Error('Authentication failed: No session data returned');
+      }
+      
+      // Store JWT token in localStorage
+      localStorage.setItem('jwt_token', authData.session.access_token);
+      console.log('JWT token stored successfully');
+      
+      // Check subscription status using the JWT token
       const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
       console.log('Subscription status:', subscriptionStatus);
       
@@ -343,9 +346,14 @@ function initRegisterPage() {
       
       if (authError) {
         console.error('Supabase auth error:', authError);
-        // Continue with subscription creation even if Supabase auth fails
-        // This allows backward compatibility with existing users
-      } else if (authData && authData.session) {
+        throw new Error('Registration failed: ' + authError.message);
+      }
+      
+      if (!authData || !authData.session) {
+        console.warn('No session data returned during registration. This might be expected if email confirmation is required.');
+        // We'll continue with subscription creation even without a JWT token
+        // since this might be an email confirmation flow
+      } else {
         // Store JWT token in localStorage
         localStorage.setItem('jwt_token', authData.session.access_token);
         console.log('JWT token stored successfully');

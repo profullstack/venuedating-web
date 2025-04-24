@@ -162,11 +162,21 @@ export class ApiClient {
    */
   static async createSubscription(email, plan, coin) {
     try {
+      // Get JWT token from localStorage
+      const jwtToken = localStorage.getItem('jwt_token');
+      
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Add Authorization header with JWT token if available
+      if (jwtToken) {
+        headers['Authorization'] = `Bearer ${jwtToken}`;
+      }
+      
       const response = await fetch(`${this.baseUrl}/subscription`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({
           email,
           plan,
@@ -192,9 +202,21 @@ export class ApiClient {
    * @returns {Promise<Object>} - Subscription status
    */
   static async checkSubscriptionStatus(email) {
-    return this.fetchJsonResponse(`${this.baseUrl}/subscription-status`, {
-      email
+    // This is a public endpoint that doesn't require authentication
+    const response = await fetch(`${this.baseUrl}/subscription-status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email })
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || response.statusText);
+    }
+
+    return await response.json();
   }
 
   /**

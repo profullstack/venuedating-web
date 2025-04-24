@@ -76,6 +76,17 @@ export const supabaseUtils = {
    */
   async verifyJwtToken(token) {
     try {
+      console.log('Verifying JWT token...');
+      
+      if (!token) {
+        console.error('JWT verification error: No token provided');
+        return null;
+      }
+      
+      // Log token length and first/last few characters for debugging
+      console.log(`Token length: ${token.length}`);
+      console.log(`Token preview: ${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
+      
       const { data, error } = await supabase.auth.getUser(token);
       
       if (error) {
@@ -83,9 +94,16 @@ export const supabaseUtils = {
         return null;
       }
       
+      if (!data || !data.user) {
+        console.error('JWT verification error: No user data returned');
+        return null;
+      }
+      
+      console.log('JWT token verified successfully for user:', data.user.email);
       return data.user;
     } catch (error) {
       console.error('Error verifying JWT token:', error);
+      console.error('Error stack:', error.stack);
       return null;
     }
   },
