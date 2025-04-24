@@ -188,7 +188,14 @@ function initLoginPage() {
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      
+      console.log('Creating Supabase client with URL:', supabaseUrl);
+      console.log('Anon key exists:', !!supabaseAnonKey);
+      
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      console.log('Supabase client created successfully');
+      
+      console.log('Attempting to sign in with Supabase:', email);
       
       // Sign in with Supabase to get JWT token
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -207,15 +214,34 @@ function initLoginPage() {
       
       // Store JWT token in localStorage
       localStorage.setItem('jwt_token', authData.session.access_token);
-      console.log('JWT token stored successfully');
+      console.log('JWT token stored successfully, length:', authData.session.access_token.length);
+      console.log('JWT token preview:', authData.session.access_token.substring(0, 10) + '...');
       
-      // Check subscription status using the JWT token
-      const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
-      console.log('Subscription status:', subscriptionStatus);
+      try {
+        // Check subscription status using the JWT token
+        console.log('Checking subscription status for:', email);
+        const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+        console.log('Subscription status:', subscriptionStatus);
+      } catch (subscriptionError) {
+        console.error('Error checking subscription status:', subscriptionError);
+        // Continue even if subscription check fails
+        // We'll handle this case below
+      }
       
-      if (subscriptionStatus.has_subscription) {
+      // Get subscription status from the try/catch block above
+      let subscriptionStatus = null;
+      try {
+        subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+      } catch (error) {
+        console.warn('Could not verify subscription status, proceeding with login anyway');
+      }
+      
+      // Store username regardless of subscription status
+      localStorage.setItem('username', email);
+      
+      if (subscriptionStatus && subscriptionStatus.has_subscription) {
+        console.log('User has an active subscription');
         // User has an active subscription
-        localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
         // Create and store a publicly accessible user object
@@ -230,33 +256,45 @@ function initLoginPage() {
           createdAt: new Date().toISOString()
         };
         localStorage.setItem('user', JSON.stringify(userObject));
-        
-        // Dispatch auth changed event
-        window.dispatchEvent(new CustomEvent('auth-changed'));
-        
-        // Redirect to the API keys page
-        window.router.navigate('/api-keys');
       } else {
-        // User doesn't have an active subscription
-        submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
-        
-        // Show error message with option to register
-        const register = confirm(
-          'No active subscription found for this email. Would you like to register and subscribe?'
-        );
-        
-        if (register) {
-          window.router.navigate('/register');
-        }
+        console.log('No subscription data available or user has no active subscription');
+        // Create a basic user object without subscription data
+        const userObject = {
+          email: email,
+          username: email,
+          subscription: {
+            status: 'unknown'
+          },
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('user', JSON.stringify(userObject));
       }
+      
+      // Dispatch auth changed event
+      window.dispatchEvent(new CustomEvent('auth-changed'));
+      
+      // Redirect to the API keys page
+      console.log('Login successful, redirecting to API keys page');
+      window.router.navigate('/api-keys');
     } catch (error) {
       console.error('Login error:', error);
+      console.error('Error stack:', error.stack);
       submitButton.textContent = originalButtonText;
       submitButton.disabled = false;
       
-      // Show error message
-      alert('Login failed: ' + (error.message || 'Unable to check subscription status'));
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Login failed: ';
+      
+      if (error.message && error.message.includes('API key')) {
+        errorMessage += 'Invalid credentials. Please check your email and password.';
+      } else if (error.message && error.message.includes('session')) {
+        errorMessage += 'Authentication server error. Please try again later.';
+      } else {
+        errorMessage += (error.message || 'Unable to complete login process');
+      }
+      
+      console.error('Showing error message to user:', errorMessage);
+      alert(errorMessage);
     }
   });
 }
@@ -330,7 +368,12 @@ function initRegisterPage() {
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      
+      console.log('Creating Supabase client for registration with URL:', supabaseUrl);
+      console.log('Anon key exists:', !!supabaseAnonKey);
+      
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      console.log('Supabase client created successfully for registration');
       
       // Register user with Supabase to get JWT token
       const { data: authData, error: authError } = await supabase.auth.signUp({
