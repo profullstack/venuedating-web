@@ -1,5 +1,12 @@
 import { paymentService } from '../services/payment-service.js';
 import { errorUtils } from '../utils/error-utils.js';
+import { supabase } from '../utils/supabase.js';
+import { 
+  getBitcoinAddressBalance,
+  getEthereumAddressBalance,
+  getSolanaAddressBalance,
+  getUsdcAddressBalance
+} from '../utils/tatum.js';
 
 /**
  * Route handler for creating a subscription
@@ -125,16 +132,25 @@ export async function paymentCallbackHandler(c) {
  * @param {Object} c - Hono context
  * @returns {Response} - JSON response with subscription status
  */
+/**
+ * Route handler for checking subscription status and verifying cryptocurrency payments
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with subscription status
+ */
 export async function subscriptionStatusHandler(c) {
   try {
-    const { email } = await c.req.json();
+    // Get request body or parameters
+    const body = await c.req.json();
+    const { id, email } = body;
     
-    if (!email) {
-      return c.json({ error: 'Email is required' }, 400);
+    if (!id && !email) {
+      return c.json({ error: 'Subscription ID or email is required' }, 400);
     }
     
-    // Get subscription details
-    const subscription = await paymentService.getSubscription(email);
+    // Get subscription details from the database
+    const subscription = id 
+      ? await paymentService.getSubscriptionById(id)
+      : await paymentService.getSubscription(email);
     
     if (!subscription) {
       return c.json({
@@ -143,12 +159,90 @@ export async function subscriptionStatusHandler(c) {
       });
     }
     
-    // Check if subscription is active
-    const isActive = subscription.status === 'active' && 
+    console.log('Retrieved subscription:', JSON.stringify(subscription));
+    
+    // Check cryptocurrency balance using Tatum API to verify payment
+    let paymentVerified = false;
+    let balance = null;
+    let requiredAmount = subscription.crypto_amount || 0;
+    
+    try {
+      const paymentAddress = subscription.payment_address;
+      const cryptoCurrency = subscription.crypto_currency;
+      
+      console.log(`Verifying payment for ${cryptoCurrency} at address ${paymentAddress}`);
+      console.log(`Required amount: ${requiredAmount} ${cryptoCurrency}`);
+      
+      // Check balance for the appropriate cryptocurrency using Tatum API
+      switch (cryptoCurrency) {
+        case 'btc':
+          balance = await getBitcoinAddressBalance(paymentAddress);
+          break;
+        case 'eth':
+          balance = await getEthereumAddressBalance(paymentAddress);
+          break;
+        case 'sol':
+          balance = await getSolanaAddressBalance(paymentAddress);
+          break;
+        case 'usdc':
+          balance = await getUsdcAddressBalance(paymentAddress);
+          break;
+        default:
+          throw new Error(`Unsupported cryptocurrency: ${cryptoCurrency}`);
+      }
+      
+      console.log(`Retrieved balance from Tatum:`, balance);
+      
+      // Parse the balance based on cryptocurrency type
+      let actualBalance = 0;
+      if (cryptoCurrency === 'btc') {
+        actualBalance = parseFloat(balance.incoming) - parseFloat(balance.outgoing);
+      } else if (cryptoCurrency === 'eth' || cryptoCurrency === 'usdc') {
+        actualBalance = parseFloat(balance.balance);
+      } else if (cryptoCurrency === 'sol') {
+        actualBalance = parseFloat(balance.balance);
+      }
+      
+      console.log(`Actual balance: ${actualBalance} ${cryptoCurrency}`);
+      
+      // Verify if payment meets or exceeds the required amount
+      if (actualBalance >= requiredAmount) {
+        paymentVerified = true;
+        console.log(`Payment verified: ${actualBalance} ${cryptoCurrency} >= ${requiredAmount} ${cryptoCurrency}`);
+        
+        // Update subscription status to active if payment is verified
+        if (subscription.status !== 'active') {
+          await supabase
+            .from('subscriptions')
+            .update({
+              status: 'active',
+              updated_at: new Date().toISOString(),
+              last_payment_date: new Date().toISOString()
+            })
+            .eq('id', subscription.id);
+          
+          console.log(`Subscription ${subscription.id} status updated to active`);
+          
+          // Update the subscription object to reflect the changes
+          subscription.status = 'active';
+          subscription.updated_at = new Date().toISOString();
+          subscription.last_payment_date = new Date().toISOString();
+        }
+      } else {
+        console.log(`Payment verification failed: ${actualBalance} ${cryptoCurrency} < ${requiredAmount} ${cryptoCurrency}`);
+      }
+    } catch (verificationError) {
+      console.error('Error verifying payment:', verificationError);
+    }
+    
+    // Check if subscription is active based on status and expiration date
+    const isActive = (subscription.status === 'active' || paymentVerified) && 
       new Date(subscription.expiration_date) > new Date();
     
     return c.json({
       has_subscription: isActive,
+      payment_verified: paymentVerified,
+      balance: balance,
       subscription: {
         id: subscription.id,
         email: subscription.email,
@@ -159,10 +253,16 @@ export async function subscriptionStatusHandler(c) {
         start_date: subscription.start_date,
         expiration_date: subscription.expiration_date,
         payment_method: subscription.payment_method,
+        payment_address: subscription.payment_address,
+        crypto_amount: subscription.crypto_amount,
+        crypto_currency: subscription.crypto_currency,
+        exchange_rate_usd: subscription.exchange_rate_usd,
+        last_payment_date: subscription.last_payment_date,
         is_active: isActive
       }
     });
   } catch (error) {
+    console.error('Error in subscription status handler:', error);
     return errorUtils.handleError(error, c);
   }
 }

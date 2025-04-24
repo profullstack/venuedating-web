@@ -665,19 +665,64 @@ export const paymentService = {
    * @returns {Promise<Object|null>} - Subscription details or null if not found
    */
   async getSubscription(email) {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .select('*, payments(*)')
-      .eq('email', email)
-      .order('created_at', { ascending: false })
-      .limit(1);
+    console.log(`Payment service: Getting subscription for ${email}`);
     
-    if (error) {
-      console.error('Error fetching subscription:', error);
-      throw error;
+    try {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*, payments(*)')
+        .eq('email', email)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log(`Payment service: No subscription found for ${email}`);
+          return null;
+        }
+        console.error('Payment service: Error getting subscription:', error);
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Payment service: Error getting subscription:', error);
+      console.error('Payment service: Error stack:', error.stack);
+      return null;
     }
+  },
+  
+  /**
+   * Get subscription details by ID
+   * @param {string} id - Subscription ID
+   * @returns {Promise<Object|null>} - Subscription details or null if not found
+   */
+  async getSubscriptionById(id) {
+    console.log(`Payment service: Getting subscription by ID ${id}`);
     
-    return data && data.length > 0 ? data[0] : null;
+    try {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*, payments(*)')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log(`Payment service: No subscription found with ID ${id}`);
+          return null;
+        }
+        console.error('Payment service: Error getting subscription by ID:', error);
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Payment service: Error getting subscription by ID:', error);
+      console.error('Payment service: Error stack:', error.stack);
+      return null;
+    }
   },
   
   /**

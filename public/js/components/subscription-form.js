@@ -419,14 +419,17 @@ export class SubscriptionForm extends BaseComponent {
       this._error = null;
       this.render();
       
+      // Use subscription id if available, otherwise use email
+      const requestBody = this._subscription ? 
+        { id: this._subscription.id } : 
+        { email: this._email };
+      
       const response = await fetch('/api/1/subscription-status', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          email: this._email
-        })
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
@@ -436,7 +439,7 @@ export class SubscriptionForm extends BaseComponent {
       
       const data = await response.json();
       
-      if (data.has_subscription) {
+      if (data.has_subscription || data.payment_verified) {
         // Subscription is active, show success message
         this._subscription = data.subscription;
         this._paymentInfo = null;
@@ -445,6 +448,36 @@ export class SubscriptionForm extends BaseComponent {
         // Show success message
         this.render();
         this.showSuccessMessage();
+        
+        // Generate fresh JWT token and redirect after 5 seconds
+        if (data.payment_verified) {
+          console.log('Payment verified, will redirect to API keys page in 5 seconds');
+          this._showRedirectCountdown();
+          
+          try {
+            // Request a fresh JWT token
+            const tokenResponse = await fetch('/api/1/auth/refresh-token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: this._subscription.email
+              })
+            });
+            
+            if (tokenResponse.ok) {
+              console.log('JWT token refreshed successfully');
+            }
+          } catch (tokenError) {
+            console.error('Error refreshing JWT token:', tokenError);
+          }
+          
+          // Redirect after 5 seconds
+          setTimeout(() => {
+            window.location.href = '/views/api-keys.html';
+          }, 5000);
+        }
       } else {
         // Subscription is not active yet
         this._loading = false;
@@ -475,6 +508,7 @@ export class SubscriptionForm extends BaseComponent {
             <p><strong>Plan:</strong> ${this._subscription.plan === 'monthly' ? 'Monthly' : 'Yearly'}</p>
             <p><strong>Expiration Date:</strong> ${new Date(this._subscription.expiration_date).toLocaleDateString()}</p>
             <p>You can view your API usage and manage your subscription in your account dashboard.</p>
+            <p id="redirect-message" style="margin-top: 15px; font-weight: bold;"></p>
           </div>
         </div>
       `);
@@ -500,6 +534,25 @@ export class SubscriptionForm extends BaseComponent {
     this.render();
   }
   
+  /**
+   * Display redirect countdown message
+   * @private
+   */
+  _showRedirectCountdown() {
+    let seconds = 5;
+    const updateCountdown = () => {
+      const redirectMessage = this.$('#redirect-message');
+      if (redirectMessage) {
+        redirectMessage.textContent = `Redirecting to API keys page in ${seconds} seconds...`;
+        if (seconds > 0) {
+          seconds--;
+          setTimeout(updateCountdown, 1000);
+        }
+      }
+    };
+    updateCountdown();
+  }
+
   /**
    * Generate QR code for payment
    * @private
