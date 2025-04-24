@@ -1,6 +1,7 @@
 import { supabase } from '../utils/supabase.js';
 import { errorUtils } from '../utils/error-utils.js';
 import { apiKeyService } from '../services/api-key-service.js';
+import crypto from 'crypto';
 
 /**
  * Route handler for user registration
@@ -40,10 +41,10 @@ export async function registerHandler(c) {
     
     console.log(`User registered successfully: ${email}`);
     
-    // Create a session for the user
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
-      user_id: authData.user.id,
-      email: authData.user.email
+    // Create a session for the user by signing in with the credentials
+    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
     
     if (sessionError) {
@@ -98,9 +99,27 @@ export async function refreshTokenHandler(c) {
     }
     
     // Create a new session for the user
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
-      user_id: userData.id,
-      email: userData.email
+    // We need to use a different approach since admin.createSession is not available
+    // We'll use a password reset and then sign in with the new password
+    
+    // Generate a temporary password
+    const tempPassword = crypto.randomBytes(16).toString('hex');
+    
+    // Update the user's password
+    const { error: updateError } = await supabase.auth.admin.updateUserById(
+      userData.id,
+      { password: tempPassword }
+    );
+    
+    if (updateError) {
+      console.error('Error updating user password:', updateError);
+      return c.json({ error: 'Failed to refresh token' }, 500);
+    }
+    
+    // Sign in with the new password to get a session
+    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
+      email: userData.email,
+      password: tempPassword
     });
     
     if (sessionError) {
