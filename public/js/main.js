@@ -47,6 +47,10 @@ function initRouter() {
       view: () => loadPage('/views/register.html'),
       afterRender: () => initRegisterPage()
     },
+    '/reset-password': {
+      view: () => loadPage('/views/reset-password.html'),
+      afterRender: () => initResetPasswordPage()
+    },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
       afterRender: () => checkAuthAndInitPage('dashboard')
@@ -164,9 +168,34 @@ async function loadPage(url) {
 /**
  * Initialize login page
  */
-function initLoginPage() {
+async function initLoginPage() {
   const form = document.getElementById('login-form');
   if (!form) return;
+  
+  // Initialize auth status check button
+  const checkAuthStatusButton = document.getElementById('check-auth-status');
+  const authStatusResult = document.getElementById('auth-status-result');
+  
+  if (checkAuthStatusButton && authStatusResult) {
+    checkAuthStatusButton.addEventListener('click', async () => {
+      try {
+        // Import auth status utility
+        const { logAuthStatus } = await import('./utils/auth-status.js');
+        
+        // Show loading state
+        authStatusResult.textContent = 'Checking auth status...';
+        
+        // Check auth status
+        const status = await logAuthStatus();
+        
+        // Display result
+        authStatusResult.textContent = JSON.stringify(status, null, 2);
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        authStatusResult.textContent = `Error: ${error.message}`;
+      }
+    });
+  }
   
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -273,9 +302,17 @@ function initLoginPage() {
       // Dispatch auth changed event
       window.dispatchEvent(new CustomEvent('auth-changed'));
       
-      // Redirect to the API keys page
-      console.log('Login successful, redirecting to API keys page');
-      window.router.navigate('/api-keys');
+      // Check if the user is using the default password
+      if (password === 'ChangeMe123!') {
+        // Redirect to the reset password page
+        console.log('User is using default password, redirecting to reset password page');
+        alert('For security reasons, please change your default password before continuing.');
+        window.router.navigate('/reset-password');
+      } else {
+        // Redirect to the API keys page
+        console.log('Login successful, redirecting to API keys page');
+        window.router.navigate('/api-keys');
+      }
     } catch (error) {
       console.error('Login error:', error);
       console.error('Error stack:', error.stack);
@@ -871,9 +908,28 @@ function initSubscriptionPage() {
   });
 }
 
+/**
+ * Initialize reset password page
+ */
+function initResetPasswordPage() {
+  // Check if user is logged in using JWT token
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
+    // Redirect to login page
+    window.router.navigate('/login');
+    return;
+  }
+  
+  console.log('JWT token found, initializing reset password page');
+  
+  // The reset password form is handled by the inline script in the HTML file
+}
+
 // Expose functions globally
 window.app = {
   initApp,
   initRouter,
-  checkAuthAndInitPage
+  checkAuthAndInitPage,
+  initResetPasswordPage
 };
