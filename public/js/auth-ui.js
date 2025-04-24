@@ -5,9 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function updateNavbar() {
-  const apiKey = localStorage.getItem('api_key');
-  const username = localStorage.getItem('username') || apiKey;
-  const isLoggedIn = !!apiKey;
+  const jwtToken = localStorage.getItem('jwt_token');
+  const username = localStorage.getItem('username');
+  const isLoggedIn = !!jwtToken;
   
   const navLinks = document.querySelector('.nav-links');
   if (!navLinks) return;
@@ -85,13 +85,16 @@ function logout() {
   // Clear authentication data
   localStorage.removeItem('username');
   localStorage.removeItem('jwt_token');
+  localStorage.removeItem('api_key'); // Remove any legacy API key
+  localStorage.removeItem('user'); // Remove user object
+  localStorage.removeItem('subscription_data'); // Remove subscription data
   
   // Update UI
   updateNavbar();
   
   // Redirect to home page if on a protected page
   const currentPath = window.location.pathname;
-  const protectedPages = ['/api-keys.html', '/settings.html'];
+  const protectedPages = ['/api-keys.html', '/settings.html', '/dashboard.html'];
   
   if (protectedPages.includes(currentPath)) {
     window.location.href = '/';

@@ -13,6 +13,8 @@ import {
   paymentLogsRoute
 } from './subscription.js';
 import { apiKeyRoutes } from './api-keys.js';
+import { refreshTokenRoute } from './auth.js';
+import { authStatusRoute } from './auth-status.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 
 // Routes that require authentication
@@ -40,7 +42,9 @@ const publicRoutes = [
   subscriptionRoute,
   paymentCallbackRoute,
   subscriptionStatusRoute,
-  paymentLogsRoute
+  paymentLogsRoute,
+  refreshTokenRoute,
+  authStatusRoute
 ];
 
 /**

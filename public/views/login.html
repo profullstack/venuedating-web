@@ -15,4 +15,59 @@
   </form>
   
   <p class="register-link">Don't have an account? <a href="/register">Register</a> to get started.</p>
+  <p class="reset-link">Forgot your password? <a href="/reset-password">Reset Password</a></p>
+  
+  <div class="login-note">
+    <p><strong>Note:</strong> If this is your first time logging in after the system update, use the default password: <code>ChangeMe123!</code></p>
+    <p>You'll be prompted to change your password after login.</p>
+  </div>
+  
+  <div class="debug-section">
+    <button id="check-auth-status" class="debug-button">Check Auth Status</button>
+    <pre id="auth-status-result" class="debug-result"></pre>
+  </div>
 </div>
+
+<style>
+  .debug-section {
+    margin-top: 30px;
+    padding: 15px;
+    border-top: 1px dashed #ccc;
+  }
+  
+  .debug-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.9em;
+  }
+  
+  .debug-result {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #eee;
+    font-family: monospace;
+    font-size: 0.8em;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+</style>
+
+<style>
+  .login-note {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #2563eb;
+    font-size: 0.9em;
+  }
+  
+  .reset-link {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 0.9em;
+  }
+</style>

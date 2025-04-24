@@ -47,6 +47,10 @@ function initRouter() {
       view: () => loadPage('/views/register.html'),
       afterRender: () => initRegisterPage()
     },
+    '/reset-password': {
+      view: () => loadPage('/views/reset-password.html'),
+      afterRender: () => initResetPasswordPage()
+    },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
       afterRender: () => checkAuthAndInitPage('dashboard')
@@ -164,9 +168,34 @@ async function loadPage(url) {
 /**
  * Initialize login page
  */
-function initLoginPage() {
+async function initLoginPage() {
   const form = document.getElementById('login-form');
   if (!form) return;
+  
+  // Initialize auth status check button
+  const checkAuthStatusButton = document.getElementById('check-auth-status');
+  const authStatusResult = document.getElementById('auth-status-result');
+  
+  if (checkAuthStatusButton && authStatusResult) {
+    checkAuthStatusButton.addEventListener('click', async () => {
+      try {
+        // Import auth status utility
+        const { logAuthStatus } = await import('./utils/auth-status.js');
+        
+        // Show loading state
+        authStatusResult.textContent = 'Checking auth status...';
+        
+        // Check auth status
+        const status = await logAuthStatus();
+        
+        // Display result
+        authStatusResult.textContent = JSON.stringify(status, null, 2);
+      } catch (error) {
+        console.error('Error checking auth status:', error);
+        authStatusResult.textContent = `Error: ${error.message}`;
+      }
+    });
+  }
   
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -188,7 +217,14 @@ function initLoginPage() {
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      
+      console.log('Creating Supabase client with URL:', supabaseUrl);
+      console.log('Anon key exists:', !!supabaseAnonKey);
+      
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      console.log('Supabase client created successfully');
+      
+      console.log('Attempting to sign in with Supabase:', email);
       
       // Sign in with Supabase to get JWT token
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -198,21 +234,43 @@ function initLoginPage() {
       
       if (authError) {
         console.error('Supabase auth error:', authError);
-        // Continue with subscription check even if Supabase auth fails
-        // This allows backward compatibility with existing users
-      } else if (authData && authData.session) {
-        // Store JWT token in localStorage
-        localStorage.setItem('jwt_token', authData.session.access_token);
-        console.log('JWT token stored successfully');
+        throw new Error('Authentication failed: ' + authError.message);
       }
       
-      // Check subscription status (existing flow)
-      const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
-      console.log('Subscription status:', subscriptionStatus);
+      if (!authData || !authData.session) {
+        throw new Error('Authentication failed: No session data returned');
+      }
       
-      if (subscriptionStatus.has_subscription) {
+      // Store JWT token in localStorage
+      localStorage.setItem('jwt_token', authData.session.access_token);
+      console.log('JWT token stored successfully, length:', authData.session.access_token.length);
+      console.log('JWT token preview:', authData.session.access_token.substring(0, 10) + '...');
+      
+      try {
+        // Check subscription status using the JWT token
+        console.log('Checking subscription status for:', email);
+        const subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+        console.log('Subscription status:', subscriptionStatus);
+      } catch (subscriptionError) {
+        console.error('Error checking subscription status:', subscriptionError);
+        // Continue even if subscription check fails
+        // We'll handle this case below
+      }
+      
+      // Get subscription status from the try/catch block above
+      let subscriptionStatus = null;
+      try {
+        subscriptionStatus = await ApiClient.checkSubscriptionStatus(email);
+      } catch (error) {
+        console.warn('Could not verify subscription status, proceeding with login anyway');
+      }
+      
+      // Store username regardless of subscription status
+      localStorage.setItem('username', email);
+      
+      if (subscriptionStatus && subscriptionStatus.has_subscription) {
+        console.log('User has an active subscription');
         // User has an active subscription
-        localStorage.setItem('username', email);
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
         // Create and store a publicly accessible user object
@@ -227,33 +285,53 @@ function initLoginPage() {
           createdAt: new Date().toISOString()
         };
         localStorage.setItem('user', JSON.stringify(userObject));
-        
-        // Dispatch auth changed event
-        window.dispatchEvent(new CustomEvent('auth-changed'));
-        
-        // Redirect to the API keys page
-        window.router.navigate('/api-keys');
       } else {
-        // User doesn't have an active subscription
-        submitButton.textContent = originalButtonText;
-        submitButton.disabled = false;
-        
-        // Show error message with option to register
-        const register = confirm(
-          'No active subscription found for this email. Would you like to register and subscribe?'
-        );
-        
-        if (register) {
-          window.router.navigate('/register');
-        }
+        console.log('No subscription data available or user has no active subscription');
+        // Create a basic user object without subscription data
+        const userObject = {
+          email: email,
+          username: email,
+          subscription: {
+            status: 'unknown'
+          },
+          createdAt: new Date().toISOString()
+        };
+        localStorage.setItem('user', JSON.stringify(userObject));
+      }
+      
+      // Dispatch auth changed event
+      window.dispatchEvent(new CustomEvent('auth-changed'));
+      
+      // Check if the user is using the default password
+      if (password === 'ChangeMe123!') {
+        // Redirect to the reset password page
+        console.log('User is using default password, redirecting to reset password page');
+        alert('For security reasons, please change your default password before continuing.');
+        window.router.navigate('/reset-password');
+      } else {
+        // Redirect to the API keys page
+        console.log('Login successful, redirecting to API keys page');
+        window.router.navigate('/api-keys');
       }
     } catch (error) {
       console.error('Login error:', error);
+      console.error('Error stack:', error.stack);
       submitButton.textContent = originalButtonText;
       submitButton.disabled = false;
       
-      // Show error message
-      alert('Login failed: ' + (error.message || 'Unable to check subscription status'));
+      // Provide more specific error messages based on the error type
+      let errorMessage = 'Login failed: ';
+      
+      if (error.message && error.message.includes('API key')) {
+        errorMessage += 'Invalid credentials. Please check your email and password.';
+      } else if (error.message && error.message.includes('session')) {
+        errorMessage += 'Authentication server error. Please try again later.';
+      } else {
+        errorMessage += (error.message || 'Unable to complete login process');
+      }
+      
+      console.error('Showing error message to user:', errorMessage);
+      alert(errorMessage);
     }
   });
 }
@@ -327,7 +405,12 @@ function initRegisterPage() {
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
       const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      
+      console.log('Creating Supabase client for registration with URL:', supabaseUrl);
+      console.log('Anon key exists:', !!supabaseAnonKey);
+      
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      console.log('Supabase client created successfully for registration');
       
       // Register user with Supabase to get JWT token
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -343,9 +426,14 @@ function initRegisterPage() {
       
       if (authError) {
         console.error('Supabase auth error:', authError);
-        // Continue with subscription creation even if Supabase auth fails
-        // This allows backward compatibility with existing users
-      } else if (authData && authData.session) {
+        throw new Error('Registration failed: ' + authError.message);
+      }
+      
+      if (!authData || !authData.session) {
+        console.warn('No session data returned during registration. This might be expected if email confirmation is required.');
+        // We'll continue with subscription creation even without a JWT token
+        // since this might be an email confirmation flow
+      } else {
         // Store JWT token in localStorage
         localStorage.setItem('jwt_token', authData.session.access_token);
         console.log('JWT token stored successfully');
@@ -556,13 +644,18 @@ function initRegisterPage() {
  * @param {string} pageType - Type of page to initialize
  */
 function checkAuthAndInitPage(pageType) {
-  // Check if user is logged in
+  console.log(`Checking auth for page type: ${pageType}`);
+  
+  // Check if user is logged in using JWT token (not API key)
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
+  
+  console.log('JWT token found, user is authenticated');
   
   // For protected pages that require an active subscription
   if (pageType === 'dashboard') {
@@ -573,6 +666,7 @@ function checkAuthAndInitPage(pageType) {
     if (userJson) {
       try {
         user = JSON.parse(userJson);
+        console.log('User data found:', user.email);
       } catch (e) {
         console.error('Error parsing user JSON:', e);
       }
@@ -584,11 +678,14 @@ function checkAuthAndInitPage(pageType) {
                                  user.subscription.status === 'active';
     
     if (!hasActiveSubscription) {
+      console.log('No active subscription found, redirecting to subscription page');
       // Redirect to subscription page
       alert('You need an active subscription to access the dashboard.');
       window.router.navigate('/subscription');
       return;
     }
+    
+    console.log('Active subscription verified');
   }
   
   // Initialize specific page if needed
@@ -605,16 +702,17 @@ function checkAuthAndInitPage(pageType) {
  * Initialize API keys page
  */
 function initApiKeysPage() {
-  // Check if user is logged in
+  // Check if user is logged in using JWT token
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
   
   // Initialize API keys page
-  console.log('Initializing API keys page');
+  console.log('JWT token found, initializing API keys page');
   
   // Make sure the API key manager component is loaded
   import('./components/api-key-manager.js').then(() => {
@@ -676,13 +774,16 @@ function initApiKeysPage() {
  * Initialize settings page
  */
 function initSettingsPage() {
-  // Check if user is logged in
+  // Check if user is logged in using JWT token
   const jwtToken = localStorage.getItem('jwt_token');
   if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
     // Redirect to login page
     window.router.navigate('/login');
     return;
   }
+  
+  console.log('JWT token found, initializing settings page');
   
   // Initialize profile form
   const profileForm = document.getElementById('profile-form');
@@ -757,12 +858,15 @@ function initSubscriptionPage() {
   import('./components/subscription-form.js').then(() => {
     console.log('Subscription form component loaded');
     
-    // Check if user is logged in
+    // Check if user is logged in using JWT token
     const jwtToken = localStorage.getItem('jwt_token');
     const email = localStorage.getItem('username');
     
+    console.log('Initializing subscription page, JWT token exists:', !!jwtToken);
+    
     // If user is logged in, pre-fill the email field
-    if (email) {
+    if (jwtToken && email) {
+      console.log('User is logged in, pre-filling email:', email);
       const subscriptionForm = document.querySelector('subscription-form');
       if (subscriptionForm) {
         subscriptionForm._email = email;
@@ -804,9 +908,28 @@ function initSubscriptionPage() {
   });
 }
 
+/**
+ * Initialize reset password page
+ */
+function initResetPasswordPage() {
+  // Check if user is logged in using JWT token
+  const jwtToken = localStorage.getItem('jwt_token');
+  if (!jwtToken) {
+    console.log('No JWT token found, redirecting to login page');
+    // Redirect to login page
+    window.router.navigate('/login');
+    return;
+  }
+  
+  console.log('JWT token found, initializing reset password page');
+  
+  // The reset password form is handled by the inline script in the HTML file
+}
+
 // Expose functions globally
 window.app = {
   initApp,
   initRouter,
-  checkAuthAndInitPage
+  checkAuthAndInitPage,
+  initResetPasswordPage
 };
