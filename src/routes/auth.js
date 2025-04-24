@@ -1,5 +1,73 @@
 import { supabase } from '../utils/supabase.js';
 import { errorUtils } from '../utils/error-utils.js';
+import { apiKeyService } from '../services/api-key-service.js';
+
+/**
+ * Route handler for user registration
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with session data
+ */
+export async function registerHandler(c) {
+  try {
+    // Get registration data from request body
+    const { email, password, plan, payment_method } = await c.req.json();
+    
+    if (!email || !password) {
+      return c.json({ error: 'Email and password are required' }, 400);
+    }
+    
+    console.log(`Registering user: ${email}`);
+    
+    // Register user with Supabase
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true, // Auto-confirm email for now
+      user_metadata: {
+        plan,
+        payment_method
+      }
+    });
+    
+    if (authError) {
+      console.error('Supabase auth error:', authError);
+      return c.json({ error: 'Registration failed: ' + authError.message }, 400);
+    }
+    
+    if (!authData || !authData.user) {
+      return c.json({ error: 'Registration failed: No user data returned' }, 500);
+    }
+    
+    console.log(`User registered successfully: ${email}`);
+    
+    // Create a session for the user
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
+      user_id: authData.user.id,
+      email: authData.user.email
+    });
+    
+    if (sessionError) {
+      console.error('Error creating session:', sessionError);
+      return c.json({ error: 'Failed to create session' }, 500);
+    }
+    
+    // Create user in our database if not exists
+    await apiKeyService._createUserIfNotExists(email);
+    
+    return c.json({
+      success: true,
+      message: 'User registered successfully',
+      user: {
+        id: authData.user.id,
+        email: authData.user.email
+      },
+      session: sessionData.session
+    });
+  } catch (error) {
+    console.error('Error in register handler:', error);
+    return errorUtils.handleError(error, c);
+  }
+}
 
 /**
  * Route handler for refreshing JWT token
@@ -62,4 +130,10 @@ export const refreshTokenRoute = {
   method: 'POST',
   path: '/api/1/auth/refresh-token',
   handler: refreshTokenHandler
+};
+
+export const registerRoute = {
+  method: 'POST',
+  path: '/api/1/auth/register',
+  handler: registerHandler
 };

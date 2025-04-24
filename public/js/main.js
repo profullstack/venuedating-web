@@ -401,42 +401,41 @@ function initRegisterPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
-      // Import Supabase client for JWT authentication
-      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
-      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      // Register user through the server API instead of directly with Supabase
+      console.log('Registering user through server API');
       
-      console.log('Creating Supabase client for registration with URL:', supabaseUrl);
-      console.log('Anon key exists:', !!supabaseAnonKey);
-      
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      console.log('Supabase client created successfully for registration');
-      
-      // Register user with Supabase to get JWT token
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Create a registration request with all necessary data
+      const registrationData = {
         email,
         password,
-        options: {
-          data: {
-            plan: selectedPlan,
-            payment_method: selectedPayment
-          }
-        }
+        plan: selectedPlan,
+        payment_method: selectedPayment
+      };
+      
+      // Send registration request to the server
+      const response = await fetch('/api/1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registrationData)
       });
       
-      if (authError) {
-        console.error('Supabase auth error:', authError);
-        throw new Error('Registration failed: ' + authError.message);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Registration error:', errorData);
+        throw new Error('Registration failed: ' + (errorData.error || response.statusText));
       }
       
-      if (!authData || !authData.session) {
-        console.warn('No session data returned during registration. This might be expected if email confirmation is required.');
-        // We'll continue with subscription creation even without a JWT token
-        // since this might be an email confirmation flow
-      } else {
+      const authData = await response.json();
+      
+      if (authData && authData.session && authData.session.access_token) {
         // Store JWT token in localStorage
         localStorage.setItem('jwt_token', authData.session.access_token);
         console.log('JWT token stored successfully');
+      } else {
+        console.warn('No session data returned during registration. This might be expected if email confirmation is required.');
+        // We'll continue with subscription creation even without a JWT token
       }
       
       // Create subscription using the API
