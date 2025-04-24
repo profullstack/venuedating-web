@@ -65,21 +65,65 @@ app.use('*', async (c, next) => {
 // Global error handler middleware
 app.use('*', errorHandler);
 
-// Serve static files from the public directory
-app.use('*', serveStatic({
-  root: './public',
-  rewriteRequestPath: (path) => {
-    console.log(`Static file request for: ${path}`);
-    return path;
+// Register all API routes
+registerRoutes(app);
+
+// Health check endpoint
+app.get('/', async (c) => {
+  // If the request accepts HTML, serve the index.html file directly
+  if (c.req.header('accept')?.includes('text/html')) {
+    try {
+      const indexPath = path.resolve(__dirname, '../public/index.html');
+      const content = fs.readFileSync(indexPath, 'utf-8');
+      return c.html(content);
+    } catch (error) {
+      console.error(`Error serving index.html: ${error.message}`);
+      return c.text('Internal Server Error', 500);
+    }
   }
-}));
+  
+  // Otherwise, return a JSON response
+  return c.json({
+    status: 'ok',
+    message: 'Document generation service is running',
+    version: process.env.npm_package_version || '1.0.0'
+  });
+});
+
+// Serve static files from the public directory, but skip API routes
+app.use('*', async (c, next) => {
+  const reqPath = c.req.path;
+  
+  // Skip API routes
+  if (reqPath.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Use the static file middleware for non-API routes
+  return serveStatic({
+    root: './public',
+    rewriteRequestPath: (path) => {
+      console.log(`Static file request for: ${path}`);
+      return path;
+    }
+  })(c, next);
+});
 
 // SPA fallback for routes that don't match any static files
 app.get('*', async (c) => {
   const reqPath = c.req.path;
   
-  // Skip API routes and files with extensions
-  if (reqPath.startsWith('/api/') || reqPath.includes('.')) {
+  // Add detailed logging for API routes
+  if (reqPath.startsWith('/api/')) {
+    console.log(`API route not found: ${reqPath}`);
+    return c.json({
+      error: 'API endpoint not found',
+      path: reqPath
+    }, 404);
+  }
+  
+  // Skip files with extensions
+  if (reqPath.includes('.')) {
     return c.notFound();
   }
   
@@ -95,24 +139,6 @@ app.get('*', async (c) => {
     return c.text('Internal Server Error', 500);
   }
 });
-
-// Health check endpoint
-app.get('/', (c) => {
-  // If the request accepts HTML, let the static middleware handle it
-  if (c.req.header('accept')?.includes('text/html')) {
-    return c.next();
-  }
-  
-  // Otherwise, return a JSON response
-  return c.json({
-    status: 'ok',
-    message: 'Document generation service is running',
-    version: process.env.npm_package_version || '1.0.0'
-  });
-});
-
-// Register all API routes
-registerRoutes(app);
 
 // Start the server
 const port = process.env.PORT || 3000;
