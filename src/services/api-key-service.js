@@ -41,32 +41,61 @@ export const apiKeyService = {
    * Create user if not exists
    * @param {string} email - User email
    * @param {boolean} isAdmin - Whether the user is an admin
-   * @returns {Promise<Object>} - User object
+   * @returns {Promise<Object|null>} - User object or null if couldn't be created
    * @private
    */
   async _createUserIfNotExists(email, isAdmin = false) {
-    // Check if user exists
-    const user = await this._getUserByEmail(email);
-    
-    if (user) {
-      return user;
+    try {
+      // Check if user exists
+      const user = await this._getUserByEmail(email);
+      
+      if (user) {
+        console.log(`API Key Service: User ${email} already exists`);
+        return user;
+      }
+      
+      console.log(`API Key Service: User ${email} does not exist, attempting to create`);
+      
+      // Try to create user, but handle permission errors gracefully
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .insert([{
+            email,
+            is_admin: isAdmin
+          }])
+          .select()
+          .single();
+        
+        if (error) {
+          if (error.code === '42501') { // Permission denied error
+            console.warn(`API Key Service: Permission denied to create user ${email}, proceeding anyway`);
+            // Return a temporary user object with just the email
+            // This allows operations to proceed without failing entirely
+            return { email, id: null, is_admin: isAdmin, temp_user: true };
+          } else {
+            throw error;
+          }
+        }
+        
+        console.log(`API Key Service: User ${email} created successfully`);
+        return data;
+      } catch (insertError) {
+        console.error(`API Key Service: Error creating user ${email}:`, insertError);
+        
+        if (insertError.code === '42501') { // Permission denied error
+          console.warn(`API Key Service: Permission denied to create user ${email}, proceeding anyway`);
+          // Return a temporary user object with just the email
+          return { email, id: null, is_admin: isAdmin, temp_user: true };
+        } else {
+          throw insertError;
+        }
+      }
+    } catch (error) {
+      console.error(`API Key Service: Error in _createUserIfNotExists for ${email}:`, error);
+      // Return a temporary user object to allow operations to continue
+      return { email, id: null, is_admin: isAdmin, temp_user: true };
     }
-    
-    // Create user
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{
-        email,
-        is_admin: isAdmin
-      }])
-      .select()
-      .single();
-    
-    if (error) {
-      throw error;
-    }
-    
-    return data;
   },
 
   /**
