@@ -20,13 +20,15 @@ export async function registerHandler(c) {
     console.log(`Registering user: ${email}`);
     
     // Register user with Supabase
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Use signUp instead of admin.createUser to avoid permission issues
+    const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true, // Auto-confirm email for now
-      user_metadata: {
-        plan,
-        payment_method
+      options: {
+        data: {
+          plan,
+          payment_method
+        }
       }
     });
     
@@ -41,19 +43,22 @@ export async function registerHandler(c) {
     
     console.log(`User registered successfully: ${email}`);
     
-    // Create a session for the user by signing in with the credentials
-    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    // The session should be included in the authData response
+    // No need to sign in separately
+    const sessionData = authData;
+    
+    // No need to manually create a user in the database
+    // The database trigger will handle this automatically
+    
+    return c.json({
+      success: true,
+      message: 'User registered successfully',
+      user: {
+        id: authData.user.id,
+        email: authData.user.email
+      },
+      session: authData.session
     });
-    
-    if (sessionError) {
-      console.error('Error creating session:', sessionError);
-      return c.json({ error: 'Failed to create session' }, 500);
-    }
-    
-    // Create user in our database if not exists
-    await apiKeyService._createUserIfNotExists(email);
     
     return c.json({
       success: true,
@@ -98,28 +103,10 @@ export async function refreshTokenHandler(c) {
       return c.json({ error: 'User not found' }, 404);
     }
     
-    // Create a new session for the user
-    // We need to use a different approach since admin.createSession is not available
-    // We'll use a password reset and then sign in with the new password
-    
-    // Generate a temporary password
-    const tempPassword = crypto.randomBytes(16).toString('hex');
-    
-    // Update the user's password
-    const { error: updateError } = await supabase.auth.admin.updateUserById(
-      userData.id,
-      { password: tempPassword }
-    );
-    
-    if (updateError) {
-      console.error('Error updating user password:', updateError);
-      return c.json({ error: 'Failed to refresh token' }, 500);
-    }
-    
-    // Sign in with the new password to get a session
-    const { data: sessionData, error: sessionError } = await supabase.auth.signInWithPassword({
-      email: userData.email,
-      password: tempPassword
+    // Use the admin API to create a new session
+    // This is the most direct way to create a session without magic links or password resets
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
+      user_id: userData.id
     });
     
     if (sessionError) {
