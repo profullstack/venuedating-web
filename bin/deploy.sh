@@ -16,10 +16,10 @@ REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
 LOCAL_DIR="."
 INSTALL_SERVICE="${INSTALL_SERVICE:-false}"
 
-# Create SSH options with connection reuse
-SSH_OPTS="-p $REMOTE_PORT -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s"
+# Create SSH options
+SSH_OPTS="-p $REMOTE_PORT"
 SCP_OPTS="-P $REMOTE_PORT"
-RSYNC_OPTS="-e \"ssh -p $REMOTE_PORT -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s\""
+RSYNC_OPTS="-e \"ssh -p $REMOTE_PORT\""
 
 # Set colors for output
 GREEN='\033[0;32m'
@@ -42,10 +42,10 @@ if ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "[ -d $REMOTE_DIR ]"; then
     # Deploy using rsync with .deployignore
     if [ -f .deployignore ]; then
         echo -e "${YELLOW}Using .deployignore file for exclusions...${NC}"
-        rsync -avz --partial --compress-level=9 --delete -e "ssh -p $REMOTE_PORT -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s" --exclude-from=.deployignore $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
+        rsync -avz --partial --compress-level=9 --delete -e "ssh -p $REMOTE_PORT" --exclude-from=.deployignore $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
     else
         echo -e "${YELLOW}No .deployignore file found. Excluding node_modules/ by default...${NC}"
-        rsync -avz --partial --compress-level=9 --delete -e "ssh -p $REMOTE_PORT -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s" --exclude="node_modules/" $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
+        rsync -avz --partial --compress-level=9 --delete -e "ssh -p $REMOTE_PORT" --exclude="node_modules/" $LOCAL_DIR $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
     fi
     
     # Check if rsync was successful

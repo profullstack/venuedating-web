@@ -37,9 +37,6 @@ jobs:
             HostName 104.36.23.197
             User ubuntu
             Port 2048
-            ControlMaster auto
-            ControlPath ~/.ssh/control-%C
-            ControlPersist 30s
           EOF
           chmod 600 ~/.ssh/config
           
@@ -98,7 +95,7 @@ jobs:
           ./bin/deploy-with-migrations.sh
           
           # Run test script to verify deployment
-          ssh -p 2048 -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s ubuntu@104.36.23.197 "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
+          ssh -p 2048 ubuntu@104.36.23.197 "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
         env:
           DEPLOY_REMOTE_HOST: 104.36.23.197
           DEPLOY_REMOTE_PORT: 2048
