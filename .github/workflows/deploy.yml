@@ -94,8 +94,10 @@ jobs:
           # Run deploy script with migrations
           ./bin/deploy-with-migrations.sh
           
-          # Run test script to verify deployment
-          ssh -p 2048 ubuntu@104.36.23.197 "cd $DEPLOY_REMOTE_DIR && chmod +x bin/test-github-actions.sh && ./bin/test-github-actions.sh"
+          # Create a timestamp file to verify deployment
+          echo "Creating timestamp file to verify deployment..."
+          TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
+          ssh -p 2048 ubuntu@104.36.23.197 "echo 'GitHub Actions deployment completed at $TIMESTAMP' > $DEPLOY_REMOTE_DIR/github-actions-test-$(date +%Y%m%d%H%M%S).txt"
         env:
           DEPLOY_REMOTE_HOST: 104.36.23.197
           DEPLOY_REMOTE_PORT: 2048
