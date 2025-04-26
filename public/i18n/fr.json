@@ -38,7 +38,18 @@
     "delete_account_confirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
     "delete_account": "Supprimer le compte",
     "delete": "Supprimer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "no_account": "Vous n'avez pas de compte ?",
+    "to_get_started": "pour commencer.",
+    "forgot_password": "Mot de passe oublié ?",
+    "reset_password": "Réinitialiser le mot de passe",
+    "first_time_login": "Si c'est votre première connexion après la mise à jour du système, utilisez le mot de passe par défaut :",
+    "password_change_prompt": "Vous serez invité à changer votre mot de passe après la connexion.",
+    "check_auth_status": "Vérifier le statut d'authentification",
+    "create_account": "Créer un compte",
+    "already_have_account": "Vous avez déjà un compte ?",
+    "instead": "à la place.",
+    "register_subscribe": "S'inscrire et s'abonner"
   },
   "subscription": {
     "active_subscription_required": "Vous avez besoin d'un abonnement actif pour accéder au tableau de bord.",
@@ -50,7 +61,19 @@
     "copy": "Copier",
     "copied": "Copié !",
     "waiting_payment": "En attente de confirmation du paiement...",
-    "payment_received": "Paiement reçu ! Redirection vers votre tableau de bord..."
+    "payment_received": "Paiement reçu ! Redirection vers votre tableau de bord...",
+    "plan": "Plan d'abonnement",
+    "monthly": "Mensuel",
+    "monthly_price": "5$/mois",
+    "monthly_description": "Facturation mensuelle, annulation à tout moment",
+    "yearly": "Annuel",
+    "yearly_price": "30$/an",
+    "yearly_description": "Économisez 30$ avec la facturation annuelle",
+    "payment_method": "Méthode de paiement",
+    "bitcoin": "Bitcoin",
+    "ethereum": "Ethereum",
+    "solana": "Solana",
+    "usdc": "USDC"
   },
   "common": {
     "save": "Enregistrer",
@@ -66,6 +89,7 @@
     "back": "Retour",
     "next": "Suivant",
     "continue": "Continuer",
-    "check_status": "Vérifier l'état du paiement"
+    "check_status": "Vérifier l'état du paiement",
+    "note": "Remarque"
   }
 }

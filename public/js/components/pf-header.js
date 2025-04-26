@@ -19,6 +19,28 @@ class PfHeader extends HTMLElement {
   }
 
   render() {
+    // Get the current language before rendering
+    const currentLang = window.app && window.app.localizer ?
+      window.app.localizer.getLanguage() : 'en';
+    
+    // Pre-translate navigation items
+    const dashboardText = window.app && window.app._t ?
+      window.app._t('navigation.dashboard') : 'Dashboard';
+    const apiDocsText = window.app && window.app._t ?
+      window.app._t('navigation.api_docs') : 'API Docs';
+    const apiKeysText = window.app && window.app._t ?
+      window.app._t('navigation.api_keys') : 'API Keys';
+    const stateDemoText = window.app && window.app._t ?
+      window.app._t('navigation.state_demo') : 'State Demo';
+    const i18nDemoText = window.app && window.app._t ?
+      window.app._t('navigation.i18n_demo') : 'i18n Demo';
+    const loginText = window.app && window.app._t ?
+      window.app._t('navigation.login') : 'Login';
+    const registerText = window.app && window.app._t ?
+      window.app._t('navigation.register') : 'Register';
+    const themeText = window.app && window.app._t ?
+      window.app._t('navigation.theme') : 'Theme';
+    
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -286,13 +308,13 @@ class PfHeader extends HTMLElement {
         </div>
         
         <div class="nav-links">
-          <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">Dashboard</a>
-          <a href="/api-docs" class="nav-link" id="api-docs-link" data-i18n="navigation.api_docs">API Docs</a>
-          <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">API Keys</a>
-          <a href="/simple-state-demo" class="nav-link" id="state-demo-link" data-i18n="navigation.state_demo">State Demo</a>
-          <a href="/i18n-demo" class="nav-link" id="i18n-demo-link" data-i18n="navigation.i18n_demo">i18n Demo</a>
-          <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">Login</a>
-          <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">Register</a>
+          <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
+          <a href="/api-docs" class="nav-link" id="api-docs-link" data-i18n="navigation.api_docs">${apiDocsText}</a>
+          <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
+          <a href="/simple-state-demo" class="nav-link" id="state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
+          <a href="/i18n-demo" class="nav-link" id="i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
+          <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">${loginText}</a>
+          <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">${registerText}</a>
           
           <!-- Language Switcher -->
           <language-switcher></language-switcher>
@@ -312,19 +334,19 @@ class PfHeader extends HTMLElement {
       
       <!-- Mobile menu container -->
       <div class="mobile-menu">
-        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">Dashboard</a>
-        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link" data-i18n="navigation.api_docs">API Docs</a>
-        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">API Keys</a>
-        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link" data-i18n="navigation.state_demo">State Demo</a>
-        <a href="/i18n-demo" class="nav-link" id="mobile-i18n-demo-link" data-i18n="navigation.i18n_demo">i18n Demo</a>
-        <a href="/login" class="nav-link login-link" id="mobile-login-link" data-i18n="navigation.login">Login</a>
-        <a href="/register" class="subscription-link register-link" id="mobile-register-link" data-i18n="navigation.register">Register</a>
+        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
+        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link" data-i18n="navigation.api_docs">${apiDocsText}</a>
+        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
+        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
+        <a href="/i18n-demo" class="nav-link" id="mobile-i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
+        <a href="/login" class="nav-link login-link" id="mobile-login-link" data-i18n="navigation.login">${loginText}</a>
+        <a href="/register" class="subscription-link register-link" id="mobile-register-link" data-i18n="navigation.register">${registerText}</a>
         
         <!-- Mobile Language Switcher -->
         <language-switcher></language-switcher>
         
         <div class="mobile-theme-toggle-container">
-          <span data-i18n="navigation.theme">Theme</span>
+          <span data-i18n="navigation.theme">${themeText}</span>
           <button class="theme-toggle mobile-theme-toggle" title="Toggle light/dark theme">
             ${this.currentTheme === 'dark'
               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -358,12 +380,26 @@ class PfHeader extends HTMLElement {
     
     // Listen for language changes
     window.addEventListener('language-changed', () => {
+      console.log('pf-header: Language changed event received');
       // Translate elements in the shadow DOM
       this.translateElements();
     });
     
     // Listen for i18n ready event
     window.addEventListener('i18n-ready', () => {
+      console.log('pf-header: i18n ready event received');
+      this.translateElements();
+    });
+    
+    // Listen for pre-navigation event to translate before transition starts
+    document.addEventListener('pre-navigation', () => {
+      console.log('pf-header: Pre-navigation event received');
+      this.translateElements();
+    });
+    
+    // Listen for router transitions
+    document.addEventListener('spa-transition-end', () => {
+      console.log('pf-header: SPA transition end event received');
       this.translateElements();
     });
     
@@ -716,12 +752,29 @@ class PfHeader extends HTMLElement {
    * Translate elements with data-i18n attributes in the shadow DOM
    */
   translateElements() {
-    // Import the translation function
+    console.log('pf-header: Translating elements in shadow DOM');
+    
+    // Check if window.app._t is available (faster than importing)
+    if (window.app && window.app._t) {
+      console.log('pf-header: Using window.app._t for translation');
+      this.shadowRoot.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        const translated = window.app._t(key);
+        element.textContent = translated;
+        console.log(`pf-header: Translated "${key}" to "${translated}"`);
+      });
+      return;
+    }
+    
+    // Fallback to importing the translation function
+    console.log('pf-header: Importing i18n module for translation');
     import('../i18n.js').then(({ _t }) => {
       // Find all elements with data-i18n attribute
       this.shadowRoot.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
-        element.textContent = _t(key);
+        const translated = _t(key);
+        element.textContent = translated;
+        console.log(`pf-header: Translated "${key}" to "${translated}"`);
       });
     }).catch(error => {
       console.error('Error importing i18n module:', error);

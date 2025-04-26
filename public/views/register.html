@@ -1,59 +1,59 @@
 <div class="register-container">
-  <h2>Create an Account</h2>
+  <h2 data-i18n="auth.create_account">Create an Account</h2>
   <form id="register-form">
     <div class="form-group">
-      <label for="email">Email</label>
+      <label for="email" data-i18n="auth.email">Email</label>
       <input type="email" id="email" name="email" required>
     </div>
     
     <div class="form-group">
-      <label for="password">Password</label>
+      <label for="password" data-i18n="auth.password">Password</label>
       <input type="password" id="password" name="password" required>
     </div>
     
     <div class="form-group">
-      <label for="confirm-password">Confirm Password</label>
+      <label for="confirm-password" data-i18n="auth.confirm_password">Confirm Password</label>
       <input type="password" id="confirm-password" name="confirm-password" required>
     </div>
     
     <div class="form-group">
-      <label>Subscription Plan</label>
+      <label data-i18n="subscription.plan">Subscription Plan</label>
       <div class="plan-options">
         <div class="plan-option selected" data-plan="monthly">
-          <h3>Monthly</h3>
-          <div class="price">$5/month</div>
-          <div class="description">Billed monthly, cancel anytime</div>
+          <h3 data-i18n="subscription.monthly">Monthly</h3>
+          <div class="price" data-i18n="subscription.monthly_price">$5/month</div>
+          <div class="description" data-i18n="subscription.monthly_description">Billed monthly, cancel anytime</div>
         </div>
         <div class="plan-option" data-plan="yearly">
-          <h3>Yearly</h3>
-          <div class="price">$30/year</div>
-          <div class="description">Save $30 with annual billing</div>
+          <h3 data-i18n="subscription.yearly">Yearly</h3>
+          <div class="price" data-i18n="subscription.yearly_price">$30/year</div>
+          <div class="description" data-i18n="subscription.yearly_description">Save $30 with annual billing</div>
         </div>
       </div>
     </div>
     
     <div class="payment-options">
-      <h3>Payment Method</h3>
+      <h3 data-i18n="subscription.payment_method">Payment Method</h3>
       <div class="payment-methods">
         <div class="payment-method selected" data-payment="btc">
-          <div>Bitcoin</div>
+          <div data-i18n="subscription.bitcoin">Bitcoin</div>
         </div>
         <div class="payment-method" data-payment="eth">
-          <div>Ethereum</div>
+          <div data-i18n="subscription.ethereum">Ethereum</div>
         </div>
         <div class="payment-method" data-payment="sol">
-          <div>Solana</div>
+          <div data-i18n="subscription.solana">Solana</div>
         </div>
         <div class="payment-method" data-payment="usdc">
-          <div>USDC</div>
+          <div data-i18n="subscription.usdc">USDC</div>
         </div>
       </div>
     </div>
     
-    <button type="submit" class="register-button btn-primary">Register & Subscribe</button>
+    <button type="submit" class="register-button btn-primary" data-i18n="auth.register_subscribe">Register & Subscribe</button>
   </form>
   
-  <p class="login-link">Already have an account? <a href="/login">Login</a> instead.</p>
+  <p class="login-link"><span data-i18n="auth.already_have_account">Already have an account?</span> <a href="/login" data-i18n="navigation.login">Login</a> <span data-i18n="auth.instead">instead.</span></p>
 </div>
 
 <style>

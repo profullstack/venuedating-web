@@ -1,6 +1,7 @@
 /**
  * Internationalization (i18n) module for the PDF project
  * Uses the @profullstack/localizer library for translations
+ * Integrated with state-manager for better state management
  */
 
 // Import the localizer library
@@ -8,6 +9,7 @@
 // import { localizer, _t } from '@profullstack/localizer';
 // For development, we'll use ESM imports
 import { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.3.0';
+import defaultStateManager from './state-manager.js';
 
 // Store available languages
 const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar'];
@@ -70,16 +72,47 @@ async function initI18n() {
     // Listen for DOM changes to translate dynamically added content
     observeDomChanges();
     
+    // Initialize state management for i18n
+    initStateManagement();
+    
     console.log('i18n initialized successfully');
     
     // Dispatch an event to notify that i18n is ready
     window.dispatchEvent(new CustomEvent('i18n-ready'));
+    
+    // Apply translations to any content that might have been loaded before i18n was ready
+    setTimeout(() => translatePage(), 100);
     
     return true;
   } catch (error) {
     console.error('Error initializing i18n:', error);
     return false;
   }
+}
+
+/**
+ * Initialize state management for i18n
+ */
+function initStateManagement() {
+  // Set up initial i18n state in the state manager
+  defaultStateManager.setState({
+    i18n: {
+      currentLanguage: localizer.getLanguage(),
+      availableLanguages: AVAILABLE_LANGUAGES,
+      isRTL: ['ar', 'he', 'fa', 'ur'].includes(localizer.getLanguage())
+    }
+  });
+  
+  // Subscribe to language changes in the state manager
+  defaultStateManager.subscribe((state, changedKeys) => {
+    if (changedKeys.includes('i18n.currentLanguage')) {
+      const newLang = state.i18n.currentLanguage;
+      if (newLang !== localizer.getLanguage()) {
+        console.log(`Language change detected in state manager: ${newLang}`);
+        changeLanguage(newLang);
+      }
+    }
+  }, 'i18n.currentLanguage');
 }
 
 /**
@@ -92,6 +125,15 @@ function setInitialLanguage() {
   if (storedLang && AVAILABLE_LANGUAGES.includes(storedLang)) {
     console.log(`Using stored language preference: ${storedLang}`);
     localizer.setLanguage(storedLang);
+    
+    // Force language application
+    if (localizer.getLanguage() !== storedLang) {
+      console.log(`Language mismatch in setInitialLanguage, forcing to: ${storedLang}`);
+      localizer.setLanguage(storedLang);
+    }
+    
+    // Apply RTL direction if needed
+    applyDirectionToDocument();
     return;
   }
   
@@ -105,6 +147,9 @@ function setInitialLanguage() {
     console.log(`Browser language ${browserLang} not available, using default: ${DEFAULT_LANGUAGE}`);
     localizer.setLanguage(DEFAULT_LANGUAGE);
   }
+  
+  // Apply RTL direction if needed
+  applyDirectionToDocument();
 }
 
 /**
@@ -120,6 +165,12 @@ function changeLanguage(language) {
   console.log(`Changing language to: ${language}`);
   localizer.setLanguage(language);
   
+  // Force language application
+  if (localizer.getLanguage() !== language) {
+    console.log(`Language mismatch in changeLanguage, forcing to: ${language}`);
+    localizer.setLanguage(language);
+  }
+  
   // Store the language preference
   localStorage.setItem('profullstack-language', language);
   
@@ -129,9 +180,18 @@ function changeLanguage(language) {
   // Apply RTL direction if needed
   applyDirectionToDocument();
   
+  // Update the state manager (without triggering the subscription callback)
+  const isRTL = ['ar', 'he', 'fa', 'ur'].includes(language);
+  defaultStateManager.setState({
+    i18n: {
+      currentLanguage: language,
+      isRTL
+    }
+  }, true); // Silent update to prevent circular updates
+  
   // Dispatch an event to notify that language has changed
   window.dispatchEvent(new CustomEvent('language-changed', {
-    detail: { language }
+    detail: { language, isRTL }
   }));
   
   return true;
@@ -230,7 +290,10 @@ function getLanguageName(langCode) {
  */
 function applyDirectionToDocument() {
   const currentLang = localizer.getLanguage();
-  const isRTL = localizer.isRTL();
+  
+  // Define RTL languages
+  const rtlLanguages = ['ar', 'he', 'fa', 'ur'];
+  const isRTL = rtlLanguages.includes(currentLang);
   
   // Set the dir attribute on the html element
   document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -238,8 +301,23 @@ function applyDirectionToDocument() {
   // Add or remove RTL class to the body
   if (isRTL) {
     document.body.classList.add('rtl');
+    
+    // Add RTL stylesheet if it's not already added
+    if (!document.getElementById('rtl-stylesheet')) {
+      const rtlStylesheet = document.createElement('link');
+      rtlStylesheet.id = 'rtl-stylesheet';
+      rtlStylesheet.rel = 'stylesheet';
+      rtlStylesheet.href = '/css/rtl.css';
+      document.head.appendChild(rtlStylesheet);
+    }
   } else {
     document.body.classList.remove('rtl');
+    
+    // Remove RTL stylesheet if it exists
+    const rtlStylesheet = document.getElementById('rtl-stylesheet');
+    if (rtlStylesheet) {
+      rtlStylesheet.remove();
+    }
   }
   
   console.log(`Applied ${isRTL ? 'RTL' : 'LTR'} direction to document for language: ${currentLang}`);
@@ -278,6 +356,7 @@ function observeDomChanges() {
     
     // If we found elements to translate, update the page
     if (shouldTranslate) {
+      console.log('DOM changes detected with i18n attributes, translating page');
       translatePage();
     }
   });
@@ -287,6 +366,21 @@ function observeDomChanges() {
     childList: true,
     subtree: true
   });
+  
+  // Listen for pre-navigation event to apply translations before transition starts
+  document.addEventListener('pre-navigation', (event) => {
+    console.log('Pre-navigation event detected, applying translations');
+    console.log('Navigation details:', event.detail);
+    translatePage();
+    applyDirectionToDocument();
+  });
+  
+  // Also listen for the SPA router's transition end event
+  document.addEventListener('spa-transition-end', () => {
+    console.log('SPA transition ended, applying translations');
+    translatePage();
+    applyDirectionToDocument();
+  });
 }
 
 // Export the API
@@ -294,10 +388,18 @@ export {
   initI18n,
   changeLanguage,
   translatePage,
+  applyDirectionToDocument,
   _t,
   localizer,
   AVAILABLE_LANGUAGES
 };
+
+// Also expose functions globally for access from other scripts
+window.app = window.app || {};
+window.app.localizer = localizer;
+window.app.translatePage = translatePage;
+window.app.applyDirectionToDocument = applyDirectionToDocument;
+window.app._t = _t;
 
 // Initialize i18n when the DOM is loaded
 document.addEventListener('DOMContentLoaded', initI18n);

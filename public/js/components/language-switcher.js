@@ -19,7 +19,22 @@ class LanguageSwitcher extends HTMLElement {
     }
 
     // Listen for language changes
-    window.addEventListener('language-changed', () => this.updateSelectedLanguage());
+    window.addEventListener('language-changed', (event) => {
+      console.log(`Language-switcher detected language change to: ${event.detail.language}`);
+      this.updateSelectedLanguage();
+    });
+    
+    // Listen for pre-navigation event to update language before transition starts
+    document.addEventListener('pre-navigation', () => {
+      console.log('Language-switcher detected pre-navigation event, updating selected language');
+      this.updateSelectedLanguage();
+    });
+    
+    // Also listen for router transitions to ensure language is preserved
+    document.addEventListener('spa-transition-end', () => {
+      console.log('Language-switcher detected route transition, updating selected language');
+      this.updateSelectedLanguage();
+    });
   }
 
   render() {
@@ -233,6 +248,7 @@ class LanguageSwitcher extends HTMLElement {
 
   updateSelectedLanguage() {
     const currentLang = localizer.getLanguage();
+    console.log(`Updating language-switcher UI to reflect current language: ${currentLang}`);
     
     // Update dropdown button text
     const currentLanguageSpan = this.shadowRoot.querySelector('.current-language');
@@ -250,6 +266,11 @@ class LanguageSwitcher extends HTMLElement {
         item.classList.remove('active');
       }
     });
+    
+    // Force translation application
+    if (window.app && window.app.translatePage) {
+      window.app.translatePage();
+    }
   }
 
   getLanguageName(langCode) {

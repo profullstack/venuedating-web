@@ -38,7 +38,18 @@
     "delete_account_confirm": "Are you sure you want to delete your account? This action cannot be undone.",
     "delete_account": "Delete Account",
     "delete": "Delete",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "no_account": "Don't have an account?",
+    "to_get_started": "to get started.",
+    "forgot_password": "Forgot your password?",
+    "reset_password": "Reset Password",
+    "first_time_login": "If this is your first time logging in after the system update, use the default password:",
+    "password_change_prompt": "You'll be prompted to change your password after login.",
+    "check_auth_status": "Check Auth Status",
+    "create_account": "Create an Account",
+    "already_have_account": "Already have an account?",
+    "instead": "instead.",
+    "register_subscribe": "Register & Subscribe"
   },
   "subscription": {
     "active_subscription_required": "You need an active subscription to access the dashboard.",
@@ -50,7 +61,19 @@
     "copy": "Copy",
     "copied": "Copied!",
     "waiting_payment": "Waiting for payment confirmation...",
-    "payment_received": "Payment received! Redirecting to your dashboard..."
+    "payment_received": "Payment received! Redirecting to your dashboard...",
+    "plan": "Subscription Plan",
+    "monthly": "Monthly",
+    "monthly_price": "$5/month",
+    "monthly_description": "Billed monthly, cancel anytime",
+    "yearly": "Yearly",
+    "yearly_price": "$30/year",
+    "yearly_description": "Save $30 with annual billing",
+    "payment_method": "Payment Method",
+    "bitcoin": "Bitcoin",
+    "ethereum": "Ethereum",
+    "solana": "Solana",
+    "usdc": "USDC"
   },
   "common": {
     "save": "Save",
@@ -66,6 +89,22 @@
     "back": "Back",
     "next": "Next",
     "continue": "Continue",
-    "check_status": "Check Payment Status"
+    "check_status": "Check Payment Status",
+    "note": "Note"
+  },
+  "footer": {
+    "home": "Home",
+    "api_docs": "API Documentation",
+    "pricing": "Pricing",
+    "resources": "Resources",
+    "api_keys": "API Keys",
+    "github": "GitHub",
+    "support": "Support",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy",
+    "company_name": "Profullstack, Inc.",
+    "all_rights_reserved": "All rights reserved."
   }
 }

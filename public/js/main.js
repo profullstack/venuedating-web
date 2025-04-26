@@ -30,9 +30,27 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
  * Initialize the application
  */
 function initApp() {
+  // Apply stored language before initializing i18n
+  const storedLang = localStorage.getItem('profullstack-language');
+  
   // Initialize i18n
   initI18n().then(() => {
     console.log('i18n initialized');
+    
+    // Apply stored language after i18n is initialized
+    if (storedLang && window.app && window.app.localizer) {
+      console.log(`App init: Applying stored language: ${storedLang}`);
+      window.app.localizer.setLanguage(storedLang);
+      
+      // Apply translations and RTL direction
+      if (window.app.translatePage) {
+        window.app.translatePage();
+      }
+      
+      if (window.app.applyDirectionToDocument) {
+        window.app.applyDirectionToDocument();
+      }
+    }
   }).catch(error => {
     console.error('Error initializing i18n:', error);
   });
@@ -51,12 +69,84 @@ function initRouter() {
       view: () => loadPage('/views/home.html')
     },
     '/login': {
-      view: () => loadPage('/views/login.html'),
-      afterRender: () => initLoginPage()
+      view: () => {
+        // Apply stored language before loading the page
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Pre-view login: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Apply RTL direction if needed
+          if (window.app.applyDirectionToDocument) {
+            window.app.applyDirectionToDocument();
+          }
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        return loadPage('/views/login.html');
+      },
+      afterRender: () => {
+        // Initialize login page
+        initLoginPage();
+        
+        // Apply translations after rendering
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Post-render login: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        
+        // Dispatch the spa-transition-end event to ensure translations are applied
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
     },
     '/register': {
-      view: () => loadPage('/views/register.html'),
-      afterRender: () => initRegisterPage()
+      view: () => {
+        // Apply stored language before loading the page
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Pre-view register: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Apply RTL direction if needed
+          if (window.app.applyDirectionToDocument) {
+            window.app.applyDirectionToDocument();
+          }
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        return loadPage('/views/register.html');
+      },
+      afterRender: () => {
+        // Initialize register page
+        initRegisterPage();
+        
+        // Apply translations after rendering
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Post-render register: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        
+        // Dispatch the spa-transition-end event to ensure translations are applied
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
     },
     '/reset-password': {
       view: () => loadPage('/views/reset-password.html'),
@@ -141,7 +231,41 @@ function initRouter() {
       view: () => loadPage('/views/refund.html')
     },
     '/i18n-demo': {
-      view: () => loadPage('/views/i18n-demo.html')
+      view: () => {
+        // Apply stored language before loading the page
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Pre-view i18n-demo: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Apply RTL direction if needed
+          if (window.app.applyDirectionToDocument) {
+            window.app.applyDirectionToDocument();
+          }
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        return loadPage('/views/i18n-demo.html');
+      },
+      afterRender: () => {
+        // Apply translations after rendering
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Post-render i18n-demo: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        
+        // Dispatch the spa-transition-end event to ensure translations are applied
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
     }
   };
   
@@ -161,47 +285,148 @@ function initRouter() {
   const router = new Router({
     routes, // Pass routes directly in the constructor
     rootElement: '#app',
-    transition: transitions.fade({ duration: 150 }),
+    transition: transitions.fade({
+      duration: 300, // Increased duration to give more time for rendering
+      onComplete: () => {
+        // Dispatch a custom event when the transition is complete
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
+    }),
     renderer: (content, element) => {
-      // Create a document fragment from the content
+      // Following the pattern:
+      // 1. Click link (already happened)
+      // 2. Start transition (already started by the router)
+      // 3. Load new DOM hidden in browser and off-page using absolute position
+      
+      // Apply stored language before rendering
+      const storedLang = localStorage.getItem('profullstack-language');
+      if (storedLang && window.app && window.app.localizer) {
+        console.log(`Pre-render: Applying stored language: ${storedLang}`);
+        window.app.localizer.setLanguage(storedLang);
+        
+        // Force language application
+        if (window.app.localizer.getLanguage() !== storedLang) {
+          console.log(`Language mismatch, forcing to: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+        }
+      }
+      
+      // Create a new container with absolute positioning (off-screen)
+      const newContainer = document.createElement('div');
+      newContainer.style.position = 'absolute';
+      newContainer.style.top = '0';
+      newContainer.style.left = '0';
+      newContainer.style.width = '100%';
+      newContainer.style.height = '100%';
+      newContainer.style.opacity = '0'; // Start hidden
+      newContainer.style.zIndex = '1'; // Above the current content
+      
+      // Parse the content into DOM
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'text/html');
-      const fragment = document.createDocumentFragment();
       
-      // Get all existing web components in the current DOM
+      // Get all existing web components in the current DOM to preserve
       const existingComponents = {};
       const customElements = element.querySelectorAll('*').filter(el => el.tagName.includes('-'));
       
       customElements.forEach(el => {
-        // Use a unique identifier for the component (tag name + some attribute that makes it unique)
         const id = el.tagName.toLowerCase();
         existingComponents[id] = el;
       });
       
       // Process the new content
       Array.from(doc.body.children).forEach(child => {
-        // If it's a custom element that already exists, keep the existing one
+        // If it's a custom element that already exists, skip it (we'll keep the existing one)
         if (child.tagName.includes('-') && existingComponents[child.tagName.toLowerCase()]) {
-          // Skip this element as we'll keep the existing one
           console.log(`Preserving existing component: ${child.tagName.toLowerCase()}`);
         } else {
-          // Otherwise, add the new element to the fragment
-          fragment.appendChild(child);
+          // Otherwise, add the new element to the container
+          newContainer.appendChild(child);
         }
       });
       
-      // Clear the target element
-      element.innerHTML = '';
+      // 4. Translate all text in new DOM
+      if (storedLang && window.app && window.app._t) {
+        console.log(`Translating content to ${storedLang} before showing`);
+        
+        // Force language application again to ensure it's set
+        window.app.localizer.setLanguage(storedLang);
+        
+        // Translate elements with data-i18n attribute
+        newContainer.querySelectorAll('[data-i18n]').forEach(element => {
+          const key = element.getAttribute('data-i18n');
+          element.textContent = window.app._t(key);
+        });
+        
+        // Translate other i18n attributes
+        newContainer.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+          const key = element.getAttribute('data-i18n-placeholder');
+          element.placeholder = window.app._t(key);
+        });
+        
+        newContainer.querySelectorAll('[data-i18n-title]').forEach(element => {
+          const key = element.getAttribute('data-i18n-title');
+          element.title = window.app._t(key);
+        });
+        
+        newContainer.querySelectorAll('[data-i18n-html]').forEach(element => {
+          const key = element.getAttribute('data-i18n-html');
+          element.innerHTML = window.app._t(key);
+        });
+        
+        // Handle elements with data-i18n-params attribute (for interpolation)
+        newContainer.querySelectorAll('[data-i18n-params]').forEach(element => {
+          const key = element.getAttribute('data-i18n');
+          if (!key) return;
+          
+          try {
+            const paramsAttr = element.getAttribute('data-i18n-params');
+            const params = JSON.parse(paramsAttr);
+            element.textContent = window.app._t(key, params);
+          } catch (error) {
+            console.error(`Error parsing data-i18n-params for key ${key}:`, error);
+          }
+        });
+      }
       
-      // First add back any preserved components
+      // Add preserved components back to the new container
       Object.values(existingComponents).forEach(component => {
-        element.appendChild(component);
+        newContainer.appendChild(component);
       });
       
-      // Then add the new content
-      element.appendChild(fragment);
+      // 5. When translation is done, remove old DOM and show new DOM
+      // Add the new container to the DOM
+      element.appendChild(newContainer);
       
-      console.log('Rendered content with component preservation');
+      // Apply RTL direction if needed
+      if (window.app && window.app.applyDirectionToDocument) {
+        window.app.applyDirectionToDocument();
+      }
+      
+      // Short delay to ensure everything is ready, then show new content and remove old
+      setTimeout(() => {
+        // Remove all old content
+        Array.from(element.children).forEach(child => {
+          if (child !== newContainer) {
+            element.removeChild(child);
+          }
+        });
+        
+        // Show the new content by changing position and opacity
+        newContainer.style.position = 'relative';
+        newContainer.style.opacity = '1';
+        
+        console.log('Transition complete, new content visible');
+        
+        // 6. Fire transition-complete event is handled by the router
+      }, 50);
+      
+      // Apply RTL direction if needed
+      if (window.app && window.app.applyDirectionToDocument) {
+        window.app.applyDirectionToDocument();
+      }
+      
+      console.log('Rendered content with component preservation and translations');
     },
     errorHandler: (path) => `
       <pf-header></pf-header>
@@ -220,14 +445,134 @@ function initRouter() {
   console.log('Router routes keys after registration:', Object.keys(router.routes));
   console.log('Router route for / exists after registration:', router.routes['/'] !== undefined);
   
-  // Add middleware for logging
+  // Add middleware for logging and language persistence
   router.use(async (to, from, next) => {
     console.log(`Navigating from ${from || 'initial'} to ${to.path}`);
+    
+    // Store the current language before navigation
+    const currentLanguage = localStorage.getItem('profullstack-language');
+    if (currentLanguage) {
+      console.log(`Current language before navigation: ${currentLanguage}`);
+    }
+    
+    // Apply language before navigation
+    if (currentLanguage && window.app && window.app.localizer) {
+      console.log(`Pre-navigation: Applying stored language: ${currentLanguage}`);
+      window.app.localizer.setLanguage(currentLanguage);
+    }
+    
+    // Continue with navigation
     next();
+    
+    // Listen for the router's transition-end event to apply translations
+    // after the new content is fully rendered
+    const handleTransitionEnd = () => {
+      const storedLang = localStorage.getItem('profullstack-language');
+      if (storedLang) {
+        console.log(`Applying stored language after navigation transition: ${storedLang}`);
+        
+        // Apply the stored language using the global app object
+        if (window.app && window.app.localizer) {
+          // Force language application
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Double-check that the language was applied correctly
+          if (window.app.localizer.getLanguage() !== storedLang) {
+            console.log(`Language mismatch after navigation, forcing to: ${storedLang}`);
+            window.app.localizer.setLanguage(storedLang);
+          }
+          
+          // Apply translations and RTL direction
+          if (window.app.translatePage) {
+            console.log('Applying translations to page after navigation');
+            window.app.translatePage();
+          }
+          
+          if (window.app.applyDirectionToDocument) {
+            window.app.applyDirectionToDocument();
+          }
+          
+          // Also manually translate any elements with data-i18n attributes that might have been missed
+          document.querySelectorAll('[data-i18n]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            element.textContent = window.app._t(key);
+          });
+          
+          // Translate other i18n attributes
+          document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+            const key = element.getAttribute('data-i18n-placeholder');
+            element.placeholder = window.app._t(key);
+          });
+          
+          document.querySelectorAll('[data-i18n-title]').forEach(element => {
+            const key = element.getAttribute('data-i18n-title');
+            element.title = window.app._t(key);
+          });
+          
+          document.querySelectorAll('[data-i18n-html]').forEach(element => {
+            const key = element.getAttribute('data-i18n-html');
+            element.innerHTML = window.app._t(key);
+          });
+          
+          // Handle elements with data-i18n-params attribute (for interpolation)
+          document.querySelectorAll('[data-i18n-params]').forEach(element => {
+            const key = element.getAttribute('data-i18n');
+            if (!key) return;
+            
+            try {
+              const paramsAttr = element.getAttribute('data-i18n-params');
+              const params = JSON.parse(paramsAttr);
+              element.textContent = window.app._t(key, params);
+            } catch (error) {
+              console.error(`Error parsing data-i18n-params for key ${key}:`, error);
+            }
+          });
+        }
+      }
+      
+      // Remove the event listener to avoid multiple calls
+      document.removeEventListener('spa-transition-end', handleTransitionEnd);
+    };
+    
+    // Add event listener for transition end
+    document.addEventListener('spa-transition-end', handleTransitionEnd, { once: true });
+    
+    // Also set a backup timeout in case the transition event doesn't fire
+    setTimeout(() => {
+      // Check if the event listener is still registered
+      const storedLang = localStorage.getItem('profullstack-language');
+      if (storedLang && window.app && window.app.translatePage) {
+        console.log('Backup translation application after timeout');
+        window.app.translatePage();
+      }
+    }, 300); // Longer delay to ensure the DOM is updated after transition
   });
   
   // Expose router globally
   window.router = router;
+  
+  // Add custom navigate method to dispatch pre-navigation event
+  const originalNavigate = router.navigate.bind(router);
+  router.navigate = async function(path, params = {}) {
+    // Get the current path before navigation
+    const currentPath = window.location.pathname;
+    console.log(`Router navigating to: ${path}`);
+    
+    // Store the current language before navigation
+    const currentLang = localStorage.getItem('profullstack-language');
+    
+    // Dispatch pre-navigation event to allow components to prepare for transition
+    document.dispatchEvent(new CustomEvent('pre-navigation', {
+      detail: {
+        fromPath: currentPath,
+        toPath: path,
+        language: currentLang
+      }
+    }));
+    
+    // Call the original navigate method
+    return originalNavigate(path, params);
+  };
 }
 
 /**
@@ -238,6 +583,20 @@ function initRouter() {
 async function loadPage(url) {
   try {
     console.log(`Loading page: ${url}`);
+    
+    // Apply stored language before loading the page
+    const storedLang = localStorage.getItem('profullstack-language');
+    if (storedLang && window.app && window.app.localizer) {
+      console.log(`Pre-load: Applying stored language: ${storedLang}`);
+      window.app.localizer.setLanguage(storedLang);
+      
+      // Force language application
+      if (window.app.localizer.getLanguage() !== storedLang) {
+        console.log(`Language mismatch in loadPage, forcing to: ${storedLang}`);
+        window.app.localizer.setLanguage(storedLang);
+      }
+    }
+    
     // Add cache-busting parameter to prevent caching
     const cacheBuster = `?_=${Date.now()}`;
     const fullUrl = `${url}${cacheBuster}`;
@@ -258,6 +617,11 @@ async function loadPage(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
+    // Create a wrapper element to hold the content temporarily
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'none';
+    document.body.appendChild(wrapper);
+    
     // Get the content - either from body or the first element
     let content;
     if (doc.body.children.length === 0) {
@@ -275,6 +639,59 @@ async function loadPage(url) {
       
       content = tempDiv.innerHTML;
     }
+    
+    // Add the content to the wrapper
+    wrapper.innerHTML = content;
+    
+    // Pre-translate the content before it's returned to the router
+    if (storedLang && window.app && window.app._t) {
+      console.log(`Pre-translating content to ${storedLang} before DOM insertion`);
+      
+      // Force language application
+      window.app.localizer.setLanguage(storedLang);
+      
+      // Translate elements with data-i18n attribute
+      wrapper.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = window.app._t(key);
+      });
+      
+      // Translate other i18n attributes
+      wrapper.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-i18n-placeholder');
+        element.placeholder = window.app._t(key);
+      });
+      
+      wrapper.querySelectorAll('[data-i18n-title]').forEach(element => {
+        const key = element.getAttribute('data-i18n-title');
+        element.title = window.app._t(key);
+      });
+      
+      wrapper.querySelectorAll('[data-i18n-html]').forEach(element => {
+        const key = element.getAttribute('data-i18n-html');
+        element.innerHTML = window.app._t(key);
+      });
+      
+      // Handle elements with data-i18n-params attribute (for interpolation)
+      wrapper.querySelectorAll('[data-i18n-params]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (!key) return;
+        
+        try {
+          const paramsAttr = element.getAttribute('data-i18n-params');
+          const params = JSON.parse(paramsAttr);
+          element.textContent = window.app._t(key, params);
+        } catch (error) {
+          console.error(`Error parsing data-i18n-params for key ${key}:`, error);
+        }
+      });
+    }
+    
+    // Get the translated content
+    content = wrapper.innerHTML;
+    
+    // Remove the wrapper
+    document.body.removeChild(wrapper);
     
     // Special handling for state-demo.html
     if (url.includes('state-demo.html')) {
@@ -309,10 +726,9 @@ async function loadPage(url) {
     // Get the HTML content
     const result = container.outerHTML;
     
-    // Schedule translation after the content is rendered
-    setTimeout(() => {
-      translatePage();
-    }, 0);
+    // No need to schedule translation after rendering
+    // since we're now doing it before rendering in the renderer function
+    console.log('Content loaded, translations already applied during rendering');
     
     return result;
   } catch (error) {
@@ -1053,10 +1469,11 @@ function initResetPasswordPage() {
 }
 
 // Expose functions globally
-window.app = {
+window.app = window.app || {};
+Object.assign(window.app, {
   initApp,
   initRouter,
   checkAuthAndInitPage,
   initResetPasswordPage,
   _t // Expose translation function globally
-};
+});
