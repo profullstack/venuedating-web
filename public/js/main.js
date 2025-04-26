@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
-import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.0.3';
+import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.1.0';
 
 // Import components
 import './components/pf-header.js';
@@ -126,8 +126,14 @@ function initRouter() {
     }
   });
   
-  // Create router with fade transition
+  // Debug: Log routes before registration
+  console.log('About to register routes:', Object.keys(routes));
+  console.log('Route for / exists:', routes['/'] !== undefined);
+  console.log('Route for / details:', routes['/']);
+  
+  // Create router with fade transition and pre-registered routes
   const router = new Router({
+    routes, // Pass routes directly in the constructor
     rootElement: '#app',
     transition: transitions.fade({ duration: 150 }),
     errorHandler: (path) => `
@@ -141,8 +147,11 @@ function initRouter() {
     `
   });
   
-  // Register routes
-  router.registerRoutes(routes);
+  // Debug: Try to access the router's internal state
+  console.log('Router internal state:', router);
+  console.log('Router routes property:', router.routes);
+  console.log('Router routes keys after registration:', Object.keys(router.routes));
+  console.log('Router route for / exists after registration:', router.routes['/'] !== undefined);
   
   // Add middleware for logging
   router.use(async (to, from, next) => {
@@ -164,8 +173,15 @@ async function loadPage(url) {
     console.log(`Loading page: ${url}`);
     // Add cache-busting parameter to prevent caching
     const cacheBuster = `?_=${Date.now()}`;
-    const response = await fetch(`${url}${cacheBuster}`);
+    const fullUrl = `${url}${cacheBuster}`;
+    console.log(`Fetching URL: ${fullUrl}`);
+    
+    const response = await fetch(fullUrl);
+    console.log(`Response status: ${response.status} ${response.statusText}`);
+    console.log(`Response headers:`, Object.fromEntries([...response.headers.entries()]));
+    
     if (!response.ok) {
+      console.error(`Failed to load page: ${response.status} ${response.statusText}`);
       throw new Error(`Failed to load page: ${response.status} ${response.statusText}`);
     }
     

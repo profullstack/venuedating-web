@@ -48,6 +48,16 @@ app.use('*', async (c, next) => {
   
   // Handle SPA routes (paths without extensions)
   const reqPath = c.req.path;
+  
+  // First check if this is a request for a view HTML file
+  if (reqPath.startsWith('/views/') && reqPath.endsWith('.html')) {
+    console.log(`View HTML file request detected: ${reqPath}`);
+    // Let this pass through to the static file middleware
+    await next();
+    return;
+  }
+  
+  // Then handle SPA routes
   if (reqPath !== '/' && !reqPath.includes('.') && !reqPath.startsWith('/api/')) {
     console.log(`SPA route detected: ${reqPath}`);
     try {
@@ -100,6 +110,16 @@ app.use('*', async (c, next) => {
   }
   
   // Use the static file middleware for non-API routes
+  console.log(`Attempting to serve static file: ${reqPath} from ./public`);
+  
+  // Check if the file exists before serving it
+  const filePath = path.join(process.cwd(), 'public', reqPath);
+  if (fs.existsSync(filePath)) {
+    console.log(`File exists: ${filePath}`);
+  } else {
+    console.log(`File does not exist: ${filePath}`);
+  }
+  
   return serveStatic({
     root: './public',
     rewriteRequestPath: (path) => {
