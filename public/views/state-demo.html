@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Manager Demo</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/typography.css">
+  <style>
+    .demo-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .demo-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: var(--surface-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .code-block {
+      background-color: var(--surface-variant);
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+    
+    .component-container {
+      margin: 20px 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .section-title {
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+    
+    .usage-example {
+      margin-top: 30px;
+    }
+    
+    .api-section {
+      margin-top: 40px;
+    }
+    
+    .api-method {
+      margin-bottom: 20px;
+    }
+    
+    .api-method h4 {
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+    
+    .api-method p {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1>State Manager Demo</h1>
+    <p>This page demonstrates how to use the state manager to share state across components and routes.</p>
+    
+    <div class="demo-section">
+      <h2 class="section-title">Live Demo</h2>
+      <p>The component below uses the state manager to maintain state across page refreshes and component instances.</p>
+      
+      <div class="component-container">
+        <state-example></state-example>
+      </div>
+      
+      <div class="component-container">
+        <test-component></test-component>
+      </div>
+      
+      <p>Try changing the counter value, toggling the theme, or logging in/out. Then refresh the page - the state will persist!</p>
+    </div>
+    
+    <div class="demo-section">
+      <h2 class="section-title">How It Works</h2>
+      <p>The state manager provides a central store for application state that can be accessed and modified by any component.</p>
+      
+      <div class="usage-example">
+        <h3>Basic Usage</h3>
+        <div class="code-block">
+// Import the state manager
+import stateManager from '../state-manager.js';
+
+// Get state
+const counter = stateManager.getState('counter');
+
+// Update state
+stateManager.setState({ counter: counter + 1 });
+
+// Subscribe to state changes
+const unsubscribe = stateManager.subscribe((state, changedKeys) => {
+  console.log('State changed:', changedKeys);
+  console.log('New state:', state);
+}, 'counter');
+
+// Later, unsubscribe when done
+unsubscribe();
+        </div>
+      </div>
+      
+      <div class="usage-example">
+        <h3>Using with Web Components</h3>
+        <p>The state manager provides a mixin to easily connect web components to the state:</p>
+        <div class="code-block">
+import { StateMixin } from '../state-manager.js';
+
+// Create a base component
+class MyComponent extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+  }
+  
+  connectedCallback() {
+    this.render();
+  }
+  
+  render() {
+    // Get state from the state manager
+    const counter = this.getState('counter');
+    
+    this.shadowRoot.innerHTML = `
+      <div>Counter: ${counter}</div>
+      <button id="increment">Increment</button>
+    `;
+    
+    this.shadowRoot.getElementById('increment').addEventListener('click', () => {
+      this.setState({ counter: counter + 1 });
+    });
+  }
+  
+  // This method is called when state changes
+  stateChanged(state, changedKeys) {
+    this.render();
+  }
+}
+
+// Apply the StateMixin to connect to the state manager
+const ConnectedComponent = StateMixin()(MyComponent);
+
+// Register the custom element
+customElements.define('my-component', ConnectedComponent);
+        </div>
+      </div>
+    </div>
+    
+    <div class="demo-section api-section">
+      <h2 class="section-title">API Reference</h2>
+      
+      <div class="api-method">
+        <h4>getState(key)</h4>
+        <p>Get the current state or a specific part of the state.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+          <li><code>key</code> (optional): Specific state key to retrieve</li>
+        </ul>
+        <p><strong>Returns:</strong> The requested state</p>
+      </div>
+      
+      <div class="api-method">
+        <h4>setState(update, silent)</h4>
+        <p>Update the state.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+          <li><code>update</code>: Object to merge with state or function that returns an update object</li>
+          <li><code>silent</code> (optional): If true, don't notify subscribers</li>
+        </ul>
+        <p><strong>Returns:</strong> The new state</p>
+      </div>
+      
+      <div class="api-method">
+        <h4>subscribe(callback, keys)</h4>
+        <p>Subscribe to state changes.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+          <li><code>callback</code>: Function to call when state changes</li>
+          <li><code>keys</code> (optional): Specific state key(s) to subscribe to</li>
+        </ul>
+        <p><strong>Returns:</strong> Unsubscribe function</p>
+      </div>
+      
+      <div class="api-method">
+        <h4>unsubscribe(callback)</h4>
+        <p>Unsubscribe a callback from all subscriptions.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+          <li><code>callback</code>: The callback to unsubscribe</li>
+        </ul>
+      </div>
+      
+      <div class="api-method">
+        <h4>reset(initialState)</h4>
+        <p>Reset the state to initial values.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+          <li><code>initialState</code> (optional): New initial state</li>
+        </ul>
+        <p><strong>Returns:</strong> The new state</p>
+      </div>
+    </div>
+    
+    <div class="demo-section">
+      <h2 class="section-title">Integration with Router</h2>
+      <p>The state manager works seamlessly with @profullstack/spa-router. You can use it to:</p>
+      <ul>
+        <li>Persist UI state across route changes</li>
+        <li>Share data between different routes</li>
+        <li>Implement global application state</li>
+        <li>Manage authentication state</li>
+      </ul>
+      
+      <div class="code-block">
+// In your router configuration
+const routes = {
+  '/dashboard': {
+    view: () => loadPage('/views/dashboard.html'),
+    beforeEnter: (to, from, next) => {
+      // Check authentication state from state manager
+      const user = stateManager.getState('user');
+      if (!user || !user.loggedIn) {
+        return next('/login');
+      }
+      next();
+    }
+  }
+};
+      </div>
+    </div>
+  </div>
+  
+  <!-- Import the state example component -->
+  <script type="module" src="/js/components/state-example.js"></script>
+  
+  <!-- Import the test component -->
+  <script type="module" src="/js/components/test-component.js"></script>
+</body>
+</html>

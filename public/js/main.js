@@ -51,6 +51,9 @@ function initRouter() {
       view: () => loadPage('/views/reset-password.html'),
       afterRender: () => initResetPasswordPage()
     },
+    '/state-demo': {
+      view: () => loadPage('/views/state-demo.html')
+    },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
       beforeEnter: (to, from, next) => {
@@ -136,6 +139,47 @@ function initRouter() {
     routes, // Pass routes directly in the constructor
     rootElement: '#app',
     transition: transitions.fade({ duration: 150 }),
+    renderer: (content, element) => {
+      // Create a document fragment from the content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const fragment = document.createDocumentFragment();
+      
+      // Get all existing web components in the current DOM
+      const existingComponents = {};
+      const customElements = element.querySelectorAll('*').filter(el => el.tagName.includes('-'));
+      
+      customElements.forEach(el => {
+        // Use a unique identifier for the component (tag name + some attribute that makes it unique)
+        const id = el.tagName.toLowerCase();
+        existingComponents[id] = el;
+      });
+      
+      // Process the new content
+      Array.from(doc.body.children).forEach(child => {
+        // If it's a custom element that already exists, keep the existing one
+        if (child.tagName.includes('-') && existingComponents[child.tagName.toLowerCase()]) {
+          // Skip this element as we'll keep the existing one
+          console.log(`Preserving existing component: ${child.tagName.toLowerCase()}`);
+        } else {
+          // Otherwise, add the new element to the fragment
+          fragment.appendChild(child);
+        }
+      });
+      
+      // Clear the target element
+      element.innerHTML = '';
+      
+      // First add back any preserved components
+      Object.values(existingComponents).forEach(component => {
+        element.appendChild(component);
+      });
+      
+      // Then add the new content
+      element.appendChild(fragment);
+      
+      console.log('Rendered content with component preservation');
+    },
     errorHandler: (path) => `
       <pf-header></pf-header>
       <div class="error-page">
@@ -195,22 +239,51 @@ async function loadPage(url) {
     let content;
     if (doc.body.children.length === 0) {
       content = doc.body.innerHTML;
-    } else if (doc.body.children.length === 1) {
-      // If there's a single container, use it directly
-      content = doc.body.innerHTML;
     } else {
-      // Otherwise wrap all content
-      content = doc.body.innerHTML;
+      // Create a temporary div to hold the content
+      const tempDiv = document.createElement('div');
+      
+      // Clone all child nodes except script tags
+      Array.from(doc.body.children).forEach(child => {
+        if (child.tagName !== 'SCRIPT') {
+          tempDiv.appendChild(child.cloneNode(true));
+        }
+      });
+      
+      content = tempDiv.innerHTML;
     }
     
-    // Wrap with our components
-    return `
-      <pf-header></pf-header>
-      <div class="content">
-        ${content}
-      </div>
-      <pf-footer></pf-footer>
-    `;
+    // Special handling for state-demo.html
+    if (url.includes('state-demo.html')) {
+      // Import the components directly in the HTML
+      await import('/js/components/state-example.js');
+      await import('/js/components/test-component.js');
+      console.log('Imported state-example.js and test-component.js directly');
+    }
+    
+    // Create DOM elements instead of using template strings
+    const container = document.createElement('div');
+    
+    // Add header
+    const header = document.createElement('pf-header');
+    container.appendChild(header);
+    
+    // Add content container
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'content';
+    
+    // Use DOM parser to convert content string to DOM nodes
+    const contentFragment = document.createRange().createContextualFragment(content);
+    contentDiv.appendChild(contentFragment);
+    
+    container.appendChild(contentDiv);
+    
+    // Add footer
+    const footer = document.createElement('pf-footer');
+    container.appendChild(footer);
+    
+    // Return the HTML string representation
+    return container.outerHTML;
   } catch (error) {
     console.error('Error loading page:', error);
     return `

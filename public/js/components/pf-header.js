@@ -287,6 +287,7 @@ class PfHeader extends HTMLElement {
           <a href="/dashboard" class="nav-link" id="dashboard-link">Dashboard</a>
           <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
           <a href="/api-keys" class="nav-link" id="api-keys-link">API Keys</a>
+          <a href="/state-demo" class="nav-link" id="state-demo-link">State Demo</a>
           <a href="/login" class="nav-link login-link" id="login-link">Login</a>
           <a href="/register" class="subscription-link register-link" id="register-link">Register</a>
           <button class="theme-toggle" title="Toggle light/dark theme">
@@ -307,6 +308,7 @@ class PfHeader extends HTMLElement {
         <a href="/dashboard" class="nav-link" id="mobile-dashboard-link">Dashboard</a>
         <a href="/api-docs" class="nav-link" id="mobile-api-docs-link">API Docs</a>
         <a href="/api-keys" class="nav-link" id="mobile-api-keys-link">API Keys</a>
+        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link">State Demo</a>
         <a href="/login" class="nav-link login-link" id="mobile-login-link">Login</a>
         <a href="/register" class="subscription-link register-link" id="mobile-register-link">Register</a>
         
@@ -398,6 +400,8 @@ class PfHeader extends HTMLElement {
       this.shadowRoot.querySelector('#api-docs-link')?.classList.add('active');
     } else if (currentPath.startsWith('/api-keys')) {
       this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/state-demo')) {
+      this.shadowRoot.querySelector('#state-demo-link')?.classList.add('active');
     } else if (currentPath.startsWith('/login')) {
       this.shadowRoot.querySelector('#login-link')?.classList.add('active');
     } else if (currentPath.startsWith('/register')) {
