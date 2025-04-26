@@ -187,25 +187,46 @@ class LanguageSwitcher extends HTMLElement {
     const dropdownContent = this.shadowRoot.querySelector('.dropdown-content');
     
     if (dropdownButton && dropdownContent) {
-      dropdownButton.addEventListener('click', () => {
+      // Use direct onclick assignment for more reliable event handling in Shadow DOM
+      dropdownButton.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Language dropdown button clicked');
         dropdownContent.classList.toggle('show');
-      });
+      };
       
       // Close dropdown when clicking outside
-      document.addEventListener('click', (event) => {
-        if (!this.contains(event.target)) {
+      // We need a different approach for Shadow DOM
+      const closeDropdown = (event) => {
+        // Check if click is inside this shadow root
+        const path = event.composedPath();
+        const isInside = path.includes(this) || path.includes(this.shadowRoot);
+        
+        // If click is outside this component, close the dropdown
+        if (!isInside && dropdownContent.classList.contains('show')) {
+          console.log('Outside click detected, closing language dropdown');
           dropdownContent.classList.remove('show');
         }
-      });
+      };
+      
+      // Use capture phase to ensure we get the event
+      document.addEventListener('click', closeDropdown, true);
+      
+      // Store the listener so we can remove it later if needed
+      this._documentClickHandler = closeDropdown;
       
       // Language selection
       const dropdownItems = this.shadowRoot.querySelectorAll('.dropdown-item');
       dropdownItems.forEach(item => {
-        item.addEventListener('click', () => {
+        // Use direct onclick assignment
+        item.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const lang = item.getAttribute('data-lang');
+          console.log(`Language selected: ${lang}`);
           changeLanguage(lang);
           dropdownContent.classList.remove('show');
-        });
+        };
       });
     }
   }
@@ -235,7 +256,13 @@ class LanguageSwitcher extends HTMLElement {
     const names = {
       en: 'English',
       fr: 'Français',
-      de: 'Deutsch'
+      de: 'Deutsch',
+      uk: 'Українська',
+      ru: 'Русский',
+      pl: 'Polski',
+      zh: '中文',
+      ja: '日本語',
+      ar: 'العربية'
     };
     
     return names[langCode] || langCode;

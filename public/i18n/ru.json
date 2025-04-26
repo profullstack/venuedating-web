@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Панель управления",
+    "api_docs": "API Документация",
+    "api_keys": "API Ключи",
+    "state_demo": "Демо состояния",
+    "i18n_demo": "i18n Демо",
+    "login": "Войти",
+    "register": "Регистрация",
+    "settings": "Настройки",
+    "logout": "Выйти",
+    "theme": "Тема",
+    "language": "Язык"
+  },
+  "errors": {
+    "page_not_found": "404 - Страница не найдена",
+    "page_not_found_message": "Страница \"${path}\" не найдена.",
+    "go_back_home": "Вернуться на главную",
+    "error_loading_page": "Ошибка загрузки страницы",
+    "login_failed": "Ошибка входа: ",
+    "invalid_credentials": "Неверные учетные данные. Проверьте вашу электронную почту и пароль.",
+    "auth_server_error": "Ошибка сервера аутентификации. Пожалуйста, попробуйте позже.",
+    "registration_failed": "Ошибка регистрации: ",
+    "passwords_not_match": "Пароли не совпадают"
+  },
+  "auth": {
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "confirm_password": "Подтвердите пароль",
+    "new_password": "Новый пароль",
+    "logging_in": "Вход...",
+    "checking_auth": "Проверка статуса аутентификации...",
+    "change_password_required": "В целях безопасности, пожалуйста, измените свой стандартный пароль перед продолжением.",
+    "login_successful": "Вход успешен, перенаправление на страницу API ключей",
+    "profile_updated": "Профиль успешно обновлен!",
+    "password_changed": "Пароль успешно изменен!",
+    "delete_account_confirm": "Вы уверены, что хотите удалить свою учетную запись? Это действие нельзя отменить.",
+    "delete_account": "Удалить учетную запись",
+    "delete": "Удалить",
+    "cancel": "Отмена"
+  },
+  "subscription": {
+    "active_subscription_required": "Для доступа к панели управления требуется активная подписка.",
+    "processing": "Обработка...",
+    "registration_successful": "Регистрация успешна!",
+    "payment_instructions": "Пожалуйста, отправьте <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) на адрес ниже:",
+    "amount": "Сумма:",
+    "address": "Адрес:",
+    "copy": "Копировать",
+    "copied": "Скопировано!",
+    "waiting_payment": "Ожидание подтверждения платежа...",
+    "payment_received": "Платеж получен! Перенаправление на вашу панель управления..."
+  },
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "submit": "Отправить",
+    "loading": "Загрузка...",
+    "success": "Успех",
+    "error": "Ошибка",
+    "warning": "Предупреждение",
+    "info": "Информация",
+    "yes": "Да",
+    "no": "Нет",
+    "back": "Назад",
+    "next": "Далее",
+    "continue": "Продолжить",
+    "check_status": "Проверить статус платежа"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "لوحة التحكم",
+    "api_docs": "وثائق API",
+    "api_keys": "مفاتيح API",
+    "state_demo": "عرض الحالة",
+    "i18n_demo": "عرض i18n",
+    "login": "تسجيل الدخول",
+    "register": "تسجيل",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "theme": "السمة",
+    "language": "اللغة"
+  },
+  "errors": {
+    "page_not_found": "404 - الصفحة غير موجودة",
+    "page_not_found_message": "الصفحة \"${path}\" غير موجودة.",
+    "go_back_home": "العودة إلى الصفحة الرئيسية",
+    "error_loading_page": "خطأ في تحميل الصفحة",
+    "login_failed": "فشل تسجيل الدخول: ",
+    "invalid_credentials": "بيانات الاعتماد غير صالحة. يرجى التحقق من بريدك الإلكتروني وكلمة المرور.",
+    "auth_server_error": "خطأ في خادم المصادقة. يرجى المحاولة مرة أخرى لاحقًا.",
+    "registration_failed": "فشل التسجيل: ",
+    "passwords_not_match": "كلمات المرور غير متطابقة"
+  },
+  "auth": {
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "new_password": "كلمة مرور جديدة",
+    "logging_in": "جاري تسجيل الدخول...",
+    "checking_auth": "جاري التحقق من حالة المصادقة...",
+    "change_password_required": "لأسباب أمنية، يرجى تغيير كلمة المرور الافتراضية قبل المتابعة.",
+    "login_successful": "تم تسجيل الدخول بنجاح، جاري إعادة التوجيه إلى صفحة مفاتيح API",
+    "profile_updated": "تم تحديث الملف الشخصي بنجاح!",
+    "password_changed": "تم تغيير كلمة المرور بنجاح!",
+    "delete_account_confirm": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+    "delete_account": "حذف الحساب",
+    "delete": "حذف",
+    "cancel": "إلغاء"
+  },
+  "subscription": {
+    "active_subscription_required": "تحتاج إلى اشتراك نشط للوصول إلى لوحة التحكم.",
+    "processing": "جاري المعالجة...",
+    "registration_successful": "تم التسجيل بنجاح!",
+    "payment_instructions": "يرجى إرسال <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) إلى العنوان أدناه:",
+    "amount": "المبلغ:",
+    "address": "العنوان:",
+    "copy": "نسخ",
+    "copied": "تم النسخ!",
+    "waiting_payment": "في انتظار تأكيد الدفع...",
+    "payment_received": "تم استلام الدفع! جاري إعادة التوجيه إلى لوحة التحكم الخاصة بك..."
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "submit": "إرسال",
+    "loading": "جاري التحميل...",
+    "success": "نجاح",
+    "error": "خطأ",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "yes": "نعم",
+    "no": "لا",
+    "back": "رجوع",
+    "next": "التالي",
+    "continue": "متابعة",
+    "check_status": "التحقق من حالة الدفع"
+  }
+}

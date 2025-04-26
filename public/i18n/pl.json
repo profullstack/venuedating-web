@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Panel sterowania",
+    "api_docs": "Dokumentacja API",
+    "api_keys": "Klucze API",
+    "state_demo": "Demo stanu",
+    "i18n_demo": "Demo i18n",
+    "login": "Logowanie",
+    "register": "Rejestracja",
+    "settings": "Ustawienia",
+    "logout": "Wyloguj",
+    "theme": "Motyw",
+    "language": "Język"
+  },
+  "errors": {
+    "page_not_found": "404 - Nie znaleziono strony",
+    "page_not_found_message": "Strona \"${path}\" nie została znaleziona.",
+    "go_back_home": "Wróć do strony głównej",
+    "error_loading_page": "Błąd ładowania strony",
+    "login_failed": "Logowanie nie powiodło się: ",
+    "invalid_credentials": "Nieprawidłowe dane logowania. Sprawdź swój email i hasło.",
+    "auth_server_error": "Błąd serwera uwierzytelniania. Spróbuj ponownie później.",
+    "registration_failed": "Rejestracja nie powiodła się: ",
+    "passwords_not_match": "Hasła nie są zgodne"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Hasło",
+    "confirm_password": "Potwierdź hasło",
+    "new_password": "Nowe hasło",
+    "logging_in": "Logowanie...",
+    "checking_auth": "Sprawdzanie statusu uwierzytelnienia...",
+    "change_password_required": "Ze względów bezpieczeństwa, zmień domyślne hasło przed kontynuowaniem.",
+    "login_successful": "Logowanie udane, przekierowywanie do strony kluczy API",
+    "profile_updated": "Profil zaktualizowany pomyślnie!",
+    "password_changed": "Hasło zmienione pomyślnie!",
+    "delete_account_confirm": "Czy na pewno chcesz usunąć swoje konto? Tej operacji nie można cofnąć.",
+    "delete_account": "Usuń konto",
+    "delete": "Usuń",
+    "cancel": "Anuluj"
+  },
+  "subscription": {
+    "active_subscription_required": "Potrzebujesz aktywnej subskrypcji, aby uzyskać dostęp do panelu sterowania.",
+    "processing": "Przetwarzanie...",
+    "registration_successful": "Rejestracja udana!",
+    "payment_instructions": "Proszę wysłać <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) na poniższy adres:",
+    "amount": "Kwota:",
+    "address": "Adres:",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano!",
+    "waiting_payment": "Oczekiwanie na potwierdzenie płatności...",
+    "payment_received": "Płatność otrzymana! Przekierowywanie do panelu sterowania..."
+  },
+  "common": {
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "submit": "Wyślij",
+    "loading": "Ładowanie...",
+    "success": "Sukces",
+    "error": "Błąd",
+    "warning": "Ostrzeżenie",
+    "info": "Informacja",
+    "yes": "Tak",
+    "no": "Nie",
+    "back": "Wstecz",
+    "next": "Dalej",
+    "continue": "Kontynuuj",
+    "check_status": "Sprawdź status płatności"
+  }
+}

@@ -7,10 +7,10 @@
 // In production, this would be imported from the npm package
 // import { localizer, _t } from '@profullstack/localizer';
 // For development, we'll use ESM imports
-import { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.1.0';
+import { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.3.0';
 
 // Store available languages
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'de'];
+const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar'];
 const DEFAULT_LANGUAGE = 'en';
 
 /**
@@ -60,6 +60,9 @@ async function initI18n() {
     
     // Apply translations to the current page
     translatePage();
+    
+    // Apply RTL direction if needed
+    applyDirectionToDocument();
     
     // Set up language switcher if it exists
     setupLanguageSwitcher();
@@ -123,9 +126,12 @@ function changeLanguage(language) {
   // Apply translations to the current page
   translatePage();
   
+  // Apply RTL direction if needed
+  applyDirectionToDocument();
+  
   // Dispatch an event to notify that language has changed
-  window.dispatchEvent(new CustomEvent('language-changed', { 
-    detail: { language } 
+  window.dispatchEvent(new CustomEvent('language-changed', {
+    detail: { language }
   }));
   
   return true;
@@ -208,10 +214,35 @@ function getLanguageName(langCode) {
   const names = {
     en: 'English',
     fr: 'Français',
-    de: 'Deutsch'
+    de: 'Deutsch',
+    uk: 'Українська',
+    ru: 'Русский',
+    pl: 'Polski',
+    zh: '中文',
+    ja: '日本語'
   };
   
   return names[langCode] || langCode;
+}
+
+/**
+ * Apply RTL direction to the document if the current language is RTL
+ */
+function applyDirectionToDocument() {
+  const currentLang = localizer.getLanguage();
+  const isRTL = localizer.isRTL();
+  
+  // Set the dir attribute on the html element
+  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  
+  // Add or remove RTL class to the body
+  if (isRTL) {
+    document.body.classList.add('rtl');
+  } else {
+    document.body.classList.remove('rtl');
+  }
+  
+  console.log(`Applied ${isRTL ? 'RTL' : 'LTR'} direction to document for language: ${currentLang}`);
 }
 
 /**

@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "ダッシュボード",
+    "api_docs": "API ドキュメント",
+    "api_keys": "API キー",
+    "state_demo": "ステートデモ",
+    "i18n_demo": "i18n デモ",
+    "login": "ログイン",
+    "register": "登録",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "theme": "テーマ",
+    "language": "言語"
+  },
+  "errors": {
+    "page_not_found": "404 - ページが見つかりません",
+    "page_not_found_message": "ページ \"${path}\" が見つかりませんでした。",
+    "go_back_home": "ホームに戻る",
+    "error_loading_page": "ページの読み込みエラー",
+    "login_failed": "ログイン失敗: ",
+    "invalid_credentials": "認証情報が無効です。メールアドレスとパスワードを確認してください。",
+    "auth_server_error": "認証サーバーエラー。後でもう一度お試しください。",
+    "registration_failed": "登録失敗: ",
+    "passwords_not_match": "パスワードが一致しません"
+  },
+  "auth": {
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirm_password": "パスワードの確認",
+    "new_password": "新しいパスワード",
+    "logging_in": "ログイン中...",
+    "checking_auth": "認証状態を確認中...",
+    "change_password_required": "セキュリティ上の理由から、続行する前にデフォルトのパスワードを変更してください。",
+    "login_successful": "ログイン成功、API キーページにリダイレクトします",
+    "profile_updated": "プロフィールが正常に更新されました！",
+    "password_changed": "パスワードが正常に変更されました！",
+    "delete_account_confirm": "アカウントを削除してもよろしいですか？この操作は元に戻せません。",
+    "delete_account": "アカウントを削除",
+    "delete": "削除",
+    "cancel": "キャンセル"
+  },
+  "subscription": {
+    "active_subscription_required": "ダッシュボードにアクセスするには有効なサブスクリプションが必要です。",
+    "processing": "処理中...",
+    "registration_successful": "登録成功！",
+    "payment_instructions": "<strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) を以下のアドレスに送信してください：",
+    "amount": "金額：",
+    "address": "アドレス：",
+    "copy": "コピー",
+    "copied": "コピーしました！",
+    "waiting_payment": "支払い確認を待っています...",
+    "payment_received": "支払いを受け取りました！ダッシュボードにリダイレクトします..."
+  },
+  "common": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "submit": "送信",
+    "loading": "読み込み中...",
+    "success": "成功",
+    "error": "エラー",
+    "warning": "警告",
+    "info": "情報",
+    "yes": "はい",
+    "no": "いいえ",
+    "back": "戻る",
+    "next": "次へ",
+    "continue": "続ける",
+    "check_status": "支払い状況を確認"
+  }
+}

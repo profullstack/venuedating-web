@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Панель керування",
+    "api_docs": "API Документація",
+    "api_keys": "API Ключі",
+    "state_demo": "Демо стану",
+    "i18n_demo": "i18n Демо",
+    "login": "Увійти",
+    "register": "Зареєструватися",
+    "settings": "Налаштування",
+    "logout": "Вийти",
+    "theme": "Тема",
+    "language": "Мова"
+  },
+  "errors": {
+    "page_not_found": "404 - Сторінку не знайдено",
+    "page_not_found_message": "Сторінку \"${path}\" не знайдено.",
+    "go_back_home": "Повернутися на головну",
+    "error_loading_page": "Помилка завантаження сторінки",
+    "login_failed": "Помилка входу: ",
+    "invalid_credentials": "Невірні облікові дані. Перевірте свою електронну пошту та пароль.",
+    "auth_server_error": "Помилка сервера автентифікації. Спробуйте пізніше.",
+    "registration_failed": "Помилка реєстрації: ",
+    "passwords_not_match": "Паролі не співпадають"
+  },
+  "auth": {
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "confirm_password": "Підтвердити пароль",
+    "new_password": "Новий пароль",
+    "logging_in": "Вхід...",
+    "checking_auth": "Перевірка статусу автентифікації...",
+    "change_password_required": "З міркувань безпеки, будь ласка, змініть свій стандартний пароль перед продовженням.",
+    "login_successful": "Вхід успішний, перенаправлення на сторінку API ключів",
+    "profile_updated": "Профіль успішно оновлено!",
+    "password_changed": "Пароль успішно змінено!",
+    "delete_account_confirm": "Ви впевнені, що хочете видалити свій обліковий запис? Цю дію неможливо скасувати.",
+    "delete_account": "Видалити обліковий запис",
+    "delete": "Видалити",
+    "cancel": "Скасувати"
+  },
+  "subscription": {
+    "active_subscription_required": "Для доступу до панелі керування потрібна активна підписка.",
+    "processing": "Обробка...",
+    "registration_successful": "Реєстрація успішна!",
+    "payment_instructions": "Будь ласка, надішліть <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) на адресу нижче:",
+    "amount": "Сума:",
+    "address": "Адреса:",
+    "copy": "Копіювати",
+    "copied": "Скопійовано!",
+    "waiting_payment": "Очікування підтвердження платежу...",
+    "payment_received": "Платіж отримано! Перенаправлення на вашу панель керування..."
+  },
+  "common": {
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "submit": "Надіслати",
+    "loading": "Завантаження...",
+    "success": "Успіх",
+    "error": "Помилка",
+    "warning": "Попередження",
+    "info": "Інформація",
+    "yes": "Так",
+    "no": "Ні",
+    "back": "Назад",
+    "next": "Далі",
+    "continue": "Продовжити",
+    "check_status": "Перевірити статус платежу"
+  }
+}
