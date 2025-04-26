@@ -11,6 +11,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.8.2
         version: 1.14.1(hono@4.7.7)
+      '@profullstack/spa-router':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@supabase/supabase-js':
         specifier: ^2.49.4
         version: 2.49.4
@@ -107,6 +110,9 @@ packages:
 
   '@mixmark-io/domino@2.2.0':
     resolution: {integrity: sha512-Y28PR25bHXUg88kCV7nivXrP2Nj2RueZ3/l/jdx6J9f8J4nsEGcgX0Qe6lt7Pa+J79+kPiJU3LguR6O/6zrLOw==}
+
+  '@profullstack/spa-router@1.0.1':
+    resolution: {integrity: sha512-8ucYMH8mr0rL7ZZVouQhd6Amx7YL/tytDEnIZ7wK7nT81sXR1rHQ4fktMoph7YjLb/WtKmx8X+WlQap4RI21HQ==}
 
   '@puppeteer/browsers@2.3.0':
     resolution: {integrity: sha512-ioXoq9gPxkss4MYhD+SFaU9p1IHFUX0ILAWFPyjGaBdjLsYAlZw6j1iLA0N/m12uVHLFDfSYNF7EQccjinIMDA==}
@@ -1249,6 +1255,8 @@ snapshots:
       hono: 4.7.7
 
   '@mixmark-io/domino@2.2.0': {}
+
+  '@profullstack/spa-router@1.0.1': {}
 
   '@puppeteer/browsers@2.3.0':
     dependencies:

@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
-import Router from './router.js';
+import { Router, transitions } from '@profullstack/spa-router';
 
 // Import components
 import './components/pf-header.js';
@@ -53,7 +53,45 @@ function initRouter() {
     },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
-      afterRender: () => checkAuthAndInitPage('dashboard')
+      beforeEnter: (to, from, next) => {
+        // Check if user is authenticated
+        const jwtToken = localStorage.getItem('jwt_token');
+        if (!jwtToken) {
+          console.log('No JWT token found, redirecting to login page');
+          return next('/login');
+        }
+        
+        // Check if user has an active subscription
+        const userJson = localStorage.getItem('user');
+        let user = null;
+        
+        if (userJson) {
+          try {
+            user = JSON.parse(userJson);
+            console.log('User data found:', user.email);
+          } catch (e) {
+            console.error('Error parsing user JSON:', e);
+          }
+        }
+        
+        // Verify subscription status
+        const hasActiveSubscription = user &&
+                                    user.subscription &&
+                                    user.subscription.status === 'active';
+        
+        if (!hasActiveSubscription) {
+          console.log('No active subscription found, redirecting to subscription page');
+          // Redirect to subscription page
+          alert('You need an active subscription to access the dashboard.');
+          return next('/subscription');
+        }
+        
+        console.log('Active subscription verified');
+        next();
+      },
+      afterRender: () => {
+        // Dashboard initialization is handled by the page's own script
+      }
     },
     '/api-docs': {
       view: () => loadPage('/views/api-docs.html')
@@ -88,21 +126,28 @@ function initRouter() {
     }
   });
   
-  // Create router
+  // Create router with fade transition
   const router = new Router({
-    routes,
     rootElement: '#app',
-    errorHandler: (path, rootElement) => {
-      rootElement.innerHTML = `
-        <pf-header></pf-header>
-        <div class="error-page">
-          <h1>404 - Page Not Found</h1>
-          <p>The page "${path}" could not be found.</p>
-          <a href="/" class="back-link">Go back to home</a>
-        </div>
-        <pf-footer></pf-footer>
-      `;
-    }
+    transition: transitions.fade({ duration: 150 }),
+    errorHandler: (path) => `
+      <pf-header></pf-header>
+      <div class="error-page">
+        <h1>404 - Page Not Found</h1>
+        <p>The page "${path}" could not be found.</p>
+        <a href="/" class="back-link">Go back to home</a>
+      </div>
+      <pf-footer></pf-footer>
+    `
+  });
+  
+  // Register routes
+  router.registerRoutes(routes);
+  
+  // Add middleware for logging
+  router.use(async (to, from, next) => {
+    console.log(`Navigating from ${from || 'initial'} to ${to.path}`);
+    next();
   });
   
   // Expose router globally
@@ -640,52 +685,14 @@ function initRegisterPage() {
 
 /**
  * Check if user is authenticated and initialize page
+ * This function is no longer needed as we're using route guards
  * @param {string} pageType - Type of page to initialize
  */
 function checkAuthAndInitPage(pageType) {
   console.log(`Checking auth for page type: ${pageType}`);
   
-  // Check if user is logged in using JWT token (not API key)
-  const jwtToken = localStorage.getItem('jwt_token');
-  if (!jwtToken) {
-    console.log('No JWT token found, redirecting to login page');
-    // Redirect to login page
-    window.router.navigate('/login');
-    return;
-  }
-  
-  console.log('JWT token found, user is authenticated');
-  
-  // For protected pages that require an active subscription
-  if (pageType === 'dashboard') {
-    // Check if user has an active subscription
-    const userJson = localStorage.getItem('user');
-    let user = null;
-    
-    if (userJson) {
-      try {
-        user = JSON.parse(userJson);
-        console.log('User data found:', user.email);
-      } catch (e) {
-        console.error('Error parsing user JSON:', e);
-      }
-    }
-    
-    // Verify subscription status
-    const hasActiveSubscription = user &&
-                                 user.subscription &&
-                                 user.subscription.status === 'active';
-    
-    if (!hasActiveSubscription) {
-      console.log('No active subscription found, redirecting to subscription page');
-      // Redirect to subscription page
-      alert('You need an active subscription to access the dashboard.');
-      window.router.navigate('/subscription');
-      return;
-    }
-    
-    console.log('Active subscription verified');
-  }
+  // This functionality is now handled by route guards
+  // We keep this function for backward compatibility
   
   // Initialize specific page if needed
   switch (pageType) {
