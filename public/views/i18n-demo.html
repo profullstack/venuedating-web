@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Localization Demo</title>
+  <style>
+    .demo-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .demo-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    
+    .demo-section h2 {
+      margin-top: 0;
+      color: #e02337;
+    }
+    
+    .language-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .language-button {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .language-button:hover {
+      background-color: #f3f4f6;
+    }
+    
+    .language-button.active {
+      background-color: #e02337;
+      color: white;
+      border-color: #e02337;
+    }
+    
+    .example-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .example-table th, .example-table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    
+    .example-table th {
+      background-color: #f3f4f6;
+    }
+    
+    .code {
+      font-family: monospace;
+      background-color: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    .result {
+      margin-top: 5px;
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h1 data-i18n="app_name">convert2doc</h1>
+    <p>Localization Demo</p>
+    
+    <div class="demo-section">
+      <h2>Language Selection</h2>
+      <p>Select a language to see the translations in action:</p>
+      
+      <div class="language-controls">
+        <language-switcher></language-switcher>
+      </div>
+      
+      <p>You can also use these direct buttons:</p>
+      
+      <div class="language-controls">
+        <button class="language-button" data-lang="en">English</button>
+        <button class="language-button" data-lang="fr">Français</button>
+        <button class="language-button" data-lang="de">Deutsch</button>
+      </div>
+    </div>
+    
+    <div class="demo-section">
+      <h2>Basic Translations</h2>
+      <p>These examples show basic text translations using the <span class="code">data-i18n</span> attribute:</p>
+      
+      <table class="example-table">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>HTML</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>navigation.dashboard</td>
+            <td><span class="code">&lt;span data-i18n="navigation.dashboard"&gt;Dashboard&lt;/span&gt;</span></td>
+            <td><div class="result"><span data-i18n="navigation.dashboard">Dashboard</span></div></td>
+          </tr>
+          <tr>
+            <td>navigation.api_keys</td>
+            <td><span class="code">&lt;span data-i18n="navigation.api_keys"&gt;API Keys&lt;/span&gt;</span></td>
+            <td><div class="result"><span data-i18n="navigation.api_keys">API Keys</span></div></td>
+          </tr>
+          <tr>
+            <td>navigation.login</td>
+            <td><span class="code">&lt;span data-i18n="navigation.login"&gt;Login&lt;/span&gt;</span></td>
+            <td><div class="result"><span data-i18n="navigation.login">Login</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="demo-section">
+      <h2>Interpolation</h2>
+      <p>These examples show how to use interpolation with the <span class="code">data-i18n-params</span> attribute:</p>
+      
+      <table class="example-table">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>HTML</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>errors.page_not_found_message</td>
+            <td><span class="code">&lt;span data-i18n="errors.page_not_found_message" data-i18n-params='{"path":"/example"}'&gt;The page "/example" could not be found.&lt;/span&gt;</span></td>
+            <td><div class="result"><span data-i18n="errors.page_not_found_message" data-i18n-params='{"path":"/example"}'>The page "/example" could not be found.</span></div></td>
+          </tr>
+          <tr>
+            <td>subscription.payment_instructions</td>
+            <td><span class="code">&lt;span data-i18n="subscription.payment_instructions" data-i18n-params='{"amount":"10.00", "cryptoAmount":"0.00042", "coin":"BTC"}'&gt;Please send &lt;strong&gt;10.00 USD&lt;/strong&gt; (&lt;strong&gt;0.00042 BTC&lt;/strong&gt;) to the address below:&lt;/span&gt;</span></td>
+            <td><div class="result"><span data-i18n-html="subscription.payment_instructions" data-i18n-params='{"amount":"10.00", "cryptoAmount":"0.00042", "coin":"BTC"}'>Please send <strong>10.00 USD</strong> (<strong>0.00042 BTC</strong>) to the address below:</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="demo-section">
+      <h2>JavaScript API</h2>
+      <p>You can also use the JavaScript API directly:</p>
+      
+      <div class="example">
+        <div class="code">_t('common.loading')</div>
+        <div class="result" id="js-example-1">Loading...</div>
+      </div>
+      
+      <div class="example">
+        <div class="code">_t('auth.delete_account_confirm')</div>
+        <div class="result" id="js-example-2">Are you sure you want to delete your account? This action cannot be undone.</div>
+      </div>
+      
+      <div class="example">
+        <div class="code">_t('subscription.payment_received')</div>
+        <div class="result" id="js-example-3">Payment received! Redirecting to your dashboard...</div>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module">
+    import { _t, changeLanguage, localizer } from '/js/i18n.js';
+    
+    // Flatten a nested object into a flat object with dot notation keys
+    function flattenObject(obj, prefix = '') {
+      return Object.keys(obj).reduce((acc, key) => {
+        const prefixedKey = prefix ? `${prefix}.${key}` : key;
+        
+        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+          Object.assign(acc, flattenObject(obj[key], prefixedKey));
+        } else {
+          acc[prefixedKey] = obj[key];
+        }
+        
+        return acc;
+      }, {});
+    }
+    
+    // Update the JavaScript examples
+    function updateJsExamples() {
+      document.getElementById('js-example-1').textContent = _t('common.loading');
+      document.getElementById('js-example-2').textContent = _t('auth.delete_account_confirm');
+      document.getElementById('js-example-3').textContent = _t('subscription.payment_received');
+    }
+    
+    // Set up language buttons
+    document.querySelectorAll('.language-button').forEach(button => {
+      button.addEventListener('click', () => {
+        const lang = button.getAttribute('data-lang');
+        changeLanguage(lang);
+        
+        // Update active state
+        document.querySelectorAll('.language-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Update JavaScript examples
+        updateJsExamples();
+      });
+    });
+    
+    // Set initial active state
+    window.addEventListener('i18n-ready', () => {
+      const currentLang = localStorage.getItem('profullstack-language') || 'en';
+      document.querySelector(`.language-button[data-lang="${currentLang}"]`).classList.add('active');
+      updateJsExamples();
+    });
+    
+    // Listen for language changes
+    window.addEventListener('language-changed', (event) => {
+      const lang = event.detail.language;
+      document.querySelector(`.language-button[data-lang="${lang}"]`).classList.add('active');
+      updateJsExamples();
+    });
+  </script>
+</body>
+</html>

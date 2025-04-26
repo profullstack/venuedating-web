@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Dashboard",
+    "api_docs": "API Docs",
+    "api_keys": "API Keys",
+    "state_demo": "State Demo",
+    "i18n_demo": "i18n Demo",
+    "login": "Login",
+    "register": "Register",
+    "settings": "Settings",
+    "logout": "Logout",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "errors": {
+    "page_not_found": "404 - Page Not Found",
+    "page_not_found_message": "The page \"${path}\" could not be found.",
+    "go_back_home": "Go back to home",
+    "error_loading_page": "Error Loading Page",
+    "login_failed": "Login failed: ",
+    "invalid_credentials": "Invalid credentials. Please check your email and password.",
+    "auth_server_error": "Authentication server error. Please try again later.",
+    "registration_failed": "Registration failed: ",
+    "passwords_not_match": "Passwords do not match"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "new_password": "New Password",
+    "logging_in": "Logging in...",
+    "checking_auth": "Checking auth status...",
+    "change_password_required": "For security reasons, please change your default password before continuing.",
+    "login_successful": "Login successful, redirecting to API keys page",
+    "profile_updated": "Profile updated successfully!",
+    "password_changed": "Password changed successfully!",
+    "delete_account_confirm": "Are you sure you want to delete your account? This action cannot be undone.",
+    "delete_account": "Delete Account",
+    "delete": "Delete",
+    "cancel": "Cancel"
+  },
+  "subscription": {
+    "active_subscription_required": "You need an active subscription to access the dashboard.",
+    "processing": "Processing...",
+    "registration_successful": "Registration Successful!",
+    "payment_instructions": "Please send <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) to the address below:",
+    "amount": "Amount:",
+    "address": "Address:",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "waiting_payment": "Waiting for payment confirmation...",
+    "payment_received": "Payment received! Redirecting to your dashboard..."
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Information",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "check_status": "Check Payment Status"
+  }
+}

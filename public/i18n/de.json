@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Dashboard",
+    "api_docs": "API-Dokumentation",
+    "api_keys": "API-Schlüssel",
+    "state_demo": "Status-Demo",
+    "i18n_demo": "i18n-Demo",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "theme": "Thema",
+    "language": "Sprache"
+  },
+  "errors": {
+    "page_not_found": "404 - Seite nicht gefunden",
+    "page_not_found_message": "Die Seite \"${path}\" konnte nicht gefunden werden.",
+    "go_back_home": "Zurück zur Startseite",
+    "error_loading_page": "Fehler beim Laden der Seite",
+    "login_failed": "Anmeldung fehlgeschlagen: ",
+    "invalid_credentials": "Ungültige Anmeldedaten. Bitte überprüfen Sie Ihre E-Mail und Ihr Passwort.",
+    "auth_server_error": "Authentifizierungsserverfehler. Bitte versuchen Sie es später erneut.",
+    "registration_failed": "Registrierung fehlgeschlagen: ",
+    "passwords_not_match": "Passwörter stimmen nicht überein"
+  },
+  "auth": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "confirm_password": "Passwort bestätigen",
+    "new_password": "Neues Passwort",
+    "logging_in": "Anmeldung läuft...",
+    "checking_auth": "Authentifizierungsstatus wird überprüft...",
+    "change_password_required": "Aus Sicherheitsgründen ändern Sie bitte Ihr Standardpasswort, bevor Sie fortfahren.",
+    "login_successful": "Anmeldung erfolgreich, Weiterleitung zur API-Schlüsselseite",
+    "profile_updated": "Profil erfolgreich aktualisiert!",
+    "password_changed": "Passwort erfolgreich geändert!",
+    "delete_account_confirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "delete_account": "Konto löschen",
+    "delete": "Löschen",
+    "cancel": "Abbrechen"
+  },
+  "subscription": {
+    "active_subscription_required": "Sie benötigen ein aktives Abonnement, um auf das Dashboard zuzugreifen.",
+    "processing": "Verarbeitung läuft...",
+    "registration_successful": "Registrierung erfolgreich!",
+    "payment_instructions": "Bitte senden Sie <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) an die folgende Adresse:",
+    "amount": "Betrag:",
+    "address": "Adresse:",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "waiting_payment": "Warten auf Zahlungsbestätigung...",
+    "payment_received": "Zahlung erhalten! Weiterleitung zu Ihrem Dashboard..."
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "submit": "Absenden",
+    "loading": "Wird geladen...",
+    "success": "Erfolg",
+    "error": "Fehler",
+    "warning": "Warnung",
+    "info": "Information",
+    "yes": "Ja",
+    "no": "Nein",
+    "back": "Zurück",
+    "next": "Weiter",
+    "continue": "Fortfahren",
+    "check_status": "Zahlungsstatus prüfen"
+  }
+}

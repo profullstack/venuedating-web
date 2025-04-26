@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>i18n Test</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .result {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .language-buttons {
+      margin: 20px 0;
+    }
+    button {
+      padding: 8px 16px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .active {
+      background-color: #e02337;
+      color: white;
+      border-color: #e02337;
+    }
+  </style>
+</head>
+<body>
+  <h1>i18n Test Page</h1>
+  
+  <div class="language-buttons">
+    <button data-lang="en">English</button>
+    <button data-lang="fr">Français</button>
+    <button data-lang="de">Deutsch</button>
+  </div>
+  
+  <h2>Current Language: <span id="current-lang"></span></h2>
+  
+  <h3>Basic Translations</h3>
+  <div class="result" id="app-name"></div>
+  <div class="result" id="dashboard"></div>
+  <div class="result" id="login"></div>
+  
+  <h3>Interpolation</h3>
+  <div class="result" id="page-not-found"></div>
+  
+  <script type="module">
+    // Import directly from ESM
+    const { localizer, _t } = await import('https://esm.sh/@profullstack/localizer@0.1.0');
+    
+    // Available languages
+    const AVAILABLE_LANGUAGES = ['en', 'fr', 'de'];
+    
+    // Flatten a nested object into a flat object with dot notation keys
+    function flattenObject(obj, prefix = '') {
+      return Object.keys(obj).reduce((acc, key) => {
+        const prefixedKey = prefix ? `${prefix}.${key}` : key;
+        
+        if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+          Object.assign(acc, flattenObject(obj[key], prefixedKey));
+        } else {
+          acc[prefixedKey] = obj[key];
+        }
+        
+        return acc;
+      }, {});
+    }
+    
+    // Load translations
+    async function loadTranslations() {
+      try {
+        // Load translations for all languages
+        for (const lang of AVAILABLE_LANGUAGES) {
+          const response = await fetch(`/i18n/${lang}.json`);
+          if (!response.ok) {
+            throw new Error(`Failed to load ${lang}.json: ${response.status}`);
+          }
+          const translations = await response.json();
+          console.log(`Loaded translations for ${lang}:`, translations);
+          
+          // Flatten the nested translations
+          const flattenedTranslations = flattenObject(translations);
+          console.log(`Flattened translations for ${lang}:`, flattenedTranslations);
+          
+          // Load the flattened translations
+          localizer.loadTranslations(lang, flattenedTranslations);
+        }
+        
+        // Set initial language to English
+        localizer.setLanguage('en');
+        
+        // Update UI
+        updateUI();
+        
+        // Set active button
+        document.querySelector('button[data-lang="en"]').classList.add('active');
+      } catch (error) {
+        console.error('Error loading translations:', error);
+      }
+    }
+    
+    // Update UI with translations
+    function updateUI() {
+      const currentLang = localizer.getLanguage();
+      document.getElementById('current-lang').textContent = currentLang;
+      
+      // Basic translations
+      document.getElementById('app-name').textContent = `app_name: ${_t('app_name')}`;
+      document.getElementById('dashboard').textContent = `navigation.dashboard: ${_t('navigation.dashboard')}`;
+      document.getElementById('login').textContent = `navigation.login: ${_t('navigation.login')}`;
+      
+      // Interpolation
+      document.getElementById('page-not-found').textContent = 
+        `errors.page_not_found_message: ${_t('errors.page_not_found_message', { path: '/example' })}`;
+    }
+    
+    // Set up language buttons
+    document.querySelectorAll('button[data-lang]').forEach(button => {
+      button.addEventListener('click', () => {
+        const lang = button.getAttribute('data-lang');
+        localizer.setLanguage(lang);
+        
+        // Update active state
+        document.querySelectorAll('button[data-lang]').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Update UI
+        updateUI();
+      });
+    });
+    
+    // Initialize
+    loadTranslations();
+  </script>
+</body>
+</html>

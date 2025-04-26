@@ -1,0 +1,71 @@
+{
+  "app_name": "convert2doc",
+  "navigation": {
+    "dashboard": "Tableau de bord",
+    "api_docs": "Documentation API",
+    "api_keys": "Clés API",
+    "state_demo": "Démo d'état",
+    "i18n_demo": "Démo i18n",
+    "login": "Connexion",
+    "register": "S'inscrire",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "theme": "Thème",
+    "language": "Langue"
+  },
+  "errors": {
+    "page_not_found": "404 - Page non trouvée",
+    "page_not_found_message": "La page \"${path}\" n'a pas pu être trouvée.",
+    "go_back_home": "Retour à l'accueil",
+    "error_loading_page": "Erreur de chargement de la page",
+    "login_failed": "Échec de la connexion : ",
+    "invalid_credentials": "Identifiants invalides. Veuillez vérifier votre email et mot de passe.",
+    "auth_server_error": "Erreur du serveur d'authentification. Veuillez réessayer plus tard.",
+    "registration_failed": "Échec de l'inscription : ",
+    "passwords_not_match": "Les mots de passe ne correspondent pas"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm_password": "Confirmer le mot de passe",
+    "new_password": "Nouveau mot de passe",
+    "logging_in": "Connexion en cours...",
+    "checking_auth": "Vérification du statut d'authentification...",
+    "change_password_required": "Pour des raisons de sécurité, veuillez changer votre mot de passe par défaut avant de continuer.",
+    "login_successful": "Connexion réussie, redirection vers la page des clés API",
+    "profile_updated": "Profil mis à jour avec succès !",
+    "password_changed": "Mot de passe changé avec succès !",
+    "delete_account_confirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
+    "delete_account": "Supprimer le compte",
+    "delete": "Supprimer",
+    "cancel": "Annuler"
+  },
+  "subscription": {
+    "active_subscription_required": "Vous avez besoin d'un abonnement actif pour accéder au tableau de bord.",
+    "processing": "Traitement en cours...",
+    "registration_successful": "Inscription réussie !",
+    "payment_instructions": "Veuillez envoyer <strong>${amount} USD</strong> (<strong>${cryptoAmount} ${coin}</strong>) à l'adresse ci-dessous :",
+    "amount": "Montant :",
+    "address": "Adresse :",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "waiting_payment": "En attente de confirmation du paiement...",
+    "payment_received": "Paiement reçu ! Redirection vers votre tableau de bord..."
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Soumettre",
+    "loading": "Chargement...",
+    "success": "Succès",
+    "error": "Erreur",
+    "warning": "Avertissement",
+    "info": "Information",
+    "yes": "Oui",
+    "no": "Non",
+    "back": "Retour",
+    "next": "Suivant",
+    "continue": "Continuer",
+    "check_status": "Vérifier l'état du paiement"
+  }
+}

@@ -1,6 +1,8 @@
 /**
  * Header component for the application
  */
+import '../components/language-switcher.js';
+
 class PfHeader extends HTMLElement {
   constructor() {
     super();
@@ -272,7 +274,7 @@ class PfHeader extends HTMLElement {
         <a href="/" class="logo-link" style="text-decoration: none;">
           <div class="logo">
             <img src="/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg" alt="Profullstack, Inc. Logo">
-            <h1>convert2doc</h1>
+            <h1 data-i18n="app_name">convert2doc</h1>
           </div>
         </a>
         
@@ -284,12 +286,17 @@ class PfHeader extends HTMLElement {
         </div>
         
         <div class="nav-links">
-          <a href="/dashboard" class="nav-link" id="dashboard-link">Dashboard</a>
-          <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
-          <a href="/api-keys" class="nav-link" id="api-keys-link">API Keys</a>
-          <a href="/simple-state-demo" class="nav-link" id="state-demo-link">State Demo</a>
-          <a href="/login" class="nav-link login-link" id="login-link">Login</a>
-          <a href="/register" class="subscription-link register-link" id="register-link">Register</a>
+          <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">Dashboard</a>
+          <a href="/api-docs" class="nav-link" id="api-docs-link" data-i18n="navigation.api_docs">API Docs</a>
+          <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">API Keys</a>
+          <a href="/simple-state-demo" class="nav-link" id="state-demo-link" data-i18n="navigation.state_demo">State Demo</a>
+          <a href="/i18n-demo" class="nav-link" id="i18n-demo-link" data-i18n="navigation.i18n_demo">i18n Demo</a>
+          <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">Login</a>
+          <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">Register</a>
+          
+          <!-- Language Switcher -->
+          <language-switcher></language-switcher>
+          
           <button class="theme-toggle" title="Toggle light/dark theme">
             ${this.currentTheme === 'dark'
               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -305,15 +312,19 @@ class PfHeader extends HTMLElement {
       
       <!-- Mobile menu container -->
       <div class="mobile-menu">
-        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link">Dashboard</a>
-        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link">API Docs</a>
-        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link">API Keys</a>
-        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link">State Demo</a>
-        <a href="/login" class="nav-link login-link" id="mobile-login-link">Login</a>
-        <a href="/register" class="subscription-link register-link" id="mobile-register-link">Register</a>
+        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">Dashboard</a>
+        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link" data-i18n="navigation.api_docs">API Docs</a>
+        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">API Keys</a>
+        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link" data-i18n="navigation.state_demo">State Demo</a>
+        <a href="/i18n-demo" class="nav-link" id="mobile-i18n-demo-link" data-i18n="navigation.i18n_demo">i18n Demo</a>
+        <a href="/login" class="nav-link login-link" id="mobile-login-link" data-i18n="navigation.login">Login</a>
+        <a href="/register" class="subscription-link register-link" id="mobile-register-link" data-i18n="navigation.register">Register</a>
+        
+        <!-- Mobile Language Switcher -->
+        <language-switcher></language-switcher>
         
         <div class="mobile-theme-toggle-container">
-          <span>Theme</span>
+          <span data-i18n="navigation.theme">Theme</span>
           <button class="theme-toggle mobile-theme-toggle" title="Toggle light/dark theme">
             ${this.currentTheme === 'dark'
               ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -343,6 +354,17 @@ class PfHeader extends HTMLElement {
       this.currentTheme = event.detail.theme;
       this.updateLogo();
       this.updateThemeToggle();
+    });
+    
+    // Listen for language changes
+    window.addEventListener('language-changed', () => {
+      // Translate elements in the shadow DOM
+      this.translateElements();
+    });
+    
+    // Listen for i18n ready event
+    window.addEventListener('i18n-ready', () => {
+      this.translateElements();
     });
     
     // Add event listeners for theme toggle buttons (both desktop and mobile)
@@ -402,6 +424,8 @@ class PfHeader extends HTMLElement {
       this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
     } else if (currentPath.startsWith('/state-demo')) {
       this.shadowRoot.querySelector('#state-demo-link')?.classList.add('active');
+    } else if (currentPath.startsWith('/i18n-demo')) {
+      this.shadowRoot.querySelector('#i18n-demo-link')?.classList.add('active');
     } else if (currentPath.startsWith('/login')) {
       this.shadowRoot.querySelector('#login-link')?.classList.add('active');
     } else if (currentPath.startsWith('/register')) {
@@ -686,6 +710,22 @@ class PfHeader extends HTMLElement {
         window.location.href = '/';
       }
     }
+  }
+  
+  /**
+   * Translate elements with data-i18n attributes in the shadow DOM
+   */
+  translateElements() {
+    // Import the translation function
+    import('../i18n.js').then(({ _t }) => {
+      // Find all elements with data-i18n attribute
+      this.shadowRoot.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        element.textContent = _t(key);
+      });
+    }).catch(error => {
+      console.error('Error importing i18n module:', error);
+    });
   }
 }
 

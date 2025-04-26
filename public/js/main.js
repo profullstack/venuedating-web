@@ -9,6 +9,10 @@ import './components/pf-footer.js';
 import './components/pf-dialog.js';
 import './components/pf-hero.js';
 import './components/api-key-manager.js';
+import './components/language-switcher.js';
+
+// Import i18n module
+import { initI18n, _t, translatePage } from './i18n.js';
 
 // Wait for DOM to be fully loaded before initializing
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,6 +30,13 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
  * Initialize the application
  */
 function initApp() {
+  // Initialize i18n
+  initI18n().then(() => {
+    console.log('i18n initialized');
+  }).catch(error => {
+    console.error('Error initializing i18n:', error);
+  });
+  
   // Initialize the router for SPA mode
   initRouter();
 }
@@ -128,6 +139,9 @@ function initRouter() {
     },
     '/refund': {
       view: () => loadPage('/views/refund.html')
+    },
+    '/i18n-demo': {
+      view: () => loadPage('/views/i18n-demo.html')
     }
   };
   
@@ -192,9 +206,9 @@ function initRouter() {
     errorHandler: (path) => `
       <pf-header></pf-header>
       <div class="error-page">
-        <h1>404 - Page Not Found</h1>
-        <p>The page "${path}" could not be found.</p>
-        <a href="/" class="back-link">Go back to home</a>
+        <h1 data-i18n="errors.page_not_found">404 - Page Not Found</h1>
+        <p data-i18n-params='{"path":"${path}"}' data-i18n="errors.page_not_found_message">The page "${path}" could not be found.</p>
+        <a href="/" class="back-link" data-i18n="errors.go_back_home">Go back to home</a>
       </div>
       <pf-footer></pf-footer>
     `
@@ -292,13 +306,21 @@ async function loadPage(url) {
     container.appendChild(footer);
     
     // Return the HTML string representation
-    return container.outerHTML;
+    // Get the HTML content
+    const result = container.outerHTML;
+    
+    // Schedule translation after the content is rendered
+    setTimeout(() => {
+      translatePage();
+    }, 0);
+    
+    return result;
   } catch (error) {
     console.error('Error loading page:', error);
     return `
       <pf-header></pf-header>
       <div class="error">
-        <h1>Error Loading Page</h1>
+        <h1 data-i18n="errors.error_loading_page">Error Loading Page</h1>
         <p>${error.message}</p>
       </div>
       <pf-footer></pf-footer>
@@ -1035,5 +1057,6 @@ window.app = {
   initApp,
   initRouter,
   checkAuthAndInitPage,
-  initResetPasswordPage
+  initResetPasswordPage,
+  _t // Expose translation function globally
 };
