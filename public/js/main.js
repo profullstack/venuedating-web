@@ -54,6 +54,15 @@ function initRouter() {
     '/state-demo': {
       view: () => loadPage('/views/state-demo.html')
     },
+    '/simple-state-demo': {
+      view: () => loadPage('/views/simple-state-demo.html'),
+      afterRender: () => {
+        // Import the simple state components
+        import('./components/simple-counter.js').catch(error => {
+          console.error('Error loading simple-counter component:', error);
+        });
+      }
+    },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
       beforeEnter: (to, from, next) => {
