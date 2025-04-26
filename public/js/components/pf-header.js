@@ -287,7 +287,7 @@ class PfHeader extends HTMLElement {
           <a href="/dashboard" class="nav-link" id="dashboard-link">Dashboard</a>
           <a href="/api-docs" class="nav-link" id="api-docs-link">API Docs</a>
           <a href="/api-keys" class="nav-link" id="api-keys-link">API Keys</a>
-          <a href="/state-demo" class="nav-link" id="state-demo-link">State Demo</a>
+          <a href="/simple-state-demo" class="nav-link" id="state-demo-link">State Demo</a>
           <a href="/login" class="nav-link login-link" id="login-link">Login</a>
           <a href="/register" class="subscription-link register-link" id="register-link">Register</a>
           <button class="theme-toggle" title="Toggle light/dark theme">
