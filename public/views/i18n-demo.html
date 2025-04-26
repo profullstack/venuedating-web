@@ -187,6 +187,22 @@
         <div class="result" id="js-example-3">Payment received! Redirecting to your dashboard...</div>
       </div>
     </div>
+    
+    <div class="demo-section">
+      <h2>RTL Support</h2>
+      <p>The library automatically detects Right-to-Left (RTL) languages like Arabic and applies the appropriate direction to the document.</p>
+      
+      <p>When you select Arabic (العربية) from the language dropdown or buttons, the following will happen:</p>
+      
+      <ul>
+        <li>The <code>dir="rtl"</code> attribute will be added to the <code>html</code> element</li>
+        <li>The <code>rtl</code> class will be added to the <code>body</code> element</li>
+        <li>Text will flow from right to left</li>
+        <li>Margins, paddings, and other directional properties will be flipped</li>
+      </ul>
+      
+      <p>Try it by clicking the Arabic button above!</p>
+    </div>
   </div>
   
   <script type="module">
@@ -241,6 +257,11 @@
     // Listen for language changes
     window.addEventListener('language-changed', (event) => {
       const lang = event.detail.language;
+      const isRTL = event.detail.isRTL;
+      console.log(`Language changed to: ${lang}, isRTL: ${isRTL}`);
+      console.log(`HTML dir attribute: ${document.documentElement.dir}`);
+      console.log(`Body RTL class: ${document.body.classList.contains('rtl')}`);
+      
       document.querySelector(`.language-button[data-lang="${lang}"]`).classList.add('active');
       updateJsExamples();
     });
