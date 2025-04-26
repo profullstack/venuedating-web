@@ -23,8 +23,8 @@ REMOTE_PORT="${DEPLOY_REMOTE_PORT:-2048}"
 REMOTE_USER="${DEPLOY_REMOTE_USER:-ubuntu}"
 REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
 
-# Create SSH options
-SSH_OPTS="-p $REMOTE_PORT"
+# Create SSH options with connection reuse
+SSH_OPTS="-p $REMOTE_PORT -o ControlMaster=auto -o ControlPath=~/.ssh/control-%C -o ControlPersist=30s"
 
 # Deploy the code first using deploy.sh
 echo -e "${YELLOW}Running deployment script...${NC}"
