@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
-import { Router, transitions } from '@profullstack/spa-router';
+import { Router, transitions } from 'https://cdn.jsdelivr.net/npm/@profullstack/spa-router@1.0.1/+esm';
 
 // Import components
 import './components/pf-header.js';
