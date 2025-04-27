@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
-import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.2.0';
+import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.3.0';
 
 // Import components
 import './components/pf-header.js';
