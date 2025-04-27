@@ -29,3 +29,6 @@
 
 /* Import API keys CSS for API keys page styling */
 @import url('api-keys.css');
+
+/* Import error page CSS for error page styling */
+@import url('error-page.css');

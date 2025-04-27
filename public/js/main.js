@@ -1,7 +1,7 @@
 /**
  * Main application entry point
  */
-import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.1.0';
+import { Router, transitions } from 'https://esm.sh/@profullstack/spa-router@1.2.0';
 
 // Import components
 import './components/pf-header.js';
@@ -428,15 +428,48 @@ function initRouter() {
       
       console.log('Rendered content with component preservation and translations');
     },
-    errorHandler: (path) => `
-      <pf-header></pf-header>
-      <div class="error-page">
-        <h1 data-i18n="errors.page_not_found">404 - Page Not Found</h1>
-        <p data-i18n-params='{"path":"${path}"}' data-i18n="errors.page_not_found_message">The page "${path}" could not be found.</p>
-        <a href="/" class="back-link" data-i18n="errors.go_back_home">Go back to home</a>
-      </div>
-      <pf-footer></pf-footer>
-    `
+    errorHandler: (path) => {
+      // Use a more direct approach that bypasses the router's transition mechanism
+      // This will be called immediately when the route is not found
+      setTimeout(() => {
+        // Get the root element
+        const rootElement = document.getElementById('app');
+        
+        // Clear any existing content and overlays
+        rootElement.innerHTML = '';
+        
+        // Create the error page content directly
+        const errorContent = document.createElement('div');
+        errorContent.innerHTML = `
+          <pf-header></pf-header>
+          <div class="content-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
+            <div class="error-page">
+              <h1>404 - Page Not Found</h1>
+              <p>The page "${path}" could not be found.</p>
+              <a href="/" class="back-link">Go back to home</a>
+            </div>
+          </div>
+          <pf-footer></pf-footer>
+        `;
+        
+        // Append the error content to the root element
+        rootElement.appendChild(errorContent);
+        
+        // Dispatch the transition-end event to ensure proper cleanup
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+        
+        // Remove any remaining transition overlays
+        const overlays = document.querySelectorAll('.transition-overlay');
+        overlays.forEach(overlay => {
+          if (document.body.contains(overlay)) {
+            document.body.removeChild(overlay);
+          }
+        });
+      }, 0);
+      
+      // Return an empty string since we're handling the rendering directly
+      return '';
+    }
   });
   
   // Debug: Try to access the router's internal state
