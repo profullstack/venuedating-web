@@ -575,6 +575,10 @@ function initRouter() {
   };
 }
 
+// Import utilities
+import { detectAndImportModules, filterScriptTags } from './utils/component-loader.js';
+import { translateContainer, applyStoredLanguage } from './utils/translation-helper.js';
+
 /**
  * Load a page from the server
  * @param {string} url - Page URL
@@ -585,17 +589,7 @@ async function loadPage(url) {
     console.log(`Loading page: ${url}`);
     
     // Apply stored language before loading the page
-    const storedLang = localStorage.getItem('profullstack-language');
-    if (storedLang && window.app && window.app.localizer) {
-      console.log(`Pre-load: Applying stored language: ${storedLang}`);
-      window.app.localizer.setLanguage(storedLang);
-      
-      // Force language application
-      if (window.app.localizer.getLanguage() !== storedLang) {
-        console.log(`Language mismatch in loadPage, forcing to: ${storedLang}`);
-        window.app.localizer.setLanguage(storedLang);
-      }
-    }
+    const storedLang = applyStoredLanguage();
     
     // Add cache-busting parameter to prevent caching
     const cacheBuster = `?_=${Date.now()}`;
@@ -630,61 +624,21 @@ async function loadPage(url) {
       // Create a temporary div to hold the content
       const tempDiv = document.createElement('div');
       
-      // Clone all child nodes except script tags
-      Array.from(doc.body.children).forEach(child => {
-        if (child.tagName !== 'SCRIPT') {
-          tempDiv.appendChild(child.cloneNode(true));
-        }
-      });
+      // Automatically detect and import module scripts
+      await detectAndImportModules(doc);
       
-      content = tempDiv.innerHTML;
+      // Filter out script tags (they'll be imported dynamically)
+      const contentWithoutScripts = filterScriptTags(doc.body);
+      content = contentWithoutScripts.innerHTML;
     }
     
     // Add the content to the wrapper
     wrapper.innerHTML = content;
     
     // Pre-translate the content before it's returned to the router
-    if (storedLang && window.app && window.app._t) {
+    if (storedLang) {
       console.log(`Pre-translating content to ${storedLang} before DOM insertion`);
-      
-      // Force language application
-      window.app.localizer.setLanguage(storedLang);
-      
-      // Translate elements with data-i18n attribute
-      wrapper.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        element.textContent = window.app._t(key);
-      });
-      
-      // Translate other i18n attributes
-      wrapper.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-i18n-placeholder');
-        element.placeholder = window.app._t(key);
-      });
-      
-      wrapper.querySelectorAll('[data-i18n-title]').forEach(element => {
-        const key = element.getAttribute('data-i18n-title');
-        element.title = window.app._t(key);
-      });
-      
-      wrapper.querySelectorAll('[data-i18n-html]').forEach(element => {
-        const key = element.getAttribute('data-i18n-html');
-        element.innerHTML = window.app._t(key);
-      });
-      
-      // Handle elements with data-i18n-params attribute (for interpolation)
-      wrapper.querySelectorAll('[data-i18n-params]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (!key) return;
-        
-        try {
-          const paramsAttr = element.getAttribute('data-i18n-params');
-          const params = JSON.parse(paramsAttr);
-          element.textContent = window.app._t(key, params);
-        } catch (error) {
-          console.error(`Error parsing data-i18n-params for key ${key}:`, error);
-        }
-      });
+      translateContainer(wrapper, storedLang);
     }
     
     // Get the translated content
@@ -692,14 +646,6 @@ async function loadPage(url) {
     
     // Remove the wrapper
     document.body.removeChild(wrapper);
-    
-    // Special handling for state-demo.html
-    if (url.includes('state-demo.html')) {
-      // Import the components directly in the HTML
-      await import('/js/components/state-example.js');
-      await import('/js/components/test-component.js');
-      console.log('Imported state-example.js and test-component.js directly');
-    }
     
     // Create DOM elements instead of using template strings
     const container = document.createElement('div');
