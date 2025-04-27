@@ -441,17 +441,53 @@ function initRouter() {
       console.log('Rendered content with component preservation and translations');
     },
     errorHandler: (path) => {
+      console.log('Error handler called for path:', path);
+      
       // Use a more direct approach that bypasses the router's transition mechanism
       // This will be called immediately when the route is not found
       setTimeout(() => {
         // Get the root element
         const rootElement = document.getElementById('app');
+        if (!rootElement) {
+          console.error('Root element #app not found');
+          return;
+        }
         
-        // Clear any existing content and overlays
+        console.log('Creating error page for path:', path);
+        
+        // First, ensure all transition overlays are removed
+        const cleanupOverlays = () => {
+          // Remove any remaining transition overlays
+          const overlays = document.querySelectorAll('.transition-overlay');
+          console.log('Found transition overlays:', overlays.length);
+          
+          overlays.forEach(overlay => {
+            if (document.body.contains(overlay)) {
+              console.log('Removing transition overlay:', overlay);
+              document.body.removeChild(overlay);
+            }
+          });
+          
+          // Also check for any elements with opacity or visibility styles that might be leftover
+          document.querySelectorAll('[style*="opacity: 0"]').forEach(el => {
+            if (el.classList.contains('transition-overlay') || el.style.position === 'absolute') {
+              console.log('Removing hidden element with opacity 0:', el);
+              if (el.parentNode) {
+                el.parentNode.removeChild(el);
+              }
+            }
+          });
+        };
+        
+        // Clean up overlays first
+        cleanupOverlays();
+        
+        // Clear any existing content
         rootElement.innerHTML = '';
         
         // Create the error page content directly
         const errorContent = document.createElement('div');
+        errorContent.className = 'error-page-container';
         errorContent.innerHTML = `
           <pf-header></pf-header>
           <div class="content-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
@@ -467,17 +503,23 @@ function initRouter() {
         // Append the error content to the root element
         rootElement.appendChild(errorContent);
         
+        console.log('Error page content appended to DOM');
+        
         // Dispatch the transition-end event to ensure proper cleanup
         document.dispatchEvent(new CustomEvent('spa-transition-end'));
         
-        // Remove any remaining transition overlays
-        const overlays = document.querySelectorAll('.transition-overlay');
-        overlays.forEach(overlay => {
-          if (document.body.contains(overlay)) {
-            document.body.removeChild(overlay);
-          }
-        });
-      }, 0);
+        // Clean up overlays again after a short delay to catch any that might have been created during the transition
+        setTimeout(cleanupOverlays, 100);
+        
+        // Set up a safety interval to periodically check for and remove any overlays that might appear
+        const safetyInterval = setInterval(cleanupOverlays, 500);
+        
+        // Clear the safety interval after 3 seconds
+        setTimeout(() => {
+          clearInterval(safetyInterval);
+          console.log('Safety interval cleared');
+        }, 3000);
+      }, 50); // Slight delay to ensure DOM is ready
       
       // Return an empty string since we're handling the rendering directly
       return '';
