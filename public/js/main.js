@@ -477,6 +477,18 @@ function initRouter() {
               }
             }
           });
+          
+          // Explicitly remove the initial loading overlay
+          const initialOverlay = document.getElementById('initial-loading-overlay');
+          if (initialOverlay && initialOverlay.parentNode) {
+            console.log('Removing initial loading overlay');
+            initialOverlay.style.opacity = '0';
+            setTimeout(() => {
+              if (initialOverlay.parentNode) {
+                initialOverlay.parentNode.removeChild(initialOverlay);
+              }
+            }, 150);
+          }
         };
         
         // Clean up overlays first
@@ -505,7 +517,12 @@ function initRouter() {
         
         console.log('Error page content appended to DOM');
         
-        // Dispatch the transition-end event to ensure proper cleanup
+        // Dispatch the route-changed event to trigger any listeners (like the one that removes the initial overlay)
+        window.dispatchEvent(new CustomEvent('route-changed', {
+          detail: { path, route: null }
+        }));
+        
+        // Also dispatch the transition-end event to ensure proper cleanup
         document.dispatchEvent(new CustomEvent('spa-transition-end'));
         
         // Clean up overlays again after a short delay to catch any that might have been created during the transition
