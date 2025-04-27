@@ -8,7 +8,7 @@
 // In production, this would be imported from the npm package
 // import { localizer, _t } from '@profullstack/localizer';
 // For development, we'll use ESM imports
-import { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.3.0';
+import { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.5.0';
 import defaultStateManager from './state-manager.js';
 
 // Store available languages
