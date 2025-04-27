@@ -134,7 +134,42 @@ function initRouter() {
       }
     },
     '/reset-password': {
-      view: () => loadPage('/views/reset-password.html')
+      view: () => loadPage('/views/reset-password.html'),
+      afterRender: () => {
+        // Apply translations after rendering
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Post-render reset-password: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        
+        // Dispatch the spa-transition-end event to ensure translations are applied
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
+    },
+    '/reset-password-confirm': {
+      view: () => loadPage('/views/reset-password-confirm.html'),
+      afterRender: () => {
+        // Apply translations after rendering
+        const storedLang = localStorage.getItem('profullstack-language');
+        if (storedLang && window.app && window.app.localizer) {
+          console.log(`Post-render reset-password-confirm: Applying stored language: ${storedLang}`);
+          window.app.localizer.setLanguage(storedLang);
+          
+          // Force translation application
+          if (window.app.translatePage) {
+            window.app.translatePage();
+          }
+        }
+        
+        // Dispatch the spa-transition-end event to ensure translations are applied
+        document.dispatchEvent(new CustomEvent('spa-transition-end'));
+      }
     },
     '/state-demo': {
       view: () => loadPage('/views/state-demo.html')

@@ -130,6 +130,80 @@ export async function refreshTokenHandler(c) {
 }
 
 /**
+ * Route handler for requesting a password reset
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with status
+ */
+export async function resetPasswordHandler(c) {
+  try {
+    // Get email from request body
+    const { email } = await c.req.json();
+    
+    if (!email) {
+      return c.json({ error: 'Email is required' }, 400);
+    }
+    
+    console.log(`Requesting password reset for ${email}`);
+    
+    // Request password reset from Supabase
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${c.req.header('origin') || 'http://localhost:3000'}/reset-password-confirm`
+    });
+    
+    if (error) {
+      console.error('Error requesting password reset:', error);
+      return c.json({ error: 'Failed to request password reset: ' + error.message }, 500);
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Password reset email sent successfully'
+    });
+  } catch (error) {
+    console.error('Error in reset password handler:', error);
+    return errorUtils.handleError(error, c);
+  }
+}
+
+/**
+ * Route handler for confirming a password reset
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with status
+ */
+export async function resetPasswordConfirmHandler(c) {
+  try {
+    // Get token and new password from request body
+    const { token, password } = await c.req.json();
+    
+    if (!token || !password) {
+      return c.json({ error: 'Token and password are required' }, 400);
+    }
+    
+    console.log('Confirming password reset');
+    
+    // Update user's password using the token
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash: token,
+      type: 'recovery',
+      new_password: password
+    });
+    
+    if (error) {
+      console.error('Error confirming password reset:', error);
+      return c.json({ error: 'Failed to reset password: ' + error.message }, 500);
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    console.error('Error in reset password confirm handler:', error);
+    return errorUtils.handleError(error, c);
+  }
+}
+
+/**
  * Route configuration for auth endpoints
  */
 export const refreshTokenRoute = {
@@ -142,4 +216,16 @@ export const registerRoute = {
   method: 'POST',
   path: '/api/1/auth/register',
   handler: registerHandler
+};
+
+export const resetPasswordRoute = {
+  method: 'POST',
+  path: '/api/1/auth/reset-password',
+  handler: resetPasswordHandler
+};
+
+export const resetPasswordConfirmRoute = {
+  method: 'POST',
+  path: '/api/1/auth/reset-password-confirm',
+  handler: resetPasswordConfirmHandler
 };

@@ -13,7 +13,12 @@ import {
   paymentLogsRoute
 } from './subscription.js';
 import { apiKeyRoutes } from './api-keys.js';
-import { refreshTokenRoute, registerRoute } from './auth.js';
+import {
+  refreshTokenRoute,
+  registerRoute,
+  resetPasswordRoute,
+  resetPasswordConfirmRoute
+} from './auth.js';
 import { authStatusRoute } from './auth-status.js';
 import { supabaseConfigRoute } from './config.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
@@ -46,6 +51,8 @@ const publicRoutes = [
   paymentLogsRoute,
   refreshTokenRoute,
   registerRoute,
+  resetPasswordRoute,
+  resetPasswordConfirmRoute,
   authStatusRoute,
   supabaseConfigRoute
 ];
