@@ -22,7 +22,14 @@
     "invalid_credentials": "凭据无效。请检查您的电子邮件和密码。",
     "auth_server_error": "认证服务器错误。请稍后再试。",
     "registration_failed": "注册失败: ",
-    "passwords_not_match": "密码不匹配"
+    "passwords_not_match": "密码不匹配",
+    "password_reset_failed": "重置密码失败",
+    "reset_email_failed": "发送重置密码邮件失败",
+    "email_not_found": "未找到电子邮件地址。请检查您的电子邮件并重试。",
+    "unknown_error": "发生未知错误",
+    "must_be_logged_in": "您必须登录才能重置密码",
+    "invalid_reset_token": "无效或过期的密码重置令牌",
+    "invalid_reset_token_request_new": "无效或过期的密码重置令牌。请请求新的密码重置链接。"
   },
   "auth": {
     "email": "电子邮件",
@@ -38,7 +45,26 @@
     "delete_account_confirm": "您确定要删除您的账户吗？此操作无法撤销。",
     "delete_account": "删除账户",
     "delete": "删除",
-    "cancel": "取消"
+    "cancel": "取消",
+    "no_account": "没有账户？",
+    "to_get_started": "开始使用。",
+    "forgot_password": "忘记密码？",
+    "reset_password": "重置密码",
+    "reset_password_description": "在下方输入您的新密码。",
+    "reset_password_email_description": "在下方输入您的电子邮件地址，我们将向您发送重置密码的链接。",
+    "password_requirements": "密码必须至少包含8个字符",
+    "password_reset_success": "密码重置成功！请使用您的新密码登录。",
+    "reset_email_sent": "密码重置链接已发送到您的电子邮件。请检查您的收件箱。",
+    "send_reset_link": "发送重置链接",
+    "resetting": "重置中...",
+    "sending": "发送中...",
+    "first_time_login": "如果这是您在系统更新后首次登录，请使用默认密码：",
+    "password_change_prompt": "登录后，系统会提示您更改密码。",
+    "check_auth_status": "检查认证状态",
+    "create_account": "创建账户",
+    "already_have_account": "已有账户？",
+    "instead": "替代。",
+    "register_subscribe": "注册并订阅"
   },
   "subscription": {
     "active_subscription_required": "您需要有效的订阅才能访问控制面板。",

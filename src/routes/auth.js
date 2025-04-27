@@ -145,6 +145,18 @@ export async function resetPasswordHandler(c) {
     
     console.log(`Requesting password reset for ${email}`);
     
+    // Check if the user exists in the database
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('email', email)
+      .single();
+    
+    if (userError || !userData) {
+      console.error('User not found:', userError);
+      return c.json({ error: 'Email address not found. Please check your email and try again.' }, 404);
+    }
+    
     // Request password reset from Supabase
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${c.req.header('origin') || 'http://localhost:3000'}/reset-password-confirm`
@@ -179,24 +191,39 @@ export async function resetPasswordConfirmHandler(c) {
       return c.json({ error: 'Token and password are required' }, 400);
     }
     
-    console.log('Confirming password reset');
-    
-    // Update user's password using the token
-    const { error } = await supabase.auth.verifyOtp({
-      token_hash: token,
-      type: 'recovery',
-      new_password: password
-    });
-    
-    if (error) {
-      console.error('Error confirming password reset:', error);
-      return c.json({ error: 'Failed to reset password: ' + error.message }, 500);
+    if (password.length < 8) {
+      return c.json({ error: 'Password must be at least 8 characters long' }, 400);
     }
     
-    return c.json({
-      success: true,
-      message: 'Password reset successfully'
-    });
+    console.log('Confirming password reset');
+    
+    try {
+      // Update user's password using the token
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery',
+        new_password: password
+      });
+      
+      if (error) {
+        console.error('Error confirming password reset:', error);
+        
+        // Check for specific error types
+        if (error.message.includes('expired') || error.message.includes('invalid')) {
+          return c.json({ error: 'Invalid or expired password reset token. Please request a new password reset link.' }, 400);
+        }
+        
+        return c.json({ error: 'Failed to reset password: ' + error.message }, 500);
+      }
+      
+      return c.json({
+        success: true,
+        message: 'Password reset successfully'
+      });
+    } catch (tokenError) {
+      console.error('Token verification error:', tokenError);
+      return c.json({ error: 'Invalid password reset token format' }, 400);
+    }
   } catch (error) {
     console.error('Error in reset password confirm handler:', error);
     return errorUtils.handleError(error, c);

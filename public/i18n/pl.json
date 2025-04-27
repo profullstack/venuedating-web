@@ -22,7 +22,14 @@
     "invalid_credentials": "Nieprawidłowe dane logowania. Sprawdź swój email i hasło.",
     "auth_server_error": "Błąd serwera uwierzytelniania. Spróbuj ponownie później.",
     "registration_failed": "Rejestracja nie powiodła się: ",
-    "passwords_not_match": "Hasła nie są zgodne"
+    "passwords_not_match": "Hasła nie są zgodne",
+    "password_reset_failed": "Resetowanie hasła nie powiodło się",
+    "reset_email_failed": "Nie udało się wysłać e-maila z linkiem do resetowania hasła",
+    "email_not_found": "Adres e-mail nie został znaleziony. Sprawdź swój e-mail i spróbuj ponownie.",
+    "unknown_error": "Wystąpił nieznany błąd",
+    "must_be_logged_in": "Musisz być zalogowany, aby zresetować hasło",
+    "invalid_reset_token": "Nieprawidłowy lub wygasły token resetowania hasła",
+    "invalid_reset_token_request_new": "Nieprawidłowy lub wygasły token resetowania hasła. Poproś o nowy link do resetowania hasła."
   },
   "auth": {
     "email": "Email",
@@ -38,7 +45,26 @@
     "delete_account_confirm": "Czy na pewno chcesz usunąć swoje konto? Tej operacji nie można cofnąć.",
     "delete_account": "Usuń konto",
     "delete": "Usuń",
-    "cancel": "Anuluj"
+    "cancel": "Anuluj",
+    "no_account": "Nie masz konta?",
+    "to_get_started": "aby rozpocząć.",
+    "forgot_password": "Zapomniałeś hasła?",
+    "reset_password": "Zresetuj hasło",
+    "reset_password_description": "Wprowadź swoje nowe hasło poniżej.",
+    "reset_password_email_description": "Wprowadź swój adres e-mail poniżej, a wyślemy Ci link do resetowania hasła.",
+    "password_requirements": "Hasło musi zawierać co najmniej 8 znaków",
+    "password_reset_success": "Hasło zostało pomyślnie zresetowane! Zaloguj się używając nowego hasła.",
+    "reset_email_sent": "Link do resetowania hasła został wysłany na Twój adres e-mail. Sprawdź swoją skrzynkę odbiorczą.",
+    "send_reset_link": "Wyślij link resetujący",
+    "resetting": "Resetowanie...",
+    "sending": "Wysyłanie...",
+    "first_time_login": "Jeśli logujesz się po raz pierwszy po aktualizacji systemu, użyj domyślnego hasła:",
+    "password_change_prompt": "Po zalogowaniu zostaniesz poproszony o zmianę hasła.",
+    "check_auth_status": "Sprawdź status uwierzytelnienia",
+    "create_account": "Utwórz konto",
+    "already_have_account": "Masz już konto?",
+    "instead": "zamiast tego.",
+    "register_subscribe": "Zarejestruj się i subskrybuj"
   },
   "subscription": {
     "active_subscription_required": "Potrzebujesz aktywnej subskrypcji, aby uzyskać dostęp do panelu sterowania.",

@@ -26,9 +26,11 @@
     "passwords_not_match": "Passwords do not match",
     "password_reset_failed": "Password reset failed",
     "reset_email_failed": "Failed to send password reset email",
+    "email_not_found": "Email address not found. Please check your email and try again.",
     "unknown_error": "An unknown error occurred",
     "must_be_logged_in": "You must be logged in to reset your password",
-    "invalid_reset_token": "Invalid or expired password reset token"
+    "invalid_reset_token": "Invalid or expired password reset token",
+    "invalid_reset_token_request_new": "Invalid or expired password reset token. Please request a new password reset link."
   },
   "auth": {
     "email": "Email",

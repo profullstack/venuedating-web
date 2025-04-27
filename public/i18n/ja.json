@@ -22,7 +22,14 @@
     "invalid_credentials": "認証情報が無効です。メールアドレスとパスワードを確認してください。",
     "auth_server_error": "認証サーバーエラー。後でもう一度お試しください。",
     "registration_failed": "登録失敗: ",
-    "passwords_not_match": "パスワードが一致しません"
+    "passwords_not_match": "パスワードが一致しません",
+    "password_reset_failed": "パスワードのリセットに失敗しました",
+    "reset_email_failed": "パスワードリセットメールの送信に失敗しました",
+    "email_not_found": "メールアドレスが見つかりません。メールアドレスを確認して再試行してください。",
+    "unknown_error": "不明なエラーが発生しました",
+    "must_be_logged_in": "パスワードをリセットするにはログインする必要があります",
+    "invalid_reset_token": "無効または期限切れのパスワードリセットトークン",
+    "invalid_reset_token_request_new": "無効または期限切れのパスワードリセットトークンです。新しいパスワードリセットリンクをリクエストしてください。"
   },
   "auth": {
     "email": "メールアドレス",
@@ -38,7 +45,26 @@
     "delete_account_confirm": "アカウントを削除してもよろしいですか？この操作は元に戻せません。",
     "delete_account": "アカウントを削除",
     "delete": "削除",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "no_account": "アカウントをお持ちでないですか？",
+    "to_get_started": "始めるために。",
+    "forgot_password": "パスワードをお忘れですか？",
+    "reset_password": "パスワードをリセット",
+    "reset_password_description": "新しいパスワードを以下に入力してください。",
+    "reset_password_email_description": "メールアドレスを入力すると、パスワードリセットのリンクをお送りします。",
+    "password_requirements": "パスワードは8文字以上である必要があります",
+    "password_reset_success": "パスワードが正常にリセットされました！新しいパスワードでログインしてください。",
+    "reset_email_sent": "パスワードリセットリンクがメールアドレスに送信されました。受信トレイを確認してください。",
+    "send_reset_link": "リセットリンクを送信",
+    "resetting": "リセット中...",
+    "sending": "送信中...",
+    "first_time_login": "システム更新後に初めてログインする場合は、デフォルトのパスワードを使用してください：",
+    "password_change_prompt": "ログイン後にパスワードの変更を求められます。",
+    "check_auth_status": "認証状態を確認",
+    "create_account": "アカウントを作成",
+    "already_have_account": "すでにアカウントをお持ちですか？",
+    "instead": "代わりに。",
+    "register_subscribe": "登録して購読する"
   },
   "subscription": {
     "active_subscription_required": "ダッシュボードにアクセスするには有効なサブスクリプションが必要です。",
