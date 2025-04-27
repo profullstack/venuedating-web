@@ -15,6 +15,7 @@ import {
 import { apiKeyRoutes } from './api-keys.js';
 import { refreshTokenRoute, registerRoute } from './auth.js';
 import { authStatusRoute } from './auth-status.js';
+import { supabaseConfigRoute } from './config.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 
 // Routes that require authentication
@@ -45,7 +46,8 @@ const publicRoutes = [
   paymentLogsRoute,
   refreshTokenRoute,
   registerRoute,
-  authStatusRoute
+  authStatusRoute,
+  supabaseConfigRoute
 ];
 
 /**

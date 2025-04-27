@@ -166,41 +166,53 @@ function initRouter() {
     },
     '/dashboard': {
       view: () => loadPage('/views/dashboard.html'),
-      beforeEnter: (to, from, next) => {
-        // Check if user is authenticated
-        const jwtToken = localStorage.getItem('jwt_token');
-        if (!jwtToken) {
-          console.log('No JWT token found, redirecting to login page');
+      beforeEnter: async (to, from, next) => {
+        // Check if user is authenticated using the auth-status endpoint
+        try {
+          // Import auth status utility
+          const { checkAuthStatus } = await import('./utils/auth-status.js');
+          
+          // Check auth status with the server
+          const status = await checkAuthStatus();
+          
+          if (!status.authenticated) {
+            console.log('Not authenticated, redirecting to login page:', status.message);
+            return next('/login');
+          }
+          
+          console.log('Authentication verified with server');
+          
+          // Check if user has an active subscription
+          const userJson = localStorage.getItem('user');
+          let user = null;
+          
+          if (userJson) {
+            try {
+              user = JSON.parse(userJson);
+              console.log('User data found:', user.email);
+            } catch (e) {
+              console.error('Error parsing user JSON:', e);
+            }
+          }
+          
+          // Verify subscription status
+          const hasActiveSubscription = user &&
+                                      user.subscription &&
+                                      user.subscription.status === 'active';
+          
+          if (!hasActiveSubscription) {
+            console.log('No active subscription found, redirecting to subscription page');
+            // Redirect to subscription page
+            alert('You need an active subscription to access the dashboard.');
+            return next('/subscription');
+          }
+          
+          console.log('Active subscription verified');
+          next();
+        } catch (error) {
+          console.error('Error checking authentication status:', error);
           return next('/login');
         }
-        
-        // Check if user has an active subscription
-        const userJson = localStorage.getItem('user');
-        let user = null;
-        
-        if (userJson) {
-          try {
-            user = JSON.parse(userJson);
-            console.log('User data found:', user.email);
-          } catch (e) {
-            console.error('Error parsing user JSON:', e);
-          }
-        }
-        
-        // Verify subscription status
-        const hasActiveSubscription = user &&
-                                    user.subscription &&
-                                    user.subscription.status === 'active';
-        
-        if (!hasActiveSubscription) {
-          console.log('No active subscription found, redirecting to subscription page');
-          // Redirect to subscription page
-          alert('You need an active subscription to access the dashboard.');
-          return next('/subscription');
-        }
-        
-        console.log('Active subscription verified');
-        next();
       },
       afterRender: () => {
         // Dashboard initialization is handled by the page's own script
@@ -775,8 +787,14 @@ async function initLoginPage() {
       
       // Import Supabase client for JWT authentication
       const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-      const supabaseUrl = 'https://arokhsfbkdnfuklmqajh.supabase.co'; // Should match server config
-      const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2toc2Zia2RuZnVrbG1xYWpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI0NTI4MDAsImV4cCI6MTk5ODAyODgwMH0.KxwHdxWXLLrJtFzLAYI-fwzgz8m5xsHD4XGdNw_xJm8'; // Public anon key
+      
+      // Fetch Supabase configuration from the server
+      const configResponse = await fetch('/api/1/config/supabase');
+      if (!configResponse.ok) {
+        throw new Error('Failed to fetch Supabase configuration');
+      }
+      
+      const { supabaseUrl, supabaseAnonKey } = await configResponse.json();
       
       console.log('Creating Supabase client with URL:', supabaseUrl);
       console.log('Anon key exists:', !!supabaseAnonKey);
@@ -1222,12 +1240,23 @@ function checkAuthAndInitPage(pageType) {
 /**
  * Initialize API keys page
  */
-function initApiKeysPage() {
-  // Check if user is logged in using JWT token
-  const jwtToken = localStorage.getItem('jwt_token');
-  if (!jwtToken) {
-    console.log('No JWT token found, redirecting to login page');
-    // Redirect to login page
+async function initApiKeysPage() {
+  try {
+    // Import auth status utility
+    const { checkAuthStatus } = await import('./utils/auth-status.js');
+    
+    // Check auth status with the server
+    const status = await checkAuthStatus();
+    
+    if (!status.authenticated) {
+      console.log('Not authenticated, redirecting to login page:', status.message);
+      window.router.navigate('/login');
+      return;
+    }
+    
+    console.log('Authentication verified with server');
+  } catch (error) {
+    console.error('Error checking authentication status:', error);
     window.router.navigate('/login');
     return;
   }
@@ -1294,12 +1323,23 @@ function initApiKeysPage() {
 /**
  * Initialize settings page
  */
-function initSettingsPage() {
-  // Check if user is logged in using JWT token
-  const jwtToken = localStorage.getItem('jwt_token');
-  if (!jwtToken) {
-    console.log('No JWT token found, redirecting to login page');
-    // Redirect to login page
+async function initSettingsPage() {
+  try {
+    // Import auth status utility
+    const { checkAuthStatus } = await import('./utils/auth-status.js');
+    
+    // Check auth status with the server
+    const status = await checkAuthStatus();
+    
+    if (!status.authenticated) {
+      console.log('Not authenticated, redirecting to login page:', status.message);
+      window.router.navigate('/login');
+      return;
+    }
+    
+    console.log('Authentication verified with server');
+  } catch (error) {
+    console.error('Error checking authentication status:', error);
     window.router.navigate('/login');
     return;
   }
@@ -1432,12 +1472,23 @@ function initSubscriptionPage() {
 /**
  * Initialize reset password page
  */
-function initResetPasswordPage() {
-  // Check if user is logged in using JWT token
-  const jwtToken = localStorage.getItem('jwt_token');
-  if (!jwtToken) {
-    console.log('No JWT token found, redirecting to login page');
-    // Redirect to login page
+async function initResetPasswordPage() {
+  try {
+    // Import auth status utility
+    const { checkAuthStatus } = await import('./utils/auth-status.js');
+    
+    // Check auth status with the server
+    const status = await checkAuthStatus();
+    
+    if (!status.authenticated) {
+      console.log('Not authenticated, redirecting to login page:', status.message);
+      window.router.navigate('/login');
+      return;
+    }
+    
+    console.log('Authentication verified with server');
+  } catch (error) {
+    console.error('Error checking authentication status:', error);
     window.router.navigate('/login');
     return;
   }
