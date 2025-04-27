@@ -443,19 +443,39 @@ function initRouter() {
     errorHandler: (path) => {
       console.log('Error handler called for path:', path);
       
-      // Use a more direct approach that bypasses the router's transition mechanism
-      // This will be called immediately when the route is not found
+      // Create the error page content as a string
+      // This is what the router expects to receive from the error handler
+      const errorContent = `
+        <pf-header></pf-header>
+        <div class="content-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
+          <div class="error-page">
+            <h1>404 - Page Not Found</h1>
+            <p>The page "${path}" could not be found.</p>
+            <a href="/" class="back-link">Go back to home</a>
+          </div>
+        </div>
+        <pf-footer></pf-footer>
+      `;
+      
+      // Remove the initial loading overlay
       setTimeout(() => {
-        // Get the root element
-        const rootElement = document.getElementById('app');
-        if (!rootElement) {
-          console.error('Root element #app not found');
-          return;
+        const initialOverlay = document.getElementById('initial-loading-overlay');
+        if (initialOverlay && initialOverlay.parentNode) {
+          console.log('Removing initial loading overlay');
+          initialOverlay.style.opacity = '0';
+          setTimeout(() => {
+            if (initialOverlay.parentNode) {
+              initialOverlay.parentNode.removeChild(initialOverlay);
+            }
+          }, 150);
         }
         
-        console.log('Creating error page for path:', path);
+        // Dispatch the route-changed event to trigger any listeners
+        window.dispatchEvent(new CustomEvent('route-changed', {
+          detail: { path, route: null }
+        }));
         
-        // First, ensure all transition overlays are removed
+        // Clean up any transition overlays
         const cleanupOverlays = () => {
           // Remove any remaining transition overlays
           const overlays = document.querySelectorAll('.transition-overlay');
@@ -477,56 +497,10 @@ function initRouter() {
               }
             }
           });
-          
-          // Explicitly remove the initial loading overlay
-          const initialOverlay = document.getElementById('initial-loading-overlay');
-          if (initialOverlay && initialOverlay.parentNode) {
-            console.log('Removing initial loading overlay');
-            initialOverlay.style.opacity = '0';
-            setTimeout(() => {
-              if (initialOverlay.parentNode) {
-                initialOverlay.parentNode.removeChild(initialOverlay);
-              }
-            }, 150);
-          }
         };
         
-        // Clean up overlays first
+        // Clean up overlays
         cleanupOverlays();
-        
-        // Clear any existing content
-        rootElement.innerHTML = '';
-        
-        // Create the error page content directly
-        const errorContent = document.createElement('div');
-        errorContent.className = 'error-page-container';
-        errorContent.innerHTML = `
-          <pf-header></pf-header>
-          <div class="content-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
-            <div class="error-page">
-              <h1>404 - Page Not Found</h1>
-              <p>The page "${path}" could not be found.</p>
-              <a href="/" class="back-link">Go back to home</a>
-            </div>
-          </div>
-          <pf-footer></pf-footer>
-        `;
-        
-        // Append the error content to the root element
-        rootElement.appendChild(errorContent);
-        
-        console.log('Error page content appended to DOM');
-        
-        // Dispatch the route-changed event to trigger any listeners (like the one that removes the initial overlay)
-        window.dispatchEvent(new CustomEvent('route-changed', {
-          detail: { path, route: null }
-        }));
-        
-        // Also dispatch the transition-end event to ensure proper cleanup
-        document.dispatchEvent(new CustomEvent('spa-transition-end'));
-        
-        // Clean up overlays again after a short delay to catch any that might have been created during the transition
-        setTimeout(cleanupOverlays, 100);
         
         // Set up a safety interval to periodically check for and remove any overlays that might appear
         const safetyInterval = setInterval(cleanupOverlays, 500);
@@ -536,10 +510,10 @@ function initRouter() {
           clearInterval(safetyInterval);
           console.log('Safety interval cleared');
         }, 3000);
-      }, 50); // Slight delay to ensure DOM is ready
+      }, 50);
       
-      // Return an empty string since we're handling the rendering directly
-      return '';
+      // Return the error content string for the router to handle
+      return errorContent;
     }
   });
   
