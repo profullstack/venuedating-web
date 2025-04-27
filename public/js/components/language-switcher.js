@@ -2,7 +2,7 @@
  * Language Switcher Component
  * A web component for switching between available languages
  */
-import { _t, localizer, AVAILABLE_LANGUAGES, changeLanguage } from '../i18n.js';
+import { localizer } from '../i18n-setup.js';
 
 class LanguageSwitcher extends HTMLElement {
   constructor() {
@@ -39,6 +39,7 @@ class LanguageSwitcher extends HTMLElement {
 
   render() {
     const currentLang = localizer.getLanguage();
+    const availableLanguages = localizer.getAvailableLanguages();
     
     this.shadowRoot.innerHTML = `
       <style>
@@ -171,7 +172,7 @@ class LanguageSwitcher extends HTMLElement {
       </style>
       
       <div class="language-switcher">
-        <span class="language-label">${_t('navigation.language', 'Language')}:</span>
+        <span class="language-label">${localizer.translate('navigation.language', 'Language')}:</span>
         
         <!-- Dropdown style (default) -->
         <div class="dropdown">
@@ -182,7 +183,7 @@ class LanguageSwitcher extends HTMLElement {
             </svg>
           </button>
           <div class="dropdown-content">
-            ${AVAILABLE_LANGUAGES.map(lang => `
+            ${availableLanguages.map(lang => `
               <div class="dropdown-item ${lang === currentLang ? 'active' : ''}" data-lang="${lang}">
                 ${this.getLanguageName(lang)}
               </div>
@@ -239,7 +240,7 @@ class LanguageSwitcher extends HTMLElement {
           e.stopPropagation();
           const lang = item.getAttribute('data-lang');
           console.log(`Language selected: ${lang}`);
-          changeLanguage(lang);
+          localizer.setLanguage(lang);
           dropdownContent.classList.remove('show');
         };
       });
@@ -267,10 +268,9 @@ class LanguageSwitcher extends HTMLElement {
       }
     });
     
-    // Force translation application
-    if (window.app && window.app.translatePage) {
-      window.app.translatePage();
-    }
+    // Apply translations using the enhanced localizer
+    localizer.translateDOM();
+    localizer.applyRTLToDocument();
   }
 
   getLanguageName(langCode) {
