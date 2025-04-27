@@ -134,8 +134,7 @@ function initRouter() {
       }
     },
     '/reset-password': {
-      view: () => loadPage('/views/reset-password.html'),
-      afterRender: () => initResetPasswordPage()
+      view: () => loadPage('/views/reset-password.html')
     },
     '/state-demo': {
       view: () => loadPage('/views/state-demo.html')
@@ -1292,35 +1291,6 @@ function initSubscriptionPage() {
   }).catch(error => {
     console.error('Error loading subscription form component:', error);
   });
-}
-
-/**
- * Initialize reset password page
- */
-async function initResetPasswordPage() {
-  try {
-    // Import auth status utility
-    const { checkAuthStatus } = await import('./utils/auth-status.js');
-    
-    // Check auth status with the server
-    const status = await checkAuthStatus();
-    
-    if (!status.authenticated) {
-      console.log('Not authenticated, redirecting to login page:', status.message);
-      window.router.navigate('/login');
-      return;
-    }
-    
-    console.log('Authentication verified with server');
-  } catch (error) {
-    console.error('Error checking authentication status:', error);
-    window.router.navigate('/login');
-    return;
-  }
-  
-  console.log('JWT token found, initializing reset password page');
-  
-  // The reset password form is handled by the inline script in the HTML file
 }
 
 // Expose functions globally
