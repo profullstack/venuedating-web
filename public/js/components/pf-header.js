@@ -511,9 +511,25 @@ class PfHeader extends HTMLElement {
   }
 
   updateNavbar() {
-    const apiKey = localStorage.getItem('api_key');
-    const username = localStorage.getItem('username') || apiKey;
-    const isLoggedIn = !!apiKey;
+    // Check for JWT token instead of API key
+    const jwtToken = localStorage.getItem('jwt_token');
+    
+    // Get user data from localStorage
+    let userObject = null;
+    try {
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        userObject = JSON.parse(userJson);
+      }
+    } catch (error) {
+      console.error('Error parsing user object from localStorage:', error);
+    }
+    
+    // Get username from user object or fallback to username in localStorage
+    const username = userObject?.username || localStorage.getItem('username') || 'User';
+    
+    // Check if user is logged in based on JWT token
+    const isLoggedIn = !!jwtToken;
     
     // Update desktop navigation
     const navLinks = this.shadowRoot.querySelector('.nav-links');
@@ -717,8 +733,12 @@ class PfHeader extends HTMLElement {
   }
 
   logout() {
-    // Clear all localStorage items
-    localStorage.clear();
+    // Clear JWT token and user data
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('user');
+    localStorage.removeItem('subscription_data');
+    localStorage.removeItem('api_key'); // Remove legacy API key if present
     
     // Clear all cookies
     const cookies = document.cookie.split(";");

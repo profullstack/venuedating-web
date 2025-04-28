@@ -70,8 +70,8 @@
   </div>
   
   <script>
-    // Check if user is logged in
-    const apiKey = localStorage.getItem('api_key');
+    // Check if user is logged in using JWT token
+    const jwtToken = localStorage.getItem('jwt_token');
     const userJson = localStorage.getItem('user');
     let user = null;
     
@@ -83,15 +83,16 @@
       }
     }
     
-    if (!apiKey) {
+    if (!jwtToken) {
       // Redirect to login page if not logged in
       window.location.href = '/login';
       throw new Error('Not logged in');
     }
     
     // Populate form fields
-    document.getElementById('email').value = user?.email || apiKey;
-    document.getElementById('display-name').value = user?.username || localStorage.getItem('username') || apiKey;
+    const username = localStorage.getItem('username');
+    document.getElementById('email').value = user?.email || username || '';
+    document.getElementById('display-name').value = user?.username || username || '';
     
     // Populate subscription info if available
     if (user?.subscription) {
