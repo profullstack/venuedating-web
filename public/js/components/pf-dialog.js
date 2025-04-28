@@ -358,3 +358,6 @@ if (typeof window !== 'undefined') {
   // Add to window for direct access
   window.PfDialog = PfDialog;
 }
+
+// Export the class for module imports
+export default PfDialog;
