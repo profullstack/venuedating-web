@@ -376,5 +376,9 @@ export function defineRoutes(router) {
   // Debug: Log registered routes
   console.log('Routes registered:', Object.keys(router.routes));
   
+  // Initialize the router
+  console.log('Router initializing...');
+  router.init();
+  
   return router;
 }
