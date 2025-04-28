@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase.js';
+import { supabase, supabaseUtils } from '../utils/supabase.js';
 import { errorUtils } from '../utils/error-utils.js';
 
 /**
@@ -23,14 +23,15 @@ export async function authStatusHandler(c) {
       });
     }
     
-    // Verify JWT token with Supabase
-    const user = await supabase.auth.getUser(token);
+    // Verify JWT token with Supabase using the utility method
+    console.log('Auth status: Verifying JWT token using supabaseUtils.verifyJwtToken');
+    const supabaseUser = await supabaseUtils.verifyJwtToken(token);
     
-    if (user.error) {
-      return c.json({ 
+    if (!supabaseUser) {
+      return c.json({
         authenticated: false,
         message: 'Invalid JWT token',
-        error: user.error.message
+        error: 'Token verification failed'
       });
     }
     
@@ -38,19 +39,19 @@ export async function authStatusHandler(c) {
     const { data: publicUser, error: publicUserError } = await supabase
       .from('users')
       .select('id, email, is_admin')
-      .eq('id', user.data.user.id)
+      .eq('id', supabaseUser.id)
       .single();
     
     return c.json({
       authenticated: true,
       auth_user: {
-        id: user.data.user.id,
-        email: user.data.user.email,
-        created_at: user.data.user.created_at
+        id: supabaseUser.id,
+        email: supabaseUser.email,
+        created_at: supabaseUser.created_at
       },
       public_user: publicUserError ? null : publicUser,
       public_user_error: publicUserError ? publicUserError.message : null,
-      tables_in_sync: !publicUserError && publicUser && publicUser.id === user.data.user.id
+      tables_in_sync: !publicUserError && publicUser && publicUser.id === supabaseUser.id
     });
   } catch (error) {
     console.error('Error in auth status handler:', error);
