@@ -316,8 +316,7 @@ class PfHeader extends HTMLElement {
           <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">${loginText}</a>
           <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">${registerText}</a>
           
-          <!-- Language Switcher -->
-          <language-switcher></language-switcher>
+          <!-- Language Switcher moved after user dropdown in updateNavbar() -->
           
           <button class="theme-toggle" title="Toggle light/dark theme">
             ${this.currentTheme === 'dark'
@@ -597,6 +596,24 @@ class PfHeader extends HTMLElement {
           // Insert before the theme toggle
           themeToggle.insertAdjacentHTML('beforebegin', dropdownHtml);
           console.log('Dropdown inserted before theme toggle');
+          
+          // Move language switcher after user dropdown
+          const languageSwitcher = navLinks.querySelector('language-switcher');
+          if (languageSwitcher) {
+            const userDropdown = navLinks.querySelector('.user-dropdown');
+            if (userDropdown) {
+              // Move language switcher after user dropdown
+              userDropdown.insertAdjacentElement('afterend', languageSwitcher);
+              console.log('Language switcher moved after user dropdown');
+            }
+          } else {
+            // If language switcher doesn't exist yet, create it
+            const userDropdown = navLinks.querySelector('.user-dropdown');
+            if (userDropdown) {
+              userDropdown.insertAdjacentHTML('afterend', '<language-switcher></language-switcher>');
+              console.log('Language switcher created after user dropdown');
+            }
+          }
         } else {
           // Fallback: append to the end of nav links
           navLinks.insertAdjacentHTML('beforeend', dropdownHtml);
@@ -729,6 +746,18 @@ class PfHeader extends HTMLElement {
       const mobileLogoutLink = mobileMenu?.querySelector('.mobile-logout-link');
       if (mobileSettingsLink) mobileSettingsLink.remove();
       if (mobileLogoutLink) mobileLogoutLink.remove();
+      
+      // Move language switcher before theme toggle when logged out
+      const languageSwitcher = navLinks.querySelector('language-switcher');
+      const themeToggle = navLinks.querySelector('.theme-toggle');
+      if (languageSwitcher && themeToggle) {
+        themeToggle.insertAdjacentElement('beforebegin', languageSwitcher);
+        console.log('Language switcher moved before theme toggle (logged out)');
+      } else if (!languageSwitcher && themeToggle) {
+        // If language switcher doesn't exist yet, create it
+        themeToggle.insertAdjacentHTML('beforebegin', '<language-switcher></language-switcher>');
+        console.log('Language switcher created before theme toggle (logged out)');
+      }
     }
   }
 
