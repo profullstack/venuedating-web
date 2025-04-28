@@ -6,6 +6,19 @@ export class ApiClient {
   static _tokenWarningLogged = false;
   
   /**
+   * Show a success message using the alert system
+   * @param {string} message - Success message to display
+   * @private
+   */
+  static _showSuccess(message) {
+    if (window.showSuccess) {
+      window.showSuccess(message);
+    } else {
+      console.log(`Success: ${message}`);
+    }
+  }
+  
+  /**
    * Get a valid JWT token or null if none is available
    * @returns {string|null} - Valid JWT token or null
    * @private
@@ -188,7 +201,12 @@ export class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -235,10 +253,20 @@ export class ApiClient {
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create subscription');
+        const errorMessage = errorData.error || 'Failed to create subscription';
+        // Use our new error handling system
+        if (window.handleApiError) {
+          window.handleApiError(errorData, errorMessage);
+        }
+        throw new Error(errorMessage);
       }
       
-      return await response.json();
+      const result = await response.json();
+      
+      // Show success message
+      this._showSuccess(`Subscription created successfully`);
+      
+      return result;
     } catch (error) {
       console.error('Error creating subscription:', error);
       throw error;
@@ -267,7 +295,12 @@ export class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -309,7 +342,12 @@ export class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.blob();
@@ -351,7 +389,12 @@ export class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.json();
@@ -409,10 +452,20 @@ export class ApiClient {
     
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    
+    // Show success message
+    this._showSuccess(`API key "${name}" created successfully`);
+    
+    return result;
   }
   
   /**
@@ -450,10 +503,20 @@ export class ApiClient {
     
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    
+    // Show success message
+    this._showSuccess(`API key updated successfully`);
+    
+    return result;
   }
   
   /**
@@ -492,10 +555,20 @@ export class ApiClient {
     
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || response.statusText);
+      const errorMessage = errorData.error || response.statusText;
+      // Use our new error handling system
+      if (window.handleApiError) {
+        window.handleApiError(errorData, errorMessage);
+      }
+      throw new Error(errorMessage);
     }
     
-    return await response.json();
+    const result = await response.json();
+    
+    // Show success message
+    this._showSuccess(`API key deleted successfully`);
+    
+    return result;
   }
   
   /**
