@@ -52,13 +52,7 @@ jobs:
             chmod 644 ~/.ssh/known_hosts
           fi
       
-      # Cache apt packages
-      - name: Cache apt packages
-        uses: actions/cache@v3
-        id: apt-cache
-        with:
-          path: /var/cache/apt/archives
-          key: apt-packages-${{ runner.os }}-${{ hashFiles('.github/workflows/deploy.yml') }}
+      # Note: Apt package caching removed to fix permission issues
       
       - name: Install dependencies
         run: |
