@@ -211,22 +211,28 @@ export const supabaseUtils = {
         metadata
       };
       
-      // If user email is provided, look up the user_id
-      if (userEmail) {
-        // Get the user_id from the users table
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('id')
-          .eq('email', userEmail)
-          .single();
-        
-        if (userError) {
-          console.warn(`User not found for email: ${userEmail}`, userError);
-        } else if (userData) {
-          // Add the user_id to the document record
-          documentRecord.user_id = userData.id;
-        }
+      // If no user email is provided, we can't associate the document with a user
+      if (!userEmail) {
+        console.warn('No user email provided for document generation. Document history will not be recorded.');
+        // Return empty data since we can't record the generation without a user
+        return [];
       }
+      
+      // Get the user_id from the users table
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', userEmail)
+        .single();
+      
+      if (userError || !userData) {
+        console.warn(`User not found for email: ${userEmail}`, userError);
+        // Return empty data since we can't record the generation without a valid user
+        return [];
+      }
+      
+      // Add the user_id to the document record
+      documentRecord.user_id = userData.id;
       
       // Insert the document generation record
       const { data, error } = await supabase
@@ -235,6 +241,7 @@ export const supabaseUtils = {
         .select();
       
       if (error) {
+        console.error('Error inserting document generation record:', error);
         throw error;
       }
       
