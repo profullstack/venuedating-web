@@ -68,7 +68,7 @@ class PfDialog extends HTMLElement {
       <style>
         :host {
           display: block;
-          font-family: Arial, sans-serif;
+          font-family: var(--font-family, 'SpaceMono', monospace);
         }
         
         .dialog-backdrop {
@@ -77,7 +77,7 @@ class PfDialog extends HTMLElement {
           left: 0;
           width: 100%;
           height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: var(--overlay-color, rgba(0, 0, 0, 0.5));
           display: flex;
           align-items: center;
           justify-content: center;
@@ -93,9 +93,9 @@ class PfDialog extends HTMLElement {
         }
         
         .dialog {
-          background-color: white;
-          border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          background-color: var(--card-background, white);
+          border-radius: var(--border-radius-lg, 8px);
+          box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.15));
           width: 90%;
           max-width: 450px;
           max-height: 90vh;
@@ -111,24 +111,24 @@ class PfDialog extends HTMLElement {
         
         .dialog-header {
           padding: 16px 20px;
-          border-bottom: 1px solid #e5e7eb;
+          border-bottom: 1px solid var(--border-color, #e5e7eb);
         }
         
         .dialog-title {
           margin: 0;
           font-size: 18px;
           font-weight: 600;
-          color: #111827;
+          color: var(--text-primary, #111827);
         }
         
         .dialog-body {
           padding: 20px;
-          color: #4b5563;
+          color: var(--text-secondary, #4b5563);
         }
         
         .dialog-footer {
           padding: 16px 20px;
-          border-top: 1px solid #e5e7eb;
+          border-top: 1px solid var(--border-color, #e5e7eb);
           display: flex;
           justify-content: flex-end;
           gap: 12px;
@@ -136,7 +136,7 @@ class PfDialog extends HTMLElement {
         
         .dialog-button {
           padding: 8px 16px;
-          border-radius: 6px;
+          border-radius: var(--border-radius-md, 6px);
           font-size: 14px;
           font-weight: 500;
           cursor: pointer;
@@ -145,21 +145,21 @@ class PfDialog extends HTMLElement {
         }
         
         .cancel-button {
-          background-color: #f3f4f6;
-          color: #4b5563;
+          background-color: var(--surface-variant, #f3f4f6);
+          color: var(--text-secondary, #4b5563);
         }
         
         .cancel-button:hover {
-          background-color: #e5e7eb;
+          background-color: var(--divider-color, #e5e7eb);
         }
         
         .confirm-button {
-          background-color: #2563eb;
-          color: white;
+          background-color: var(--primary-color, #e02337);
+          color: var(--text-on-primary, white);
         }
         
         .confirm-button:hover {
-          background-color: #1d4ed8;
+          background-color: var(--primary-dark, #c01d2f);
         }
       </style>
       

@@ -509,6 +509,31 @@ class PfHeader extends HTMLElement {
     }
   }
 
+  /**
+   * Store user data in localStorage without PII
+   * @param {Object} userData - User data from server
+   */
+  storeUserData(userData) {
+    if (!userData) return;
+    
+    // Create a sanitized user object without PII
+    const sanitizedUser = {
+      id: userData.id,
+      username: userData.username || userData.email?.split('@')[0] || 'User',
+      role: userData.role || 'user',
+      created_at: userData.created_at,
+      updated_at: userData.updated_at
+    };
+    
+    // Store the sanitized user object in localStorage
+    try {
+      localStorage.setItem('user', JSON.stringify(sanitizedUser));
+      console.log('User data stored in localStorage without PII');
+    } catch (error) {
+      console.error('Error storing user data in localStorage:', error);
+    }
+  }
+
   updateNavbar() {
     // Check for JWT token instead of API key
     const jwtToken = localStorage.getItem('jwt_token');
@@ -519,6 +544,9 @@ class PfHeader extends HTMLElement {
       const userJson = localStorage.getItem('user');
       if (userJson) {
         userObject = JSON.parse(userJson);
+      } else if (jwtToken) {
+        // If we have a JWT but no user object, try to get user info from the auth status endpoint
+        this.fetchUserData(jwtToken);
       }
     } catch (error) {
       console.error('Error parsing user object from localStorage:', error);
@@ -758,6 +786,31 @@ class PfHeader extends HTMLElement {
         themeToggle.insertAdjacentHTML('beforebegin', '<language-switcher></language-switcher>');
         console.log('Language switcher created before theme toggle (logged out)');
       }
+    }
+  }
+
+  /**
+   * Fetch user data from the auth status endpoint
+   * @param {string} jwtToken - JWT token
+   */
+  async fetchUserData(jwtToken) {
+    try {
+      const response = await fetch('/api/1/auth/status', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.authenticated && data.auth_user) {
+          // Store user data without PII
+          this.storeUserData(data.auth_user);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
     }
   }
 

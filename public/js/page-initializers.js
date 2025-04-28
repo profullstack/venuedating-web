@@ -117,10 +117,9 @@ export async function initLoginPage() {
         // User has an active subscription
         localStorage.setItem('subscription_data', JSON.stringify(subscriptionStatus));
         
-        // Create and store a publicly accessible user object
+        // Create and store a sanitized user object without PII
         const userObject = {
-          email: email,
-          username: email,
+          username: email.split('@')[0], // Extract username from email
           subscription: {
             plan: subscriptionStatus.plan || 'monthly',
             status: subscriptionStatus.status || 'active',
@@ -131,10 +130,9 @@ export async function initLoginPage() {
         localStorage.setItem('user', JSON.stringify(userObject));
       } else {
         console.log('No subscription data available or user has no active subscription');
-        // Create a basic user object without subscription data
+        // Create a basic sanitized user object without PII
         const userObject = {
-          email: email,
-          username: email,
+          username: email.split('@')[0], // Extract username from email
           subscription: {
             status: 'unknown'
           },
@@ -290,10 +288,9 @@ export function initRegisterPage() {
       localStorage.setItem('username', email);
       localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
       
-      // Create and store a publicly accessible user object
+      // Create and store a sanitized user object without PII
       const userObject = {
-        email: email,
-        username: email,
+        username: email.split('@')[0], // Extract username from email
         subscription: {
           plan: subscriptionData.subscription?.plan || selectedPlan,
           status: 'pending',
