@@ -20,6 +20,7 @@ import {
 } from './auth.js';
 import { authStatusRoute } from './auth-status.js';
 import { supabaseConfigRoute } from './config.js';
+import { websocketRoute } from './websocket.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 
 // Routes that require authentication
@@ -52,7 +53,8 @@ const publicRoutes = [
   resetPasswordRoute,
   resetPasswordConfirmRoute,
   authStatusRoute,
-  supabaseConfigRoute
+  supabaseConfigRoute,
+  websocketRoute
 ];
 
 /**

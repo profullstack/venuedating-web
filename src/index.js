@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenvFlow from 'dotenv-flow';
 import fs from 'fs';
+import { WebSocketServer } from 'ws';
 
 import { registerRoutes } from './routes/index.js';
 import { errorHandler } from './middleware/error-handler.js';
@@ -196,5 +197,36 @@ serve({
   console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
   console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payments/cryptapi/callback`);
   console.log(`- Payment Logs: http://localhost:${info.port}/api/1/payments/cryptapi/logs`);
+  console.log(`- WebSocket: http://localhost:${info.port}/api/1/ws`);
   console.log(`- Web interface: http://localhost:${info.port}`);
 });
+
+// Create a separate WebSocket server on a different port
+const wsPort = parseInt(port) + 1;
+const wss = new WebSocketServer({ port: wsPort });
+
+// Handle WebSocket connections
+wss.on('connection', (ws) => {
+  console.log('WebSocket connection established');
+  
+  // Send a welcome message
+  ws.send('Connected to WebSocket server');
+  
+  // Handle messages
+  ws.on('message', (message) => {
+    console.log(`Received message: ${message}`);
+    ws.send(`Echo: ${message}`);
+  });
+  
+  // Handle connection close
+  ws.on('close', () => {
+    console.log('WebSocket connection closed');
+  });
+  
+  // Handle errors
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+  });
+});
+
+console.log(`WebSocket server running at ws://localhost:${wsPort}`);

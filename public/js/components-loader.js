@@ -23,5 +23,6 @@ import './components/slides-editor.js';
 import './components/table-editor.js';
 import './components/state-example.js';
 import './components/about-section.js';
+import './components/websocket-example.js';
 
 console.log('All components loaded and registered');

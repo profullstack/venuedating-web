@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket Component Demo</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .demo-section {
+      margin-bottom: 40px;
+    }
+    
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+    
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>WebSocket Component Demo</h1>
+      <p>This page demonstrates the WebSocket component integration.</p>
+    </div>
+    
+    <div class="demo-section">
+      <h2>WebSocket Component</h2>
+      <p>This component uses the WebSocketClient utility to establish a WebSocket connection and exchange messages with the server.</p>
+      
+      <!-- WebSocket Component -->
+      <websocket-example></websocket-example>
+    </div>
+    
+    <div class="demo-section">
+      <h2>How to Use</h2>
+      <p>To use the WebSocket component in your application:</p>
+      
+      <ol>
+        <li>Import the component: <code>import './components/websocket-example.js';</code></li>
+        <li>Add the component to your HTML: <code>&lt;websocket-example&gt;&lt;/websocket-example&gt;</code></li>
+        <li>Click the "Connect" button to establish a WebSocket connection</li>
+        <li>Send messages using the input field and "Send" button</li>
+        <li>Received messages will appear in the messages container</li>
+      </ol>
+    </div>
+    
+    <div class="demo-section">
+      <h2>WebSocket Client API</h2>
+      <p>The WebSocketClient utility provides the following methods:</p>
+      
+      <ul>
+        <li><code>connect(autoReconnect)</code> - Connect to the WebSocket server</li>
+        <li><code>disconnect()</code> - Disconnect from the WebSocket server</li>
+        <li><code>send(data)</code> - Send a message to the WebSocket server</li>
+        <li><code>on(event, callback)</code> - Register an event listener</li>
+        <li><code>off(event, callback)</code> - Remove an event listener</li>
+        <li><code>isConnected()</code> - Check if the WebSocket is connected</li>
+      </ul>
+      
+      <p>Configuration options:</p>
+      <ul>
+        <li><code>port</code> - The WebSocket server port (default: 8100)</li>
+        <li><code>endpoint</code> - The WebSocket endpoint path (default: '')</li>
+        <li><code>reconnectInterval</code> - Reconnection interval in milliseconds (default: 5000)</li>
+        <li><code>maxReconnectAttempts</code> - Maximum number of reconnection attempts (default: 5)</li>
+      </ul>
+      
+      <p>Available events:</p>
+      <ul>
+        <li><code>message</code> - Fired when a message is received</li>
+        <li><code>open</code> - Fired when the connection is established</li>
+        <li><code>close</code> - Fired when the connection is closed</li>
+        <li><code>error</code> - Fired when an error occurs</li>
+        <li><code>reconnect</code> - Fired when attempting to reconnect</li>
+        <li><code>reconnectFailed</code> - Fired when reconnection fails</li>
+      </ul>
+      
+      <div class="demo-section">
+        <h2>WebSocket Server</h2>
+        <p>The WebSocket server is running on port 8100. You can connect to it using:</p>
+        <code>ws://localhost:8100</code>
+      </div>
+    </div>
+    
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+  
+  <!-- Import the component loader -->
+  <script type="module" src="/js/components-loader.js"></script>
+  
+  <!-- Import the WebSocket component -->
+  <script type="module" src="/js/components/websocket-example.js"></script>
+</body>
+</html>
