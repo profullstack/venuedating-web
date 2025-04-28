@@ -8,9 +8,7 @@ import { htmlToEpubRoute } from './html-to-epub.js';
 import { documentHistoryRoute } from './document-history.js';
 import {
   subscriptionRoute,
-  paymentCallbackRoute,
-  subscriptionStatusRoute,
-  paymentLogsRoute
+  subscriptionStatusRoute
 } from './subscription.js';
 import { apiKeyRoutes } from './api-keys.js';
 import {
@@ -47,9 +45,7 @@ protectedRoutes.forEach(route => {
 // Public routes (no authentication required)
 const publicRoutes = [
   subscriptionRoute,
-  paymentCallbackRoute,
   subscriptionStatusRoute,
-  paymentLogsRoute,
   loginRoute,
   refreshTokenRoute,
   registerRoute,

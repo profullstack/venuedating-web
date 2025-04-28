@@ -1,4 +1,3 @@
-import { createCryptAPIClient } from '../utils/cryptapi-wrapper.js';
 import { supabase } from '../utils/supabase.js';
 import { emailService } from './email-service.js';
 import { apiKeyService } from './api-key-service.js';
@@ -17,78 +16,9 @@ dotenv.config();
 
 /**
  * Payment service for handling cryptocurrency payments
+ * Note: CryptAPI integration has been removed
  */
 export const paymentService = {
-  /**
-   * Get CryptAPI client for a specific cryptocurrency
-   * @param {string} coin - Cryptocurrency code (btc, eth, sol)
-   * @returns {Object} - CryptAPI client
-   * @private
-   */
-  _getCryptAPIClient(coin) {
-    console.log(`Payment service: Getting CryptAPI client for coin: ${coin}`);
-    
-    // Get cryptocurrency wallet addresses from environment variables
-    const addresses = {
-      btc: process.env.BITCOIN_ADDRESS,
-      eth: process.env.ETHEREUM_ADDRESS,
-      sol: process.env.SOLANA_ADDRESS,
-      usdc: process.env.USDC_ADDRESS
-    };
-    
-    console.log(`Payment service: Using address for ${coin}: ${addresses[coin]}`);
-    
-    if (!addresses[coin]) {
-      console.error(`Payment service: Unsupported cryptocurrency: ${coin}`);
-      throw new Error(`Unsupported cryptocurrency: ${coin}`);
-    }
-    
-    // Initialize the CryptAPI client using our wrapper
-    console.log('Payment service: Initializing CryptAPI client with wrapper');
-    const api = createCryptAPIClient();
-    console.log('Payment service: CryptAPI client initialized with wrapper');
-    
-    // Return an object with methods for creating addresses, converting currency, and handling callbacks
-    return {
-      createAddress: (options) => {
-        console.log('Payment service: Creating address with CryptAPI with options:', JSON.stringify(options));
-        console.log(`Payment service: CryptAPI endpoint: /${coin}/create`);
-        console.log(`Payment service: CryptAPI address: ${addresses[coin]}`);
-        console.log(`Payment service: CryptAPI callback URL: ${options.callback}`);
-        
-        try {
-          const result = api._createAddress(coin, addresses[coin], options.callback, {
-            pending: options.pending,
-            parameters: options.parameters
-          });
-          
-          console.log('Payment service: CryptAPI createAddress successful');
-          return result;
-        } catch (error) {
-          console.error('Payment service: Error in CryptAPI createAddress:', error);
-          console.error('Payment service: Error stack:', error.stack);
-          throw error;
-        }
-      },
-      
-      // Add the convertUsdToCrypto method to the returned object
-      convertUsdToCrypto: async (coinType, amount) => {
-        console.log(`Payment service: Converting USD to ${coinType}, amount: ${amount}`);
-        
-        try {
-          // Use the original client's convertUsdToCrypto method
-          const result = await api.convertUsdToCrypto(coinType, amount);
-          console.log('Payment service: Currency conversion successful:', result);
-          return result;
-        } catch (error) {
-          console.error('Payment service: Error in convertUsdToCrypto:', error);
-          console.error('Payment service: Error stack:', error.stack);
-          throw error;
-        }
-      }
-    };
-  },
-
   /**
    * Create a new subscription
    * @param {string} email - User email
@@ -100,7 +30,6 @@ export const paymentService = {
     console.log(`Payment service: Creating subscription for ${email}, plan: ${plan}, coin: ${coin}`);
     
     // Check if user exists in Supabase but don't create if not found
-    // This avoids permission issues when service role key doesn't have create permissions
     let userExists = false;
     try {
       const { data: userData } = await supabase
@@ -111,13 +40,8 @@ export const paymentService = {
         
       userExists = !!userData;
       console.log(`Payment service: User exists in Supabase: ${userExists}`);
-      
-      // If user doesn't exist, we'll still create the subscription
-      // The user will be associated with it when they create an account
     } catch (userError) {
-      // Log the error but continue with subscription creation
       console.warn('Payment service: Error checking if user exists:', userError);
-      // We'll proceed without confirmed user existence
     }
     
     // Validate plan
@@ -142,8 +66,6 @@ export const paymentService = {
     expirationDate.setMonth(expirationDate.getMonth() + (plan === 'monthly' ? 1 : 12));
     
     console.log('Payment service: Creating subscription record in Supabase');
-    console.log('Supabase URL:', supabase.supabaseUrl);
-    console.log('Supabase key exists:', !!supabase.supabaseKey);
     
     try {
       // Get current exchange rate for the cryptocurrency
@@ -183,9 +105,8 @@ export const paymentService = {
             console.warn('Payment service: Permission denied when creating subscription, creating temporary record');
             
             // Create a temporary subscription object with a generated ID
-            // This allows the front-end flow to continue without database insertion
             subscription = {
-              id: crypto.randomUUID(), // Generate a random UUID for the subscription
+              id: crypto.randomUUID(),
               email,
               plan,
               amount,
@@ -199,11 +120,10 @@ export const paymentService = {
               expiration_date: expirationDate.toISOString(),
               created_at: now.toISOString(),
               updated_at: now.toISOString(),
-              temp_record: true // Flag to indicate this is a temporary record
+              temp_record: true
             };
           } else {
             console.error('Payment service: Error creating subscription in Supabase:', error);
-            console.error('Error details:', JSON.stringify(error));
             throw error;
           }
         } else {
@@ -215,7 +135,7 @@ export const paymentService = {
           
           // Create a temporary subscription object with a generated ID
           subscription = {
-            id: crypto.randomUUID(), // Generate a random UUID for the subscription
+            id: crypto.randomUUID(),
             email,
             plan,
             amount,
@@ -229,7 +149,7 @@ export const paymentService = {
             expiration_date: expirationDate.toISOString(),
             created_at: now.toISOString(),
             updated_at: now.toISOString(),
-            temp_record: true // Flag to indicate this is a temporary record
+            temp_record: true
           };
         } else {
           console.error('Payment service: Error creating subscription in Supabase:', subError);
@@ -239,469 +159,56 @@ export const paymentService = {
       
       console.log('Payment service: Subscription created in Supabase:', JSON.stringify(subscription));
       
-      // Generate payment invoice
-      console.log('Payment service: Preparing to generate payment invoice');
-      console.log('Payment service: Getting CryptAPI client for', coin);
+      // Get cryptocurrency wallet addresses from environment variables
+      const addresses = {
+        btc: process.env.BITCOIN_ADDRESS,
+        eth: process.env.ETHEREUM_ADDRESS,
+        sol: process.env.SOLANA_ADDRESS,
+        usdc: process.env.USDC_ADDRESS
+      };
       
-      try {
-        const cryptapiClient = this._getCryptAPIClient(coin);
-        const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
-        
-        // Convert USD amount to cryptocurrency
-        console.log(`Payment service: Converting ${amount} USD to ${coin}`);
-        const conversion = await cryptapiClient.convertUsdToCrypto(coin, amount);
-        console.log(`Payment service: Conversion result: ${JSON.stringify(conversion)}`);
-        
-        // Store the converted amount and rate
-        const cryptoAmount = conversion.value;
-        const conversionRate = conversion.rate;
-        
-        console.log('Payment service: Creating address with CryptAPI');
-        console.log('Payment service: Using callback URL:', callbackUrl);
-        
-        const requestParams = {
-          callback: callbackUrl,
-          pending: 1,
-          confirmations: 1,
-          json: 1,
-          parameters: {
-            subscription_id: subscription.id,
-            email,
-            crypto_amount: cryptoAmount,
-            conversion_rate: conversionRate
-          }
-        };
-        
-        console.log('Payment service: CryptAPI request parameters:', JSON.stringify(requestParams));
-        
-        const invoice = await cryptapiClient.createAddress(requestParams);
-        
-        if (!invoice) {
-          console.error('Payment service: CryptAPI returned null or undefined response');
-          throw new Error('CryptAPI returned null or undefined response');
-        }
-        
-        console.log('Payment service: CryptAPI response:', JSON.stringify(invoice));
-        
-        // Validate the response
-        if (!invoice.address_in) {
-          console.error('Payment service: CryptAPI response missing address_in:', JSON.stringify(invoice));
-          throw new Error('CryptAPI response missing payment address');
-        }
-        
-        // Update subscription with payment details
-        console.log('Payment service: Updating subscription with payment details');
-        const { error: updateError } = await supabase
-          .from('subscriptions')
-          .update({
-            payment_address: invoice.address_in,
-            payment_info: invoice,
-            crypto_amount: cryptoAmount,
-            conversion_rate: conversionRate
-          })
-          .eq('id', subscription.id);
-        
-        if (updateError) {
-          console.error('Payment service: Error updating subscription with payment details:', updateError);
-          console.error('Error details:', JSON.stringify(updateError));
-          throw updateError;
-        }
+      // Update subscription with payment address
+      console.log('Payment service: Updating subscription with payment address');
+      const { error: updateError } = await supabase
+        .from('subscriptions')
+        .update({
+          payment_address: addresses[coin],
+          crypto_amount: cryptoAmount,
+          conversion_rate: amount / cryptoAmount
+        })
+        .eq('id', subscription.id);
       
+      if (updateError) {
+        console.error('Payment service: Error updating subscription with payment details:', updateError);
+        console.error('Error details:', JSON.stringify(updateError));
+      }
+    
       // Send subscription confirmation email
       try {
         console.log('Payment service: Sending confirmation email to', email);
         await emailService.sendSubscriptionConfirmation(email, {
           ...subscription,
-          payment_address: invoice.address_in
+          payment_address: addresses[coin]
         });
         console.log('Payment service: Confirmation email sent successfully');
       } catch (emailError) {
         console.error('Payment service: Error sending subscription confirmation email:', emailError);
         console.error('Error stack:', emailError.stack);
-        // Don't throw error here, as the subscription was created successfully
       }
       
       const result = {
         ...subscription,
-        payment_address: invoice.address_in,
-        payment_info: invoice,
+        payment_address: addresses[coin],
         crypto_amount: cryptoAmount,
-        conversion_rate: conversionRate
+        conversion_rate: amount / cryptoAmount
       };
       
       console.log('Payment service: Returning subscription result:', JSON.stringify(result));
       return result;
-      } catch (cryptapiError) {
-        console.error('Payment service: Error in CryptAPI operations:', cryptapiError);
-        console.error('Payment service: Error stack:', cryptapiError.stack);
-        
-        // Add more detailed error information for CryptAPI errors
-        if (cryptapiError.response) {
-          console.error('Payment service: CryptAPI error response status:', cryptapiError.response.status);
-          console.error('Payment service: CryptAPI error response headers:', JSON.stringify(cryptapiError.response.headers));
-          console.error('Payment service: CryptAPI error response data:', JSON.stringify(cryptapiError.response.data));
-        }
-        
-        // Check if it's a 404 error from Unirest
-        if (cryptapiError.message && cryptapiError.message.includes('got 404 response')) {
-          console.error('Payment service: 404 error detected - CryptAPI endpoint might be incorrect or service might be down');
-        }
-        
-        throw cryptapiError;
-      }
     } catch (error) {
       console.error('Payment service: Unexpected error in createSubscription:', error);
       console.error('Error stack:', error.stack);
-      
-      // Add more detailed error information
-      if (error.response) {
-        console.error('Payment service: Error response status:', error.response.status);
-        console.error('Payment service: Error response headers:', JSON.stringify(error.response.headers));
-        console.error('Payment service: Error response data:', JSON.stringify(error.response.data));
-      } else if (error.request) {
-        console.error('Payment service: Error request sent but no response received');
-        console.error('Payment service: Error request details:', JSON.stringify(error.request));
-      } else {
-        console.error('Payment service: Error message:', error.message);
-      }
-      
-      // Check if it's a 404 error from Unirest
-      if (error.message && error.message.includes('got 404 response')) {
-        console.error('Payment service: 404 error detected - CryptAPI endpoint might be incorrect or service might be down');
-        
-        // Generate a curl command for manual testing of the CryptAPI endpoint
-        try {
-          const baseURL = 'https://api.cryptapi.io/';
-          const testCoin = coin || 'btc';
-          
-          // Get the correct address for the selected coin from environment variables
-          const addresses = {
-            btc: process.env.BITCOIN_ADDRESS,
-            eth: process.env.ETHEREUM_ADDRESS,
-            sol: process.env.SOLANA_ADDRESS,
-            usdc: process.env.USDC_ADDRESS
-          };
-          
-          const testAddress = addresses[testCoin];
-          const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
-          
-          // Build query parameters according to official documentation
-          const queryParams = new URLSearchParams();
-          queryParams.append('address', testAddress);
-          queryParams.append('callback', callbackUrl);
-          queryParams.append('pending', '1');
-          queryParams.append('confirmations', '1');
-          queryParams.append('json', '1');
-          
-          const fullURL = `${baseURL}${testCoin}/create/?${queryParams.toString()}`;
-          const curlCommand = `curl -v "${fullURL}"`;
-          
-          console.error('Payment service: Try testing the CryptAPI endpoint with this curl command:');
-          console.error(curlCommand);
-          console.error('Payment service: If this also fails, the CryptAPI service might be down or the endpoint might have changed.');
-        } catch (curlError) {
-          console.error('Payment service: Error generating test curl command:', curlError);
-        }
-      }
-      
       throw error;
-    }
-  },
-
-  /**
-   * Process payment callback
-   * @param {Object} callbackData - Callback data from CryptAPI
-   * @returns {Promise<Object>} - Updated subscription
-   */
-  async processPaymentCallback(callbackData) {
-    console.log('Payment service: Processing payment callback:', JSON.stringify(callbackData));
-    
-    // Extract subscription ID from parameters
-    const subscriptionId = callbackData.parameters?.subscription_id;
-    const email = callbackData.parameters?.email;
-    
-    if (!subscriptionId || !email) {
-      console.error('Payment service: Missing subscription ID or email in callback parameters');
-      throw new Error('Missing subscription ID or email in callback parameters');
-    }
-    
-    // Get subscription from Supabase
-    const { data: subscription, error } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('id', subscriptionId)
-      .single();
-    
-    if (error || !subscription) {
-      console.error('Payment service: Error fetching subscription:', error);
-      throw error || new Error(`Subscription not found: ${subscriptionId}`);
-    }
-    
-    // Check if this is a pending or confirmed callback
-    const isPending = callbackData.pending === '1' || callbackData.pending === 1;
-    console.log(`Payment service: Callback type: ${isPending ? 'Pending' : 'Confirmed'}`);
-    
-    if (isPending) {
-      // This is a pending payment notification
-      console.log(`Payment service: Pending payment received for subscription ${subscriptionId}`);
-      console.log(`Payment service: Transaction ID: ${callbackData.txid_in}, Amount: ${callbackData.value_coin}`);
-      
-      // Primary verification using Tatum
-      let verifiedAmount;
-      let tatumBalance;
-      try {
-        // Get balance from appropriate Tatum endpoint based on coin type
-        switch (callbackData.coin.toLowerCase()) {
-          case 'btc':
-            tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
-            break;
-          case 'eth':
-            tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
-            break;
-          case 'sol':
-            tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
-            break;
-          case 'usdc':
-            tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
-            break;
-          default:
-            throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
-        }
-        console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
-        verifiedAmount = tatumBalance.incoming || tatumBalance.balance || tatumBalance.incoming_amount || 0;
-      } catch (tatumError) {
-        console.error('Payment service: Error verifying balance with Tatum:', tatumError);
-        console.log('Payment service: Falling back to CryptAPI data');
-        verifiedAmount = parseFloat(callbackData.value_coin);
-      }
-
-      // Record pending payment in Supabase
-      const { data: payment, error: paymentError } = await supabase
-        .from('payments')
-        .insert([{
-          subscription_id: subscriptionId,
-          amount: verifiedAmount,
-          currency: callbackData.coin,
-          transaction_id: callbackData.txid_in,
-          status: 'pending',
-          payment_data: callbackData,
-          tatum_balance: tatumBalance
-        }])
-        .select()
-        .single();
-      
-      if (paymentError) {
-        console.error('Payment service: Error recording pending payment:', paymentError);
-        throw paymentError;
-      }
-      
-      // Update subscription status to pending_payment
-      const { error: updateError } = await supabase
-        .from('subscriptions')
-        .update({
-          status: 'pending_payment'
-        })
-        .eq('id', subscriptionId);
-      
-      if (updateError) {
-        console.error('Payment service: Error updating subscription status:', updateError);
-        throw updateError;
-      }
-      
-      return {
-        ...subscription,
-        status: 'pending_payment',
-        payment
-      };
-    } else {
-      // This is a confirmed payment notification
-      console.log(`Payment service: Confirmed payment received for subscription ${subscriptionId}`);
-      console.log(`Payment service: Transaction ID: ${callbackData.txid_in}, Amount: ${callbackData.value_coin}`);
-      console.log(`Payment service: Forwarded Amount: ${callbackData.value_forwarded_coin}, Fee: ${callbackData.fee_coin}`);
-      
-      // Find the pending payment record
-      const { data: pendingPayments, error: findError } = await supabase
-        .from('payments')
-        .select('*')
-        .eq('subscription_id', subscriptionId)
-        .eq('transaction_id', callbackData.txid_in)
-        .eq('status', 'pending');
-      
-      if (findError) {
-        console.error('Payment service: Error finding pending payment:', findError);
-        throw findError;
-      }
-      
-      let paymentId;
-      
-      if (pendingPayments && pendingPayments.length > 0) {
-        // Primary verification using Tatum for confirmation
-        let verifiedAmount;
-        let tatumBalance;
-        try {
-          // Get balance from appropriate Tatum endpoint based on coin type
-          switch (callbackData.coin.toLowerCase()) {
-            case 'btc':
-              tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
-              break;
-            case 'eth':
-              tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
-              break;
-            case 'sol':
-              tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
-              break;
-            case 'usdc':
-              tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
-              break;
-            default:
-              throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
-          }
-          console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
-          verifiedAmount = tatumBalance.incoming || tatumBalance.balance || tatumBalance.incoming_amount || 0;
-        } catch (tatumError) {
-          console.error('Payment service: Error verifying balance with Tatum:', tatumError);
-          console.log('Payment service: Falling back to CryptAPI data');
-          verifiedAmount = parseFloat(callbackData.value_coin);
-        }
-
-        // Update existing payment record
-        console.log(`Payment service: Updating existing payment record ${pendingPayments[0].id}`);
-        
-        const { error: updatePaymentError } = await supabase
-          .from('payments')
-          .update({
-            status: 'completed',
-            amount: verifiedAmount,
-            amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
-            fee: parseFloat(callbackData.fee_coin),
-            transaction_id_out: callbackData.txid_out,
-            confirmations: parseInt(callbackData.confirmations),
-            payment_data: callbackData,
-            tatum_balance: tatumBalance,
-            verification_source: tatumBalance ? 'tatum' : 'cryptapi'
-          })
-          .eq('id', pendingPayments[0].id);
-        
-        if (updatePaymentError) {
-          console.error('Payment service: Error updating payment record:', updatePaymentError);
-          throw updatePaymentError;
-        }
-        
-        paymentId = pendingPayments[0].id;
-      } else {
-        // Verify payment using Tatum for new payment
-        let tatumBalance;
-        try {
-          // Get balance from appropriate Tatum endpoint based on coin type
-          switch (callbackData.coin.toLowerCase()) {
-            case 'btc':
-              tatumBalance = await getBitcoinAddressBalance(callbackData.address_in);
-              break;
-            case 'eth':
-              tatumBalance = await getEthereumAddressBalance(callbackData.address_in);
-              break;
-            case 'sol':
-              tatumBalance = await getSolanaAddressBalance(callbackData.address_in);
-              break;
-            case 'usdc':
-              tatumBalance = await getUsdcAddressBalance(callbackData.address_in);
-              break;
-            default:
-              throw new Error(`Unsupported cryptocurrency: ${callbackData.coin}`);
-          }
-          console.log(`Payment service: Tatum balance verification for ${callbackData.coin}:`, tatumBalance);
-        } catch (tatumError) {
-          console.error('Payment service: Error verifying balance with Tatum:', tatumError);
-          // Continue with CryptAPI data if Tatum verification fails
-          console.log('Payment service: Continuing with CryptAPI data due to Tatum error');
-        }
-
-        // Create new payment record
-        console.log('Payment service: Creating new payment record');
-        
-        const { data: newPayment, error: createPaymentError } = await supabase
-          .from('payments')
-          .insert([{
-            subscription_id: subscriptionId,
-            amount: verifiedAmount,
-            amount_forwarded: parseFloat(callbackData.value_forwarded_coin),
-            fee: parseFloat(callbackData.fee_coin),
-            currency: callbackData.coin,
-            transaction_id: callbackData.txid_in,
-            transaction_id_out: callbackData.txid_out,
-            confirmations: parseInt(callbackData.confirmations),
-            status: 'completed',
-            payment_data: callbackData,
-            tatum_balance: tatumBalance,
-            verification_source: tatumBalance ? 'tatum' : 'cryptapi'
-          }])
-          .select()
-          .single();
-        
-        if (createPaymentError) {
-          console.error('Payment service: Error creating payment record:', createPaymentError);
-          throw createPaymentError;
-        }
-        
-        paymentId = newPayment.id;
-      }
-      
-      // Calculate subscription expiration date
-      const now = new Date();
-      const expirationDate = new Date(now);
-      expirationDate.setMonth(expirationDate.getMonth() + (subscription.plan === 'monthly' ? 1 : 12));
-      
-      // Update subscription status
-      const { error: updateError } = await supabase
-        .from('subscriptions')
-        .update({
-          status: 'active',
-          last_payment_date: now.toISOString(),
-          expiration_date: expirationDate.toISOString()
-        })
-        .eq('id', subscriptionId);
-      
-      if (updateError) {
-        console.error('Payment service: Error updating subscription status:', updateError);
-        throw updateError;
-      }
-      
-      // Get the updated payment record
-      const { data: payment, error: getPaymentError } = await supabase
-        .from('payments')
-        .select('*')
-        .eq('id', paymentId)
-        .single();
-      
-      if (getPaymentError) {
-        console.error('Payment service: Error fetching updated payment:', getPaymentError);
-        throw getPaymentError;
-      }
-      
-      // Send payment received email
-      try {
-        await emailService.sendPaymentReceived(email, {
-          ...payment,
-          subscription: {
-            ...subscription,
-            status: 'active',
-            last_payment_date: now.toISOString(),
-            expiration_date: expirationDate.toISOString()
-          }
-        });
-        console.log(`Payment service: Payment confirmation email sent to ${email}`);
-      } catch (emailError) {
-        console.error('Payment service: Error sending payment received email:', emailError);
-        // Don't throw error here, as the payment was processed successfully
-      }
-      
-      return {
-        ...subscription,
-        status: 'active',
-        last_payment_date: now.toISOString(),
-        expiration_date: expirationDate.toISOString(),
-        payment
-      };
     }
   },
 
@@ -740,7 +247,7 @@ export const paymentService = {
       // First, try to use the standard query
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*, payments(*)')
+        .select('*')
         .eq('email', email)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -758,7 +265,6 @@ export const paymentService = {
           console.warn(`Payment service: Permission denied when getting subscription for ${email}, using fallback`);
           
           // Return a fallback subscription object for testing purposes
-          // In production, you might want to implement a different fallback mechanism
           return {
             id: 'fallback-id',
             email: email,
@@ -767,8 +273,7 @@ export const paymentService = {
             created_at: new Date().toISOString(),
             expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
             amount_usd: 5.0,
-            is_fallback: true, // Mark this as a fallback subscription
-            payments: []
+            is_fallback: true // Mark this as a fallback subscription
           };
         }
         
@@ -782,7 +287,6 @@ export const paymentService = {
       console.error('Payment service: Error stack:', error.stack);
       
       // As a last resort, return a fallback object
-      // This provides a graceful degradation instead of complete failure
       return {
         id: 'error-fallback-id',
         email: email,
@@ -792,8 +296,7 @@ export const paymentService = {
         expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
         amount_usd: 5.0,
         is_error_fallback: true, // Mark this as an error fallback subscription
-        error_message: error.message,
-        payments: []
+        error_message: error.message
       };
     }
   },
@@ -809,7 +312,7 @@ export const paymentService = {
     try {
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*, payments(*)')
+        .select('*')
         .eq('id', id)
         .single();
       
@@ -832,8 +335,7 @@ export const paymentService = {
             created_at: new Date().toISOString(),
             expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
             amount_usd: 5.0,
-            is_fallback: true, // Mark this as a fallback subscription
-            payments: []
+            is_fallback: true // Mark this as a fallback subscription
           };
         }
         
@@ -856,55 +358,8 @@ export const paymentService = {
         expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
         amount_usd: 5.0,
         is_error_fallback: true, // Mark this as an error fallback subscription
-        error_message: error.message,
-        payments: []
+        error_message: error.message
       };
-    }
-  },
-  
-  /**
-   * Check payment logs for a subscription
-   * @param {string} subscriptionId - Subscription ID
-   * @returns {Promise<Object>} - Payment logs
-   */
-  async checkPaymentLogs(subscriptionId) {
-    console.log(`Payment service: Checking payment logs for subscription ${subscriptionId}`);
-    
-    try {
-      // Get subscription from Supabase
-      const { data: subscription, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('id', subscriptionId)
-        .single();
-      
-      if (error || !subscription) {
-        console.error('Error fetching subscription:', error);
-        throw error || new Error(`Subscription not found: ${subscriptionId}`);
-      }
-      
-      const coin = subscription.payment_method;
-      const callbackUrl = 'https://pdf.profullstack.com/api/1/payments/cryptapi/callback';
-      
-      // Get CryptAPI client
-      const cryptapiClient = this._getCryptAPIClient(coin);
-      
-      // Check payment logs
-      console.log(`Payment service: Checking payment logs for ${coin} with callback URL: ${callbackUrl}`);
-      const logs = await cryptapiClient.checkPaymentLogs(coin, callbackUrl);
-      
-      // Filter logs for this subscription
-      const subscriptionLogs = logs.filter(log =>
-        log.parameters && log.parameters.subscription_id === subscriptionId
-      );
-      
-      console.log(`Payment service: Found ${subscriptionLogs.length} logs for subscription ${subscriptionId}`);
-      
-      return subscriptionLogs;
-    } catch (error) {
-      console.error(`Payment service: Error checking payment logs for subscription ${subscriptionId}:`, error);
-      console.error('Error stack:', error.stack);
-      throw error;
     }
   },
 
