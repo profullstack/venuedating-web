@@ -644,44 +644,57 @@ async function initLoginPage() {
       // Import the API client
       const { ApiClient } = await import('./api-client.js');
       
-      // Import Supabase client for JWT authentication
-      const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+      console.log('Attempting to sign in with server-side login endpoint:', email);
       
-      // Fetch Supabase configuration from the server
-      const configResponse = await fetch('/api/1/config/supabase');
-      if (!configResponse.ok) {
-        throw new Error('Failed to fetch Supabase configuration');
-      }
-      
-      const { supabaseUrl, supabaseAnonKey } = await configResponse.json();
-      
-      console.log('Creating Supabase client with URL:', supabaseUrl);
-      console.log('Anon key exists:', !!supabaseAnonKey);
-      
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
-      console.log('Supabase client created successfully');
-      
-      console.log('Attempting to sign in with Supabase:', email);
-      
-      // Sign in with Supabase to get JWT token
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      // Use the server-side login endpoint instead of direct Supabase authentication
+      const response = await fetch('/api/1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
       });
       
-      if (authError) {
-        console.error('Supabase auth error:', authError);
-        throw new Error('Authentication failed: ' + authError.message);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Login error:', errorData);
+        throw new Error(errorData.error || 'Authentication failed');
       }
       
-      if (!authData || !authData.session) {
-        throw new Error('Authentication failed: No session data returned');
+      const authData = await response.json();
+      
+      console.log('Login successful:', authData.success);
+      
+      if (!authData.success || !authData.session || !authData.session.access_token) {
+        throw new Error('Authentication failed: No valid session data returned');
       }
       
-      // Store JWT token in localStorage
-      localStorage.setItem('jwt_token', authData.session.access_token);
-      console.log('JWT token stored successfully, length:', authData.session.access_token.length);
-      console.log('JWT token preview:', authData.session.access_token.substring(0, 10) + '...');
+      // COMPREHENSIVE TOKEN STORAGE: Store JWT token in multiple locations for resilience
+      const token = authData.session.access_token.trim();
+      
+      // 1. Store in localStorage (primary location)
+      localStorage.setItem('jwt_token', token);
+      console.log('JWT token stored in localStorage, length:', token.length);
+      
+      // 2. Store in sessionStorage (survives page refreshes but not tab closures)
+      sessionStorage.setItem('backup_jwt_token', token);
+      console.log('JWT token backup stored in sessionStorage');
+      
+      // 3. Store the entire session data in localStorage as JSON
+      localStorage.setItem('session_data', JSON.stringify(authData.session));
+      console.log('Complete session data stored in localStorage');
+      
+      // 4. Store a cookie as another fallback (accessible to all pages)
+      document.cookie = `jwt_token=${token}; path=/; max-age=86400; SameSite=Strict`;
+      console.log('JWT token cookie set with 24-hour expiration');
+      
+      // Verify storage was successful by reading back from localStorage
+      const storedToken = localStorage.getItem('jwt_token');
+      console.log('Verified JWT token in localStorage, length:', storedToken?.length || 0);
+      console.log('JWT token preview:', token.substring(0, 10) + '...' + token.substring(token.length - 10));
+      
+      // Debug token before redirection
+      console.log('JWT token before redirect, length:', localStorage.getItem('jwt_token')?.length || 0);
       
       try {
         // Check subscription status using the JWT token
@@ -739,17 +752,31 @@ async function initLoginPage() {
       // Dispatch auth changed event
       window.dispatchEvent(new CustomEvent('auth-changed'));
       
-      // Check if the user is using the default password
-      if (password === 'ChangeMe123!') {
-        // Redirect to the reset password page
-        console.log('User is using default password, redirecting to reset password page');
-        alert('For security reasons, please change your default password before continuing.');
-        window.router.navigate('/reset-password');
-      } else {
-        // Redirect to the API keys page
-        console.log('Login successful, redirecting to API keys page');
-        window.router.navigate('/api-keys');
+      // Show success message briefly
+      try {
+        // Use the globally defined showLoginAlert function
+        window.showLoginAlert('Login successful! Redirecting...', 'success');
+      } catch (alertError) {
+        console.log('Could not show alert:', alertError);
+        // Fallback to alert if function is not available
+        alert('Login successful! Redirecting...');
       }
+      
+      // Debug token before redirection
+      console.log('JWT token before redirect, length:', localStorage.getItem('jwt_token')?.length || 0);
+      
+      // Save user auth data in session storage as a backup
+      if (authData.session && authData.session.access_token) {
+        sessionStorage.setItem('backup_jwt_token', authData.session.access_token);
+      }
+      
+      // Redirect to the API keys page
+      console.log('Login successful, redirecting to API keys page');
+      setTimeout(() => {
+        // Check token again right before navigation
+        console.log('JWT token right before navigation, length:', localStorage.getItem('jwt_token')?.length || 0);
+        window.router.navigate('/api-keys');
+      }, 1000);
     } catch (error) {
       console.error('Login error:', error);
       console.error('Error stack:', error.stack);
@@ -759,7 +786,9 @@ async function initLoginPage() {
       // Provide more specific error messages based on the error type
       let errorMessage = 'Login failed: ';
       
-      if (error.message && error.message.includes('API key')) {
+      if (error.message && error.message.includes('Invalid email or password')) {
+        errorMessage = 'Invalid credentials. Please check your email and password.';
+      } else if (error.message && error.message.includes('API key')) {
         errorMessage += 'Invalid credentials. Please check your email and password.';
       } else if (error.message && error.message.includes('session')) {
         errorMessage += 'Authentication server error. Please try again later.';
@@ -768,7 +797,15 @@ async function initLoginPage() {
       }
       
       console.error('Showing error message to user:', errorMessage);
-      alert(errorMessage);
+      
+      // Use the global alert function
+      try {
+        window.showLoginAlert(errorMessage);
+      } catch (alertError) {
+        // Fallback to standard alert if function not available
+        console.log('Error showing login alert:', alertError);
+        alert(errorMessage);
+      }
     }
   });
 }
@@ -1100,6 +1137,54 @@ function checkAuthAndInitPage(pageType) {
  * Initialize API keys page
  */
 async function initApiKeysPage() {
+  // CRITICAL FIX: Directly check user data in sessionStorage
+  console.log('Initializing API Keys page - checking authentication');
+  
+  // First try to get the JWT token from localStorage
+  let jwtToken = localStorage.getItem('jwt_token');
+  console.log('API Keys Page - JWT token in localStorage, length:', jwtToken?.length || 0);
+  
+  if (!jwtToken || jwtToken === 'null' || jwtToken.length < 100) {
+    console.log('Invalid or missing JWT token detected in localStorage');
+    
+    // Check for backup JWT token in sessionStorage
+    const backupToken = sessionStorage.getItem('backup_jwt_token');
+    if (backupToken && backupToken.length > 100) {
+      console.log('Found backup token in sessionStorage, length:', backupToken.length);
+      jwtToken = backupToken;
+      localStorage.setItem('jwt_token', backupToken);
+      console.log('JWT token has been restored from sessionStorage backup');
+    } else {
+      console.log('No backup token found in sessionStorage, checking for user data');
+      
+      // Try to extract from user data 
+      try {
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          console.log('Found user data in localStorage, checking for session data');
+          
+          // Check if we have stored session data in localStorage that might contain the token
+          const sessionData = localStorage.getItem('session_data');
+          if (sessionData) {
+            try {
+              const parsedSession = JSON.parse(sessionData);
+              if (parsedSession && parsedSession.access_token && parsedSession.access_token.length > 100) {
+                console.log('Recovered token from session_data, length:', parsedSession.access_token.length);
+                jwtToken = parsedSession.access_token;
+                localStorage.setItem('jwt_token', jwtToken);
+                console.log('JWT token has been restored from session_data');
+              }
+            } catch (e) {
+              console.error('Error parsing session data:', e);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking user data:', e);
+      }
+    }
+  }
+  
   try {
     // Import auth status utility
     const { checkAuthStatus } = await import('./utils/auth-status.js');
@@ -1121,7 +1206,7 @@ async function initApiKeysPage() {
   }
   
   // Initialize API keys page
-  console.log('JWT token found, initializing API keys page');
+  console.log('JWT token verified, initializing API keys page');
   
   // Make sure the API key manager component is loaded
   import('./components/api-key-manager.js').then(() => {

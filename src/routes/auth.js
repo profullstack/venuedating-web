@@ -19,56 +19,131 @@ export async function registerHandler(c) {
     
     console.log(`Registering user: ${email}`);
     
-    // Register user with Supabase
-    // Use signUp instead of admin.createUser to avoid permission issues
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
+    // First check if user already exists in the auth system
+    try {
+      const { data: existingUser, error: existingUserError } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .single();
+        
+      if (existingUser) {
+        console.log(`User with email ${email} already exists`);
+        return c.json({ error: 'A user with this email already exists' }, 409);
+      }
+    } catch (checkError) {
+      console.log(`Error checking for existing user: ${checkError.message}`);
+      // Continue with registration attempt even if check fails
+    }
+    
+    // Register user with Supabase using the admin API for better reliability
+    try {
+      const { data: adminAuthData, error: adminAuthError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true, // Auto-confirm email to avoid verification step
+        user_metadata: {
           plan,
           payment_method
         }
+      });
+      
+      if (adminAuthError) {
+        console.error('Admin user creation error:', adminAuthError);
+        throw adminAuthError;
       }
-    });
-    
-    if (authError) {
-      console.error('Supabase auth error:', authError);
-      return c.json({ error: 'Registration failed: ' + authError.message }, 400);
+      
+      if (!adminAuthData || !adminAuthData.user) {
+        throw new Error('No user data returned from admin create user');
+      }
+      
+      console.log(`User created with admin API: ${email}, ID: ${adminAuthData.user.id}`);
+      
+      // Manually create user in public.users table since we're bypassing triggers
+      try {
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert([{
+            id: adminAuthData.user.id,
+            email: email,
+            is_admin: false
+          }]);
+          
+        if (insertError) {
+          console.warn(`Warning: Could not insert user into public.users table: ${insertError.message}`);
+          // Continue anyway as the auth part succeeded
+        } else {
+          console.log(`User added to public.users table: ${email}`);
+        }
+      } catch (insertError) {
+        console.warn(`Warning: Error inserting user into public.users table: ${insertError.message}`);
+        // Continue anyway as the auth part succeeded
+      }
+      
+      // Create a session for the new user
+      const { data: sessionData, error: sessionError } = await supabase.auth.admin.createSession({
+        user_id: adminAuthData.user.id
+      });
+      
+      if (sessionError) {
+        console.error('Error creating session for new user:', sessionError);
+        // Return success but without session data
+        return c.json({
+          success: true,
+          message: 'User registered successfully, but session could not be created. Please login.',
+          user: {
+            id: adminAuthData.user.id,
+            email: adminAuthData.user.email
+          }
+        });
+      }
+      
+      return c.json({
+        success: true,
+        message: 'User registered successfully',
+        user: {
+          id: adminAuthData.user.id,
+          email: adminAuthData.user.email
+        },
+        session: sessionData.session
+      });
+      
+    } catch (adminError) {
+      // Fallback to regular signup if admin API fails
+      console.log(`Admin API failed, falling back to regular signup: ${adminError.message}`);
+      
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            plan,
+            payment_method
+          }
+        }
+      });
+      
+      if (authError) {
+        console.error('Supabase auth error in fallback:', authError);
+        return c.json({ error: 'Registration failed: ' + authError.message }, 400);
+      }
+      
+      if (!authData || !authData.user) {
+        return c.json({ error: 'Registration failed: No user data returned from fallback' }, 500);
+      }
+      
+      console.log(`User registered successfully with fallback: ${email}`);
+      
+      return c.json({
+        success: true,
+        message: 'User registered successfully',
+        user: {
+          id: authData.user.id,
+          email: authData.user.email
+        },
+        session: authData.session
+      });
     }
-    
-    if (!authData || !authData.user) {
-      return c.json({ error: 'Registration failed: No user data returned' }, 500);
-    }
-    
-    console.log(`User registered successfully: ${email}`);
-    
-    // The session should be included in the authData response
-    // No need to sign in separately
-    const sessionData = authData;
-    
-    // No need to manually create a user in the database
-    // The database trigger will handle this automatically
-    
-    return c.json({
-      success: true,
-      message: 'User registered successfully',
-      user: {
-        id: authData.user.id,
-        email: authData.user.email
-      },
-      session: authData.session
-    });
-    
-    return c.json({
-      success: true,
-      message: 'User registered successfully',
-      user: {
-        id: authData.user.id,
-        email: authData.user.email
-      },
-      session: sessionData.session
-    });
   } catch (error) {
     console.error('Error in register handler:', error);
     return errorUtils.handleError(error, c);
@@ -231,8 +306,105 @@ export async function resetPasswordConfirmHandler(c) {
 }
 
 /**
+ * Route handler for user login
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with session data
+ */
+export async function loginHandler(c) {
+  try {
+    // Get login data from request body
+    const { email, password } = await c.req.json();
+    
+    if (!email || !password) {
+      return c.json({ error: 'Email and password are required' }, 400);
+    }
+    
+    console.log(`Attempting login for user: ${email}`);
+    
+    // Login user with Supabase
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      console.error('Supabase login error:', error);
+      
+      // Check for specific error types
+      if (error.message.includes('Invalid login credentials')) {
+        return c.json({ error: 'Invalid email or password' }, 401);
+      }
+      
+      return c.json({ error: 'Login failed: ' + error.message }, 400);
+    }
+    
+    if (!data || !data.user || !data.session) {
+      console.error('Login failed: No user or session data returned');
+      return c.json({ error: 'Login failed: No session data returned' }, 500);
+    }
+    
+    console.log(`User logged in successfully: ${email}`);
+    
+    // Check if user exists in public.users table, create if not
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('id, email')
+      .eq('email', email)
+      .single();
+    
+    if (userError && userError.code !== 'PGRST116') { // Error other than 'not found'
+      console.error('Error checking user in public.users table:', userError);
+    }
+    
+    // If user doesn't exist in public.users table, create it
+    if (userError && userError.code === 'PGRST116') {
+      console.log(`User ${email} not found in public.users table, creating...`);
+      
+      try {
+        // Create user in public.users table
+        await supabase
+          .from('users')
+          .insert([{
+            id: data.user.id,
+            email: data.user.email,
+            is_admin: false
+          }]);
+          
+        console.log(`User ${email} created in public.users table`);
+      } catch (insertError) {
+        console.error('Error creating user in public.users table:', insertError);
+        // Continue anyway, as the login was successful
+      }
+    }
+    
+    return c.json({
+      success: true,
+      message: 'Login successful',
+      user: {
+        id: data.user.id,
+        email: data.user.email
+      },
+      session: {
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+        expires_at: data.session.expires_at
+      }
+    });
+  } catch (error) {
+    console.error('Error in login handler:', error);
+    return errorUtils.handleError(error, c);
+  }
+}
+
+/**
  * Route configuration for auth endpoints
  */
+export const loginRoute = {
+  method: 'POST',
+  path: '/api/1/auth/login',
+  handler: loginHandler
+};
+
 export const refreshTokenRoute = {
   method: 'POST',
   path: '/api/1/auth/refresh-token',

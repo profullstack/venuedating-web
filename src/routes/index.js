@@ -14,6 +14,7 @@ import {
 } from './subscription.js';
 import { apiKeyRoutes } from './api-keys.js';
 import {
+  loginRoute,
   refreshTokenRoute,
   registerRoute,
   resetPasswordRoute,
@@ -49,6 +50,7 @@ const publicRoutes = [
   paymentCallbackRoute,
   subscriptionStatusRoute,
   paymentLogsRoute,
+  loginRoute,
   refreshTokenRoute,
   registerRoute,
   resetPasswordRoute,

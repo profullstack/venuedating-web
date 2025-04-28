@@ -487,12 +487,27 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
+      // Get a valid token, avoid sending 'null'
+      const authToken = this._getApiKey();
+      
+      // Debug the token we're about to use
+      console.log('API Key Manager: Authorization token length:', authToken?.length || 0);
+      
+      // Only include Authorization header if we have a valid token
+      const headers = {
+        'Accept': 'application/json'
+      };
+      
+      if (authToken && authToken !== 'null' && authToken.length > 10) {
+        console.log('API Key Manager: Using valid token for Authorization header');
+        headers['Authorization'] = `Bearer ${authToken}`;
+      } else {
+        console.warn('API Key Manager: No valid token available, proceeding without Authorization header');
+      }
+      
       const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this._getApiKey()}`
-        }
+        headers
       });
       
       if (!response.ok) {
@@ -532,16 +547,28 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
+      // Get a valid token, avoid sending 'null'
+      const authToken = this._getApiKey();
+      
+      // Debug the token we're about to use
+      console.log('API Key Manager: Create key - token length:', authToken?.length || 0);
+      
+      // Only include Authorization header if we have a valid token
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (authToken && authToken !== 'null' && authToken.length > 10) {
+        console.log('API Key Manager: Create key - using valid token');
+        headers['Authorization'] = `Bearer ${authToken}`;
+      } else {
+        console.warn('API Key Manager: Create key - no valid token available');
+      }
+      
       const response = await fetch(`${baseUrl}/api-keys`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this._getApiKey()}`
-        },
-        body: JSON.stringify({
-          name: this._newKeyName
-        })
+        headers,
+        body: JSON.stringify({ name: this._newKeyName })
       });
       
       if (!response.ok) {
@@ -576,13 +603,28 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
+      // Get a valid token, avoid sending 'null'
+      const authToken = this._getApiKey();
+      
+      // Debug the token we're about to use
+      console.log('API Key Manager: Toggle key - token length:', authToken?.length || 0);
+      
+      // Only include Authorization header if we have a valid token
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      
+      if (authToken && authToken !== 'null' && authToken.length > 10) {
+        console.log('API Key Manager: Toggle key - using valid token');
+        headers['Authorization'] = `Bearer ${authToken}`;
+      } else {
+        console.warn('API Key Manager: Toggle key - no valid token available');
+      }
+      
       const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this._getApiKey()}`
-        },
+        headers,
         body: JSON.stringify({
           is_active: isActive
         })
@@ -617,12 +659,27 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
+      // Get a valid token, avoid sending 'null'
+      const authToken = this._getApiKey();
+      
+      // Debug the token we're about to use
+      console.log('API Key Manager: Delete key - token length:', authToken?.length || 0);
+      
+      // Only include Authorization header if we have a valid token
+      const headers = {
+        'Accept': 'application/json'
+      };
+      
+      if (authToken && authToken !== 'null' && authToken.length > 10) {
+        console.log('API Key Manager: Delete key - using valid token');
+        headers['Authorization'] = `Bearer ${authToken}`;
+      } else {
+        console.warn('API Key Manager: Delete key - no valid token available');
+      }
+      
       const response = await fetch(`${baseUrl}/api-keys/${keyId}`, {
         method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${this._getApiKey()}`
-        }
+        headers
       });
       
       if (!response.ok) {
@@ -670,15 +727,30 @@ export class ApiKeyManager extends BaseComponent {
    * @private
    */
   _getApiKey() {
-    // Try to get from localStorage
+    // First, try to get JWT token
+    const jwtToken = localStorage.getItem('jwt_token');
+    if (jwtToken) {
+      console.log('Using JWT token for authentication, length:', jwtToken.length);
+      return jwtToken;
+    }
+    
+    // Next, try API key from localStorage
     const apiKey = localStorage.getItem('api_key');
     if (apiKey) {
+      console.log('Using API key from localStorage for authentication');
       return apiKey;
     }
     
-    // Try to get from URL
+    // Finally, try to get from URL
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('api_key');
+    const urlApiKey = urlParams.get('api_key');
+    if (urlApiKey) {
+      console.log('Using API key from URL for authentication');
+      return urlApiKey;
+    }
+    
+    console.warn('No authentication token found in storage or URL');
+    return null;
   }
 }
 

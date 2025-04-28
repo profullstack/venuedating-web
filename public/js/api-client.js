@@ -227,8 +227,8 @@ export class ApiClient {
    * @private
    */
   static async fetchBinaryResponse(url, body) {
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get JWT token from localStorage and ensure it's properly formatted
+    let jwtToken = localStorage.getItem('jwt_token');
     
     const headers = {
       'Content-Type': 'application/json',
@@ -236,6 +236,12 @@ export class ApiClient {
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      // Ensure token is properly trimmed
+      jwtToken = jwtToken.trim();
+      
+      // Log token information for debugging
+      console.log(`API Client: Using JWT token of length ${jwtToken.length}`);
+      
       headers['Authorization'] = `Bearer ${jwtToken}`;
     }
     

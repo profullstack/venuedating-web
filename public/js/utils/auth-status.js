@@ -9,12 +9,61 @@
 export async function checkAuthStatus() {
   try {
     // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    let jwtToken = localStorage.getItem('jwt_token');
+    console.log('Auth check - JWT token from localStorage, length:', jwtToken?.length || 0);
     
-    if (!jwtToken) {
+    // Check for invalid or corrupted token
+    if (!jwtToken || jwtToken === 'null' || jwtToken.length < 100) {
+      console.warn('Invalid JWT token detected during auth check, attempting recovery');
+      
+      // Try to recover from session storage backup
+      const backupToken = sessionStorage.getItem('backup_jwt_token');
+      if (backupToken && backupToken.length > 100) {
+        console.log('Recovered JWT token from sessionStorage backup, length:', backupToken.length);
+        jwtToken = backupToken;
+        // Restore to localStorage
+        localStorage.setItem('jwt_token', backupToken);
+      } else {
+        // Try to recover from session_data in localStorage
+        try {
+          const sessionData = localStorage.getItem('session_data');
+          if (sessionData) {
+            const parsedSession = JSON.parse(sessionData);
+            if (parsedSession && parsedSession.access_token && parsedSession.access_token.length > 100) {
+              console.log('Recovered token from session_data, length:', parsedSession.access_token.length);
+              jwtToken = parsedSession.access_token;
+              localStorage.setItem('jwt_token', jwtToken);
+            }
+          }
+        } catch (e) {
+          console.error('Error recovering from session_data:', e);
+        }
+        
+        // As a final fallback, try to recover from cookie
+        if (!jwtToken || jwtToken === 'null' || jwtToken.length < 100) {
+          try {
+            const cookies = document.cookie.split(';');
+            const tokenCookie = cookies.find(cookie => cookie.trim().startsWith('jwt_token='));
+            if (tokenCookie) {
+              const cookieValue = tokenCookie.split('=')[1];
+              if (cookieValue && cookieValue.length > 100) {
+                console.log('Recovered JWT token from cookie, length:', cookieValue.length);
+                jwtToken = cookieValue;
+                localStorage.setItem('jwt_token', cookieValue);
+              }
+            }
+          } catch (e) {
+            console.error('Error recovering token from cookie:', e);
+          }
+        }
+      }
+    }
+    
+    // Still no valid token after recovery attempt
+    if (!jwtToken || jwtToken === 'null' || jwtToken.length < 100) {
       return {
         authenticated: false,
-        message: 'No JWT token found in localStorage'
+        message: 'No valid JWT token found in storage'
       };
     }
     

@@ -43,12 +43,42 @@ let supabaseClient;
 try {
   console.log('Creating Supabase client...');
   if (supabaseKey) {
-    supabaseClient = createClient(supabaseUrl, supabaseKey);
-    console.log('Supabase client created successfully with API key');
+    // Create client with explicit auth configuration to ensure proper role usage
+    supabaseClient = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false
+      },
+      db: {
+        schema: 'public'
+      },
+      global: {
+        headers: {
+          Authorization: `Bearer ${supabaseKey}`
+        }
+      }
+    });
     
-    // Add URL and key to the client for debugging
+    console.log('Supabase client created successfully with service role key');
+    
+    // Verify connection works properly
     supabaseClient.supabaseUrl = supabaseUrl;
     supabaseClient.supabaseKey = !!supabaseKey;
+    
+    // Test the connection to verify permissions work
+    supabaseClient.from('users').select('count').limit(1)
+      .then(result => {
+        if (result.error) {
+          console.error('⚠️ TEST QUERY FAILED - Supabase permissions issue:', result.error);
+          console.log('This likely means your service role key does not have proper permissions.');
+        } else {
+          console.log('✅ Supabase test query successful - permissions are working properly');
+        }
+      })
+      .catch(err => {
+        console.error('⚠️ TEST QUERY ERROR - Supabase permissions issue:', err);
+      });
   } else {
     console.error('ERROR: No Supabase key found in environment variables.');
     console.error('Please create a .env file with SUPABASE_URL and SUPABASE_KEY or SUPABASE_SERVICE_ROLE_KEY.');
@@ -83,14 +113,35 @@ export const supabaseUtils = {
         return null;
       }
       
+      // Check if token is malformed
+      if (token.length < 100) {
+        console.error(`JWT verification error: Token appears to be malformed (length: ${token.length})`);
+        console.error(`Token content: ${token}`);
+        return null;
+      }
+      
       // Log token length and first/last few characters for debugging
       console.log(`Token length: ${token.length}`);
       console.log(`Token preview: ${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
       
-      const { data, error } = await supabase.auth.getUser(token);
+      // Ensure token is properly trimmed
+      const trimmedToken = token.trim();
+      
+      // Use the Supabase getUser method to verify the token
+      const { data, error } = await supabase.auth.getUser(trimmedToken);
       
       if (error) {
         console.error('JWT verification error:', error);
+        // Try logging more details about the token
+        try {
+          const parts = token.split('.');
+          console.error(`Token parts: ${parts.length}`);
+          if (parts.length !== 3) {
+            console.error('Invalid JWT format: expected 3 parts (header.payload.signature)');
+          }
+        } catch (e) {
+          console.error('Error analyzing token:', e);
+        }
         return null;
       }
       

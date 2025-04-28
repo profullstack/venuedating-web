@@ -30,45 +30,59 @@ export async function authMiddleware(c, next) {
     
     // Check Authorization header (Bearer token)
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      
+      const token = authHeader.substring(7).trim();
+
       console.log(`Auth middleware: Processing request for path ${c.req.path}`);
       console.log(`Auth middleware: Found Bearer token of length ${token.length}`);
       
-      // First, try to validate as JWT token
-      try {
-        console.log('Auth middleware: Attempting to verify JWT token');
-        // Verify JWT token with Supabase
-        const supabaseUser = await supabaseUtils.verifyJwtToken(token);
-        
-        if (supabaseUser) {
-          console.log(`Auth middleware: JWT token verified for user ${supabaseUser.email}`);
-          // Get user from database using email
-          user = await apiKeyService._getUserByEmail(supabaseUser.email);
-          
-          if (!user) {
-            console.log(`Auth middleware: Creating new user for ${supabaseUser.email}`);
-            // Create user if not exists
-            user = await apiKeyService._createUserIfNotExists(supabaseUser.email);
-          }
-        } else {
-          console.log('Auth middleware: JWT token verification failed, no user returned');
-        }
-      } catch (jwtError) {
-        console.error('Auth middleware: JWT validation error:', jwtError);
-        console.error('Auth middleware: JWT validation error stack:', jwtError.stack);
-        console.log('Auth middleware: JWT validation failed, trying as API key');
-      }
-      
-      // If JWT validation failed, try as API key
-      if (!user) {
+      // Handle invalid token cases including literal "null" string
+      if (!token || token === 'null' || token.length < 100) {
+        console.error('Auth middleware: Token appears to be malformed or truncated:', token);
+        console.error('Auth middleware: Skipping JWT verification for invalid token');
+        // Skip to API key validation and try as API key
         console.log('Auth middleware: Attempting to validate as API key');
-        // Try to validate as API key
         user = await apiKeyService.validateApiKey(token);
         if (user) {
           console.log('Auth middleware: API key validation successful');
         } else {
           console.log('Auth middleware: API key validation failed');
+        }
+      } else {
+        // First, try to validate as JWT token
+        try {
+          console.log('Auth middleware: Attempting to verify JWT token');
+          // Verify JWT token with Supabase
+          const supabaseUser = await supabaseUtils.verifyJwtToken(token);
+          
+          if (supabaseUser) {
+            console.log(`Auth middleware: JWT token verified for user ${supabaseUser.email}`);
+            // Get user from database using email
+            user = await apiKeyService._getUserByEmail(supabaseUser.email);
+            
+            if (!user) {
+              console.log(`Auth middleware: Creating new user for ${supabaseUser.email}`);
+              // Create user if not exists
+              user = await apiKeyService._createUserIfNotExists(supabaseUser.email);
+            }
+          } else {
+            console.log('Auth middleware: JWT token verification failed, no user returned');
+          }
+        } catch (jwtError) {
+          console.error('Auth middleware: JWT validation error:', jwtError);
+          console.error('Auth middleware: JWT validation error stack:', jwtError.stack);
+          console.log('Auth middleware: JWT validation failed, trying as API key');
+        }
+        
+        // If JWT validation failed, try as API key
+        if (!user) {
+          console.log('Auth middleware: Attempting to validate as API key');
+          // Try to validate as API key
+          user = await apiKeyService.validateApiKey(token);
+          if (user) {
+            console.log('Auth middleware: API key validation successful');
+          } else {
+            console.log('Auth middleware: API key validation failed');
+          }
         }
       }
     }
