@@ -30,6 +30,10 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
  * Initialize the application
  */
 function initApp() {
+  // Set API base URL for client-side requests (domain only, without /api/1)
+  window.API_BASE_URL = 'https://pdf.profullstack.com';
+  console.log('API base URL set to:', window.API_BASE_URL);
+  
   // Initialize i18n first
   initI18n().then(() => {
     console.log('i18n initialized');

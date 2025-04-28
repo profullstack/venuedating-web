@@ -160,7 +160,9 @@ export class ApiClient {
    * @returns {Promise<Object>} - Document history data with pagination
    */
   static async getDocumentHistory(limit = 10, offset = 0) {
-    const url = new URL(`${window.location.origin}${this.baseUrl}/document-history`);
+    // Use API_BASE_URL for the domain, but keep the API path as /api/1
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const url = new URL(`${apiBaseUrl}/api/1/document-history`);
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('offset', offset.toString());
     
@@ -216,7 +218,12 @@ export class ApiClient {
         console.warn('API Client: No valid JWT token available for createSubscription request');
       }
       
-      const response = await fetch(`${this.baseUrl}/subscription`, {
+      // Use API_BASE_URL for the domain, but keep the API path as provided
+      const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+      const fullUrl = `${apiBaseUrl}${this.baseUrl}/subscription`;
+      console.log('Making subscription request to:', fullUrl);
+      
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -245,7 +252,12 @@ export class ApiClient {
    */
   static async checkSubscriptionStatus(email) {
     // This is a public endpoint that doesn't require authentication
-    const response = await fetch(`${this.baseUrl}/subscription-status`, {
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const fullUrl = `${apiBaseUrl}${this.baseUrl}/subscription-status`;
+    console.log('Checking subscription status at:', fullUrl);
+    
+    const response = await fetch(fullUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -284,7 +296,12 @@ export class ApiClient {
       console.warn('API Client: No valid JWT token available for binary request');
     }
     
-    const response = await fetch(url, {
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const fullUrl = `${apiBaseUrl}${url}`;
+    console.log('Making binary request to:', fullUrl);
+    
+    const response = await fetch(fullUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -321,7 +338,12 @@ export class ApiClient {
       console.warn('API Client: No valid JWT token available for JSON request');
     }
     
-    const response = await fetch(url, {
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const fullUrl = `${apiBaseUrl}${url}`;
+    console.log('Making JSON request to:', fullUrl);
+    
+    const response = await fetch(fullUrl, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -360,7 +382,10 @@ export class ApiClient {
    * @returns {Promise<Object>} - API keys
    */
   static async getApiKeys() {
-    const url = `${this.baseUrl}/api-keys`;
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const url = `${apiBaseUrl}${this.baseUrl}/api-keys`;
+    console.log('Getting API keys from:', url);
     
     const headers = {
       'Accept': 'application/json',
@@ -396,7 +421,10 @@ export class ApiClient {
    * @returns {Promise<Object>} - New API key
    */
   static async createApiKey(name) {
-    const url = `${this.baseUrl}/api-keys`;
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const url = `${apiBaseUrl}${this.baseUrl}/api-keys`;
+    console.log('Creating API key at:', url);
     
     const headers = {
       'Content-Type': 'application/json',
@@ -435,7 +463,10 @@ export class ApiClient {
    * @returns {Promise<Object>} - Updated API key
    */
   static async updateApiKey(keyId, updates) {
-    const url = `${this.baseUrl}/api-keys/${keyId}`;
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const url = `${apiBaseUrl}${this.baseUrl}/api-keys/${keyId}`;
+    console.log('Updating API key at:', url);
     
     const headers = {
       'Content-Type': 'application/json',
@@ -473,7 +504,10 @@ export class ApiClient {
    * @returns {Promise<Object>} - Success status
    */
   static async deleteApiKey(keyId) {
-    const url = `${this.baseUrl}/api-keys/${keyId}`;
+    // Use API_BASE_URL for the domain, but keep the API path as provided
+    const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+    const url = `${apiBaseUrl}${this.baseUrl}/api-keys/${keyId}`;
+    console.log('Deleting API key at:', url);
     
     const headers = {
       'Accept': 'application/json',

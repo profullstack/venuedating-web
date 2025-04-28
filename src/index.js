@@ -36,6 +36,22 @@ if (fs.existsSync(publicPath)) {
 // Create Hono app for both static files and API endpoints
 const app = new Hono();
 
+// Add CORS middleware
+app.use('*', async (c, next) => {
+  // Add CORS headers to all responses
+  c.header('Access-Control-Allow-Origin', '*');
+  c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  c.header('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle OPTIONS requests (preflight)
+  if (c.req.method === 'OPTIONS') {
+    return c.text('', 204);
+  }
+  
+  await next();
+});
+
 // Log when requests are received and add cache control headers
 app.use('*', async (c, next) => {
   console.log(`Request for: ${c.req.path}`);

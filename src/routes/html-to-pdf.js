@@ -2,6 +2,7 @@ import { pdfService } from '../services/pdf-service.js';
 import { storageService } from '../services/storage-service.js';
 import { validateBody, validators } from '../middleware/error-handler.js';
 import { errorUtils } from '../utils/error-utils.js';
+import { authMiddleware } from '../middleware/auth-middleware.js';
 
 /**
  * Route handler for converting HTML to PDF
@@ -57,6 +58,6 @@ export async function htmlToPdfHandler(c) {
 export const htmlToPdfRoute = {
   method: 'POST',
   path: '/api/1/html-to-pdf',
-  middleware: [validateBody(validators.htmlContent)],
+  middleware: [authMiddleware, validateBody(validators.htmlContent)],
   handler: htmlToPdfHandler
 };

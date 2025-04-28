@@ -1,5 +1,6 @@
 import { storageService } from '../services/storage-service.js';
 import { errorUtils } from '../utils/error-utils.js';
+import { authMiddleware } from '../middleware/auth-middleware.js';
 
 /**
  * Route handler for getting document generation history
@@ -47,6 +48,6 @@ export async function documentHistoryHandler(c) {
 export const documentHistoryRoute = {
   method: 'GET',
   path: '/api/1/document-history',
-  middleware: [],
+  middleware: [authMiddleware],
   handler: documentHistoryHandler
 };
