@@ -14,6 +14,12 @@ export class ApiClient {
     // Get JWT token from localStorage
     const jwtToken = localStorage.getItem('jwt_token');
     
+    // Log token details for debugging (only in development)
+    if (jwtToken) {
+      console.log(`JWT Token check: Found token of length ${jwtToken ? jwtToken.length : 0}`);
+      console.log(`JWT Token value: ${jwtToken === 'null' ? 'literal "null" string' : (jwtToken ? 'valid string' : 'empty')}`);
+    }
+    
     // Validate token to prevent sending 'null' string
     if (jwtToken && jwtToken !== 'null' && jwtToken.length > 50) {
       return jwtToken;
@@ -22,6 +28,11 @@ export class ApiClient {
     // Log only once per session to avoid console spam
     if (!ApiClient._tokenWarningLogged) {
       console.warn('No valid JWT token available in localStorage');
+      if (jwtToken) {
+        console.warn(`Token validation failed: ${jwtToken === 'null' ? 'literal "null" string' : `length ${jwtToken.length} (too short)`}`);
+      } else {
+        console.warn('Token is undefined or null');
+      }
       ApiClient._tokenWarningLogged = true;
     }
     
@@ -162,7 +173,10 @@ export class ApiClient {
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for document history`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for document history request');
     }
     
     const response = await fetch(url.toString(), {
@@ -196,7 +210,10 @@ export class ApiClient {
       
       // Add Authorization header with JWT token if available
       if (jwtToken) {
+        console.log(`API Client: Using JWT token of length ${jwtToken.length} for createSubscription`);
         headers['Authorization'] = `Bearer ${jwtToken}`;
+      } else {
+        console.warn('API Client: No valid JWT token available for createSubscription request');
       }
       
       const response = await fetch(`${this.baseUrl}/subscription`, {
@@ -261,8 +278,10 @@ export class ApiClient {
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
-      console.log(`API Client: Using JWT token of length ${jwtToken.length}`);
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for binary request`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for binary request');
     }
     
     const response = await fetch(url, {
@@ -287,8 +306,8 @@ export class ApiClient {
    * @private
    */
   static async fetchJsonResponse(url, body) {
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     const headers = {
       'Content-Type': 'application/json',
@@ -296,7 +315,10 @@ export class ApiClient {
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for JSON request`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for JSON request');
     }
     
     const response = await fetch(url, {
@@ -344,12 +366,15 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for getApiKeys`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for getApiKeys request');
     }
     
     const response = await fetch(url, {
@@ -378,12 +403,15 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for createApiKey`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for createApiKey request');
     }
     
     const response = await fetch(url, {
@@ -414,12 +442,15 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for updateApiKey`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for updateApiKey request');
     }
     
     const response = await fetch(url, {
@@ -448,12 +479,15 @@ export class ApiClient {
       'Accept': 'application/json',
     };
     
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
+      console.log(`API Client: Using JWT token of length ${jwtToken.length} for deleteApiKey`);
       headers['Authorization'] = `Bearer ${jwtToken}`;
+    } else {
+      console.warn('API Client: No valid JWT token available for deleteApiKey request');
     }
     
     const response = await fetch(url, {
