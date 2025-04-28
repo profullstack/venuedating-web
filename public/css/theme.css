@@ -298,30 +298,33 @@ html, body {
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
   margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(4px);
 }
 
 .alert-success {
-  background-color: rgba(16, 185, 129, 0.1);
+  background-color: rgba(16, 185, 129, 0.9);
   border-left: 4px solid var(--success-color);
-  color: var(--success-color);
+  color: white;
 }
 
 .alert-warning {
-  background-color: rgba(245, 158, 11, 0.1);
+  background-color: rgba(245, 158, 11, 0.9);
   border-left: 4px solid var(--warning-color);
-  color: var(--warning-color);
+  color: white;
 }
 
 .alert-error {
-  background-color: rgba(239, 68, 68, 0.1);
+  background-color: rgba(239, 68, 68, 0.9);
   border-left: 4px solid var(--error-color);
-  color: var(--error-color);
+  color: white;
 }
 
 .alert-info {
-  background-color: rgba(186, 24, 170, 0.1);
+  background-color: rgba(186, 24, 170, 0.9);
   border-left: 4px solid var(--info-color);
-  color: var(--info-color);
+  color: white;
 }
 
 /* Utility classes */

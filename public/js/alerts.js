@@ -22,6 +22,11 @@ function initAlertContainer() {
   alertContainer.style.zIndex = '9999';
   alertContainer.style.width = '80%';
   alertContainer.style.maxWidth = '500px';
+  
+  // Add background color based on current theme
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  alertContainer.style.backgroundColor = currentTheme === 'dark' ? 'var(--background-color, #121212)' : 'var(--background-color, #ffffff)';
+  
   document.body.appendChild(alertContainer);
   
   return alertContainer;
