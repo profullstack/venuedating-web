@@ -2,6 +2,31 @@
  * API client for document generation service
  */
 export class ApiClient {
+  // Flag to avoid logging token warning multiple times
+  static _tokenWarningLogged = false;
+  
+  /**
+   * Get a valid JWT token or null if none is available
+   * @returns {string|null} - Valid JWT token or null
+   * @private
+   */
+  static _getValidJwtToken() {
+    // Get JWT token from localStorage
+    const jwtToken = localStorage.getItem('jwt_token');
+    
+    // Validate token to prevent sending 'null' string
+    if (jwtToken && jwtToken !== 'null' && jwtToken.length > 50) {
+      return jwtToken;
+    }
+    
+    // Log only once per session to avoid console spam
+    if (!ApiClient._tokenWarningLogged) {
+      console.warn('No valid JWT token available in localStorage');
+      ApiClient._tokenWarningLogged = true;
+    }
+    
+    return null;
+  }
   /**
    * Base URL for API endpoints
    * @type {string}
@@ -128,12 +153,12 @@ export class ApiClient {
     url.searchParams.append('limit', limit.toString());
     url.searchParams.append('offset', offset.toString());
     
-    // Get JWT token from localStorage
-    const jwtToken = localStorage.getItem('jwt_token');
-    
     const headers = {
       'Accept': 'application/json',
     };
+    
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
     
     // Add Authorization header with JWT token if available
     if (jwtToken) {
@@ -162,12 +187,12 @@ export class ApiClient {
    */
   static async createSubscription(email, plan, coin) {
     try {
-      // Get JWT token from localStorage
-      const jwtToken = localStorage.getItem('jwt_token');
-      
       const headers = {
         'Content-Type': 'application/json'
       };
+      
+      // Get a valid JWT token using our helper method
+      const jwtToken = ApiClient._getValidJwtToken();
       
       // Add Authorization header with JWT token if available
       if (jwtToken) {
@@ -227,21 +252,16 @@ export class ApiClient {
    * @private
    */
   static async fetchBinaryResponse(url, body) {
-    // Get JWT token from localStorage and ensure it's properly formatted
-    let jwtToken = localStorage.getItem('jwt_token');
-    
     const headers = {
       'Content-Type': 'application/json',
     };
     
+    // Get a valid JWT token using our helper method
+    const jwtToken = ApiClient._getValidJwtToken();
+    
     // Add Authorization header with JWT token if available
     if (jwtToken) {
-      // Ensure token is properly trimmed
-      jwtToken = jwtToken.trim();
-      
-      // Log token information for debugging
       console.log(`API Client: Using JWT token of length ${jwtToken.length}`);
-      
       headers['Authorization'] = `Bearer ${jwtToken}`;
     }
     

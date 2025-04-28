@@ -729,9 +729,27 @@ export class ApiKeyManager extends BaseComponent {
   _getApiKey() {
     // First, try to get JWT token
     const jwtToken = localStorage.getItem('jwt_token');
-    if (jwtToken) {
-      console.log('Using JWT token for authentication, length:', jwtToken.length);
+    if (jwtToken && jwtToken !== 'null' && jwtToken.length > 50) {
+      console.log('Using valid JWT token for authentication, length:', jwtToken.length);
       return jwtToken;
+    } else if (jwtToken) {
+      console.warn('Found invalid JWT token in localStorage, length:', jwtToken?.length || 0);
+    }
+    
+    // Try to recover JWT token from Supabase
+    try {
+      // Check if Supabase client is available globally
+      if (window.supabase) {
+        const session = window.supabase.auth.session();
+        if (session && session.access_token && session.access_token.length > 50) {
+          console.log('Recovered token from Supabase session, length:', session.access_token.length);
+          // Store for future use
+          localStorage.setItem('jwt_token', session.access_token);
+          return session.access_token;
+        }
+      }
+    } catch (e) {
+      console.error('Error recovering token from Supabase:', e);
     }
     
     // Next, try API key from localStorage
@@ -749,7 +767,7 @@ export class ApiKeyManager extends BaseComponent {
       return urlApiKey;
     }
     
-    console.warn('No authentication token found in storage or URL');
+    console.warn('No valid authentication token found in storage or URL');
     return null;
   }
 }

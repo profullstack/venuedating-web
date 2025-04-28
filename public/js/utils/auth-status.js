@@ -67,6 +67,17 @@ export async function checkAuthStatus() {
       };
     }
     
+    // Only proceed with a valid token
+    if (!jwtToken || jwtToken === 'null' || jwtToken.length < 50) {
+      console.error('No valid token available after recovery attempts');
+      return {
+        authenticated: false,
+        message: 'No valid authentication token available'
+      };
+    }
+    
+    console.log('Using JWT token for auth check, length:', jwtToken.length);
+    
     // Make request to auth status endpoint
     const response = await fetch('/api/1/auth/status', {
       method: 'GET',
