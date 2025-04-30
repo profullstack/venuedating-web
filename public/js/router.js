@@ -68,21 +68,15 @@ async function loadPage(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Extract module script sources (they'll be loaded later by the router)
+    // Extract module script sources
     const moduleScripts = componentLoader.extractModuleScriptSources(doc);
     console.log('Extracted module scripts in router.js:', moduleScripts);
     
     // Execute any inline scripts
     await componentLoader.executeInlineScripts(doc);
     
-    // We want to keep script tags, so we'll use DOM methods to clone the content
-    // Create a fragment to hold the content
-    const contentFragment = document.createDocumentFragment();
-    
-    // Clone all children from the body, including script tags
-    Array.from(doc.body.children).forEach(child => {
-      contentFragment.appendChild(child.cloneNode(true));
-    });
+    // Use the component loader to create a fragment with properly handled scripts
+    const contentFragment = componentLoader.createFragmentWithScripts(doc);
     
     // Create a wrapper for translation
     const wrapper = document.createElement('div');
@@ -95,6 +89,40 @@ async function loadPage(url) {
     const translatedFragment = document.createDocumentFragment();
     while (wrapper.firstChild) {
       translatedFragment.appendChild(wrapper.firstChild);
+    }
+    
+    // Extract and clone script tags again to ensure they're executed
+    const scriptElements = componentLoader.extractAndCloneScripts(doc);
+    
+    // Add the script elements to the fragment
+    scriptElements.forEach(script => {
+      translatedFragment.appendChild(script);
+    });
+    
+    // Create and add module scripts to the fragment
+    if (moduleScripts && moduleScripts.length > 0) {
+      console.log(`Adding ${moduleScripts.length} module scripts to the fragment`);
+      
+      moduleScripts.forEach(src => {
+        // Create a new script element
+        const script = document.createElement('script');
+        script.type = 'module';
+        
+        // Convert to absolute URL if needed
+        if (src.startsWith('http://') || src.startsWith('https://')) {
+          script.src = src;
+        } else {
+          // For local scripts, create absolute URL based on current origin
+          const baseUrl = window.location.origin;
+          const absoluteSrc = src.startsWith('/')
+            ? `${baseUrl}${src}`
+            : `${baseUrl}/${src}`;
+          script.src = absoluteSrc;
+        }
+        
+        console.log(`Adding module script: ${script.src}`);
+        translatedFragment.appendChild(script);
+      });
     }
     
     // Return the content wrapped in the default layout as a DOM fragment
