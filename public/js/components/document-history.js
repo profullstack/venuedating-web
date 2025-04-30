@@ -144,6 +144,22 @@ export class DocumentHistory extends BaseComponent {
         color: #666;
         font-style: italic;
       }
+      
+      .metadata-container {
+        max-width: 300px;
+        max-height: 200px;
+        overflow: auto;
+        padding: 5px;
+        background-color: var(--background-color-alt);
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      
+      .metadata-container pre {
+        margin: 0;
+        white-space: pre-wrap;
+      }
     `;
   }
 
@@ -260,9 +276,11 @@ export class DocumentHistory extends BaseComponent {
         metadata = JSON.parse(metadata);
       }
       
-      return Object.entries(metadata)
-        .map(([key, value]) => `<strong>${key}:</strong> ${value}`)
-        .join('<br>');
+      // Format the metadata as a pretty-printed JSON string
+      const formattedJson = JSON.stringify(metadata, null, 2);
+      
+      // Return the formatted metadata in a container
+      return `<div class="metadata-container"><pre>${formattedJson}</pre></div>`;
     } catch (error) {
       return String(metadata);
     }
