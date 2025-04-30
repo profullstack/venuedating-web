@@ -315,8 +315,54 @@ CREATE TABLE IF NOT EXISTS user_preferences (
 -- Create index on user_id
 CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
 ```
-
 For more information on Supabase migrations, see the [Supabase CLI documentation](https://supabase.com/docs/reference/cli/supabase-db-push).
+
+## Puppeteer Configuration
+
+This application uses Puppeteer for HTML to PDF conversion. Puppeteer requires a Chrome executable to function properly. The application is configured to automatically detect the appropriate Chrome path based on the environment.
+
+### Chrome Path Detection
+
+The application uses the following strategy to determine the Chrome executable path:
+
+1. **Environment Variable**: If `PUPPETEER_EXECUTABLE_PATH` is set in the `.env` file, it will be used directly.
+2. **Auto-detection**: If no environment variable is set, the application will attempt to detect the Chrome path based on the current user:
+   - Production path (ubuntu user): `/home/ubuntu/.cache/puppeteer/chrome/linux-135.0.7049.114/chrome-linux64/chrome`
+   - Local development path: `/home/username/.cache/puppeteer/chrome/linux-135.0.7049.114/chrome-linux64/chrome`
+
+### Deployment Configuration
+
+During deployment, the `setup-puppeteer.sh` script is automatically run to configure the Chrome path in the production environment. This script:
+
+1. Detects the current user and environment
+2. Checks if Chrome exists at the expected path
+3. Updates the `.env` file with the correct `PUPPETEER_EXECUTABLE_PATH` if needed
+
+### Manual Configuration
+
+If you need to manually configure the Chrome path:
+
+1. Find your Chrome executable path:
+   ```bash
+   find ~/.cache/puppeteer -name chrome
+   ```
+
+2. Add the path to your `.env` file:
+   ```
+   PUPPETEER_EXECUTABLE_PATH=/path/to/chrome
+   ```
+
+3. Restart the application
+
+### Testing PDF Generation
+
+You can test PDF generation with the correct Chrome path using:
+
+```bash
+node scripts/test-pdf-generation.js
+```
+
+This script will generate a test PDF and output the detected Chrome path.
 
 
 

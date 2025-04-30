@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { getPuppeteerConfig } from '../utils/puppeteer-config.js';
 
 /**
  * Service for generating PDF documents from HTML content
@@ -26,11 +27,11 @@ export const pdfService = {
     // Merge default options with provided options
     const pdfOptions = { ...defaultOptions, ...options };
 
+    // Get Puppeteer configuration with the appropriate Chrome path
+    const launchOptions = getPuppeteerConfig();
+    
     // Launch a new browser instance
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+    const browser = await puppeteer.launch(launchOptions);
     
     try {
       // Create a new page
