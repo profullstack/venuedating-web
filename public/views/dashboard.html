@@ -109,20 +109,18 @@
 
 <script>
   // Initialize dashboard
-  document.addEventListener('DOMContentLoaded', () => {
-    // Import document-history component
-    import('../js/components/document-history.js')
-      .then(() => {
-        console.log('Document history component loaded successfully');
-        // Initialize the dashboard after the component is loaded
-        initDashboard();
-      })
-      .catch(error => {
-        console.error('Error loading document history component:', error);
-        // Still initialize the dashboard even if component fails to load
-        initDashboard();
-      });
-  });
+  // Import document-history component
+  import('../js/components/document-history.js')
+    .then(() => {
+      console.log('Document history component loaded successfully');
+      // Initialize the dashboard after the component is loaded
+      initDashboard();
+    })
+    .catch(error => {
+      console.error('Error loading document history component:', error);
+      // Still initialize the dashboard even if component fails to load
+      initDashboard();
+    });
   
   function initDashboard() {
     console.log('Initializing dashboard...');
