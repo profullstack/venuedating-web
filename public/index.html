@@ -27,6 +27,9 @@
   <!-- Initial loading overlay -->
   <div id="initial-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--background-color, #ffffff); z-index: 9999; transition: opacity 150ms ease-in-out;"></div>
   
+  <div class="offline-notification" id="offline-notification">
+    You are currently offline. Some features may be limited.
+  </div>
   <script>
     // Remove the loading overlay once the router has initialized
     window.addEventListener('route-changed', () => {

@@ -1,6 +1,6 @@
 {
-  "name": "Profullstack, Inc. Document Generation API",
-  "short_name": "PDF API",
+  "name": "convert2doc.com",
+  "short_name": "convert2doc",
   "description": "Generate PDFs, Word documents, Excel spreadsheets, PowerPoint presentations, and EPUB e-books from HTML content",
   "start_url": "/",
   "display": "standalone",

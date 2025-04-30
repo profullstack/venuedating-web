@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Keys - Document Generation API</title>
-  <meta name="description" content="Manage your API keys for the Document Generation API">
-  <meta name="theme-color" content="#e02337">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/icons/favicon.light.svg" media="(prefers-color-scheme: light)">
-  <link rel="icon" href="/icons/favicon.dark.svg" media="(prefers-color-scheme: dark)">
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-  <link rel="stylesheet" href="/css/main.css">
-  <script src="/js/register-sw.js"></script>
-  <script type="module" src="/js/theme.js"></script>
-  <script type="module" src="/js/main.js"></script>
-</head>
-<body>  
-  <div class="container">
+<div class="apikeys-container">
     <div class="dashboard-tabs">
       <button class="tab-button active" data-tab="manage">Manage Keys</button>
       <button class="tab-button" data-tab="docs">API Documentation</button>
@@ -54,76 +36,5 @@
     <p>You need to be logged in with an active subscription to manage API keys.</p>
     <a href="/subscription.html" class="login-button">Subscribe Now</a>
   </div>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Check if user is logged in
-      const apiKey = localStorage.getItem('api_key') || new URLSearchParams(window.location.search).get('api_key');
-      
-      if (!apiKey) {
-        document.getElementById('api-key-container').style.display = 'none';
-        document.getElementById('login-prompt').style.display = 'block';
-      } else {
-        document.getElementById('api-key-container').style.display = 'block';
-        document.getElementById('login-prompt').style.display = 'none';
-      }
-      
-      // Set up tab switching
-      const tabButtons = document.querySelectorAll('.tab-button');
-      tabButtons.forEach(button => {
-        button.onclick = () => {
-          console.log('Tab button clicked:', button.dataset.tab);
-          
-          // Remove active class from all buttons
-          tabButtons.forEach(btn => btn.classList.remove('active'));
-          
-          // Add active class to clicked button
-          button.classList.add('active');
-          
-          // Hide all tab content
-          document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.style.display = 'none';
-          });
-          
-          // Show selected tab content
-          const tabId = button.dataset.tab;
-          const tabContent = document.getElementById(`${tabId}-tab`);
-          
-          if (tabContent) {
-            tabContent.style.display = 'block';
-            console.log('Tab content displayed:', tabId);
-          } else {
-            console.error('Tab content not found:', tabId);
-          }
-        };
-      });
-      
-      // Force refresh of the API key manager component
-      setTimeout(() => {
-        const apiKeyManager = document.querySelector('api-key-manager');
-        if (apiKeyManager) {
-          // Try to force a re-render
-          apiKeyManager.render();
-          
-          // Also try to reload the API keys
-          if (typeof apiKeyManager._loadApiKeys === 'function') {
-            apiKeyManager._loadApiKeys();
-          }
-          
-          console.log('API key manager refreshed');
-        } else {
-          console.error('API key manager component not found');
-          
-          // Try to create it dynamically if it doesn't exist
-          const container = document.getElementById('api-key-container');
-          if (container) {
-            console.log('Creating API key manager component dynamically');
-            const apiKeyManagerElement = document.createElement('api-key-manager');
-            container.innerHTML = '';
-            container.appendChild(apiKeyManagerElement);
-          }
-        }
-      }, 500);
-    });
-  </script>
-</body>
-</html>
+</div>
+<script type="module" src="/js/views/api-keys.js"></script>

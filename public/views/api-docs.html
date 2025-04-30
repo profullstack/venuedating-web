@@ -1,281 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Documentation - Document Generation API</title>
-  <meta name="description" content="API documentation for the Document Generation API">
-  <meta name="theme-color" content="#2563eb">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/icons/favicon.light.svg" media="(prefers-color-scheme: light)">
-  <link rel="icon" href="/icons/favicon.dark.svg" media="(prefers-color-scheme: dark)">
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-  <link rel="stylesheet" href="/css/theme.css">
-  <script src="/js/register-sw.js"></script>
-  <script type="module" src="/js/theme.js"></script>
-  <script type="module" src="/js/main.js"></script>
-  <style>
-    body {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: var(--spacing-lg);
-    }
-    
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--spacing-xl);
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-    }
-    
-    .logo img {
-      height: 40px;
-      width: auto;
-    }
-    
-    .logo h1 {
-      margin: 0;
-      color: var(--primary-color);
-    }
-    
-    .nav-links {
-      display: flex;
-      gap: var(--spacing-md);
-    }
-    
-    .nav-link {
-      padding: var(--spacing-sm) var(--spacing-md);
-      color: var(--text-primary);
-      text-decoration: none;
-      border-radius: var(--border-radius-md);
-      transition: background-color var(--transition-fast);
-    }
-    
-    .nav-link:hover {
-      background-color: var(--surface-variant);
-    }
-    
-    .nav-link.primary {
-      background-color: var(--primary-color);
-      color: var(--text-on-primary);
-    }
-    
-    .nav-link.primary:hover {
-      background-color: var(--primary-dark);
-    }
-    
-    .api-section {
-      margin-bottom: var(--spacing-xxl);
-    }
-    
-    .endpoint {
-      margin-bottom: var(--spacing-xl);
-      padding: var(--spacing-lg);
-      background-color: var(--card-background);
-      border-radius: var(--border-radius-lg);
-      border: 1px solid var(--border-color);
-    }
-    
-    .endpoint-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .http-method {
-      padding: var(--spacing-xs) var(--spacing-sm);
-      border-radius: var(--border-radius-sm);
-      font-weight: var(--font-weight-bold);
-      font-family: monospace;
-      margin-right: var(--spacing-md);
-    }
-    
-    .method-post {
-      background-color: #10B981;
-      color: white;
-    }
-    
-    .method-get {
-      background-color: #3B82F6;
-      color: white;
-    }
-    
-    .method-put {
-      background-color: #F59E0B;
-      color: white;
-    }
-    
-    .method-delete {
-      background-color: #EF4444;
-      color: white;
-    }
-    
-    .endpoint-path {
-      font-family: monospace;
-      font-size: var(--font-size-lg);
-      color: var(--text-primary);
-    }
-    
-    .endpoint-description {
-      margin-bottom: var(--spacing-md);
-      color: var(--text-secondary);
-    }
-    
-    .section-title {
-      font-size: var(--font-size-lg);
-      font-weight: var(--font-weight-semibold);
-      margin-bottom: var(--spacing-sm);
-      color: var(--text-primary);
-    }
-    
-    .code-block {
-      background-color: var(--surface-variant);
-      padding: var(--spacing-md);
-      border-radius: var(--border-radius-md);
-      overflow-x: auto;
-      margin-bottom: var(--spacing-md);
-    }
-    
-    pre {
-      margin: 0;
-      font-family: monospace;
-      color: var(--text-primary);
-    }
-    
-    .parameter-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .parameter-table th,
-    .parameter-table td {
-      padding: var(--spacing-sm) var(--spacing-md);
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .parameter-table th {
-      font-weight: var(--font-weight-semibold);
-      color: var(--text-secondary);
-      background-color: var(--surface-variant);
-    }
-    
-    .parameter-required {
-      color: var(--error-color);
-      font-weight: var(--font-weight-semibold);
-    }
-    
-    .parameter-optional {
-      color: var(--text-tertiary);
-      font-style: italic;
-    }
-    
-    .response-example {
-      margin-top: var(--spacing-md);
-    }
-    
-    .tab-container {
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: var(--spacing-md);
-    }
-    
-    .tab-button {
-      padding: var(--spacing-sm) var(--spacing-md);
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-      color: var(--text-secondary);
-      font-weight: var(--font-weight-medium);
-    }
-    
-    .tab-button.active {
-      color: var(--primary-color);
-      border-bottom-color: var(--primary-color);
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    .api-key-section {
-      margin-top: var(--spacing-xxl);
-      padding: var(--spacing-lg);
-      background-color: var(--surface-color);
-      border-radius: var(--border-radius-lg);
-      border: 1px solid var(--border-color);
-    }
-    
-    .api-key-manager {
-      margin-top: var(--spacing-lg);
-    }
-    
-    footer {
-      margin-top: var(--spacing-xxl);
-      padding-top: var(--spacing-lg);
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      color: var(--text-tertiary);
-      font-size: var(--font-size-sm);
-    }
-    
-    footer a {
-      color: var(--primary-color);
-      text-decoration: none;
-    }
-    
-    footer a:hover {
-      text-decoration: underline;
-    }
-    
-    @media (max-width: 768px) {
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .nav-links {
-        margin-top: var(--spacing-md);
-        flex-wrap: wrap;
-      }
-      
-      .endpoint-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .http-method {
-        margin-bottom: var(--spacing-xs);
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <div class="nav-links">
-      <a href="/" class="nav-link">Home</a>
-      <a href="/api-docs.html" class="nav-link">API Docs</a>
-      <a href="/api-keys.html" class="nav-link">API Keys</a>
-      <a href="/subscription.html" class="nav-link primary">Subscribe</a>
-    </div>
-  </div>
-  
+  <div class="api-documentation">
   <h1>API Documentation</h1>
   
   <div class="api-section">
@@ -592,13 +315,256 @@
       <api-key-manager></api-key-manager>
     </div>
   </div>
+</div>
+<style>
+  body {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+  }
   
-  <footer>
-    <p>&copy; 2025 <a href="https://convert2doc.com" target="_blank">Convert2Doc, Inc.</a>. All rights reserved.</p>
-  </footer>
-
-  <script>
-    // No logo switching needed anymore
-  </script>
-</body>
-</html>
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+  
+  .logo img {
+    height: 40px;
+    width: auto;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    color: var(--primary-color);
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: var(--spacing-md);
+  }
+  
+  .nav-link {
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    transition: background-color var(--transition-fast);
+  }
+  
+  .nav-link:hover {
+    background-color: var(--surface-variant);
+  }
+  
+  .nav-link.primary {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+  }
+  
+  .nav-link.primary:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .api-section {
+    margin-bottom: var(--spacing-xxl);
+  }
+  
+  .endpoint {
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background-color: var(--card-background);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .endpoint-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .http-method {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-weight: var(--font-weight-bold);
+    font-family: monospace;
+    margin-right: var(--spacing-md);
+  }
+  
+  .method-post {
+    background-color: #10B981;
+    color: white;
+  }
+  
+  .method-get {
+    background-color: #3B82F6;
+    color: white;
+  }
+  
+  .method-put {
+    background-color: #F59E0B;
+    color: white;
+  }
+  
+  .method-delete {
+    background-color: #EF4444;
+    color: white;
+  }
+  
+  .endpoint-path {
+    font-family: monospace;
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+  }
+  
+  .endpoint-description {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+  }
+  
+  .section-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+  }
+  
+  .code-block {
+    background-color: var(--surface-variant);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    overflow-x: auto;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  pre {
+    margin: 0;
+    font-family: monospace;
+    color: var(--text-primary);
+  }
+  
+  .parameter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .parameter-table th,
+  .parameter-table td {
+    padding: var(--spacing-sm) var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .parameter-table th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-secondary);
+    background-color: var(--surface-variant);
+  }
+  
+  .parameter-required {
+    color: var(--error-color);
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  .parameter-optional {
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+  
+  .response-example {
+    margin-top: var(--spacing-md);
+  }
+  
+  .tab-container {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .tab-buttons {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .tab-button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: var(--font-weight-medium);
+  }
+  
+  .tab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+  }
+  
+  .tab-content {
+    display: none;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  .api-key-section {
+    margin-top: var(--spacing-xxl);
+    padding: var(--spacing-lg);
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .api-key-manager {
+    margin-top: var(--spacing-lg);
+  }
+  
+  footer {
+    margin-top: var(--spacing-xxl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-sm);
+  }
+  
+  footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  footer a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .nav-links {
+      margin-top: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+    
+    .endpoint-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .http-method {
+      margin-bottom: var(--spacing-xs);
+    }
+  }
+</style>
+<script type="module" src="/js/views/settings.js"></script>
