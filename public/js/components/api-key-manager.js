@@ -487,8 +487,8 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
-      // Get a valid token, avoid sending 'null'
-      const authToken = this._getApiKey();
+      // Get a valid token using the BaseComponent's getAuthToken method
+      const authToken = await this.getAuthToken();
       
       // Debug the token we're about to use
       console.log('API Key Manager: Authorization token length:', authToken?.length || 0);
@@ -547,8 +547,8 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
-      // Get a valid token, avoid sending 'null'
-      const authToken = this._getApiKey();
+      // Get a valid token using the BaseComponent's getAuthToken method
+      const authToken = await this.getAuthToken();
       
       // Debug the token we're about to use
       console.log('API Key Manager: Create key - token length:', authToken?.length || 0);
@@ -603,8 +603,8 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
-      // Get a valid token, avoid sending 'null'
-      const authToken = this._getApiKey();
+      // Get a valid token using the BaseComponent's getAuthToken method
+      const authToken = await this.getAuthToken();
       
       // Debug the token we're about to use
       console.log('API Key Manager: Toggle key - token length:', authToken?.length || 0);
@@ -659,8 +659,8 @@ export class ApiKeyManager extends BaseComponent {
       const { ApiClient } = await import('../api-client.js');
       const baseUrl = ApiClient.baseUrl || '/api/1';
       
-      // Get a valid token, avoid sending 'null'
-      const authToken = this._getApiKey();
+      // Get a valid token using the BaseComponent's getAuthToken method
+      const authToken = await this.getAuthToken();
       
       // Debug the token we're about to use
       console.log('API Key Manager: Delete key - token length:', authToken?.length || 0);
@@ -721,55 +721,6 @@ export class ApiKeyManager extends BaseComponent {
       });
   }
 
-  /**
-   * Get API key from localStorage or URL
-   * @returns {string|null} - API key
-   * @private
-   */
-  _getApiKey() {
-    // First, try to get JWT token
-    const jwtToken = localStorage.getItem('jwt_token');
-    if (jwtToken && jwtToken !== 'null' && jwtToken.length > 50) {
-      console.log('Using valid JWT token for authentication, length:', jwtToken.length);
-      return jwtToken;
-    } else if (jwtToken) {
-      console.warn('Found invalid JWT token in localStorage, length:', jwtToken?.length || 0);
-    }
-    
-    // Try to recover JWT token from Supabase
-    try {
-      // Check if Supabase client is available globally
-      if (window.supabase) {
-        const session = window.supabase.auth.session();
-        if (session && session.access_token && session.access_token.length > 50) {
-          console.log('Recovered token from Supabase session, length:', session.access_token.length);
-          // Store for future use
-          localStorage.setItem('jwt_token', session.access_token);
-          return session.access_token;
-        }
-      }
-    } catch (e) {
-      console.error('Error recovering token from Supabase:', e);
-    }
-    
-    // Next, try API key from localStorage
-    const apiKey = localStorage.getItem('api_key');
-    if (apiKey) {
-      console.log('Using API key from localStorage for authentication');
-      return apiKey;
-    }
-    
-    // Finally, try to get from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlApiKey = urlParams.get('api_key');
-    if (urlApiKey) {
-      console.log('Using API key from URL for authentication');
-      return urlApiKey;
-    }
-    
-    console.warn('No valid authentication token found in storage or URL');
-    return null;
-  }
 }
 
 // Define the custom element

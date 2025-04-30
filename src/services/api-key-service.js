@@ -105,28 +105,61 @@ export const apiKeyService = {
    * @returns {Promise<Object>} - API key object
    */
   async createApiKey(email, name) {
-    // Create user if not exists
-    const user = await this._createUserIfNotExists(email);
-    
-    // Generate API key
-    const key = this._generateApiKey();
-    
-    // Create API key
-    const { data, error } = await supabase
-      .from('api_keys')
-      .insert([{
-        user_id: user.id,
-        name,
-        key
-      }])
-      .select()
-      .single();
-    
-    if (error) {
+    try {
+      // Create user if not exists
+      const user = await this._createUserIfNotExists(email);
+      
+      // Check if user is a temporary user (no ID)
+      if (!user || !user.id) {
+        console.error(`API Key Service: Cannot create API key for user ${email} - no valid user ID`);
+        
+        // Try to get or create the user directly with Supabase auth
+        console.log(`API Key Service: Attempting to get user ID from Supabase auth for ${email}`);
+        
+        // First, try to get the user from the users table again
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', email)
+          .single();
+        
+        if (userError || !userData) {
+          console.error(`API Key Service: Failed to get user ID for ${email}:`, userError);
+          throw new Error(`Cannot create API key: User ${email} not found or has no ID`);
+        }
+        
+        // Use the user ID from the direct query
+        user.id = userData.id;
+        console.log(`API Key Service: Retrieved user ID ${user.id} for ${email}`);
+      }
+      
+      // Generate API key
+      const key = this._generateApiKey();
+      
+      console.log(`API Key Service: Creating API key for user ${email} with ID ${user.id}`);
+      
+      // Create API key
+      const { data, error } = await supabase
+        .from('api_keys')
+        .insert([{
+          user_id: user.id,
+          name,
+          key
+        }])
+        .select()
+        .single();
+      
+      if (error) {
+        console.error(`API Key Service: Error creating API key:`, error);
+        throw error;
+      }
+      
+      console.log(`API Key Service: Successfully created API key for ${email}`);
+      return data;
+    } catch (error) {
+      console.error(`API Key Service: Error in createApiKey:`, error);
       throw error;
     }
-    
-    return data;
   },
 
   /**
