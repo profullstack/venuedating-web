@@ -1,9 +1,8 @@
 /**
  * Router module for SPA navigation
  */
-import { Router, transitions, renderer } from 'https://esm.sh/@profullstack/spa-router@1.6.0';
+import { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.6.0';
 import { localizer } from './i18n-setup.js';
-import { detectAndImportModules, executeInlineScripts, filterScriptTags } from './utils/component-loader.js';
 import {
   initLoginPage, 
   initRegisterPage, 
@@ -42,13 +41,13 @@ async function loadPage(url) {
     const doc = parser.parseFromString(html, 'text/html');
     
     // Import any modules
-    await detectAndImportModules(doc);
+    await componentLoader.detectAndImportModules(doc);
     
     // Execute any inline scripts
-    await executeInlineScripts(doc);
+    await componentLoader.executeInlineScripts(doc);
     
-    // Filter out script tags
-    const contentWithoutScripts = filterScriptTags(doc.body);
+    // Filter out script tags, but keep them for views
+    const contentWithoutScripts = componentLoader.filterScriptTags(doc.body, true); // Keep script tags
     const content = contentWithoutScripts.innerHTML;
     
     // Pre-translate the content
@@ -133,7 +132,8 @@ export function createRouter(options = {}) {
     transition: customFade,
     renderer: renderer.createRenderer({
       translateContainer: localizer.translateContainer.bind(localizer),
-      applyRTLToDocument: localizer.applyRTLToDocument.bind(localizer)
+      applyRTLToDocument: localizer.applyRTLToDocument.bind(localizer),
+      keepScripts: true // Keep script tags in views
     }),
     errorHandler: (path) => {
       console.log('Custom error handler called for path:', path);
