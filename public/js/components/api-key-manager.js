@@ -396,9 +396,9 @@ export class ApiKeyManager extends BaseComponent {
     // Create key button
     const createKeyButton = this.$('#create-key-button');
     if (createKeyButton) {
-      createKeyButton.addEventListener((e) => {
-        this._createApiKey()
-      })
+      createKeyButton.addEventListener('click', (e) => {
+        this._createApiKey();
+      });
     }
   
     
