@@ -249,7 +249,7 @@
     
     // Set initial active state
     window.addEventListener('i18n-ready', () => {
-      const currentLang = localStorage.getItem('profullstack-language') || 'en';
+      const currentLang = localStorage.getItem('convert2doc-language') || 'en';
       document.querySelector(`.language-button[data-lang="${currentLang}"]`).classList.add('active');
       updateJsExamples();
     });

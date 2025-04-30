@@ -120,7 +120,7 @@ function initStateManagement() {
  */
 function setInitialLanguage() {
   // Check if language is stored in localStorage
-  const storedLang = localStorage.getItem('profullstack-language');
+  const storedLang = localStorage.getItem('convert2doc-language');
   
   if (storedLang && AVAILABLE_LANGUAGES.includes(storedLang)) {
     console.log(`Using stored language preference: ${storedLang}`);
@@ -172,7 +172,7 @@ function changeLanguage(language) {
   }
   
   // Store the language preference
-  localStorage.setItem('profullstack-language', language);
+  localStorage.setItem('convert2doc-language', language);
   
   // Apply translations to the current page
   translatePage();

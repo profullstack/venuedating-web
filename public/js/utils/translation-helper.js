@@ -63,7 +63,7 @@ export function translateContainer(container, language) {
  * @returns {string|null} The applied language code or null if not available
  */
 export function applyStoredLanguage() {
-  const storedLang = localStorage.getItem('profullstack-language');
+  const storedLang = localStorage.getItem('convert2doc-language');
   
   if (storedLang && window.app && window.app.localizer) {
     console.log(`Applying stored language: ${storedLang}`);

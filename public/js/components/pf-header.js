@@ -476,7 +476,7 @@ class PfHeader extends HTMLElement {
     document.documentElement.setAttribute('data-theme', newTheme);
     
     // Save theme preference
-    localStorage.setItem('profullstack-theme', newTheme);
+    localStorage.setItem('convert2doc-theme', newTheme);
     
     // Update UI
     this.updateLogo();

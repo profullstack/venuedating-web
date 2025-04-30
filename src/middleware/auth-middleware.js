@@ -107,7 +107,7 @@ export async function authMiddleware(c, next) {
       return c.json({
         error: 'Unauthorized. Valid API key or JWT token required.',
         subscription_required: true,
-        subscription_url: `${process.env.API_BASE_URL || 'https://pdf.profullstack.com'}/subscription`
+        subscription_url: `${process.env.API_BASE_URL || 'https://convert2doc.com'}/subscription`
       }, 401);
     }
     

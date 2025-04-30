@@ -30,12 +30,12 @@ export const emailService = {
     const mg = this._getMailgunClient();
     
     const data = {
-      from: process.env.FROM_EMAIL || 'hello@profullstack.com',
+      from: process.env.FROM_EMAIL || 'hello@convert2doc.com',
       to: to,
       subject: subject,
       text: text,
       html: html || text,
-      'h:Reply-To': process.env.REPLY_TO_EMAIL || 'help@profullstack.com'
+      'h:Reply-To': process.env.REPLY_TO_EMAIL || 'help@convert2doc.com'
     };
     
     try {
@@ -98,7 +98,7 @@ Renewal Options:
 - Monthly Plan: $${process.env.MONTHLY_SUBSCRIPTION_PRICE || 5}/month
 - Yearly Plan: $${process.env.YEARLY_SUBSCRIPTION_PRICE || 30}/year (Save over 50%!)
 
-You can renew your subscription by visiting: https://pdf.profullstack.com/subscription
+You can renew your subscription by visiting: https://convert2doc.com/subscription
 
 If you have any questions, please reply to this email.
 
@@ -130,7 +130,7 @@ Renewal Options:
 - Monthly Plan: $${process.env.MONTHLY_SUBSCRIPTION_PRICE || 5}/month
 - Yearly Plan: $${process.env.YEARLY_SUBSCRIPTION_PRICE || 30}/year (Save over 50%!)
 
-You can renew your subscription by visiting: https://pdf.profullstack.com/subscription
+You can renew your subscription by visiting: https://convert2doc.com/subscription
 
 If you have any questions, please reply to this email.
 

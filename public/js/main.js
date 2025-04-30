@@ -31,7 +31,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
  */
 function initApp() {
   // Set API base URL for client-side requests (domain only, without /api/1)
-  window.API_BASE_URL = 'https://pdf.profullstack.com';
+  window.API_BASE_URL = 'https://convert2doc.com';
   console.log('API base URL set to:', window.API_BASE_URL);
   
   // Initialize i18n first

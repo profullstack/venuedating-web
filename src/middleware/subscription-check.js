@@ -40,7 +40,7 @@ export async function subscriptionCheck(c, next) {
       return c.json({ 
         error: 'Active subscription required', 
         subscription_required: true,
-        subscription_url: `${process.env.API_BASE_URL || 'https://pdf.profullstack.com'}/subscription`
+        subscription_url: `${process.env.API_BASE_URL || 'https://convert2doc.com'}/subscription`
       }, 402); // 402 Payment Required
     }
     

@@ -262,19 +262,8 @@ export const paymentService = {
         
         // Handle permission errors - 42501 is the PostgreSQL permission denied code
         if (error.code === '42501') {
-          console.warn(`Payment service: Permission denied when getting subscription for ${email}, using fallback`);
-          
-          // Return a fallback subscription object for testing purposes
-          return {
-            id: 'fallback-id',
-            email: email,
-            status: 'active', // Optimistically assume subscription is active if we can't check
-            plan: 'monthly',
-            created_at: new Date().toISOString(),
-            expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-            amount_usd: 5.0,
-            is_fallback: true // Mark this as a fallback subscription
-          };
+          console.error(`Payment service: Permission denied when getting subscription for ${email}`);
+          throw error; // Throw the error to be handled by the UI
         }
         
         console.error('Payment service: Error getting subscription:', error);
@@ -286,18 +275,8 @@ export const paymentService = {
       console.error('Payment service: Error getting subscription:', error);
       console.error('Payment service: Error stack:', error.stack);
       
-      // As a last resort, return a fallback object
-      return {
-        id: 'error-fallback-id',
-        email: email,
-        status: 'active', // Optimistically assume subscription is active
-        plan: 'monthly',
-        created_at: new Date().toISOString(),
-        expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-        amount_usd: 5.0,
-        is_error_fallback: true, // Mark this as an error fallback subscription
-        error_message: error.message
-      };
+      // Throw the error to be handled by the UI
+      throw error;
     }
   },
   
@@ -324,19 +303,8 @@ export const paymentService = {
         
         // Handle permission errors - 42501 is the PostgreSQL permission denied code
         if (error.code === '42501') {
-          console.warn(`Payment service: Permission denied when getting subscription by ID ${id}, using fallback`);
-          
-          // Return a fallback subscription object for testing purposes
-          return {
-            id: id,
-            email: 'unknown@fallback.com', // We don't know the email in this case
-            status: 'active', // Optimistically assume subscription is active if we can't check
-            plan: 'monthly',
-            created_at: new Date().toISOString(),
-            expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-            amount_usd: 5.0,
-            is_fallback: true // Mark this as a fallback subscription
-          };
+          console.error(`Payment service: Permission denied when getting subscription by ID ${id}`);
+          throw error; // Throw the error to be handled by the UI
         }
         
         console.error('Payment service: Error getting subscription by ID:', error);
@@ -348,18 +316,8 @@ export const paymentService = {
       console.error('Payment service: Error getting subscription by ID:', error);
       console.error('Payment service: Error stack:', error.stack);
       
-      // As a last resort, return a fallback object
-      return {
-        id: id,
-        email: 'unknown@fallback.com',
-        status: 'active', // Optimistically assume subscription is active
-        plan: 'monthly',
-        created_at: new Date().toISOString(),
-        expiration_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-        amount_usd: 5.0,
-        is_error_fallback: true, // Mark this as an error fallback subscription
-        error_message: error.message
-      };
+      // Throw the error to be handled by the UI
+      throw error;
     }
   },
 

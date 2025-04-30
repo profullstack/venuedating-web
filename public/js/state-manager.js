@@ -286,7 +286,7 @@ class StateManager {
  * Create a default instance for the application
  */
 const defaultStateManager = new StateManager({}, {
-  localStorageKey: 'profullstack_state',
+  localStorageKey: 'convert2doc_state',
   enablePersistence: true,
   debug: true  // Enable debug mode to see detailed logs
 });

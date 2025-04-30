@@ -21,7 +21,7 @@ fi
 REMOTE_HOST="${DEPLOY_REMOTE_HOST:-104.36.23.197}"
 REMOTE_PORT="${DEPLOY_REMOTE_PORT:-2048}"
 REMOTE_USER="${DEPLOY_REMOTE_USER:-ubuntu}"
-REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/profullstack.com/pdf}"
+REMOTE_DIR="${DEPLOY_REMOTE_DIR:-www/convert2doc.com/pdf}"
 
 # Create SSH options
 SSH_OPTS="-p $REMOTE_PORT"
@@ -69,7 +69,7 @@ fi
 
 # Restart the service after all operations are complete
 echo -e "${YELLOW}Restarting service...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart profullstack-pdf.service"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart convert2doc-pdf.service"
 
 echo -e "${GREEN}Service restarted successfully!${NC}"
 echo -e "${GREEN}Deployment with migrations completed successfully!${NC}"
