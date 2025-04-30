@@ -242,7 +242,7 @@ class LanguageSwitcher extends HTMLElement {
           console.log(`Language selected: ${lang}`);
           localizer.setLanguage(lang);
           dropdownContent.classList.remove('show');
-        };
+        });
       });
     }
   }
