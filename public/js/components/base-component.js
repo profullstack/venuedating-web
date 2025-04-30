@@ -36,6 +36,9 @@ export class BaseComponent extends HTMLElement {
       </style>
       ${this.getTemplate()}
     `;
+    
+    // Re-attach event listeners after rendering
+    this.initEventListeners();
   }
 
   /**
