@@ -26,8 +26,6 @@ class PfHeader extends HTMLElement {
     // Pre-translate navigation items
     const dashboardText = window.app && window.app._t ?
       window.app._t('navigation.dashboard') : 'Dashboard';
-    const apiDocsText = window.app && window.app._t ?
-      window.app._t('navigation.api_docs') : 'API Docs';
     const apiKeysText = window.app && window.app._t ?
       window.app._t('navigation.api_keys') : 'API Keys';
     const stateDemoText = window.app && window.app._t ?
@@ -309,7 +307,6 @@ class PfHeader extends HTMLElement {
         
         <div class="nav-links">
           <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
-          <a href="/api-docs" class="nav-link" id="api-docs-link" data-i18n="navigation.api_docs">${apiDocsText}</a>
           <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
           <a href="/simple-state-demo" class="nav-link" id="state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
           <a href="/i18n-demo" class="nav-link" id="i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
@@ -334,7 +331,6 @@ class PfHeader extends HTMLElement {
       <!-- Mobile menu container -->
       <div class="mobile-menu">
         <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
-        <a href="/api-docs" class="nav-link" id="mobile-api-docs-link" data-i18n="navigation.api_docs">${apiDocsText}</a>
         <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
         <a href="/state-demo" class="nav-link" id="mobile-state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
         <a href="/i18n-demo" class="nav-link" id="mobile-i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
@@ -453,8 +449,6 @@ class PfHeader extends HTMLElement {
     // Add active class to the current link
     if (currentPath.startsWith('/dashboard')) {
       this.shadowRoot.querySelector('#dashboard-link')?.classList.add('active');
-    } else if (currentPath.startsWith('/api-docs')) {
-      this.shadowRoot.querySelector('#api-docs-link')?.classList.add('active');
     } else if (currentPath.startsWith('/api-keys')) {
       this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
     } else if (currentPath.startsWith('/state-demo')) {
