@@ -26,8 +26,36 @@ const __dirname = dirname(__filename);
 // Load environment variables
 dotenv.config({ path: join(__dirname, '..') });
 
-// Initialize Stripe with the secret key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Ensure the API key is available and log a clear error if it's not
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey) {
+  console.error('ERROR: STRIPE_SECRET_KEY environment variable is not set or empty');
+  console.error('Please check your .env file and ensure STRIPE_SECRET_KEY is properly configured');
+  process.exit(1);
+}
+
+// Initialize Stripe with better error handling and explicit configuration
+let stripe;
+try {
+  stripe = new Stripe(stripeSecretKey, {
+    apiVersion: '2023-10-16',
+    // Add explicit request timeout
+    timeout: 30000,
+    // Add explicit HTTP client configuration
+    httpClient: Stripe.createNodeHttpClient(),
+    // Enable telemetry
+    telemetry: true,
+    // Add app info
+    appInfo: {
+      name: 'PDF Service',
+      version: '1.0.0',
+    },
+  });
+  console.log('Stripe client initialized successfully in create-stripe-products.js with explicit configuration');
+} catch (error) {
+  console.error('Failed to initialize Stripe client in create-stripe-products.js:', error);
+  process.exit(1);
+}
 
 // Product configuration
 const PRODUCTS = [
