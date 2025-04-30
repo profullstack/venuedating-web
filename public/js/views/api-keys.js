@@ -31,30 +31,6 @@ function initApiKeysPage() {
       }
     });
   });
-
-  const apiKeyManager = document.querySelector("api-key-manager");
-  if (apiKeyManager) {
-    // Try to force a re-render
-    apiKeyManager.render();
-
-    // Also try to reload the API keys
-    if (typeof apiKeyManager._loadApiKeys === "function") {
-      apiKeyManager._loadApiKeys();
-    }
-
-    console.log("API key manager refreshed");
-  } else {
-    console.error("API key manager component not found");
-
-    // Try to create it dynamically if it doesn't exist
-    const container = document.getElementById("api-key-container");
-    if (container) {
-      console.log("Creating API key manager component dynamically");
-      const apiKeyManagerElement = document.createElement("api-key-manager");
-      container.innerHTML = "";
-      container.appendChild(apiKeyManagerElement);
-    }
-  }
 }
 
 // Initialize the page when the DOM is loaded
