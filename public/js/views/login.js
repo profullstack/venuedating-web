@@ -40,6 +40,19 @@ function showLoginAlert(message, type = 'error') {
   }
 }
 
-// Make functions globally accessible
-window.togglePasswordVisibility = togglePasswordVisibility;
+/**
+ * Initialize event listeners
+ */
+function initLoginEventListeners() {
+  // Add event listener for password toggle
+  const passwordToggle = document.getElementById('password-toggle');
+  if (passwordToggle) {
+    passwordToggle.addEventListener('click', togglePasswordVisibility);
+  }
+}
+
+// Also initialize on spa-transition-end event for SPA router
+document.addEventListener('spa-transition-end', initLoginEventListeners);
+
+// Make showLoginAlert globally accessible for other scripts
 window.showLoginAlert = showLoginAlert;

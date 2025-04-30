@@ -400,7 +400,15 @@ export class ApiKeyManager extends BaseComponent {
         this._createApiKey();
       });
     }
-  
+    
+    // Create empty key button (when no keys exist)
+    const createEmptyKeyButton = this.$('#create-empty-key-button');
+    if (createEmptyKeyButton) {
+      createEmptyKeyButton.addEventListener('click', () => {
+        this._newKeyName = 'My First API Key';
+        this._createApiKey();
+      });
+    }
     
     // Key name input
     const keyNameInput = this.$('#key-name');
