@@ -233,6 +233,17 @@ export function initRegisterPage() {
       selectedPayment = selectedPaymentElement.dataset.payment;
     }
     
+    // If Stripe payment method is selected, redirect to the Stripe payment page
+    if (selectedPayment === 'stripe') {
+      // Store the email and plan in localStorage for the Stripe payment page
+      localStorage.setItem('stripe_payment_email', email);
+      localStorage.setItem('stripe_payment_plan', selectedPlan);
+      
+      // Redirect to the Stripe payment page
+      window.router.navigate('/stripe-payment');
+      return;
+    }
+    
     // Show loading state
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;

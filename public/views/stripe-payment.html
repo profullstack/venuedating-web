@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stripe Payment - PDF Service</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/payment-dialog.css">
+  <script src="/js/register-sw.js"></script>
+  <script src="/js/i18n-setup.js"></script>
+  <script type="module" src="/js/components-loader.js"></script>
+  <script type="module" src="/js/main.js"></script>
+</head>
+<body>
+  <main class="container">
+    <section class="payment-section">
+      <h1>Subscribe to PDF Service</h1>
+      
+      <div class="payment-container">
+        <div class="payment-header">
+          <h2>Credit Card Payment</h2>
+          <p>Subscribe securely using Stripe payment processing.</p>
+        </div>
+        
+        <div class="payment-form">
+          <form id="stripe-form">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+              <label>Choose Your Subscription Plan</label>
+              <div class="plan-options">
+                <label class="plan-option selected" id="monthly-plan">
+                  <input type="radio" name="plan" value="monthly" checked>
+                  <span>Monthly</span>
+                  <div>Billed monthly</div>
+                </label>
+                <label class="plan-option" id="yearly-plan">
+                  <input type="radio" name="plan" value="yearly">
+                  <span>Yearly</span>
+                  <div>Save 50%</div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="price-display" id="price-display">
+              $5.00/month
+            </div>
+            
+            <input type="hidden" id="selected-plan" name="selected-plan" value="monthly">
+            
+            <button type="submit" id="payment-button">Subscribe with Stripe</button>
+            
+            <div class="secure-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11c.6 0 1.2.6 1.2 1.3v3.5c0 .6-.6 1.2-1.3 1.2H9.2c-.6 0-1.2-.6-1.2-1.3v-3.5c0-.6.6-1.2 1.2-1.2V9.5C9.2 8.1 10.6 7 12 7zm0 1.2c-.8 0-1.5.5-1.5 1.3V11h3V9.5c0-.8-.7-1.3-1.5-1.3z" />
+              </svg>
+              Secure payment via Stripe
+            </div>
+          </form>
+        </div>
+        
+        <div class="payment-footer">
+          <p>Prefer to pay with cryptocurrency? <a href="/subscription">Go to cryptocurrency payment options</a></p>
+        </div>
+      </div>
+      
+      <div class="subscription-features">
+        <h2>Subscription Benefits</h2>
+        <ul>
+          <li>Convert HTML to PDF, DOC, XLSX, and more</li>
+          <li>Unlimited document conversions</li>
+          <li>API access for programmatic conversions</li>
+          <li>Document history and storage</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  
+  <style>
+    .payment-section {
+      padding: 2rem 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .payment-section h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--primary-color);
+    }
+    
+    .payment-container {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .payment-header {
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    .payment-header h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .payment-header p {
+      color: var(--text-color);
+      margin-bottom: 0;
+    }
+    
+    .payment-form {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+    
+    input[type="email"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border-color, #ddd);
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+    
+    input[type="email"]:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+    
+    .plan-options {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .plan-option {
+      flex: 1;
+      border: 2px solid var(--border-color, #ddd);
+      border-radius: 8px;
+      padding: 1.25rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .plan-option:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .plan-option.selected {
+      border-color: var(--primary-color);
+      background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb, 0, 102, 204), 0.2);
+    }
+    
+    .plan-option input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+    }
+    
+    .plan-option span {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 1.125rem;
+    }
+    
+    .price-display {
+      font-size: 1.75rem;
+      font-weight: bold;
+      text-align: center;
+      margin: 1.25rem 0;
+      color: var(--primary-color);
+      padding: 0.625rem;
+      border-radius: 8px;
+      background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.05);
+    }
+    
+    button {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 1rem;
+      font-size: 1.125rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    button:hover {
+      background-color: var(--primary-color-dark, #0052a3);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    button:disabled {
+      background-color: var(--disabled-color, #cccccc);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .secure-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      color: var(--text-light, #666);
+      font-size: 0.875rem;
+      padding: 0.625rem;
+      border-radius: 6px;
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .secure-badge svg {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
+    
+    .payment-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color, #eee);
+    }
+    
+    .payment-footer a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+    
+    .payment-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+      .plan-options {
+        flex-direction: column;
+      }
+    }
+    
+    .subscription-features {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .subscription-features h2 {
+      margin-top: 0;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .subscription-features ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    .subscription-features li {
+      padding: 0.5rem 0;
+      position: relative;
+      padding-left: 1.5rem;
+      color: var(--text-color);
+    }
+    
+    .subscription-features li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--success-color);
+      font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+      .payment-options {
+        flex-direction: column;
+      }
+    }
+  </style>
+  
+  <script>
+    // Check for payment status in URL parameters and pre-fill form from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      
+      if (paymentStatus === 'success') {
+        window.showFloatingAlert('Payment successful! Your subscription is now active.', 'success');
+        // Remove the query parameter from the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (paymentStatus === 'cancel') {
+        window.showFloatingAlert('Payment cancelled. You can try again when you\'re ready.', 'info');
+        // Remove the query parameter from the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      // Pre-fill the form with data from localStorage if available
+      const emailInput = document.getElementById('email');
+      if (emailInput) {
+        // Get email from localStorage
+        const email = localStorage.getItem('stripe_payment_email');
+        if (email) {
+          emailInput.value = email;
+          // Clear the localStorage item
+          localStorage.removeItem('stripe_payment_email');
+        }
+      }
+      
+      // Get plan from localStorage
+      const plan = localStorage.getItem('stripe_payment_plan');
+      if (plan && (plan === 'monthly' || plan === 'yearly')) {
+        // Select the appropriate radio button
+        const planRadios = document.querySelectorAll('input[name="plan"]');
+        planRadios.forEach(radio => {
+          if (radio.value === plan) {
+            radio.checked = true;
+            // Update the selected class
+            document.querySelectorAll('.plan-option').forEach(option => {
+              if (option.contains(radio)) {
+                option.classList.add('selected');
+              } else {
+                option.classList.remove('selected');
+              }
+            });
+            // Update price display
+            updatePriceDisplay(plan);
+          }
+        });
+        
+        // Clear the localStorage item
+        localStorage.removeItem('stripe_payment_plan');
+      }
+      
+      // Get elements
+      const monthlyPlan = document.getElementById('monthly-plan');
+      const yearlyPlan = document.getElementById('yearly-plan');
+      const monthlyRadio = document.querySelector('input[value="monthly"]');
+      const yearlyRadio = document.querySelector('input[value="yearly"]');
+      
+      // Add event listeners for plan selection
+      if (monthlyPlan && yearlyPlan && monthlyRadio && yearlyRadio) {
+        monthlyRadio.addEventListener('change', function() {
+          updatePriceDisplay('monthly');
+        });
+        
+        yearlyRadio.addEventListener('change', function() {
+          updatePriceDisplay('yearly');
+        });
+        
+        monthlyPlan.addEventListener('click', function() {
+          monthlyRadio.checked = true;
+          updatePriceDisplay('monthly');
+        });
+        
+        yearlyPlan.addEventListener('click', function() {
+          yearlyRadio.checked = true;
+          updatePriceDisplay('yearly');
+        });
+      }
+      
+      // Function to update price display
+      // Function to update price display
+      function updatePriceDisplay(plan) {
+        const priceDisplay = document.getElementById('price-display');
+        const selectedPlanInput = document.getElementById('selected-plan');
+        const monthlyPlan = document.getElementById('monthly-plan');
+        const yearlyPlan = document.getElementById('yearly-plan');
+        
+        if (priceDisplay && selectedPlanInput) {
+          const monthlyPrice = 5;
+          const yearlyPrice = 30;
+          
+          // Update price display
+          if (plan === 'yearly') {
+            priceDisplay.textContent = `$${yearlyPrice.toFixed(2)}/year`;
+          } else {
+            priceDisplay.textContent = `$${monthlyPrice.toFixed(2)}/month`;
+          }
+          
+          // Update selected plan input
+          selectedPlanInput.value = plan;
+          
+          // Update selected class
+          if (monthlyPlan && yearlyPlan) {
+            if (plan === 'yearly') {
+              yearlyPlan.classList.add('selected');
+              monthlyPlan.classList.remove('selected');
+            } else {
+              monthlyPlan.classList.add('selected');
+              yearlyPlan.classList.remove('selected');
+            }
+          }
+          
+          console.log(`Price display updated to: ${priceDisplay.textContent} for plan: ${plan}`);
+        }
+      }
+      
+      // Initialize price display based on default selection
+      const defaultPlan = document.querySelector('input[name="plan"]:checked')?.value || 'monthly';
+      updatePriceDisplay(defaultPlan);
+      
+      // Handle form submission
+      const form = document.getElementById('stripe-form');
+      if (form) {
+        form.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const email = document.getElementById('email').value.trim();
+          const plan = document.getElementById('selected-plan').value;
+          
+          if (!email) {
+            window.showFloatingAlert('Please enter your email address', 'error');
+            return;
+          }
+          
+          // Show loading state
+          const submitButton = document.getElementById('payment-button');
+          submitButton.disabled = true;
+          submitButton.textContent = 'Processing...';
+          
+          // Get the current URL for success and cancel URLs
+          const currentUrl = window.location.href;
+          const successUrl = `${currentUrl}?payment=success`;
+          const cancelUrl = `${currentUrl}?payment=cancel`;
+          
+          try {
+            console.log('Creating checkout session with:', { email, plan, successUrl, cancelUrl });
+            
+            // Show processing state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+            
+            // Create checkout session
+            const response = await fetch('/api/1/payments/stripe/create-checkout-session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email,
+                plan,
+                success_url: successUrl,
+                cancel_url: cancelUrl
+              })
+            });
+            
+            if (!response.ok) {
+              const errorText = await response.text();
+              console.error('Server error response:', errorText);
+              throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Checkout session created:', data);
+            
+            if (data && data.checkout_url) {
+              console.log('Redirecting to:', data.checkout_url);
+              // Redirect to Stripe checkout
+              window.location.href = data.checkout_url;
+            } else {
+              console.error('No checkout URL in response:', data);
+              window.showFloatingAlert('Failed to create checkout session', 'error');
+              submitButton.disabled = false;
+              submitButton.textContent = 'Subscribe with Stripe';
+            }
+          } catch (error) {
+            console.error('Payment error:', error);
+            window.showFloatingAlert('An error occurred while processing your payment', 'error');
+            submitButton.disabled = false;
+            submitButton.textContent = 'Subscribe with Stripe';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

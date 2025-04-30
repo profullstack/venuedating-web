@@ -31,17 +31,303 @@
   </div>
 </div>
 
-<div class="payment-methods">
-  <p>We accept cryptocurrency payments:</p>
-  <img src="/images/crypto/bitcoin.svg" alt="Bitcoin (BTC)" style="height: 30px; width: auto; margin: 0 10px;">
-  <img src="/images/crypto/ethereum.svg" alt="Ethereum (ETH)" style="height: 30px; width: auto; margin: 0 10px;">
-  <img src="/images/crypto/solana.svg" alt="Solana (SOL)" style="height: 30px; width: auto; margin: 0 10px;">
-  <img src="/images/crypto/usdc.svg" alt="USD Coin (USDC)" style="height: 30px; width: auto; margin: 0 10px;">
+<div class="payment-options">
+  <div class="payment-option credit-card">
+    <div class="payment-option-header">
+      <h2>Credit Card Payment</h2>
+      <p>Pay securely with your credit card via Stripe</p>
+    </div>
+    <div class="payment-option-content">
+      <div class="payment-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+        </svg>
+      </div>
+      <div class="payment-benefits">
+        <ul>
+          <li>Fast and secure checkout</li>
+          <li>All major credit cards accepted</li>
+          <li>Instant account activation</li>
+        </ul>
+      </div>
+      <a href="/stripe-payment" class="button primary">Pay with Credit Card</a>
+    </div>
+  </div>
+  
+  <div class="payment-option crypto">
+    <div class="payment-option-header">
+      <h2>Cryptocurrency Payment</h2>
+      <p>We accept the following cryptocurrencies</p>
+    </div>
+    <div class="payment-option-content">
+      <div class="payment-methods">
+        <div class="crypto-option">
+          <img src="/images/crypto/bitcoin.svg" alt="Bitcoin (BTC)">
+          <span>Bitcoin</span>
+        </div>
+        <div class="crypto-option">
+          <img src="/images/crypto/ethereum.svg" alt="Ethereum (ETH)">
+          <span>Ethereum</span>
+        </div>
+        <div class="crypto-option">
+          <img src="/images/crypto/solana.svg" alt="Solana (SOL)">
+          <span>Solana</span>
+        </div>
+        <div class="crypto-option">
+          <img src="/images/crypto/usdc.svg" alt="USD Coin (USDC)">
+          <span>USDC</span>
+        </div>
+      </div>
+      <subscription-form></subscription-form>
+    </div>
+  </div>
 </div>
 
-<subscription-form></subscription-form>
-
 <a href="/" class="back-link">Back to convert2doc</a>
+
+<style>
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--primary-color);
+  }
+
+  .pricing-table {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+  }
+  
+  .pricing-plan {
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .pricing-plan:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .pricing-plan.popular {
+    border: 2px solid var(--primary-color);
+    position: relative;
+  }
+  
+  .pricing-plan.popular::before {
+    content: "Best Value";
+    position: absolute;
+    top: 10px;
+    right: -30px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 30px;
+    font-size: 0.8rem;
+    transform: rotate(45deg);
+  }
+  
+  .plan-name {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .plan-price {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.05);
+  }
+  
+  .plan-price small {
+    font-size: 1rem;
+    opacity: 0.8;
+  }
+  
+  .plan-features {
+    list-style: none;
+    padding: 1.5rem;
+    margin: 0;
+  }
+  
+  .plan-features li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color, #eee);
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .plan-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color, #28a745);
+  }
+  
+  .plan-features li:last-child {
+    border-bottom: none;
+  }
+  
+  .payment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  
+  .payment-option {
+    flex: 1;
+    min-width: 300px;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+  }
+  
+  .payment-option:hover {
+    transform: translateY(-5px);
+  }
+  
+  .payment-option-header {
+    padding: 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .payment-option-header h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: white;
+  }
+  
+  .payment-option-header p {
+    margin: 0;
+    opacity: 0.9;
+  }
+  
+  .payment-option-content {
+    padding: 1.5rem;
+  }
+  
+  .payment-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .payment-icon svg {
+    width: 60px;
+    height: 60px;
+    color: var(--primary-color);
+  }
+  
+  .payment-benefits {
+    margin-bottom: 1.5rem;
+  }
+  
+  .payment-benefits ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .payment-benefits li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .payment-benefits li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color, #28a745);
+  }
+  
+  .payment-methods {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .crypto-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .crypto-option img {
+    height: 40px;
+    width: auto;
+  }
+  
+  .crypto-option span {
+    font-size: 0.8rem;
+    color: var(--text-color);
+  }
+  
+  .button.primary {
+    display: block;
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .button.primary:hover {
+    background-color: var(--primary-color-dark, #0052a3);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .pricing-table,
+    .payment-options {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .pricing-plan,
+    .payment-option {
+      width: 100%;
+      max-width: 100%;
+    }
+  }
+</style>
 
 <div class="offline-notification" id="offline-notification">
   You are currently offline. Some features may be limited.

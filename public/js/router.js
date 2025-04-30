@@ -347,6 +347,9 @@ export function defineRoutes(router) {
       view: () => loadPage('/views/subscription.html'),
       afterRender: () => initSubscriptionPage()
     },
+    '/stripe-payment': {
+      view: () => loadPage('/views/stripe-payment-new.html')
+    },
     '/terms': {
       view: () => loadPage('/views/terms.html')
     },

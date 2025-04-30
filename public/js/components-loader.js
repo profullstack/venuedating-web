@@ -13,6 +13,8 @@ import './components/pf-dialog.js';
 import './components/language-switcher.js';
 import './components/api-key-manager.js';
 import './components/subscription-form.js';
+import './components/stripe-payment.js';
+import './components/stripe-payment-form.js';
 import './components/simple-counter.js';
 import './components/tab-container.js';
 import './components/document-editor.js';

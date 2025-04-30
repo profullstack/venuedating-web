@@ -195,6 +195,10 @@ serve({
   console.log(`- Document History: http://localhost:${info.port}/api/1/document-history`);
   console.log(`- Subscription: http://localhost:${info.port}/api/1/subscription`);
   console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
+  console.log(`- Stripe Checkout: http://localhost:${info.port}/api/1/payments/stripe/create-checkout-session`);
+  console.log(`- Stripe Webhook: http://localhost:${info.port}/api/1/payments/stripe/webhook`);
+  console.log(`- Stripe Subscription: http://localhost:${info.port}/api/1/payments/stripe/subscription`);
+  console.log(`- Stripe Cancel: http://localhost:${info.port}/api/1/payments/stripe/cancel-subscription`);
   console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payments/cryptapi/callback`);
   console.log(`- Payment Logs: http://localhost:${info.port}/api/1/payments/cryptapi/logs`);
   console.log(`- WebSocket: http://localhost:${info.port}/api/1/ws`);

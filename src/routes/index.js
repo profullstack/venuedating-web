@@ -10,6 +10,7 @@ import {
   subscriptionRoute,
   subscriptionStatusRoute
 } from './subscription.js';
+import { stripePaymentRoutes } from './stripe-payments.js';
 import { apiKeyRoutes } from './api-keys.js';
 import {
   loginRoute,
@@ -47,6 +48,7 @@ protectedRoutes.forEach(route => {
 const publicRoutes = [
   subscriptionRoute,
   subscriptionStatusRoute,
+  ...stripePaymentRoutes,
   loginRoute,
   refreshTokenRoute,
   registerRoute,
