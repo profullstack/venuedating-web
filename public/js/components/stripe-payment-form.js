@@ -46,31 +46,52 @@ class StripePaymentForm extends HTMLElement {
         
         .plan-options {
           display: flex;
-          gap: 1rem;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
         }
         
         .plan-option {
           flex: 1;
           border: 2px solid var(--border-color, #ddd);
-          border-radius: 8px;
-          padding: 1.25rem;
+          border-radius: 10px;
+          padding: 1.5rem;
           cursor: pointer;
           text-align: center;
-          transition: all 0.2s ease;
+          transition: all 0.3s ease;
           position: relative;
+          overflow: hidden;
+          background-color: var(--card-bg);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         
         .plan-option:hover {
           border-color: var(--primary-color);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transform: translateY(-5px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
         
         .plan-option.selected {
           border-color: var(--primary-color);
           background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.05);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(var(--primary-color-rgb, 0, 102, 204), 0.2);
+          transform: translateY(-5px);
+          box-shadow: 0 8px 24px rgba(var(--primary-color-rgb, 0, 102, 204), 0.2);
+        }
+        
+        .plan-option.popular {
+          border: 2px solid var(--primary-color);
+          position: relative;
+        }
+        
+        .plan-option.popular::before {
+          content: "Best Value";
+          position: absolute;
+          top: 10px;
+          right: -30px;
+          background-color: var(--primary-color);
+          color: white;
+          padding: 5px 30px;
+          font-size: 0.8rem;
+          transform: rotate(45deg);
         }
         
         .plan-option input {
@@ -81,22 +102,58 @@ class StripePaymentForm extends HTMLElement {
           width: 0;
         }
         
-        .plan-option span {
+        .plan-name {
           display: block;
           font-weight: bold;
-          margin-bottom: 5px;
-          font-size: 1.125rem;
+          margin-bottom: 0.5rem;
+          font-size: 1.25rem;
+          color: var(--primary-color);
+        }
+        
+        .plan-price {
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin: 0.75rem 0;
+          color: var(--text-color);
+        }
+        
+        .plan-price small {
+          font-size: 1rem;
+          opacity: 0.8;
+        }
+        
+        .plan-features {
+          list-style: none;
+          padding: 0;
+          margin: 0.75rem 0 0;
+          text-align: left;
+        }
+        
+        .plan-features li {
+          padding: 0.5rem 0;
+          position: relative;
+          padding-left: 1.5rem;
+          font-size: 0.9rem;
+        }
+        
+        .plan-features li::before {
+          content: "✓";
+          position: absolute;
+          left: 0;
+          color: var(--success-color, #28a745);
         }
         
         .price-display {
-          font-size: 1.75rem;
+          font-size: 2rem;
           font-weight: bold;
           text-align: center;
-          margin: 1.25rem 0;
+          margin: 1.5rem 0;
           color: var(--primary-color);
-          padding: 0.625rem;
-          border-radius: 8px;
+          padding: 1rem;
+          border-radius: 10px;
           background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.05);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+          transition: all 0.3s ease;
         }
         
         button {
@@ -104,24 +161,25 @@ class StripePaymentForm extends HTMLElement {
           background-color: var(--primary-color);
           color: white;
           border: none;
-          border-radius: 6px;
-          padding: 1rem;
-          font-size: 1.125rem;
+          border-radius: 8px;
+          padding: 1.25rem;
+          font-size: 1.25rem;
           font-weight: bold;
           cursor: pointer;
-          transition: all 0.2s ease;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          margin-bottom: 1rem;
         }
         
         button:hover {
           background-color: var(--primary-color-dark, #0052a3);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+          transform: translateY(-3px);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
         
         button:active {
           transform: translateY(0);
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         
         button:disabled {
@@ -135,18 +193,73 @@ class StripePaymentForm extends HTMLElement {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
-          margin-top: 1.25rem;
+          gap: 0.75rem;
+          margin-top: 1.5rem;
           color: var(--text-light, #666);
-          font-size: 0.875rem;
-          padding: 0.625rem;
-          border-radius: 6px;
+          font-size: 0.9rem;
+          padding: 1rem;
+          border-radius: 8px;
           background-color: rgba(0, 0, 0, 0.03);
+          border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .secure-badge svg {
+          width: 1.25rem;
+          height: 1.25rem;
+          color: var(--success-color, #28a745);
+        }
+        
+        .payment-comparison {
+          margin: 2rem 0;
+          padding: 1.5rem;
+          background-color: rgba(var(--primary-color-rgb, 0, 102, 204), 0.03);
+          border-radius: 10px;
+          border: 1px solid rgba(var(--primary-color-rgb, 0, 102, 204), 0.1);
+        }
+        
+        .comparison-title {
+          text-align: center;
+          font-weight: bold;
+          margin-bottom: 1rem;
+          color: var(--primary-color);
+        }
+        
+        .comparison-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        
+        .comparison-table th, .comparison-table td {
+          padding: 0.75rem;
+          text-align: center;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .comparison-table th {
+          font-weight: bold;
+          color: var(--primary-color);
+        }
+        
+        .comparison-table tr:last-child td {
+          border-bottom: none;
+          font-weight: bold;
+        }
+        
+        .highlight {
+          color: var(--success-color, #28a745);
+          font-weight: bold;
         }
         
         @media (max-width: 768px) {
           .plan-options {
             flex-direction: column;
+          }
+          
+          .plan-option.popular::before {
+            top: 5px;
+            right: -35px;
+            padding: 3px 30px;
+            font-size: 0.7rem;
           }
         }
       </style>
@@ -162,19 +275,60 @@ class StripePaymentForm extends HTMLElement {
           <div class="plan-options">
             <div class="plan-option selected" id="monthly-plan">
               <input type="radio" name="plan" value="monthly" checked>
-              <span>Monthly</span>
-              <div>Billed monthly</div>
+              <span class="plan-name">Monthly</span>
+              <div class="plan-price">$5<small>/month</small></div>
+              <ul class="plan-features">
+                <li>Unlimited Conversions</li>
+                <li>API Access</li>
+                <li>Email Support</li>
+              </ul>
             </div>
-            <div class="plan-option" id="yearly-plan">
+            <div class="plan-option popular" id="yearly-plan">
               <input type="radio" name="plan" value="yearly">
-              <span>Yearly</span>
-              <div>Save 50%</div>
+              <span class="plan-name">Yearly</span>
+              <div class="plan-price">$30<small>/year</small></div>
+              <ul class="plan-features">
+                <li>Save over 50%!</li>
+                <li>Unlimited Conversions</li>
+                <li>API Access</li>
+                <li>Priority Support</li>
+              </ul>
             </div>
           </div>
         </div>
         
         <div class="price-display" id="price-display">
           $5.00/month
+        </div>
+        
+        <div class="payment-comparison">
+          <div class="comparison-title">Why Choose Yearly?</div>
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Monthly</th>
+                <th>Yearly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Price</td>
+                <td>$5/month</td>
+                <td>$2.50/month</td>
+              </tr>
+              <tr>
+                <td>Annual Cost</td>
+                <td>$60</td>
+                <td>$30</td>
+              </tr>
+              <tr>
+                <td>Savings</td>
+                <td>-</td>
+                <td class="highlight">$30 (50%)</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         
         <input type="hidden" id="selected-plan" name="selected-plan" value="monthly">
@@ -185,7 +339,7 @@ class StripePaymentForm extends HTMLElement {
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
             <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6c1.4 0 2.8 1.1 2.8 2.5V11c.6 0 1.2.6 1.2 1.3v3.5c0 .6-.6 1.2-1.3 1.2H9.2c-.6 0-1.2-.6-1.2-1.3v-3.5c0-.6.6-1.2 1.2-1.2V9.5C9.2 8.1 10.6 7 12 7zm0 1.2c-.8 0-1.5.5-1.5 1.3V11h3V9.5c0-.8-.7-1.3-1.5-1.3z" />
           </svg>
-          Secure payment via Stripe
+          Secure payment via Stripe - Your payment information is encrypted and secure
         </div>
       </form>
     `;
@@ -232,20 +386,59 @@ class StripePaymentForm extends HTMLElement {
     const selectedPlanInput = this.shadowRoot.getElementById('selected-plan');
     const monthlyPlan = this.shadowRoot.getElementById('monthly-plan');
     const yearlyPlan = this.shadowRoot.getElementById('yearly-plan');
+    const comparisonTable = this.shadowRoot.querySelector('.payment-comparison');
     
     // Update price display
     if (plan === 'yearly') {
       priceDisplay.textContent = '$30.00/year';
       yearlyPlan.classList.add('selected');
       monthlyPlan.classList.remove('selected');
+      
+      // Highlight the yearly column in the comparison table
+      if (comparisonTable) {
+        const yearlyColumn = comparisonTable.querySelectorAll('tr td:nth-child(3)');
+        const monthlyColumn = comparisonTable.querySelectorAll('tr td:nth-child(2)');
+        
+        yearlyColumn.forEach(cell => {
+          if (!cell.classList.contains('highlight')) {
+            cell.style.fontWeight = 'bold';
+          }
+        });
+        
+        monthlyColumn.forEach(cell => {
+          cell.style.fontWeight = 'normal';
+        });
+      }
     } else {
       priceDisplay.textContent = '$5.00/month';
       monthlyPlan.classList.add('selected');
       yearlyPlan.classList.remove('selected');
+      
+      // Highlight the monthly column in the comparison table
+      if (comparisonTable) {
+        const yearlyColumn = comparisonTable.querySelectorAll('tr td:nth-child(3)');
+        const monthlyColumn = comparisonTable.querySelectorAll('tr td:nth-child(2)');
+        
+        monthlyColumn.forEach(cell => {
+          cell.style.fontWeight = 'bold';
+        });
+        
+        yearlyColumn.forEach(cell => {
+          if (!cell.classList.contains('highlight')) {
+            cell.style.fontWeight = 'normal';
+          }
+        });
+      }
     }
     
     // Update selected plan input
     selectedPlanInput.value = plan;
+    
+    // Add animation to price display
+    priceDisplay.style.transform = 'scale(1.05)';
+    setTimeout(() => {
+      priceDisplay.style.transform = 'scale(1)';
+    }, 300);
     
     console.log(`Price display updated to: ${priceDisplay.textContent} for plan: ${plan}`);
   }
