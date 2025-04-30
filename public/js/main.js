@@ -73,8 +73,8 @@ function initRouter() {
   window.router = router;
 }
 
-// Import utilities
-import { detectAndImportModules, filterScriptTags } from './utils/component-loader.js';
+// Import utilities from spa-router
+import { componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.7.0';
 import {
   initLoginPage,
   initRegisterPage,
@@ -128,10 +128,10 @@ async function loadPage(url) {
       const tempDiv = document.createElement('div');
       
       // Automatically detect and import module scripts
-      await detectAndImportModules(doc);
+      await componentLoader.detectAndImportModules(doc);
       
       // Filter out script tags (they'll be imported dynamically)
-      const contentWithoutScripts = filterScriptTags(doc.body);
+      const contentWithoutScripts = componentLoader.filterScriptTags(doc.body, true); // Keep script tags
       content = contentWithoutScripts.innerHTML;
     }
     

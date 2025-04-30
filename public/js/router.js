@@ -1,7 +1,7 @@
 /**
  * Router module for SPA navigation
  */
-import { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.6.0';
+import { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.7.0';
 import { localizer } from './i18n-setup.js';
 import {
   initLoginPage, 
