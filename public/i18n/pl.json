@@ -76,7 +76,20 @@
     "copy": "Kopiuj",
     "copied": "Skopiowano!",
     "waiting_payment": "Oczekiwanie na potwierdzenie płatności...",
-    "payment_received": "Płatność otrzymana! Przekierowywanie do panelu sterowania..."
+    "payment_received": "Płatność otrzymana! Przekierowywanie do panelu sterowania...",
+    "plan": "Plan subskrypcji",
+    "monthly": "Miesięczny",
+    "monthly_price": "$5/miesiąc",
+    "monthly_description": "Płatność miesięczna, możliwość anulowania w dowolnym momencie",
+    "yearly": "Roczny",
+    "yearly_price": "$30/rok",
+    "yearly_description": "Zaoszczędź $30 z rozliczeniem rocznym",
+    "payment_method": "Metoda płatności",
+    "bitcoin": "Bitcoin",
+    "ethereum": "Ethereum",
+    "solana": "Solana",
+    "usdc": "USDC",
+    "credit_card": "Karta kredytowa"
   },
   "common": {
     "save": "Zapisz",

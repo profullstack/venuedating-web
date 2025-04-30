@@ -88,7 +88,8 @@
     "bitcoin": "Bitcoin",
     "ethereum": "Ethereum",
     "solana": "Solana",
-    "usdc": "USDC"
+    "usdc": "USDC",
+    "credit_card": "Carte de crédit"
   },
   "common": {
     "save": "Enregistrer",

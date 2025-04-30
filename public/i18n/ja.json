@@ -76,7 +76,20 @@
     "copy": "コピー",
     "copied": "コピーしました！",
     "waiting_payment": "支払い確認を待っています...",
-    "payment_received": "支払いを受け取りました！ダッシュボードにリダイレクトします..."
+    "payment_received": "支払いを受け取りました！ダッシュボードにリダイレクトします...",
+    "plan": "サブスクリプションプラン",
+    "monthly": "月額",
+    "monthly_price": "$5/月",
+    "monthly_description": "月額請求、いつでもキャンセル可能",
+    "yearly": "年額",
+    "yearly_price": "$30/年",
+    "yearly_description": "年間請求で$30お得",
+    "payment_method": "支払い方法",
+    "bitcoin": "ビットコイン",
+    "ethereum": "イーサリアム",
+    "solana": "ソラナ",
+    "usdc": "USDC",
+    "credit_card": "クレジットカード"
   },
   "common": {
     "save": "保存",

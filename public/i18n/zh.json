@@ -76,7 +76,20 @@
     "copy": "复制",
     "copied": "已复制！",
     "waiting_payment": "等待支付确认...",
-    "payment_received": "已收到付款！正在重定向到您的控制面板..."
+    "payment_received": "已收到付款！正在重定向到您的控制面板...",
+    "plan": "订阅计划",
+    "monthly": "月付",
+    "monthly_price": "$5/月",
+    "monthly_description": "按月计费，随时可取消",
+    "yearly": "年付",
+    "yearly_price": "$30/年",
+    "yearly_description": "年付节省$30",
+    "payment_method": "支付方式",
+    "bitcoin": "比特币",
+    "ethereum": "以太坊",
+    "solana": "索拉纳",
+    "usdc": "USDC",
+    "credit_card": "信用卡"
   },
   "common": {
     "save": "保存",

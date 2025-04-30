@@ -76,7 +76,20 @@
     "copy": "Kopieren",
     "copied": "Kopiert!",
     "waiting_payment": "Warten auf Zahlungsbestätigung...",
-    "payment_received": "Zahlung erhalten! Weiterleitung zu Ihrem Dashboard..."
+    "payment_received": "Zahlung erhalten! Weiterleitung zu Ihrem Dashboard...",
+    "plan": "Abonnementplan",
+    "monthly": "Monatlich",
+    "monthly_price": "$5/Monat",
+    "monthly_description": "Monatliche Abrechnung, jederzeit kündbar",
+    "yearly": "Jährlich",
+    "yearly_price": "$30/Jahr",
+    "yearly_description": "Sparen Sie $30 mit jährlicher Abrechnung",
+    "payment_method": "Zahlungsmethode",
+    "bitcoin": "Bitcoin",
+    "ethereum": "Ethereum",
+    "solana": "Solana",
+    "usdc": "USDC",
+    "credit_card": "Kreditkarte"
   },
   "common": {
     "save": "Speichern",
