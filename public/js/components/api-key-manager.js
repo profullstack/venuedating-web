@@ -413,7 +413,7 @@ export class ApiKeyManager extends BaseComponent {
     // Key name input
     const keyNameInput = this.$('#key-name');
     if (keyNameInput) {
-      keyNameInput.addEventListener('input', (e) => {
+      keyNameInput.addEventListener('blur', (e) => {
         this._newKeyName = e.target.value;
         this.render();
       });
