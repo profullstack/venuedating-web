@@ -220,7 +220,7 @@ export class DocumentHistory extends BaseComponent {
               <td>${item.storage_path}</td>
               <td>${this._formatMetadata(item.metadata)}</td>
               <td>
-                <a href="${this._getDownloadUrl(item)}" class="download-link" target="_blank">Download</a>
+                <button class="download-link" data-path="${item.storage_path}">Download</button>
               </td>
             </tr>
           `).join('')}
@@ -309,6 +309,61 @@ export class DocumentHistory extends BaseComponent {
   }
 
   /**
+   * Download a document with proper authorization
+   * @param {string} path - Storage path of the document
+   * @private
+   */
+  async _downloadDocument(path) {
+    try {
+      // Get the filename from the path
+      const filename = path.split('/').pop();
+      
+      // Create the download URL
+      const downloadUrl = `${window.location.origin}/api/1/download-document?path=${encodeURIComponent(path)}`;
+      
+      // Get the authorization token from the base component
+      const token = await this.getAuthToken();
+      
+      // Fetch the document with authorization header
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download document: ${response.statusText}`);
+      }
+      
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      // Create a URL for the blob
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      link.style.display = 'none';
+      
+      // Add the link to the document
+      document.body.appendChild(link);
+      
+      // Click the link to trigger the download
+      link.click();
+      
+      // Clean up
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      alert(`Error downloading document: ${error.message}`);
+    }
+  }
+  
+  /**
    * Initialize event listeners
    */
   initEventListeners() {
@@ -329,6 +384,17 @@ export class DocumentHistory extends BaseComponent {
       if (this._history.length === this._pagination.limit) {
         this._pagination.offset += this._pagination.limit;
         this.loadHistory();
+      }
+    });
+    
+    // Add event delegation for download buttons
+    this.shadowRoot.addEventListener('click', (event) => {
+      const downloadButton = event.target.closest('.download-link');
+      if (downloadButton) {
+        const path = downloadButton.dataset.path;
+        if (path) {
+          this._downloadDocument(path);
+        }
       }
     });
   }

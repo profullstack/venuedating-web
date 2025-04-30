@@ -87,4 +87,26 @@ export class BaseComponent extends HTMLElement {
   $$(selector) {
     return this.shadowRoot.querySelectorAll(selector);
   }
+  
+  /**
+   * Get the authentication token
+   * @returns {Promise<string>} - Authentication token
+   */
+  async getAuthToken() {
+    // Try to get the token from localStorage
+    const token = localStorage.getItem('authToken');
+    
+    if (token) {
+      return token;
+    }
+    
+    // If no token is found, try to get it from the API client
+    try {
+      const { ApiClient } = await import('../api-client.js');
+      return ApiClient.getAuthToken();
+    } catch (error) {
+      console.error('Error getting auth token:', error);
+      throw new Error('Authentication token not found. Please log in again.');
+    }
+  }
 }
