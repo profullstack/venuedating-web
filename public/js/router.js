@@ -1,10 +1,10 @@
 /**
  * Router module for SPA navigation
  */
-import { Router, transitions, renderer } from 'https://esm.sh/@profullstack/spa-router@1.5.0';
+import { Router, transitions, renderer } from 'https://esm.sh/@profullstack/spa-router@1.6.0';
 import { localizer } from './i18n-setup.js';
-import { detectAndImportModules, filterScriptTags } from './utils/component-loader.js';
-import { 
+import { detectAndImportModules, executeInlineScripts, filterScriptTags } from './utils/component-loader.js';
+import {
   initLoginPage, 
   initRegisterPage, 
   initApiKeysPage, 
@@ -43,6 +43,9 @@ async function loadPage(url) {
     
     // Import any modules
     await detectAndImportModules(doc);
+    
+    // Execute any inline scripts
+    await executeInlineScripts(doc);
     
     // Filter out script tags
     const contentWithoutScripts = filterScriptTags(doc.body);

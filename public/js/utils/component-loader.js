@@ -40,6 +40,55 @@ export async function detectAndImportModules(doc) {
 }
 
 /**
+ * Executes inline script tags from HTML content
+ * @param {Document} doc - Parsed HTML document
+ * @returns {Promise<number>} - Number of executed inline scripts
+ */
+export async function executeInlineScripts(doc) {
+  // Extract inline script tags (those without src attribute)
+  const inlineScripts = Array.from(doc.body.querySelectorAll('script'))
+    .filter(script => !script.hasAttribute('src'));
+  
+  if (inlineScripts.length > 0) {
+    console.log(`Found ${inlineScripts.length} inline scripts to execute`);
+    
+    // Execute each inline script in sequence
+    for (const script of inlineScripts) {
+      try {
+        // Get the script content
+        const scriptContent = script.textContent.trim();
+        
+        if (scriptContent) {
+          // Create a new script element to execute the code in the global context
+          const newScript = document.createElement('script');
+          
+          // Copy attributes from the original script
+          Array.from(script.attributes).forEach(attr => {
+            if (attr.name !== 'src') { // Skip src attribute if it exists
+              newScript.setAttribute(attr.name, attr.value);
+            }
+          });
+          
+          newScript.textContent = scriptContent;
+          document.head.appendChild(newScript);
+          
+          // Remove the script after execution to prevent memory leaks
+          setTimeout(() => {
+            document.head.removeChild(newScript);
+          }, 0);
+        }
+      } catch (error) {
+        console.error('Error executing inline script:', error);
+      }
+    }
+    
+    return inlineScripts.length;
+  }
+  
+  return 0;
+}
+
+/**
  * Filters out script tags from HTML content
  * @param {HTMLElement} element - Element to filter scripts from
  * @returns {DocumentFragment} - Document fragment with scripts removed
@@ -59,5 +108,6 @@ export function filterScriptTags(element) {
 
 export default {
   detectAndImportModules,
+  executeInlineScripts,
   filterScriptTags
 };
