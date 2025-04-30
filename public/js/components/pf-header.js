@@ -28,10 +28,6 @@ class PfHeader extends HTMLElement {
       window.app._t('navigation.dashboard') : 'Dashboard';
     const apiKeysText = window.app && window.app._t ?
       window.app._t('navigation.api_keys') : 'API Keys';
-    const stateDemoText = window.app && window.app._t ?
-      window.app._t('navigation.state_demo') : 'State Demo';
-    const i18nDemoText = window.app && window.app._t ?
-      window.app._t('navigation.i18n_demo') : 'i18n Demo';
     const loginText = window.app && window.app._t ?
       window.app._t('navigation.login') : 'Login';
     const registerText = window.app && window.app._t ?
@@ -308,8 +304,6 @@ class PfHeader extends HTMLElement {
         <div class="nav-links">
           <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
           <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
-          <a href="/simple-state-demo" class="nav-link" id="state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
-          <a href="/i18n-demo" class="nav-link" id="i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
           <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">${loginText}</a>
           <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">${registerText}</a>
           
@@ -332,8 +326,6 @@ class PfHeader extends HTMLElement {
       <div class="mobile-menu">
         <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
         <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
-        <a href="/state-demo" class="nav-link" id="mobile-state-demo-link" data-i18n="navigation.state_demo">${stateDemoText}</a>
-        <a href="/i18n-demo" class="nav-link" id="mobile-i18n-demo-link" data-i18n="navigation.i18n_demo">${i18nDemoText}</a>
         <a href="/login" class="nav-link login-link" id="mobile-login-link" data-i18n="navigation.login">${loginText}</a>
         <a href="/register" class="subscription-link register-link" id="mobile-register-link" data-i18n="navigation.register">${registerText}</a>
         
@@ -451,10 +443,6 @@ class PfHeader extends HTMLElement {
       this.shadowRoot.querySelector('#dashboard-link')?.classList.add('active');
     } else if (currentPath.startsWith('/api-keys')) {
       this.shadowRoot.querySelector('#api-keys-link')?.classList.add('active');
-    } else if (currentPath.startsWith('/state-demo')) {
-      this.shadowRoot.querySelector('#state-demo-link')?.classList.add('active');
-    } else if (currentPath.startsWith('/i18n-demo')) {
-      this.shadowRoot.querySelector('#i18n-demo-link')?.classList.add('active');
     } else if (currentPath.startsWith('/login')) {
       this.shadowRoot.querySelector('#login-link')?.classList.add('active');
     } else if (currentPath.startsWith('/register')) {
