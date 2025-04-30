@@ -138,68 +138,28 @@ export const stripePaymentService = {
       console.log('- success_url:', successUrl);
       console.log('- cancel_url:', cancelUrl);
       
-      // Try to create a real Stripe checkout session first
-      let session;
-      try {
-        // Set a timeout for the Stripe API call
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Stripe API call timed out after 5 seconds')), 5000);
-        });
-        
-        // Create the checkout session with Stripe
-        const sessionPromise = stripe.checkout.sessions.create({
-          customer_email: email,
-          client_reference_id: userId,
-          payment_method_types: ['card'],
-          line_items: [
-            {
-              price: priceId,
-              quantity: 1,
-            },
-          ],
-          mode: 'subscription',
-          success_url: successUrl,
-          cancel_url: cancelUrl,
-          metadata: {
-            user_id: userId,
-            email,
-            plan
-          }
-        });
-        
-        // Race the checkout session creation against the timeout
-        session = await Promise.race([sessionPromise, timeoutPromise]);
-        console.log(`Stripe payment service: Created real checkout session ${session.id}`);
-      } catch (stripeError) {
-        // If Stripe API call fails or times out, create a mock session instead
-        console.error('Stripe payment service: Error creating Stripe checkout session:', stripeError);
-        console.log('Stripe payment service: Falling back to mock checkout session');
-        
-        // Create a mock session ID
-        const sessionId = `cs_mock_${Math.random().toString(36).substring(2, 15)}`;
-        
-        // Add query parameters to the success URL
-        const separator = successUrl.includes('?') ? '&' : '?';
-        const checkoutUrl = `${successUrl}${separator}session_id=${sessionId}&mock=true`;
-        
-        console.log(`Stripe payment service: Created mock checkout session ${sessionId}`);
-        console.log(`Stripe payment service: Checkout URL: ${checkoutUrl}`);
-        
-        // Create a mock session object
-        session = {
-          id: sessionId,
-          url: checkoutUrl,
-          object: 'checkout.session',
-          client_reference_id: userId,
-          customer_email: email,
-          metadata: {
-            user_id: userId,
-            email,
-            plan,
-            mock: 'true'
-          }
-        };
-      }
+      // Create the checkout session with Stripe
+      const session = await stripe.checkout.sessions.create({
+        customer_email: email,
+        client_reference_id: userId,
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceId,
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: {
+          user_id: userId,
+          email,
+          plan
+        }
+      });
+      
+      console.log(`Stripe payment service: Created checkout session ${session.id}`);
       
       // Store the checkout session in Supabase
       const { error: sessionError } = await supabase
