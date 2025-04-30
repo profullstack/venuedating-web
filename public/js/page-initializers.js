@@ -517,61 +517,6 @@ export async function initApiKeysPage() {
   
   // Initialize API keys page
   console.log('JWT token found, initializing API keys page');
-  
-  // Make sure the API key manager component is loaded
-  import('./components/api-key-manager.js').then(() => {
-    console.log('API key manager component loaded');
-    
-    // Force refresh the API key manager component
-    setTimeout(() => {
-      const apiKeyManager = document.querySelector('api-key-manager');
-      if (apiKeyManager) {
-        console.log('Found API key manager component, refreshing');
-        // Try to force a re-render
-        apiKeyManager.render();
-        
-        // Also try to reload the API keys
-        if (typeof apiKeyManager._loadApiKeys === 'function') {
-          console.log('Reloading API keys');
-          apiKeyManager._loadApiKeys();
-        }
-      } else {
-        console.error('API key manager component not found in the DOM');
-      }
-    }, 500);
-  }).catch(error => {
-    console.error('Error loading API key manager component:', error);
-  });
-  
-  // Set up tab switching
-  const tabButtons = document.querySelectorAll('.tab-button');
-  tabButtons.forEach(button => {
-    button.onclick = () => {
-      console.log('Tab button clicked:', button.dataset.tab);
-      
-      // Remove active class from all buttons
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      
-      // Add active class to clicked button
-      button.classList.add('active');
-      
-      // Hide all tab content
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.style.display = 'none';
-      });
-      
-      // Show selected tab content
-      const tabId = button.dataset.tab;
-      const tabContent = document.getElementById(`${tabId}-tab`);
-      
-      if (tabContent) {
-        tabContent.style.display = 'block';
-        console.log('Tab content displayed:', tabId);
-      } else {
-        console.error('Tab content not found:', tabId);
-      }
-    };
-  });
 }
 
 /**
