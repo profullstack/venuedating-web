@@ -4,7 +4,7 @@
  * This demonstrates the simplified state management approach using the simple-state.js library.
  * It provides a much cleaner API compared to the current implementation.
  */
-import { createStore, StoreConnector } from 'https://esm.sh/@profullstack/state-manager@1.0.1';
+import { createStore, StoreConnector } from '../../js/deps.js';
 
 // Create a store for our counter component
 const counterStore = createStore('counter', {

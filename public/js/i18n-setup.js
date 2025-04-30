@@ -3,7 +3,7 @@
  * Uses the enhanced @profullstack/localizer module
  */
 
-import { localizer } from 'https://esm.sh/@profullstack/localizer@0.5.0';
+import { localizer } from './deps.js';
 
 // Available languages
 const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar'];

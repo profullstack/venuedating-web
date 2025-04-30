@@ -73,8 +73,8 @@ function initRouter() {
   window.router = router;
 }
 
-// Import utilities from spa-router
-import { componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.7.0';
+// Import utilities from deps.js
+import { componentLoader } from './deps.js';
 import {
   initLoginPage,
   initRegisterPage,
