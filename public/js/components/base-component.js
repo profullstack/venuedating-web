@@ -93,17 +93,22 @@ export class BaseComponent extends HTMLElement {
    * @returns {Promise<string>} - Authentication token
    */
   async getAuthToken() {
-    // Try to get the token from localStorage
-    const token = localStorage.getItem('authToken');
+    // Try to get the token from localStorage using the same key as ApiClient
+    const token = localStorage.getItem('jwt_token');
     
-    if (token) {
+    if (token && token !== 'null' && token.length > 50) {
       return token;
     }
     
     // If no token is found, try to get it from the API client
     try {
       const { ApiClient } = await import('../api-client.js');
-      return ApiClient.getAuthToken();
+      // Use the ApiClient's method to get a valid JWT token
+      const apiToken = ApiClient._getValidJwtToken();
+      if (apiToken) {
+        return apiToken;
+      }
+      throw new Error('No valid authentication token found');
     } catch (error) {
       console.error('Error getting auth token:', error);
       throw new Error('Authentication token not found. Please log in again.');
