@@ -12,12 +12,40 @@ import {
   initResetPasswordPage 
 } from './page-initializers.js';
 
-// Default page layout with header and footer
-const DEFAULT_LAYOUT = (content) => `
-  <pf-header></pf-header>
-  <div class="content">${content}</div>
-  <pf-footer></pf-footer>
-`;
+// Create a DOM fragment with the default layout
+function createLayoutFragment(content) {
+  // Create a document fragment
+  const fragment = document.createDocumentFragment();
+  
+  // Create header
+  const header = document.createElement('pf-header');
+  fragment.appendChild(header);
+  
+  // Create content container
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'content';
+  
+  // If content is a string, use createContextualFragment to parse it
+  if (typeof content === 'string') {
+    const range = document.createRange();
+    const parsedContent = range.createContextualFragment(content);
+    contentDiv.appendChild(parsedContent);
+  } else if (content instanceof DocumentFragment) {
+    // If it's already a fragment, append it directly
+    contentDiv.appendChild(content);
+  } else if (content instanceof Node) {
+    // If it's a DOM node, append it directly
+    contentDiv.appendChild(content);
+  }
+  
+  fragment.appendChild(contentDiv);
+  
+  // Create footer
+  const footer = document.createElement('pf-footer');
+  fragment.appendChild(footer);
+  
+  return fragment;
+}
 
 /**
  * Load a page from the server
@@ -47,25 +75,56 @@ async function loadPage(url) {
     // Execute any inline scripts
     await componentLoader.executeInlineScripts(doc);
     
-    // Filter out script tags, but keep them for views
-    const contentWithoutScripts = componentLoader.filterScriptTags(doc.body, true); // Keep script tags
-    const content = contentWithoutScripts.innerHTML;
+    // We want to keep script tags, so we'll use DOM methods to clone the content
+    // Create a fragment to hold the content
+    const contentFragment = document.createDocumentFragment();
+    
+    // Clone all children from the body, including script tags
+    Array.from(doc.body.children).forEach(child => {
+      contentFragment.appendChild(child.cloneNode(true));
+    });
+    
+    // Create a wrapper for translation
+    const wrapper = document.createElement('div');
+    wrapper.appendChild(contentFragment.cloneNode(true));
     
     // Pre-translate the content
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = content;
     localizer.translateContainer(wrapper);
     
-    // Return the content wrapped in the default layout
-    return DEFAULT_LAYOUT(wrapper.innerHTML);
+    // Create a new fragment with the translated content
+    const translatedFragment = document.createDocumentFragment();
+    while (wrapper.firstChild) {
+      translatedFragment.appendChild(wrapper.firstChild);
+    }
+    
+    // Return the content wrapped in the default layout as a DOM fragment
+    return createLayoutFragment(translatedFragment);
   } catch (error) {
     console.error('Error loading page:', error);
-    return `
-      <div class="error">
-        <h1 data-i18n="errors.error_loading_page">Error Loading Page</h1>
-        <p>${error.message}</p>
-      </div>
-    `;
+    
+    // Create an error fragment
+    const errorFragment = document.createDocumentFragment();
+    
+    // Create error container
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error';
+    
+    // Create error heading
+    const heading = document.createElement('h1');
+    heading.setAttribute('data-i18n', 'errors.error_loading_page');
+    heading.textContent = 'Error Loading Page';
+    errorDiv.appendChild(heading);
+    
+    // Create error message
+    const message = document.createElement('p');
+    message.textContent = error.message;
+    errorDiv.appendChild(message);
+    
+    // Add to fragment
+    errorFragment.appendChild(errorDiv);
+    
+    // Return the error wrapped in the default layout
+    return createLayoutFragment(errorFragment);
   }
 }
 
@@ -151,17 +210,44 @@ export function createRouter(options = {}) {
         console.log('Safety interval cleared');
       }, 3000);
       
-      return `
-        <pf-header></pf-header>
-        <div class="content-container" style="display: flex; justify-content: center; align-items: center; min-height: 60vh;">
-          <div class="error-page">
-            <h1>404 - Page Not Found</h1>
-            <p>The page "${path}" could not be found.</p>
-            <a href="/" class="back-link">Go back to home</a>
-          </div>
-        </div>
-        <pf-footer></pf-footer>
-      `;
+      // Create error content fragment
+      const contentFragment = document.createDocumentFragment();
+      
+      // Create content container
+      const contentContainer = document.createElement('div');
+      contentContainer.className = 'content-container';
+      contentContainer.style.display = 'flex';
+      contentContainer.style.justifyContent = 'center';
+      contentContainer.style.alignItems = 'center';
+      contentContainer.style.minHeight = '60vh';
+      
+      // Create error page div
+      const errorPage = document.createElement('div');
+      errorPage.className = 'error-page';
+      
+      // Create heading
+      const heading = document.createElement('h1');
+      heading.textContent = '404 - Page Not Found';
+      errorPage.appendChild(heading);
+      
+      // Create message
+      const message = document.createElement('p');
+      message.textContent = `The page "${path}" could not be found.`;
+      errorPage.appendChild(message);
+      
+      // Create back link
+      const backLink = document.createElement('a');
+      backLink.href = '/';
+      backLink.className = 'back-link';
+      backLink.textContent = 'Go back to home';
+      errorPage.appendChild(backLink);
+      
+      // Assemble the fragment
+      contentContainer.appendChild(errorPage);
+      contentFragment.appendChild(contentContainer);
+      
+      // Return the error wrapped in the default layout
+      return createLayoutFragment(contentFragment);
     }
   });
   
