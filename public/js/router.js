@@ -40,8 +40,9 @@ async function loadPage(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
     
-    // Import any modules
-    await componentLoader.detectAndImportModules(doc);
+    // Extract module script sources (they'll be loaded later by the router)
+    const moduleScripts = componentLoader.extractModuleScriptSources(doc);
+    console.log('Extracted module scripts in router.js:', moduleScripts);
     
     // Execute any inline scripts
     await componentLoader.executeInlineScripts(doc);

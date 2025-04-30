@@ -127,10 +127,11 @@ async function loadPage(url) {
       // Create a temporary div to hold the content
       const tempDiv = document.createElement('div');
       
-      // Automatically detect and import module scripts
-      await componentLoader.detectAndImportModules(doc);
+      // Extract module script sources (they'll be loaded later by the router)
+      const moduleScripts = componentLoader.extractModuleScriptSources(doc);
+      console.log('Extracted module scripts:', moduleScripts);
       
-      // Filter out script tags (they'll be imported dynamically)
+      // Filter out script tags (they'll be imported dynamically by the router)
       const contentWithoutScripts = componentLoader.filterScriptTags(doc.body, true); // Keep script tags
       content = contentWithoutScripts.innerHTML;
     }
