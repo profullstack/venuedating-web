@@ -93,7 +93,7 @@ function initializeForm() {
 }
 
 // Initialize form on DOMContentLoaded
-document.addEventListener('DOMContentLoaded', initializeForm);
+initializeForm();
 
 // Also initialize on spa-transition-end event for SPA router
 document.addEventListener('spa-transition-end', initializeForm);

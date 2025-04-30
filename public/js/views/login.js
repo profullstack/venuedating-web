@@ -43,8 +43,3 @@ function showLoginAlert(message, type = 'error') {
 // Make functions globally accessible
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.showLoginAlert = showLoginAlert;
-
-// Initialize any event listeners or other functionality
-document.addEventListener('DOMContentLoaded', () => {
-  // Add any additional initialization code here
-});

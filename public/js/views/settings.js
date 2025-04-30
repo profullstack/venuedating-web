@@ -110,7 +110,7 @@ function initSettingsPage() {
 }
 
 // Initialize the page when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initSettingsPage);
+initSettingsPage();
 
 // Also initialize on spa-transition-end event for SPA router
 document.addEventListener('spa-transition-end', initSettingsPage);

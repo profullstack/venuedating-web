@@ -106,12 +106,6 @@ function initResetPasswordConfirmForm() {
 // Initialize immediately
 initResetPasswordConfirmForm();
 
-// Also initialize on DOMContentLoaded for safety
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOMContentLoaded event fired');
-  initResetPasswordConfirmForm();
-});
-
 // Also initialize on spa-transition-end event for SPA router
 document.addEventListener('spa-transition-end', () => {
   console.log('spa-transition-end event fired');
