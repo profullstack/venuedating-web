@@ -73,8 +73,7 @@ function initRouter() {
   window.router = router;
 }
 
-// Import utilities from deps.js
-import { componentLoader } from './deps.js';
+// Import page initializers
 import {
   initLoginPage,
   initRegisterPage,
@@ -83,113 +82,6 @@ import {
   initSubscriptionPage,
   initResetPasswordPage
 } from './page-initializers.js';
-
-/**
- * Load a page from the server
- * @param {string} url - Page URL
- * @returns {Promise<string>} - Page HTML
- */
-async function loadPage(url) {
-  try {
-    console.log(`Loading page: ${url}`);
-    
-    
-    // Add cache-busting parameter to prevent caching
-    const cacheBuster = `?_=${Date.now()}`;
-    const fullUrl = `${url}${cacheBuster}`;
-    console.log(`Fetching URL: ${fullUrl}`);
-    
-    const response = await fetch(fullUrl);
-    console.log(`Response status: ${response.status} ${response.statusText}`);
-    console.log(`Response headers:`, Object.fromEntries([...response.headers.entries()]));
-    
-    if (!response.ok) {
-      console.error(`Failed to load page: ${response.status} ${response.statusText}`);
-      throw new Error(`Failed to load page: ${response.status} ${response.statusText}`);
-    }
-    
-    const html = await response.text();
-    
-    // Extract the content from the page
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    // Create a wrapper element to hold the content temporarily
-    const wrapper = document.createElement('div');
-    wrapper.style.display = 'none';
-    document.body.appendChild(wrapper);
-    
-    // Get the content - either from body or the first element
-    let content;
-    if (doc.body.children.length === 0) {
-      content = doc.body.innerHTML;
-    } else {
-      // Create a temporary div to hold the content
-      const tempDiv = document.createElement('div');
-      
-      // Extract module script sources (they'll be loaded later by the router)
-      const moduleScripts = componentLoader.extractModuleScriptSources(doc);
-      console.log('Extracted module scripts:', moduleScripts);
-      
-      // Filter out script tags (they'll be imported dynamically by the router)
-      const contentWithoutScripts = componentLoader.filterScriptTags(doc.body, true); // Keep script tags
-      content = contentWithoutScripts.innerHTML;
-    }
-    
-    // Add the content to the wrapper
-    wrapper.innerHTML = content;
-    
-    // Pre-translate the content before it's returned to the router
-    localizer.translateContainer(wrapper);
-    
-    // Get the translated content
-    content = wrapper.innerHTML;
-    
-    // Remove the wrapper
-    document.body.removeChild(wrapper);
-    
-    // Create DOM elements instead of using template strings
-    const container = document.createElement('div');
-    
-    // Add header
-    const header = document.createElement('pf-header');
-    container.appendChild(header);
-    
-    // Add content container
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'content';
-    
-    // Use DOM parser to convert content string to DOM nodes
-    const contentFragment = document.createRange().createContextualFragment(content);
-    contentDiv.appendChild(contentFragment);
-    
-    container.appendChild(contentDiv);
-    
-    // Add footer
-    const footer = document.createElement('pf-footer');
-    container.appendChild(footer);
-    
-    // Return the HTML string representation
-    // Get the HTML content
-    const result = container.outerHTML;
-    
-    // No need to schedule translation after rendering
-    // since we're now doing it before rendering in the renderer function
-    console.log('Content loaded, translations already applied during rendering');
-    
-    return result;
-  } catch (error) {
-    console.error('Error loading page:', error);
-    return `
-      <pf-header></pf-header>
-      <div class="error">
-        <h1 data-i18n="errors.error_loading_page">Error Loading Page</h1>
-        <p>${error.message}</p>
-      </div>
-      <pf-footer></pf-footer>
-    `;
-  }
-}
 
 // No longer needed since we're using SPA mode exclusively
 
