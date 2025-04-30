@@ -107,9 +107,14 @@ fi
 # Make sure the scripts are executable
 echo -e "${YELLOW}Making scripts executable on remote host...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "chmod +x $REMOTE_DIR/bin/*.sh"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "chmod +x $REMOTE_DIR/bin/*.js"
 
 # Run Puppeteer setup script to configure Chrome path
 echo -e "${YELLOW}Setting up Puppeteer Chrome path on remote host...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/setup-puppeteer.sh"
+
+# Set up Supabase storage buckets
+echo -e "${YELLOW}Setting up Supabase storage buckets on remote host...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && node bin/setup-supabase-storage.js"
 
 echo -e "${GREEN}Deployment process completed!${NC}"

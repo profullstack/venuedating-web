@@ -317,6 +317,44 @@ CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user
 ```
 For more information on Supabase migrations, see the [Supabase CLI documentation](https://supabase.com/docs/reference/cli/supabase-db-push).
 
+## Supabase Storage Configuration
+
+This application uses Supabase Storage to store generated documents (PDFs, DOCs, etc.). The application requires a properly configured storage bucket to function correctly.
+
+### Storage Bucket Setup
+
+The application uses a storage bucket named `documents` to store all generated files. During deployment, the `setup-supabase-storage.js` script is automatically run to ensure this bucket exists:
+
+```bash
+node bin/setup-supabase-storage.js
+```
+
+This script:
+1. Checks if the `documents` bucket exists
+2. Creates it if it doesn't exist
+3. Configures appropriate permissions
+4. Tests the bucket with a sample upload
+
+### Manual Bucket Creation
+
+If you need to manually create the storage bucket:
+
+1. Go to the Supabase dashboard
+2. Navigate to Storage
+3. Create a new bucket named `documents`
+4. Set it to private (not public)
+5. Configure RLS policies to allow authenticated users to access their own documents
+
+### Authentication and Storage
+
+The application uses Supabase's service role key for storage operations to ensure reliability even when user JWT tokens expire. This approach:
+
+1. Prevents "Bucket not found" errors
+2. Handles JWT token expiration gracefully
+3. Associates documents with existing users in the database
+
+Note: The application only associates documents with existing users and does not create new users. If a user doesn't exist in the database, the document will still be generated but won't be recorded in the document history.
+
 ## Puppeteer Configuration
 
 This application uses Puppeteer for HTML to PDF conversion. Puppeteer requires a Chrome executable to function properly. The application is configured to automatically detect the appropriate Chrome path based on the environment.

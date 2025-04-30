@@ -173,7 +173,46 @@ export const supabaseUtils = {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const path = `documents/${timestamp}_${filename}`;
       
-      // Upload the document to Supabase Storage
+      console.log(`Attempting to store document at path: ${path}`);
+      
+      // Check if the documents bucket exists, create it if it doesn't
+      try {
+        const { data: buckets, error: getBucketsError } = await supabase.storage.listBuckets();
+        
+        if (getBucketsError) {
+          console.error('Error listing buckets:', getBucketsError);
+        } else {
+          const documentsBucketExists = buckets.some(bucket => bucket.name === 'documents');
+          
+          if (!documentsBucketExists) {
+            console.log('Documents bucket does not exist, creating it...');
+            const { error: createBucketError } = await supabase.storage.createBucket('documents', {
+              public: false,
+              fileSizeLimit: 52428800, // 50MB limit
+              allowedMimeTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/epub+zip'
+              ]
+            });
+            
+            if (createBucketError) {
+              console.error('Error creating documents bucket:', createBucketError);
+            } else {
+              console.log('Documents bucket created successfully!');
+            }
+          }
+        }
+      } catch (bucketError) {
+        console.error('Error checking/creating bucket:', bucketError);
+      }
+      
+      // Upload the document to Supabase Storage using service role key
+      // This ensures the upload works even if the user's JWT token is expired
+      console.log('Uploading document to Supabase Storage...');
       const { data, error } = await supabase.storage
         .from('documents')
         .upload(path, buffer, {
@@ -183,9 +222,11 @@ export const supabaseUtils = {
         });
       
       if (error) {
+        console.error('Storage upload error:', error);
         throw error;
       }
       
+      console.log('Document uploaded successfully!');
       return data;
     } catch (error) {
       console.error('Error storing document in Supabase:', error);
@@ -203,6 +244,8 @@ export const supabaseUtils = {
    */
   async recordDocumentGeneration(documentType, storagePath, metadata = {}, userEmail = null) {
     try {
+      console.log(`Recording document generation for type: ${documentType}, path: ${storagePath}`);
+      
       // Create the document generation record
       const documentRecord = {
         document_type: documentType,
@@ -218,6 +261,8 @@ export const supabaseUtils = {
         return [];
       }
       
+      console.log(`Looking up user ID for email: ${userEmail}`);
+      
       // Get the user_id from the users table
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -227,14 +272,15 @@ export const supabaseUtils = {
       
       if (userError || !userData) {
         console.warn(`User not found for email: ${userEmail}`, userError);
-        // Return empty data since we can't record the generation without a valid user
+        console.log('Document generation will not be recorded in history.');
         return [];
       }
       
-      // Add the user_id to the document record
+      console.log(`Found user with ID: ${userData.id}`);
       documentRecord.user_id = userData.id;
       
       // Insert the document generation record
+      console.log('Inserting document generation record...');
       const { data, error } = await supabase
         .from('document_generations')
         .insert([documentRecord])
@@ -245,10 +291,12 @@ export const supabaseUtils = {
         throw error;
       }
       
+      console.log('Document generation record inserted successfully!');
       return data;
     } catch (error) {
       console.error('Error recording document generation in Supabase:', error);
-      throw error;
+      // Log the error but don't throw it to prevent the PDF generation from failing
+      return [];
     }
   },
   
