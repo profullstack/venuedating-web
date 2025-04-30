@@ -29,8 +29,8 @@ export async function htmlToExcelHandler(c) {
         // Get user email from context
         const userEmail = c.get('userEmail');
         
-        // Store the Excel file with user association
-        const result = await storageService.storeExcel(excelBuffer, filename, metadata, userEmail);
+        // Store the Excel file with user association and original HTML content
+        const result = await storageService.storeExcel(excelBuffer, filename, metadata, userEmail, html);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);

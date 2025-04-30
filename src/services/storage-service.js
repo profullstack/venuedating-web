@@ -10,9 +10,10 @@ export const storageService = {
    * @param {string} filename - Filename
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceHtml - Original HTML content used to generate the PDF
    * @returns {Promise<Object>} - Storage result
    */
-  async storePdf(pdfBuffer, filename = 'document.pdf', metadata = {}, userEmail = null) {
+  async storePdf(pdfBuffer, filename = 'document.pdf', metadata = {}, userEmail = null, sourceHtml = null) {
     const result = await supabaseUtils.storeDocument(
       pdfBuffer,
       filename,
@@ -21,7 +22,7 @@ export const storageService = {
     );
     
     // Record the document generation in the database
-    await supabaseUtils.recordDocumentGeneration('pdf', result.path, metadata, userEmail);
+    await supabaseUtils.recordDocumentGeneration('pdf', result.path, metadata, userEmail, sourceHtml);
     
     return result;
   },
@@ -32,9 +33,10 @@ export const storageService = {
    * @param {string} filename - Filename
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceHtml - Original HTML content used to generate the document
    * @returns {Promise<Object>} - Storage result
    */
-  async storeDoc(docBuffer, filename = 'document.doc', metadata = {}, userEmail = null) {
+  async storeDoc(docBuffer, filename = 'document.doc', metadata = {}, userEmail = null, sourceHtml = null) {
     const result = await supabaseUtils.storeDocument(
       docBuffer,
       filename,
@@ -43,7 +45,7 @@ export const storageService = {
     );
     
     // Record the document generation in the database
-    await supabaseUtils.recordDocumentGeneration('doc', result.path, metadata, userEmail);
+    await supabaseUtils.recordDocumentGeneration('doc', result.path, metadata, userEmail, sourceHtml);
     
     return result;
   },
@@ -54,9 +56,10 @@ export const storageService = {
    * @param {string} filename - Filename
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceHtml - Original HTML content used to generate the Excel file
    * @returns {Promise<Object>} - Storage result
    */
-  async storeExcel(excelBuffer, filename = 'document.xlsx', metadata = {}, userEmail = null) {
+  async storeExcel(excelBuffer, filename = 'document.xlsx', metadata = {}, userEmail = null, sourceHtml = null) {
     const result = await supabaseUtils.storeDocument(
       excelBuffer,
       filename,
@@ -65,7 +68,7 @@ export const storageService = {
     );
     
     // Record the document generation in the database
-    await supabaseUtils.recordDocumentGeneration('excel', result.path, metadata, userEmail);
+    await supabaseUtils.recordDocumentGeneration('excel', result.path, metadata, userEmail, sourceHtml);
     
     return result;
   },
@@ -76,9 +79,10 @@ export const storageService = {
    * @param {string} filename - Filename
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceHtml - Original HTML content used to generate the PowerPoint
    * @returns {Promise<Object>} - Storage result
    */
-  async storePpt(pptBuffer, filename = 'presentation.pptx', metadata = {}, userEmail = null) {
+  async storePpt(pptBuffer, filename = 'presentation.pptx', metadata = {}, userEmail = null, sourceHtml = null) {
     const result = await supabaseUtils.storeDocument(
       pptBuffer,
       filename,
@@ -87,7 +91,7 @@ export const storageService = {
     );
     
     // Record the document generation in the database
-    await supabaseUtils.recordDocumentGeneration('ppt', result.path, metadata, userEmail);
+    await supabaseUtils.recordDocumentGeneration('ppt', result.path, metadata, userEmail, sourceHtml);
     
     return result;
   },
@@ -98,9 +102,10 @@ export const storageService = {
    * @param {string} filename - Filename
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceHtml - Original HTML content used to generate the EPUB
    * @returns {Promise<Object>} - Storage result
    */
-  async storeEpub(epubBuffer, filename = 'document.epub', metadata = {}, userEmail = null) {
+  async storeEpub(epubBuffer, filename = 'document.epub', metadata = {}, userEmail = null, sourceHtml = null) {
     const result = await supabaseUtils.storeDocument(
       epubBuffer,
       filename,
@@ -109,7 +114,7 @@ export const storageService = {
     );
     
     // Record the document generation in the database
-    await supabaseUtils.recordDocumentGeneration('epub', result.path, metadata, userEmail);
+    await supabaseUtils.recordDocumentGeneration('epub', result.path, metadata, userEmail, sourceHtml);
     
     return result;
   },

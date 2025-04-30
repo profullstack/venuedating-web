@@ -75,6 +75,26 @@ export class DocumentHistory extends BaseComponent {
         background-color: var(--primary-dark);
       }
       
+      .edit-link {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: var(--secondary-color, #6c757d);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-left: 5px;
+      }
+      
+      .edit-link:hover {
+        background-color: var(--secondary-dark, #5a6268);
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+      }
+      
       .pagination {
         display: flex;
         justify-content: space-between;
@@ -219,8 +239,9 @@ export class DocumentHistory extends BaseComponent {
               <td>${this._formatDate(item.generated_at)}</td>
               <td>${item.storage_path}</td>
               <td>${this._formatMetadata(item.metadata)}</td>
-              <td>
+              <td class="action-buttons">
                 <button class="download-link" data-path="${item.storage_path}">Download</button>
+                ${item.source_doc ? `<button class="edit-link" data-source="${encodeURIComponent(item.source_doc)}" data-type="${item.document_type}">Edit</button>` : ''}
               </td>
             </tr>
           `).join('')}
@@ -364,6 +385,40 @@ export class DocumentHistory extends BaseComponent {
   }
   
   /**
+   * Edit a document by pre-filling the HTML editor with the source document content
+   * @param {string} sourceDocEncoded - URL-encoded source document content
+   * @param {string} documentType - Type of document (pdf, doc, etc.)
+   * @private
+   */
+  _editDocument(sourceDocEncoded, documentType) {
+    try {
+      // Decode the source document content
+      const sourceDoc = decodeURIComponent(sourceDocEncoded);
+      
+      // Dispatch a custom event with the source document content
+      const event = new CustomEvent('edit-document', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          sourceDoc,
+          documentType
+        }
+      });
+      
+      this.dispatchEvent(event);
+      
+      // Scroll to the top of the page to show the editor
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Show a notification to the user
+      alert('The editor has been pre-filled with the original content. You can now make changes and regenerate the document.');
+    } catch (error) {
+      console.error('Error editing document:', error);
+      alert(`Error editing document: ${error.message}`);
+    }
+  }
+  
+  /**
    * Initialize event listeners
    */
   initEventListeners() {
@@ -387,13 +442,24 @@ export class DocumentHistory extends BaseComponent {
       }
     });
     
-    // Add event delegation for download buttons
+    // Add event delegation for download and edit buttons
     this.shadowRoot.addEventListener('click', (event) => {
+      // Handle download button clicks
       const downloadButton = event.target.closest('.download-link');
       if (downloadButton) {
         const path = downloadButton.dataset.path;
         if (path) {
           this._downloadDocument(path);
+        }
+      }
+      
+      // Handle edit button clicks
+      const editButton = event.target.closest('.edit-link');
+      if (editButton) {
+        const sourceDoc = editButton.dataset.source;
+        const documentType = editButton.dataset.type;
+        if (sourceDoc) {
+          this._editDocument(sourceDoc, documentType);
         }
       }
     });

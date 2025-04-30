@@ -74,6 +74,19 @@ export class HtmlEditor extends DocumentEditor {
     generateDocBtn.addEventListener('click', () => this.generateDoc());
     generateEpubBtn.addEventListener('click', () => this.generateEpub());
     convertToMarkdownBtn.addEventListener('click', () => this.convertToMarkdown());
+    
+    // Listen for the edit-document event from the document history component
+    document.addEventListener('edit-document', (event) => {
+      const { sourceDoc, documentType } = event.detail;
+      if (sourceDoc) {
+        this.setContent(sourceDoc);
+        this.updatePreview();
+        this.showStatus(`Loaded original content for editing (${documentType} document)`, 'success');
+        
+        // Scroll to the editor
+        this.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
   }
 
   /**

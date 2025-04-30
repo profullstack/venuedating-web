@@ -31,8 +31,8 @@ export async function htmlToEpubHandler(c) {
         // Get user email from context
         const userEmail = c.get('userEmail');
         
-        // Store the EPUB with user association
-        const result = await storageService.storeEpub(epubBuffer, filename, metadata, userEmail);
+        // Store the EPUB with user association and original HTML content
+        const result = await storageService.storeEpub(epubBuffer, filename, metadata, userEmail, html);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);

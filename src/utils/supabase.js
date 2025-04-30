@@ -240,9 +240,10 @@ export const supabaseUtils = {
    * @param {string} storagePath - Path in Supabase storage
    * @param {Object} metadata - Additional metadata
    * @param {string} userEmail - User email for associating with user_id
+   * @param {string} sourceDoc - Original source document content (HTML, Markdown, etc.)
    * @returns {Promise<Object>} - Database record
    */
-  async recordDocumentGeneration(documentType, storagePath, metadata = {}, userEmail = null) {
+  async recordDocumentGeneration(documentType, storagePath, metadata = {}, userEmail = null, sourceDoc = null) {
     try {
       console.log(`Recording document generation for type: ${documentType}, path: ${storagePath}`);
       
@@ -251,7 +252,8 @@ export const supabaseUtils = {
         document_type: documentType,
         storage_path: storagePath,
         generated_at: new Date().toISOString(),
-        metadata
+        metadata,
+        source_doc: sourceDoc
       };
       
       // If no user email is provided, we can't associate the document with a user

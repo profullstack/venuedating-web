@@ -29,8 +29,8 @@ export async function htmlToPptHandler(c) {
         // Get user email from context
         const userEmail = c.get('userEmail');
         
-        // Store the PowerPoint with user association
-        const result = await storageService.storePpt(pptBuffer, filename, metadata, userEmail);
+        // Store the PowerPoint with user association and original HTML content
+        const result = await storageService.storePpt(pptBuffer, filename, metadata, userEmail, html);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);

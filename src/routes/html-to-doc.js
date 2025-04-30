@@ -28,8 +28,8 @@ export async function htmlToDocHandler(c) {
         // Get user email from context
         const userEmail = c.get('userEmail');
         
-        // Store the document with user association
-        const result = await storageService.storeDoc(docBuffer, filename, metadata, userEmail);
+        // Store the document with user association and original HTML content
+        const result = await storageService.storeDoc(docBuffer, filename, metadata, userEmail, html);
         
         // Add storage information to the response headers
         c.header('X-Storage-Path', result.path);
