@@ -6,6 +6,7 @@ import { htmlToMarkdownRoute } from './html-to-markdown.js';
 import { markdownToHtmlRoute } from './markdown-to-html.js';
 import { htmlToEpubRoute } from './html-to-epub.js';
 import { documentHistoryRoute } from './document-history.js';
+import { downloadDocumentRoute } from './download-document.js';
 import {
   subscriptionRoute,
   subscriptionStatusRoute
@@ -33,7 +34,8 @@ const protectedRoutes = [
   htmlToMarkdownRoute,
   markdownToHtmlRoute,
   htmlToEpubRoute,
-  documentHistoryRoute
+  documentHistoryRoute,
+  downloadDocumentRoute
 ];
 
 // Apply auth middleware to protected routes

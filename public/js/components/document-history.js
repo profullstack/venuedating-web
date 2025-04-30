@@ -53,12 +53,26 @@ export class DocumentHistory extends BaseComponent {
       }
       
       .history-table th {
-        background-color: #f5f5f5;
+        background-color: var(--background-color-alt);
         font-weight: bold;
       }
       
       .history-table tr:hover {
-        background-color: #f9f9f9;
+        background-color: var(--hover-color, rgba(0, 0, 0, 0.05));
+      }
+      
+      .download-link {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      
+      .download-link:hover {
+        background-color: var(--primary-dark);
       }
       
       .pagination {
@@ -179,6 +193,7 @@ export class DocumentHistory extends BaseComponent {
             <th>Generated At</th>
             <th>Storage Path</th>
             <th>Metadata</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -188,6 +203,9 @@ export class DocumentHistory extends BaseComponent {
               <td>${this._formatDate(item.generated_at)}</td>
               <td>${item.storage_path}</td>
               <td>${this._formatMetadata(item.metadata)}</td>
+              <td>
+                <a href="${this._getDownloadUrl(item)}" class="download-link" target="_blank">Download</a>
+              </td>
             </tr>
           `).join('')}
         </tbody>
@@ -248,6 +266,28 @@ export class DocumentHistory extends BaseComponent {
     } catch (error) {
       return String(metadata);
     }
+  }
+
+  /**
+   * Get the download URL for a document
+   * @param {Object} item - Document history item
+   * @returns {string} - Download URL
+   * @private
+   */
+  _getDownloadUrl(item) {
+    // If the storage path is empty, return a placeholder
+    if (!item.storage_path) {
+      return '#';
+    }
+
+    // For Supabase storage, we need to construct a URL to the file
+    // The format is: /api/1/download-document?path={storagePath}
+    
+    // Create a download URL that points to the document in Supabase storage
+    const baseUrl = window.location.origin;
+    const downloadUrl = `${baseUrl}/api/1/download-document?path=${encodeURIComponent(item.storage_path)}`;
+    
+    return downloadUrl;
   }
 
   /**
