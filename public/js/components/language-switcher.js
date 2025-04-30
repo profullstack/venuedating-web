@@ -204,12 +204,12 @@ class LanguageSwitcher extends HTMLElement {
     
     if (dropdownButton && dropdownContent) {
       // Use direct onclick assignment for more reliable event handling in Shadow DOM
-      dropdownButton.onclick = (e) => {
+      dropdownButton.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         console.log('Language dropdown button clicked');
         dropdownContent.classList.toggle('show');
-      };
+      });
       
       // Close dropdown when clicking outside
       // We need a different approach for Shadow DOM
@@ -235,7 +235,7 @@ class LanguageSwitcher extends HTMLElement {
       const dropdownItems = this.shadowRoot.querySelectorAll('.dropdown-item');
       dropdownItems.forEach(item => {
         // Use direct onclick assignment
-        item.onclick = (e) => {
+        item.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           const lang = item.getAttribute('data-lang');

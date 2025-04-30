@@ -405,30 +405,30 @@ class PfHeader extends HTMLElement {
     // Add event listeners for theme toggle buttons (both desktop and mobile)
     const themeToggles = this.shadowRoot.querySelectorAll('.theme-toggle');
     themeToggles.forEach(toggle => {
-      toggle.onclick = () => {
+      toggle.addEventListener('click', () => {
         this.toggleTheme();
-      };
+      });
     });
     
     // Add event listener for hamburger menu toggle
     const hamburgerMenu = this.shadowRoot.querySelector('.hamburger-menu');
     const mobileMenu = this.shadowRoot.querySelector('.mobile-menu');
     if (hamburgerMenu && mobileMenu) {
-      hamburgerMenu.onclick = () => {
+      hamburgerMenu.addEventListener('click', () => {
         hamburgerMenu.classList.toggle('active');
         mobileMenu.classList.toggle('active');
         // Prevent scrolling when mobile menu is open
         document.body.style.overflow = hamburgerMenu.classList.contains('active') ? 'hidden' : '';
-      };
+      });
       
       // Close mobile menu when clicking on a link
       const mobileLinks = mobileMenu.querySelectorAll('a');
       mobileLinks.forEach(link => {
-        link.onclick = () => {
+        link.addEventListener('click', () => {
           hamburgerMenu.classList.remove('active');
           mobileMenu.classList.remove('active');
           document.body.style.overflow = '';
-        };
+        });
       });
     }
     
@@ -679,11 +679,11 @@ class PfHeader extends HTMLElement {
             const mobileLogoutLink = mobileMenu.querySelector('.mobile-logout-link');
             if (mobileLogoutLink) {
               // Use direct onclick assignment
-              mobileLogoutLink.onclick = (e) => {
+              mobileLogoutLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 this.logout();
-              };
+              });
             } else {
               console.error('Mobile logout link not found after insertion');
             }
@@ -703,12 +703,12 @@ class PfHeader extends HTMLElement {
       
       if (dropdownButton && dropdownMenu) {
         // Use direct onclick assignment for more reliable event handling
-        dropdownButton.onclick = (e) => {
+        dropdownButton.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           console.log('Dropdown button clicked, toggling show class');
           dropdownMenu.classList.toggle('show');
-        };
+        });
         
         // Set up document click handler if not already done
         if (!this._documentClickHandler) {
@@ -743,12 +743,12 @@ class PfHeader extends HTMLElement {
       const logoutButton = navLinks.querySelector('.logout-button');
       if (logoutButton) {
         // Use direct onclick assignment
-        logoutButton.onclick = (e) => {
+        logoutButton.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
           console.log('Logout button clicked');
           this.logout();
-        };
+        });
       }
     } else {
       // User is not logged in

@@ -316,7 +316,6 @@ export class ApiKeyManager extends BaseComponent {
         <div class="empty-state">
           <p>You don't have any API keys yet. Create one to get started.</p>
           <p>API keys are used to authenticate your requests to our API endpoints.</p>
-          <button id="create-empty-key-button" class="btn btn-primary">Create Your First API Key</button>
         </div>
       `;
     }
@@ -397,54 +396,48 @@ export class ApiKeyManager extends BaseComponent {
     // Create key button
     const createKeyButton = this.$('#create-key-button');
     if (createKeyButton) {
-      createKeyButton.onclick = () => this._createApiKey();
+      createKeyButton.addEventListener((e) => {
+        this._createApiKey()
+      })
     }
-    
-    // Create empty key button (when no keys exist)
-    const createEmptyKeyButton = this.$('#create-empty-key-button');
-    if (createEmptyKeyButton) {
-      createEmptyKeyButton.onclick = () => {
-        this._newKeyName = 'My First API Key';
-        this._createApiKey();
-      };
-    }
+  
     
     // Key name input
     const keyNameInput = this.$('#key-name');
     if (keyNameInput) {
-      keyNameInput.oninput = (e) => {
+      keyNameInput.addEventListener('input', (e) => {
         this._newKeyName = e.target.value;
         this.render();
-      };
+      });
       
       // Also handle Enter key press
-      keyNameInput.onkeydown = (e) => {
+      keyNameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && this._newKeyName.trim() !== '') {
           this._createApiKey();
         }
-      };
+      });
     }
     
     // Copy key button
     const copyKeyButton = this.$('#copy-key-button');
     if (copyKeyButton) {
-      copyKeyButton.onclick = () => this._copyToClipboard();
+      copyKeyButton.addEventListener('click', () => this._copyToClipboard());
     }
     
     // Done button
     const doneButton = this.$('#done-button');
     if (doneButton) {
-      doneButton.onclick = () => {
+      doneButton.addEventListener('click', () => {
         this._newKeyValue = null;
         this._newKeyName = '';
         this.render();
-      };
+      });
     }
     
     // Toggle and delete buttons
     const apiKeysTable = this.$('.api-keys-table');
     if (apiKeysTable) {
-      apiKeysTable.onclick = (e) => {
+      apiKeysTable.addEventListener('click', (e) => {
         const button = e.target.closest('button');
         if (!button) return;
         
@@ -461,7 +454,7 @@ export class ApiKeyManager extends BaseComponent {
             this._deleteApiKey(keyId);
           }
         }
-      };
+      });
     }
   }
 
