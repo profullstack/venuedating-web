@@ -1,3 +1,6 @@
+// Import the API documentation components
+import '../components/api-keys/api-docs.js';
+
 /**
  * Initialize the API keys page
  */
@@ -37,40 +40,6 @@ function initApiKeysPage() {
   if (firstTabContent) {
     firstTabContent.style.display = "block";
   }
-  
-  // Set up code example tabs
-  const codeTabsContainers = document.querySelectorAll(".code-tabs");
-  codeTabsContainers.forEach((container) => {
-    const codeTabs = container.querySelectorAll(".code-tab");
-    const codeContents = container.closest(".code-examples").querySelectorAll(".code-content");
-    
-    codeTabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const codeType = tab.dataset.code;
-        console.log("Code tab clicked:", codeType);
-        
-        // Remove active class from all tabs in this container
-        codeTabs.forEach((t) => t.classList.remove("active"));
-        
-        // Add active class to clicked tab
-        tab.classList.add("active");
-        
-        // Hide all code content for this container
-        codeContents.forEach((content) => {
-          content.style.display = "none";
-        });
-        
-        // Show selected code content
-        const codeContent = Array.from(codeContents).find(
-          (content) => content.dataset.code === codeType
-        );
-        
-        if (codeContent) {
-          codeContent.style.display = "block";
-        }
-      });
-    });
-  });
 }
 
 // Initialize the page when the DOM is loaded
