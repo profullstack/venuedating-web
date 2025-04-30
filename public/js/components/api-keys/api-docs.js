@@ -1,5 +1,6 @@
 import { BaseComponent } from '../base-component.js';
 import './api-auth.js';
+import './api-doc-generation.js';
 import './api-get-keys.js';
 import './api-post-key.js';
 import './api-put-key.js';
@@ -53,6 +54,10 @@ export class ApiDocs extends BaseComponent {
       <div class="api-section">
         <h2>Authentication</h2>
         <api-auth></api-auth>
+      </div>
+      
+      <div class="api-section">
+        <api-doc-generation></api-doc-generation>
       </div>
       
       <div class="api-section">
