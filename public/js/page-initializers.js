@@ -517,35 +517,6 @@ export async function initApiKeysPage() {
   
   // Initialize API keys page
   console.log('JWT token found, initializing API keys page');
-  
-  // Ensure the api-key-manager component is loaded
-  try {
-    // Import the api-key-manager component
-    await import('./components/api-key-manager.js');
-    console.log("API key manager component imported in page initializer");
-    
-    // Make sure the component is defined and registered
-    if (!customElements.get('api-key-manager')) {
-      console.error("API key manager component not registered in page initializer");
-    } else {
-      console.log("API key manager component is registered in page initializer");
-      
-      // Force re-render of the component if it exists
-      const apiKeyManager = document.querySelector('api-key-manager');
-      if (apiKeyManager) {
-        console.log("Found api-key-manager element in page initializer, forcing render");
-        // If the component has a render method, call it
-        if (typeof apiKeyManager.render === 'function') {
-          apiKeyManager.render();
-        }
-      } else {
-        console.log("No api-key-manager element found in page initializer");
-        // The component might not be in the DOM yet, the view-specific JS will handle this
-      }
-    }
-  } catch (error) {
-    console.error("Error loading api-key-manager component in page initializer:", error);
-  }
 }
 
 /**
