@@ -14,6 +14,20 @@ export class ApiEndpointBase extends BaseComponent {
   }
 
   /**
+   * Escape HTML characters to prevent rendering as HTML
+   * @param {string} str - String to escape
+   * @returns {string} - Escaped string
+   */
+  escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  /**
    * Get the component's styles
    * @returns {string} - CSS styles
    */
@@ -234,37 +248,37 @@ export class ApiEndpointBase extends BaseComponent {
         
         <div class="code-content ${this._activeCodeTab === 'curl' ? 'active' : ''}" data-code="curl" style="display: ${this._activeCodeTab === 'curl' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.curl}</pre>
+            <pre>${this.escapeHtml(examples.curl)}</pre>
           </div>
         </div>
         
         <div class="code-content ${this._activeCodeTab === 'fetch' ? 'active' : ''}" data-code="fetch" style="display: ${this._activeCodeTab === 'fetch' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.fetch}</pre>
+            <pre>${this.escapeHtml(examples.fetch)}</pre>
           </div>
         </div>
         
         <div class="code-content ${this._activeCodeTab === 'nodejs' ? 'active' : ''}" data-code="nodejs" style="display: ${this._activeCodeTab === 'nodejs' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.nodejs}</pre>
+            <pre>${this.escapeHtml(examples.nodejs)}</pre>
           </div>
         </div>
         
         <div class="code-content ${this._activeCodeTab === 'python' ? 'active' : ''}" data-code="python" style="display: ${this._activeCodeTab === 'python' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.python}</pre>
+            <pre>${this.escapeHtml(examples.python)}</pre>
           </div>
         </div>
         
         <div class="code-content ${this._activeCodeTab === 'php' ? 'active' : ''}" data-code="php" style="display: ${this._activeCodeTab === 'php' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.php}</pre>
+            <pre>${this.escapeHtml(examples.php)}</pre>
           </div>
         </div>
         
         <div class="code-content ${this._activeCodeTab === 'ruby' ? 'active' : ''}" data-code="ruby" style="display: ${this._activeCodeTab === 'ruby' ? 'block' : 'none'}">
           <div class="code-block">
-            <pre>${examples.ruby}</pre>
+            <pre>${this.escapeHtml(examples.ruby)}</pre>
           </div>
         </div>
       </div>
@@ -313,7 +327,7 @@ export class ApiEndpointBase extends BaseComponent {
     return `
       <div class="section-title">Response</div>
       <div class="code-block">
-        <pre>${responseExample}</pre>
+        <pre>${this.escapeHtml(responseExample)}</pre>
       </div>
     `;
   }

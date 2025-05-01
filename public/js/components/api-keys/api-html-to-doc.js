@@ -191,7 +191,7 @@ puts 'Word document saved to document.doc'`
       
       <div class="section-title">Example Request</div>
       <div class="code-block">
-        <pre>${this._requestExample}</pre>
+        <pre>${this.escapeHtml(this._requestExample)}</pre>
       </div>
       
       ${this.renderCodeExamples(this._codeExamples)}
