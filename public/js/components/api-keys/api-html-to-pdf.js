@@ -73,71 +73,86 @@ export class ApiHtmlToPdf extends ApiEndpointBase {
     "filename": "document.pdf",
     "store": false
   }'`,
-      fetch: `fetch('https://api.example.com/api/1/html-to-pdf', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    html: '<html><body><h1>Hello, World!</h1></body></html>',
-    options: {
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '1cm',
-        right: '1cm',
-        bottom: '1cm',
-        left: '1cm'
-      }
-    },
-    filename: 'document.pdf',
-    store: false
-  })
-})
-.then(response => response.blob())
-.then(blob => {
-  // Create a link to download the PDF
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'document.pdf';
-  document.body.appendChild(a);
-  a.click();
-  window.URL.revokeObjectURL(url);
-})
-.catch(error => console.error('Error:', error));`,
-      nodejs: `const axios = require('axios');
-const fs = require('fs');
+      fetch: `// Using async/await with ES modules
+const generatePdf = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/html-to-pdf', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        html: '<html><body><h1>Hello, World!</h1></body></html>',
+        options: {
+          format: 'A4',
+          printBackground: true,
+          margin: {
+            top: '1cm',
+            right: '1cm',
+            bottom: '1cm',
+            left: '1cm'
+          }
+        },
+        filename: 'document.pdf',
+        store: false
+      })
+    });
+    
+    const blob = await response.blob();
+    
+    // Create a link to download the PDF
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'document.pdf';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
 
-axios.post('https://api.example.com/api/1/html-to-pdf', {
-  html: '<html><body><h1>Hello, World!</h1></body></html>',
-  options: {
-    format: 'A4',
-    printBackground: true,
-    margin: {
-      top: '1cm',
-      right: '1cm',
-      bottom: '1cm',
-      left: '1cm'
-    }
-  },
-  filename: 'document.pdf',
-  store: false
-}, {
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
-  },
-  responseType: 'arraybuffer'
-})
-.then(response => {
-  fs.writeFileSync('document.pdf', response.data);
-  console.log('PDF saved to document.pdf');
-})
-.catch(error => {
-  console.error('Error:', error);
-});`,
+generatePdf();`,
+      nodejs: `// Using Node.js built-in fetch with ES modules
+import { fetch } from 'node:fetch';
+import { writeFile } from 'node:fs/promises';
+
+const generatePdf = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/html-to-pdf', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        html: '<html><body><h1>Hello, World!</h1></body></html>',
+        options: {
+          format: 'A4',
+          printBackground: true,
+          margin: {
+            top: '1cm',
+            right: '1cm',
+            bottom: '1cm',
+            left: '1cm'
+          }
+        },
+        filename: 'document.pdf',
+        store: false
+      })
+    });
+    
+    const arrayBuffer = await response.arrayBuffer();
+    await writeFile('document.pdf', Buffer.from(arrayBuffer));
+    console.log('PDF saved to document.pdf');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+generatePdf();`,
       python: `import requests
 import json
 

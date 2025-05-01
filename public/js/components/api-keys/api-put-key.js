@@ -42,37 +42,54 @@ export class ApiPutKey extends ApiEndpointBase {
     "name": "Production Updated",
     "is_active": false
   }'`,
-      fetch: `fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
-  method: 'PUT',
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    name: 'Production Updated',
-    is_active: false
-  })
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));`,
-      nodejs: `const axios = require('axios');
-
-axios.put('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
-  name: 'Production Updated',
-  is_active: false
-}, {
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
+      fetch: `// Using async/await with ES modules
+const updateApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: 'Production Updated',
+        is_active: false
+      })
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => {
-  console.log(response.data);
-})
-.catch(error => {
-  console.error('Error:', error);
-});`,
+};
+
+updateApiKey();`,
+      nodejs: `// Using Node.js built-in fetch with ES modules
+import { fetch } from 'node:fetch';
+
+const updateApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: 'Production Updated',
+        is_active: false
+      })
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+updateApiKey();`,
       python: `import requests
 import json
 

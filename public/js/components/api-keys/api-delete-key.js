@@ -20,28 +20,44 @@ export class ApiDeleteKey extends ApiEndpointBase {
     this._codeExamples = {
       curl: `curl -X DELETE "https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"`,
-      fetch: `fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
-  method: 'DELETE',
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+      fetch: `// Using async/await with ES modules
+const deleteApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN'
+      }
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));`,
-      nodejs: `const axios = require('axios');
+};
 
-axios.delete('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+deleteApiKey();`,
+      nodejs: `// Using Node.js built-in fetch with ES modules
+import { fetch } from 'node:fetch';
+
+const deleteApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys/YOUR_API_KEY_ID', {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN'
+      }
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => {
-  console.log(response.data);
-})
-.catch(error => {
-  console.error('Error:', error);
-});`,
+};
+
+deleteApiKey();`,
       python: `import requests
 
 headers = {

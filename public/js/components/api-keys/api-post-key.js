@@ -32,35 +32,52 @@ export class ApiPostKey extends ApiEndpointBase {
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{"name": "Production"}'`,
-      fetch: `fetch('https://api.example.com/api/1/api-keys', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    name: 'Production'
-  })
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));`,
-      nodejs: `const axios = require('axios');
-
-axios.post('https://api.example.com/api/1/api-keys', {
-  name: 'Production'
-}, {
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Content-Type': 'application/json'
+      fetch: `// Using async/await with ES modules
+const createApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: 'Production'
+      })
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => {
-  console.log(response.data);
-})
-.catch(error => {
-  console.error('Error:', error);
-});`,
+};
+
+createApiKey();`,
+      nodejs: `// Using Node.js built-in fetch with ES modules
+import { fetch } from 'node:fetch';
+
+const createApiKey = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: 'Production'
+      })
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+createApiKey();`,
       python: `import requests
 import json
 

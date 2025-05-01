@@ -36,30 +36,46 @@ export class ApiGetKeys extends ApiEndpointBase {
       curl: `curl -X GET "https://api.example.com/api/1/api-keys" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Accept: application/json"`,
-      fetch: `fetch('https://api.example.com/api/1/api-keys', {
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Accept': 'application/json'
+      fetch: `// Using async/await with ES modules
+const fetchApiKeys = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Accept': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));`,
-      nodejs: `const axios = require('axios');
+};
 
-axios.get('https://api.example.com/api/1/api-keys', {
-  headers: {
-    'Authorization': 'Bearer YOUR_JWT_TOKEN',
-    'Accept': 'application/json'
+fetchApiKeys();`,
+      nodejs: `// Using Node.js built-in fetch with ES modules
+import { fetch } from 'node:fetch';
+
+const fetchApiKeys = async () => {
+  try {
+    const response = await fetch('https://api.example.com/api/1/api-keys', {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer YOUR_JWT_TOKEN',
+        'Accept': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
   }
-})
-.then(response => {
-  console.log(response.data);
-})
-.catch(error => {
-  console.error('Error:', error);
-});`,
+};
+
+fetchApiKeys();`,
       python: `import requests
 
 headers = {
