@@ -113,7 +113,7 @@ class PfFooter extends HTMLElement {
             <h3 data-i18n="app_name">convert2doc</h3>
             <ul class="footer-links">
               <li><a href="/" data-i18n="footer.home">Home</a></li>
-              <li><a href="/api-docs" data-i18n="footer.api_docs">API Documentation</a></li>
+              <li><a href="/api-keys" data-i18n="footer.api_docs">API Documentation</a></li>
               <li><a href="/subscription" data-i18n="footer.pricing">Pricing</a></li>
             </ul>
           </div>
