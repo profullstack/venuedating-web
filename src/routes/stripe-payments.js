@@ -256,9 +256,84 @@ export const stripeCancelSubscriptionRoute = {
 /**
  * All Stripe payment routes
  */
+/**
+ * Route handler for getting the Stripe publishable key
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with the publishable key
+ */
+export async function getStripeConfigHandler(c) {
+  try {
+    // Check if the publishable key exists
+    const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+    
+    if (!publishableKey) {
+      console.error('Stripe publishable key is not set in environment variables');
+      return c.json({
+        error: 'Stripe configuration is incomplete',
+        missingKey: true
+      }, 500);
+    }
+    
+    // Return the publishable key
+    return c.json({
+      publishableKey: publishableKey
+    });
+  } catch (error) {
+    console.error('Error getting Stripe config:', error);
+    return errorUtils.handleApiError(c, error);
+  }
+}
+
+/**
+ * Route handler for creating a Stripe subscription directly
+ * @param {Object} c - Hono context
+ * @returns {Response} - JSON response with subscription details
+ */
+export async function createSubscriptionHandler(c) {
+  try {
+    const { email, payment_method_id, plan } = await c.req.json();
+    
+    if (!email || !payment_method_id || !plan) {
+      return c.json({ error: 'Missing required fields: email, payment_method_id, plan' }, 400);
+    }
+    
+    // Create a subscription via the payment service
+    const result = await stripePaymentService.createSubscription(
+      email,
+      payment_method_id,
+      plan
+    );
+    
+    return c.json(result);
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    return errorUtils.handleApiError(c, error);
+  }
+}
+
+/**
+ * Route configuration for Stripe config endpoint
+ */
+export const stripeConfigRoute = {
+  method: 'GET',
+  path: '/api/1/payments/stripe/config',
+  handler: getStripeConfigHandler
+};
+
+/**
+ * Route configuration for creating Stripe subscription endpoint
+ */
+export const stripeCreateSubscriptionRoute = {
+  method: 'POST',
+  path: '/api/1/payments/stripe/create-subscription',
+  handler: createSubscriptionHandler
+};
+
 export const stripePaymentRoutes = [
   stripeCheckoutRoute,
   stripeWebhookRoute,
   stripeSubscriptionRoute,
-  stripeCancelSubscriptionRoute
+  stripeCancelSubscriptionRoute,
+  stripeConfigRoute,
+  stripeCreateSubscriptionRoute
 ];

@@ -29,8 +29,10 @@ export const paymentService = {
   async createSubscription(email, plan, coin) {
     console.log(`Payment service: Creating subscription for ${email}, plan: ${plan}, coin: ${coin}`);
     
-    // Check if user exists in Supabase but don't create if not found
-    let userExists = false;
+    // We no longer create a user account at this stage
+    // Instead, we'll just check if one exists and only create it after payment verification
+    let pendingUserCreation = true;
+    let userId = null;
     try {
       const { data: userData } = await supabase
         .from('users')
@@ -38,10 +40,15 @@ export const paymentService = {
         .eq('email', email)
         .maybeSingle();
         
-      userExists = !!userData;
-      console.log(`Payment service: User exists in Supabase: ${userExists}`);
-    } catch (userError) {
-      console.warn('Payment service: Error checking if user exists:', userError);
+      if (userData) {
+        console.log(`Payment service: User with email ${email} already exists with ID ${userData.id}`);
+        userId = userData.id;
+        pendingUserCreation = false;
+      } else {
+        console.log(`Payment service: User with email ${email} does not exist, will be created after payment verification`);
+      }
+    } catch (error) {
+      console.warn('Payment service: Error checking user existence:', error);
     }
     
     // Validate plan
@@ -79,29 +86,59 @@ export const paymentService = {
         throw rateError;
       }
 
-      // Attempt to create subscription record in Supabase
+      // Create records in both tables using a transaction approach
       let subscription;
+      let cryptoPayment;
       try {
-        const { data, error } = await supabase
+        // First, create the subscription record
+        const { data: subData, error: subError } = await supabase
           .from('subscriptions')
           .insert([{
             email,
             plan,
             amount,
-            crypto_amount: cryptoAmount,
-            crypto_currency: coin,
-            exchange_rate_usd: amount / cryptoAmount,
             interval: plan === 'monthly' ? 'month' : 'year',
-            payment_method: coin,
+            payment_method: coin, // Still keep the payment method in subscriptions for filtering
             status: 'pending',
             start_date: now.toISOString(),
             expiration_date: expirationDate.toISOString()
           }])
           .select()
           .single();
+          
+        if (subError) throw subError;
+        subscription = subData;
         
-        if (error) {
-          if (error.code === '42501') { // Permission denied error
+        // Next, create the crypto_payments record
+        const { data: paymentData, error: paymentError } = await supabase
+          .from('crypto_payments')
+          .insert([{
+            subscription_id: subscription.id,
+            amount: cryptoAmount,
+            currency: coin,
+            exchange_rate_usd: amount / cryptoAmount,
+            status: 'pending',
+            payment_data: {
+              fiat_amount: amount,
+              fiat_currency: 'USD'
+            }
+          }])
+          .select()
+          .single();
+          
+        if (paymentError) throw paymentError;
+        cryptoPayment = paymentData;
+        
+        // Finally, update the subscription with the crypto_payments_id reference
+        const { error: updateError } = await supabase
+          .from('subscriptions')
+          .update({ crypto_payments_id: cryptoPayment.id })
+          .eq('id', subscription.id);
+          
+        if (updateError) throw updateError;
+        
+        if (subError) {
+          if (subError.code === '42501') { // Permission denied error
             console.warn('Payment service: Permission denied when creating subscription, creating temporary record');
             
             // Create a temporary subscription object with a generated ID
@@ -167,40 +204,62 @@ export const paymentService = {
         usdc: process.env.USDC_ADDRESS
       };
       
-      // Update subscription with payment address
-      console.log('Payment service: Updating subscription with payment address');
-      const { error: updateError } = await supabase
-        .from('subscriptions')
-        .update({
-          payment_address: addresses[coin],
-          crypto_amount: cryptoAmount,
-          conversion_rate: amount / cryptoAmount
-        })
-        .eq('id', subscription.id);
+      // Update crypto_payments record with payment address
+      console.log('Payment service: Updating crypto_payments with payment address');
+      if (cryptoPayment && !cryptoPayment.temp_record) {
+        const { error: updateError } = await supabase
+          .from('crypto_payments')
+          .update({
+            transaction_id: null, // Will be filled when payment is received
+            payment_data: {
+              ...cryptoPayment.payment_data,
+              payment_address: addresses[coin],
+              crypto_amount: cryptoAmount,
+              exchange_rate_usd: amount / cryptoAmount
+            }
+          })
+          .eq('id', cryptoPayment.id);
+      } else {
+        // For temporary records, just log that we would have updated the address
+        console.log(`Payment service: Would assign ${addresses[coin]} as payment address for temporary record`);
+      }
       
-      if (updateError) {
-        console.error('Payment service: Error updating subscription with payment details:', updateError);
+      // Let's handle potential errors in updating crypto_payments
+      if (cryptoPayment && !cryptoPayment.temp_record && updateError) {
+        console.error('Payment service: Error updating crypto_payments with payment details:', updateError);
         console.error('Error details:', JSON.stringify(updateError));
+        // Continue despite error since we have the main subscription record
       }
     
       // Send subscription confirmation email
       try {
         console.log('Payment service: Sending confirmation email to', email);
-        await emailService.sendSubscriptionConfirmation(email, {
+        // Prepare data combining both subscription and payment details
+        const emailData = {
           ...subscription,
-          payment_address: addresses[coin]
-        });
+          payment_method: coin,
+          payment_address: addresses[coin],
+          crypto_amount: cryptoAmount,
+          crypto_currency: coin
+        };
+        
+        await emailService.sendSubscriptionConfirmation(email, emailData);
         console.log('Payment service: Confirmation email sent successfully');
       } catch (emailError) {
         console.error('Payment service: Error sending subscription confirmation email:', emailError);
         console.error('Error stack:', emailError.stack);
       }
       
+      // Construct a combined result object that includes both subscription and crypto payment details
       const result = {
         ...subscription,
-        payment_address: addresses[coin],
-        crypto_amount: cryptoAmount,
-        conversion_rate: amount / cryptoAmount
+        crypto_payment: cryptoPayment ? {
+          id: cryptoPayment.id,
+          payment_address: addresses[coin],
+          crypto_amount: cryptoAmount,
+          crypto_currency: coin,
+          exchange_rate_usd: amount / cryptoAmount
+        } : null
       };
       
       console.log('Payment service: Returning subscription result:', JSON.stringify(result));
@@ -244,10 +303,14 @@ export const paymentService = {
     console.log(`Payment service: Getting subscription for ${email}`);
     
     try {
-      // First, try to use the standard query
+      // Query the subscription with related crypto payment data
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*')
+        .select(`
+          *,
+          crypto_payments:crypto_payments_id (*),
+          stripe_payments:stripe_payments_id (*)
+        `)
         .eq('email', email)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -289,9 +352,14 @@ export const paymentService = {
     console.log(`Payment service: Getting subscription by ID ${id}`);
     
     try {
+      // Query the subscription with related payment data
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('*')
+        .select(`
+          *,
+          crypto_payments:crypto_payments_id (*),
+          stripe_payments:stripe_payments_id (*)
+        `)
         .eq('id', id)
         .single();
       

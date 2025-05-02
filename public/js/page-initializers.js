@@ -210,6 +210,10 @@ export function initRegisterPage() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Get the submit button reference right away to avoid reference errors
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton ? submitButton.textContent : 'Register & Subscribe';
+    
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
@@ -233,20 +237,23 @@ export function initRegisterPage() {
       selectedPayment = selectedPaymentElement.dataset.payment;
     }
     
-    // If Stripe payment method is selected, redirect to the Stripe payment page
+    // If Stripe is selected as payment method, we'll use a popup for checkout
+    // No need to show any additional fields for Stripe payment
     if (selectedPayment === 'stripe') {
-      // Store the email and plan in localStorage for the Stripe payment page
-      localStorage.setItem('stripe_payment_email', email);
-      localStorage.setItem('stripe_payment_plan', selectedPlan);
+      // Remove any existing Stripe container since we're using Checkout instead
+      const existingContainer = document.getElementById('stripe-card-container');
+      if (existingContainer) {
+        existingContainer.remove();
+      }
       
-      // Redirect to the Stripe payment page
-      window.router.navigate('/stripe-payment');
-      return;
+      // Remove any existing info container if present
+      const infoContainer = document.getElementById('stripe-info-container');
+      if (infoContainer) {
+        infoContainer.remove();
+      }
     }
     
     // Show loading state
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Processing...';
     submitButton.disabled = true;
     
@@ -264,6 +271,12 @@ export function initRegisterPage() {
         plan: selectedPlan,
         payment_method: selectedPayment
       };
+      
+      // For Stripe payment, we'll register the user first, then redirect to Stripe Checkout
+      if (selectedPayment === 'stripe') {
+        // Continue with registration but mark payment as pending
+        registrationData.payment_status = 'pending';
+      }
       
       // Send registration request to the server
       const response = await fetch('/api/1/auth/register', {
@@ -291,13 +304,63 @@ export function initRegisterPage() {
         // We'll continue with subscription creation even without a JWT token
       }
       
-      // Create subscription using the API
-      const subscriptionData = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
-      console.log('Subscription created:', subscriptionData);
-      
-      // Store user data in localStorage
-      localStorage.setItem('username', email);
-      localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
+      // Handle different payment flows
+      if (selectedPayment === 'stripe') {
+        // For Stripe, redirect to the checkout page
+        console.log('Redirecting to Stripe Checkout');
+        
+        try {
+          // Make an API request to create a checkout session
+          const checkoutResponse = await fetch('/api/1/payments/stripe/create-checkout-session', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authData.session?.access_token || ''}`
+            },
+            body: JSON.stringify({
+              email,
+              plan: selectedPlan,
+              success_url: `${window.location.origin}/dashboard?checkout_success=true`,
+              cancel_url: `${window.location.origin}/register?checkout_canceled=true`
+            })
+          });
+          
+          const checkoutData = await checkoutResponse.json();
+          
+          if (checkoutData.error) {
+            throw new Error(checkoutData.error);
+          }
+          
+          if (!checkoutData.checkout_url) {
+            throw new Error('No checkout URL returned from server');
+          }
+          
+          // Store only temporary registration data before redirecting
+          localStorage.setItem('temp_registration_email', email);
+          localStorage.setItem('temp_registration_plan', selectedPlan);
+          
+          // Redirect directly to Stripe Checkout
+          console.log('Redirecting to Stripe Checkout:', checkoutData.checkout_url);
+          window.location.href = checkoutData.checkout_url;
+          return;
+        } catch (error) {
+          console.error('Error creating Stripe checkout session:', error);
+          alert('There was a problem setting up the payment page. Please try again.');
+          
+          // Reset button state
+          submitButton.textContent = originalButtonText;
+          submitButton.disabled = false;
+          return;
+        }
+      } else {
+        // For crypto payments, continue with the regular flow
+        const subscriptionData = await ApiClient.createSubscription(email, selectedPlan, selectedPayment);
+        console.log('Subscription created:', subscriptionData);
+        
+        // Store user data in localStorage
+        localStorage.setItem('username', email);
+        localStorage.setItem('subscription_data', JSON.stringify(subscriptionData));
+      }
       
       // Create and store a sanitized user object without PII
       const userObject = {
