@@ -36,6 +36,27 @@ export async function registerHandler(c) {
       // Continue with registration attempt even if check fails
     }
     
+    // First, explicitly check if user exists using a different method
+    let existingUser;
+    try {
+      const { data, error } = await supabase.auth.admin.listUsers();
+      if (!error && data && data.users) {
+        existingUser = data.users.find(user => user.email === email);
+      }
+    } catch (listError) {
+      console.warn(`Could not check user list: ${listError.message}`);
+    }
+    
+    // If user already exists, return success directly as this isn't an error case
+    if (existingUser) {
+      console.log(`User already exists, returning success: ${email}`);
+      return c.json({
+        success: true,
+        message: 'User registered successfully',
+        email
+      });
+    }
+    
     // Register user with Supabase using the admin API for better reliability
     try {
       const { data: adminAuthData, error: adminAuthError } = await supabase.auth.admin.createUser({
@@ -49,6 +70,16 @@ export async function registerHandler(c) {
       });
       
       if (adminAuthError) {
+        // Special handling for email_exists error - this is still a success case
+        if (adminAuthError.code === 'email_exists') {
+          console.log(`Admin API failed due to email exists, returning success: ${email}`);
+          return c.json({
+            success: true,
+            message: 'User registered successfully',
+            email
+          });
+        }
+        
         console.error('Admin user creation error:', adminAuthError);
         throw adminAuthError;
       }

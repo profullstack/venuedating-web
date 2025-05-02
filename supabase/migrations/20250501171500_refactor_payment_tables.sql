@@ -102,15 +102,28 @@ WHERE EXISTS (
 );
 
 -- Step 4: Remove crypto-specific fields from subscriptions table after migrating the data
--- First, backup these values to the payment_info jsonb field to prevent data loss
-UPDATE subscriptions
-SET payment_info = COALESCE(payment_info, '{}'::jsonb) || 
-                   jsonb_build_object(
-                     'crypto_currency', crypto_currency,
-                     'crypto_amount', crypto_amount,
-                     'payment_address', payment_address
-                   )
-WHERE crypto_currency IS NOT NULL OR crypto_amount IS NOT NULL OR payment_address IS NOT NULL;
+-- First, check if these columns exist and backup them only if they do
+DO $$
+BEGIN
+  -- Only perform the update if all columns exist
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'subscriptions' AND column_name = 'crypto_currency') AND
+     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'subscriptions' AND column_name = 'crypto_amount') AND
+     EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'subscriptions' AND column_name = 'payment_address') THEN
+    
+    -- Backup these values to the payment_info jsonb field to prevent data loss
+    UPDATE subscriptions
+    SET payment_info = COALESCE(payment_info, '{}'::jsonb) || 
+                      jsonb_build_object(
+                        'crypto_currency', crypto_currency,
+                        'crypto_amount', crypto_amount,
+                        'payment_address', payment_address
+                      )
+    WHERE crypto_currency IS NOT NULL OR crypto_amount IS NOT NULL OR payment_address IS NOT NULL;
+  ELSE
+    RAISE NOTICE 'Skipping data migration because one or more columns do not exist in the subscriptions table';
+  END IF;
+END
+$$;
 
 -- Now, remove the fields
 ALTER TABLE subscriptions
@@ -122,20 +135,36 @@ ALTER TABLE subscriptions
 DROP POLICY IF EXISTS payments_select_policy ON crypto_payments;
 DROP POLICY IF EXISTS payments_all_policy ON crypto_payments;
 
--- Allow users to read their own crypto payments
-CREATE POLICY crypto_payments_select_policy ON crypto_payments
-  FOR SELECT
-  USING (
-    subscription_id IN (
-      SELECT id FROM subscriptions WHERE email = auth.uid()::text
-    )
-  );
-
--- Allow service role to manage all crypto payments
-CREATE POLICY crypto_payments_all_policy ON crypto_payments
-  FOR ALL
-  TO service_role
-  USING (true);
+-- Create policies only if they don't exist
+DO $$
+BEGIN
+  -- Check if policies exist before creating them
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'crypto_payments' AND policyname = 'crypto_payments_select_policy'
+  ) THEN
+    -- Allow users to read their own crypto payments
+    EXECUTE 'CREATE POLICY crypto_payments_select_policy ON crypto_payments
+      FOR SELECT
+      USING (
+        subscription_id IN (
+          SELECT id FROM subscriptions WHERE email = auth.uid()::text
+        )
+      );';
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'crypto_payments' AND policyname = 'crypto_payments_all_policy'
+  ) THEN
+    -- Allow service role to manage all crypto payments
+    EXECUTE 'CREATE POLICY crypto_payments_all_policy ON crypto_payments
+      FOR ALL
+      TO service_role
+      USING (true);';
+  END IF;
+END
+$$;
 
 -- Step 6: Add comments for documentation
 COMMENT ON TABLE crypto_payments IS 'Stores cryptocurrency payment information, renamed from payments table';

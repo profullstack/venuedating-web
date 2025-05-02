@@ -9,11 +9,11 @@ import { WebSocketServer } from 'ws';
 
 import { registerRoutes } from './routes/index.js';
 import { errorHandler } from './middleware/error-handler.js';
-import { enableHttpDebugging } from './utils/http-debug.js';
+import { enableSafeHttpDebugging } from './utils/safe-http-debug.js';
 
 // Enable HTTP debugging for detailed request/response logging
 console.log('Enabling HTTP debugging for detailed request/response logging');
-enableHttpDebugging();
+enableSafeHttpDebugging();
 
 // Load environment variables
 dotenvFlow.config();

@@ -331,17 +331,33 @@ export function initRegisterPage() {
             throw new Error(checkoutData.error);
           }
           
-          if (!checkoutData.checkout_url) {
-            throw new Error('No checkout URL returned from server');
+          // Handle different response formats from the server
+          // The server might return either {checkout_url} or a full session object with {id, url}
+          const checkoutUrl = checkoutData.checkout_url || checkoutData.url;
+          if (!checkoutUrl) {
+            console.error('Invalid checkout response:', checkoutData);
+            throw new Error('No checkout URL in the server response');
           }
           
           // Store only temporary registration data before redirecting
           localStorage.setItem('temp_registration_email', email);
           localStorage.setItem('temp_registration_plan', selectedPlan);
+          localStorage.setItem('temp_client_id', checkoutData.id || checkoutData.session_id || `temp_${Date.now()}`);
           
-          // Redirect directly to Stripe Checkout
-          console.log('Redirecting to Stripe Checkout:', checkoutData.checkout_url);
-          window.location.href = checkoutData.checkout_url;
+          // Add timeout protection for the redirect
+          console.log('Redirecting to Stripe Checkout:', checkoutUrl);
+          
+          // Use a small timeout to ensure localStorage is updated before redirect
+          setTimeout(() => {
+            try {
+              window.location.href = checkoutUrl;
+            } catch (redirectError) {
+              console.error('Redirect error:', redirectError);
+              alert('Could not redirect to payment page. Please try again or contact support.');
+              submitButton.textContent = originalButtonText;
+              submitButton.disabled = false;
+            }
+          }, 100);
           return;
         } catch (error) {
           console.error('Error creating Stripe checkout session:', error);
