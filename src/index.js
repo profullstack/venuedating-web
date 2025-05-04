@@ -121,6 +121,14 @@ app.post('/api/stripe-simple/create-checkout', async (c) => {
       throw new Error('Price ID not configured');
     }
     
+    // Build success and cancel URLs from environment variables
+    const baseUrl = process.env.APP_URL || 'https://convert2doc.com';
+    const successUrl = `${baseUrl}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${baseUrl}/register?canceled=true`;
+    
+    console.log(`Using success URL: ${successUrl}`);
+    console.log(`Using cancel URL: ${cancelUrl}`);
+    
     // Use fetch to directly call Stripe API - don't use any Stripe packages
     const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',
@@ -130,10 +138,12 @@ app.post('/api/stripe-simple/create-checkout', async (c) => {
       },
       body: new URLSearchParams({
         'mode': 'subscription',
-        'success_url': 'https://convert2doc.com/dashboard?success=true',
-        'cancel_url': 'https://convert2doc.com/register?canceled=true',
+        'success_url': successUrl,
+        'cancel_url': cancelUrl,
+        'customer_email': email, // Prefill customer email
         'line_items[0][price]': priceId,
-        'line_items[0][quantity]': '1'
+        'line_items[0][quantity]': '1',
+        'client_reference_id': tempClientId || `temp_${Date.now()}`
       })
     });
     
