@@ -12,7 +12,7 @@ importers:
         specifier: ^1.8.2
         version: 1.14.1(hono@4.7.7)
       '@profullstack/spa-router':
-        specifier: ^1.11.0
+        specifier: ^1.11.1
         version: 1.11.1
       '@supabase/supabase-js':
         specifier: ^2.49.4
@@ -23,6 +23,9 @@ importers:
       commander:
         specifier: ^12.0.0
         version: 12.1.0
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.5.0
       dotenv-flow:
         specifier: ^4.1.0
         version: 4.1.0
