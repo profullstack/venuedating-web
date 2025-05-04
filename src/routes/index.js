@@ -12,6 +12,7 @@ import {
   subscriptionStatusRoute
 } from './subscription.js';
 import { stripePaymentRoutes } from './stripe-payments.js';
+import stripeDirectRouter from './stripe-direct.js';
 import { apiKeyRoutes } from './api-keys.js';
 import {
   loginRoute,

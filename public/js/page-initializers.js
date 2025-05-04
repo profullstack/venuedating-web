@@ -310,58 +310,101 @@ export function initRegisterPage() {
         console.log('Redirecting to Stripe Checkout');
         
         try {
-          // Make an API request to create a checkout session
-          const checkoutResponse = await fetch('/api/1/payments/stripe/create-checkout-session', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authData.session?.access_token || ''}`
-            },
-            body: JSON.stringify({
-              email,
-              plan: selectedPlan,
-              success_url: `${window.location.origin}/dashboard?checkout_success=true`,
-              cancel_url: `${window.location.origin}/register?checkout_canceled=true`
-            })
-          });
+          // Generate a unique client ID for this registration attempt
+          const tempClientId = `temp_${Date.now()}`;
+          localStorage.setItem('temp_client_id', tempClientId);
           
-          const checkoutData = await checkoutResponse.json();
-          
-          if (checkoutData.error) {
-            throw new Error(checkoutData.error);
-          }
-          
-          // Handle different response formats from the server
-          // The server might return either {checkout_url} or a full session object with {id, url}
-          const checkoutUrl = checkoutData.checkout_url || checkoutData.url;
-          if (!checkoutUrl) {
-            console.error('Invalid checkout response:', checkoutData);
-            throw new Error('No checkout URL in the server response');
-          }
-          
-          // Store only temporary registration data before redirecting
+          // Store registration data in localStorage only (no database)
           localStorage.setItem('temp_registration_email', email);
           localStorage.setItem('temp_registration_plan', selectedPlan);
-          localStorage.setItem('temp_client_id', checkoutData.id || checkoutData.session_id || `temp_${Date.now()}`);
+          localStorage.setItem('temp_register_timestamp', Date.now().toString());
           
-          // Add timeout protection for the redirect
-          console.log('Redirecting to Stripe Checkout:', checkoutUrl);
+          // Simple function to redirect to Stripe checkout
+          function redirectToStripeCheckout(checkoutUrl) {
+            console.log('Redirecting to Stripe checkout:', checkoutUrl);
+            
+            // Store the checkout URL in case we need to retry
+            localStorage.setItem('temp_checkout_url', checkoutUrl);
+            
+            // Direct redirect - simple is better
+            window.location.href = checkoutUrl;
+          }
           
-          // Use a small timeout to ensure localStorage is updated before redirect
-          setTimeout(() => {
-            try {
-              window.location.href = checkoutUrl;
-            } catch (redirectError) {
-              console.error('Redirect error:', redirectError);
-              alert('Could not redirect to payment page. Please try again or contact support.');
-              submitButton.textContent = originalButtonText;
-              submitButton.disabled = false;
+          // Ultra-simple checkout flow - just one API call
+          try {
+            console.log('Creating Stripe checkout session...');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Preparing checkout...';
+            
+            // Use our simplified endpoint that makes a direct fetch call to Stripe
+            const response = await fetch('/api/stripe-simple/create-checkout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                email,
+                plan: selectedPlan
+              })
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Failed to create checkout session');
             }
-          }, 100);
+            
+            const data = await response.json();
+            console.log('Checkout session created:', data);
+            
+            // Check for checkout URL
+            if (!data.url && !data.checkout_url) {
+              throw new Error('No checkout URL in response');
+            }
+            
+            // Save checkout details in localStorage
+            localStorage.setItem('temp_checkout_id', data.id);
+            
+            // Redirect to Stripe checkout page
+            redirectToStripeCheckout(data.checkout_url || data.url);
+            return;
+          } catch (error) {
+            console.error('Simple checkout failed:', error);
+            
+            // Fallback to direct checkout if simple checkout fails
+            try {
+              console.log('Falling back to direct checkout...');
+              submitButton.textContent = 'Retrying checkout...';
+              
+              const response = await fetch('/api/stripe-direct/create-checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  email, 
+                  plan: selectedPlan
+                })
+              });
+              
+              if (!response.ok) {
+                throw new Error('Fallback checkout also failed');
+              }
+              
+              const data = await response.json();
+              
+              if (data.checkout_url || data.url) {
+                redirectToStripeCheckout(data.checkout_url || data.url);
+                return;
+              }
+              
+              throw new Error('No checkout URL in fallback response');
+            } catch (fallbackError) {
+              console.error('Fallback checkout failed:', fallbackError);
+            }
+          }
+          
+          // Our redirection logic is now handled in the redirectToStripeCheckout function
+          
           return;
         } catch (error) {
-          console.error('Error creating Stripe checkout session:', error);
-          alert('There was a problem setting up the payment page. Please try again.');
+          console.error('Stripe checkout error:', error);
+          alert('Payment setup failed. Please try again or contact support.');
           
           // Reset button state
           submitButton.textContent = originalButtonText;

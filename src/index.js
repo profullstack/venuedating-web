@@ -95,6 +95,108 @@ app.use('*', errorHandler);
 // Register all API routes
 registerRoutes(app);
 
+// Add a direct Stripe checkout handler for emergencies
+import Stripe from 'stripe';
+
+// Initialize Stripe with minimal configuration
+const stripeDirectClient = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2023-10-16'
+});
+
+// Ultra-minimal Stripe checkout using pure fetch - no packages, no database, just API calls
+app.post('/api/stripe-simple/create-checkout', async (c) => {
+  try {
+    console.log('Creating simple checkout session using fetch...');
+    
+    // Parse request
+    const body = await c.req.json();
+    const { email, plan } = body;
+    
+    // Get price ID from environment variables
+    const priceId = plan === 'monthly' 
+      ? process.env.STRIPE_MONTHLY_PRICE_ID 
+      : process.env.STRIPE_YEARLY_PRICE_ID;
+    
+    if (!priceId) {
+      throw new Error('Price ID not configured');
+    }
+    
+    // Use fetch to directly call Stripe API - don't use any Stripe packages
+    const response = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        'mode': 'subscription',
+        'success_url': 'https://convert2doc.com/dashboard?success=true',
+        'cancel_url': 'https://convert2doc.com/register?canceled=true',
+        'line_items[0][price]': priceId,
+        'line_items[0][quantity]': '1'
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Stripe API error: ${errorData.error?.message || response.statusText}`);
+    }
+    
+    // Parse the Stripe API response
+    const session = await response.json();
+    
+    // Return minimal response with just ID and URL
+    return c.json({
+      id: session.id,
+      checkout_url: session.url,
+      url: session.url
+    });
+  } catch (error) {
+    console.error('Simple checkout error:', error.message);
+    return c.json({
+      error: 'Payment processing error',
+      message: error.message
+    }, 500);
+  }
+});
+
+// Keep the direct checkout as a fallback
+app.post('/api/stripe-direct/create-checkout', async (c) => {
+  try {
+    console.log('Creating direct checkout session...');
+    
+    // Parse request
+    const body = await c.req.json();
+    const { email, plan } = body;
+    
+    // Get price ID
+    const priceId = plan === 'monthly' 
+      ? process.env.STRIPE_MONTHLY_PRICE_ID 
+      : process.env.STRIPE_YEARLY_PRICE_ID;
+    
+    // Directly create session with minimal params
+    const session = await stripeDirectClient.checkout.sessions.create({
+      mode: 'subscription',
+      success_url: 'https://convert2doc.com/dashboard?success=true',
+      cancel_url: 'https://convert2doc.com/register?canceled=true',
+      line_items: [{ price: priceId, quantity: 1 }]
+    });
+    
+    // Return minimal response with just ID and URL
+    return c.json({
+      id: session.id,
+      checkout_url: session.url,
+      url: session.url
+    });
+  } catch (error) {
+    console.error('Direct checkout error:', error.message);
+    return c.json({
+      error: 'Payment processing error',
+      message: error.message
+    }, 500);
+  }
+});
+
 // Health check endpoint
 app.get('/', async (c) => {
   // If the request accepts HTML, serve the index.html file directly

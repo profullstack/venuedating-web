@@ -22,13 +22,52 @@ export function enableSafeHttpDebugging() {
   const safelyHandleResponseBody = (res, protocol) => {
     const contentType = res.headers['content-type'] || '';
     
-    // Only try to log text-based content
-    if (contentType.includes('json') || 
-        contentType.includes('text') || 
-        contentType.includes('form-urlencoded')) {
+    // Skip full response body logging for Stripe API calls
+    const isStripeApiCall = res.connection && 
+                           res.connection._host && 
+                           res.connection._host.includes('stripe.com');
+    
+    // Only log minimal info for Stripe API calls with successful responses
+    if (isStripeApiCall && res.statusCode >= 200 && res.statusCode < 300) {
+      console.log(`HTTP Debug: ${protocol} Stripe API response: ${res.statusCode} OK`);
+      
+      // Just collect enough data to extract the URL if present
+      let dataSize = 0;
+      const dataChunks = [];
+      res.on('data', (chunk) => {
+        dataSize += chunk.length;
+        // Only keep a small part to extract checkout URL if needed
+        if (dataSize <= 1000) dataChunks.push(chunk);
+      });
+      
+      res.on('end', () => {
+        try {
+          // Try to extract just the URL field for debugging
+          if (dataChunks.length > 0) {
+            const partialData = Buffer.concat(dataChunks).toString('utf8');
+            try {
+              const obj = JSON.parse(partialData);
+              if (obj.url) {
+                console.log(`HTTP Debug: Stripe ${protocol} response contains checkout URL starting with: ${obj.url.substring(0, 60)}...`);
+              } else {
+                console.log(`HTTP Debug: Stripe ${protocol} response processed (size: ${dataSize} bytes)`);
+              }
+            } catch {
+              console.log(`HTTP Debug: Stripe ${protocol} response processed (size: ${dataSize} bytes)`);
+            }
+          }
+        } catch (error) {
+          console.error(`HTTP Debug: Error extracting URL from ${protocol} response:`, error.message);
+        }
+      });
+    }
+    // Only try to log text-based content for non-Stripe API calls
+    else if (contentType.includes('json') || 
+             contentType.includes('text') || 
+             contentType.includes('form-urlencoded')) {
       
       let size = 0;
-      const maxSize = 5000; // Limit size to prevent memory issues
+      const maxSize = 2000; // Reduced max size to prevent memory issues
       const chunks = [];
       
       res.on('data', (chunk) => {
@@ -44,15 +83,15 @@ export function enableSafeHttpDebugging() {
           }
           
           const body = Buffer.concat(chunks).toString('utf8');
-          const preview = body.substring(0, 500);
-          const truncated = size > maxSize || body.length > 500 ? '...(truncated)' : '';
+          const preview = body.substring(0, 300); // Show less text
+          const truncated = size > maxSize || body.length > 300 ? '...(truncated)' : '';
           
           // Try to parse JSON for better display
           if (contentType.includes('json')) {
             try {
               const parsed = JSON.parse(body);
               console.log(`HTTP Debug: ${protocol} response body (JSON):`, 
-                JSON.stringify(parsed, null, 2).substring(0, 500) + truncated);
+                JSON.stringify(parsed, null, 2).substring(0, 300) + truncated);
             } catch {
               // If JSON parsing fails, fall back to plain text
               console.log(`HTTP Debug: ${protocol} response body:`, preview + truncated);

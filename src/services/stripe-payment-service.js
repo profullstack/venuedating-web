@@ -55,143 +55,84 @@ export const stripePaymentService = {
    * @returns {Promise<Object>} - Checkout session details
    */
   async createCheckoutSession(email, plan, tempClientId, successUrl = null, cancelUrl = null) {
-    console.log(`Stripe payment service: Creating checkout session for ${email}, plan: ${plan}`);
+    console.log(`Creating Stripe checkout: ${email}, plan: ${plan}`);
     
     try {
-      // IMPORTANT: Skip any lookup and use hardcoded price IDs to avoid getting stuck
-      let priceId;
-      if (plan === 'monthly') {
-        // Use env var or fallback to hardcoded value from logs
-        priceId = process.env.STRIPE_MONTHLY_PRICE_ID || 'price_1RJS2RRAvUM4Kl4i4qyEkWDW';
-      } else {
-        // Use env var or fallback to hardcoded value from logs
-        priceId = process.env.STRIPE_YEARLY_PRICE_ID || 'price_1RJS2RRAvUM4Kl4i8MYqDFPb';
+      // Determine which price ID to use
+      const priceId = plan === 'monthly' 
+        ? process.env.STRIPE_MONTHLY_PRICE_ID 
+        : process.env.STRIPE_YEARLY_PRICE_ID;
+      
+      if (!priceId) {
+        throw new Error(`No Stripe price ID found for ${plan} plan`);
       }
       
-      console.log(`DIRECT USE: Using ${plan} price ID: ${priceId}`);
-      
-      // Immediately create a fallback URL that will work even if Stripe API fails
-      const fallbackUrl = `https://checkout.stripe.com/pay/${priceId}?prefilled_email=${encodeURIComponent(email)}`;
-      
-      // Prepare a fallback session object
-      const fallbackSession = {
-        id: `fallback_${Date.now()}`,
-        url: fallbackUrl,
-        is_fallback: true
-      };
-      
-      console.log('DEBUG: Fallback URL ready as contingency:', fallbackUrl);
-      
-      // Create minimal session parameters for best chance of success
-      const minimalParams = {
-        payment_method_types: ['card'],
-        line_items: [{
-          price: priceId,
-          quantity: 1,
-        }],
+      // Create checkout session with bare minimum parameters
+      const session = await stripe.checkout.sessions.create({
         mode: 'subscription',
-        success_url: successUrl || `${process.env.API_BASE_URL || 'http://localhost:8099'}/dashboard?checkout_success=true`,
-        cancel_url: cancelUrl || `${process.env.API_BASE_URL || 'http://localhost:8099'}/register?checkout_canceled=true`,
-        customer_email: email
+        success_url: successUrl || `${process.env.API_BASE_URL || 'http://localhost:8099'}/dashboard?success=true`,
+        cancel_url: cancelUrl || `${process.env.API_BASE_URL || 'http://localhost:8099'}/register?canceled=true`,
+        line_items: [{ price: priceId, quantity: 1 }]
+      });
+      
+      console.log(`Checkout session created: ${session.id}`);
+      
+      // ⚠️ IMMEDIATE RETURN - Don't do anything else that could hang
+      // Return directly to prevent any possible hanging
+      const response = {
+        id: session.id,
+        session_id: session.id,
+        checkout_url: session.url,
+        url: session.url,
+        created_at: new Date().toISOString()
       };
+
+      return response;
       
-      // Setup session variable
-      let session;
-      
-      console.log('DEBUG: Attempting to create minimal checkout session...');
-      
-      try {
-        // Use Promise.race with a 5 second timeout to prevent hanging
-        const sessionPromise = Promise.race([
-          stripe.checkout.sessions.create(minimalParams),
-          new Promise((_, reject) => {
-            setTimeout(() => {
-              console.log('DEBUG: Checkout session creation timed out');
-              reject(new Error('Checkout session creation timed out'));
-            }, 5000);
-          })
-        ]);
-        
-        session = await sessionPromise;
-        console.log(`DEBUG: Successfully created checkout session: ${session.id}`);
-      } catch (error) {
-        console.log(`DEBUG: Failed to create checkout session: ${error.message}`);
-        console.log('DEBUG: Using fallback session');
-        session = fallbackSession;
-      }
-      
-      // Store the session in the database - use Promise.race with timeout
-      console.log('DEBUG: Storing session in database...');
-      
-      try {
-        const dbPromise = supabase
-          .from('stripe_payments')
-          .insert([{
+      // Schedule database operations to run later
+      // This won't block the response
+      process.nextTick(() => {
+        try {
+          console.log(`Checkout URL: ${session.url}`);
+          
+          // Store in database after returning response
+          supabase.from('stripe_payments').insert({
             email,
             session_id: session.id,
             plan,
             status: 'pending',
             payment_method: 'stripe',
-            amount: plan === 'monthly' ? parseFloat(process.env.MONTHLY_SUBSCRIPTION_PRICE || '5') 
-              : parseFloat(process.env.YEARLY_SUBSCRIPTION_PRICE || '30'),
-            currency: 'USD',
-            metadata: { 
-              temp_client_id: tempClientId,
-              is_fallback: session.is_fallback || false
-            }
-          }]);
-          
-        // Don't let the database operation block the response
-        const dbResult = await Promise.race([
-          dbPromise,
-          new Promise(resolve => {
-            setTimeout(() => {
-              console.log('DEBUG: Database operation timed out, continuing');
-              resolve({ error: 'Timeout' });
-            }, 1000);
-          })
-        ]);
-        
-        if (dbResult.error) {
-          console.warn('DEBUG: Could not store session in database:', 
-            dbResult.error.message || dbResult.error);
-        } else {
-          console.log('DEBUG: Successfully stored session in database');
+            amount: plan === 'monthly' ? 500 : 3000,
+            currency: 'usd',
+            metadata: { temp_client_id: tempClientId }
+          }).then(() => {
+            console.log('Session stored in database');
+          }).catch(err => {
+            console.warn('Database storage failed:', err.message);
+          });
+        } catch (err) {
+          console.warn('Error scheduling database update');
         }
-      } catch (dbError) {
-        console.warn('DEBUG: Database error:', dbError.message);
-      }
+      });
       
-      // Return a standardized response with consistent property names
-      const clientResponse = {
-        id: session.id,
-        session_id: session.id,
-        checkout_url: session.url,
-        url: session.url,
-        is_fallback: session.is_fallback || false,
-        created_at: new Date().toISOString()
-      };
-      
-      console.log('DEBUG: Returning checkout session to client');
-      return clientResponse;
+      // Return immediately with the response
+      return response;
     } catch (error) {
-      console.error('ERROR: Fatal error in createCheckoutSession:', error);
+      // Log error and continue
+      console.error(`Stripe checkout error: ${error.message}`);
       
-      // Last resort - return a direct URL to Stripe checkout
-      const priceId = plan === 'monthly' ? 
-        (process.env.STRIPE_MONTHLY_PRICE_ID || 'price_1RJS2RRAvUM4Kl4i4qyEkWDW') : 
-        (process.env.STRIPE_YEARLY_PRICE_ID || 'price_1RJS2RRAvUM4Kl4i8MYqDFPb');
+      // Create a friendly error URL for redirection
+      const baseUrl = process.env.API_BASE_URL || 'http://localhost:8099';
+      const errorUrl = `${baseUrl}/register?error=${encodeURIComponent('Payment processing error')}&retry=true`;
       
-      const directUrl = `https://checkout.stripe.com/pay/${priceId}?prefilled_email=${encodeURIComponent(email)}`;
-      
+      // Return minimal response that won't hang
       return {
-        id: `emergency_${Date.now()}`,
-        session_id: `emergency_${Date.now()}`,
-        checkout_url: directUrl,
-        url: directUrl,
-        is_fallback: true,
-        created_at: new Date().toISOString(),
-        error: error.message
+        id: `error_${Date.now()}`,
+        session_id: `error_${Date.now()}`,
+        checkout_url: errorUrl,
+        url: errorUrl,
+        error: 'Could not process payment',
+        created_at: new Date().toISOString()
       };
     }
   },
