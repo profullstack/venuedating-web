@@ -98,9 +98,12 @@ echo -e "${YELLOW}Installing project dependencies...${NC}"
 ORIGINAL_USER=${SUDO_USER:-$USER}
 
 # Run pnpm install with zsh and loading .zshrc
+echo "Running pnpm install..."
 if [ "$EUID" -eq 0 ]; then
+  echo "Running as root"
   sudo -u "$ORIGINAL_USER" zsh -c "source /home/$ORIGINAL_USER/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 else
+  echo "Running as user"
   zsh -c "source $HOME/.zshrc && cd \"$PROJECT_DIR\" && pnpm install"
 fi
 

@@ -2,11 +2,6 @@
 node_modules/
 .pnpm-store/
 
-# Version control
-.git/
-.github/
-.gitignore
-
 # Logs and temporary files
 *.log
 .DS_Store
