@@ -70,7 +70,7 @@ fi
 
 # Restart the service after all operations are complete
 echo -e "${YELLOW}Restarting service...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart coldfollow-web.service"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart ${SERVICE_NAME}"
 
 echo -e "${GREEN}Service restarted successfully!${NC}"
 echo -e "${GREEN}Deployment with migrations completed successfully!${NC}"
