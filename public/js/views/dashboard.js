@@ -126,7 +126,7 @@ function updateFilenameExtension(documentType) {
   // Add new extension based on document type
   const extensions = {
     pdf: '.pdf',
-    doc: '.doc',
+    doc: '.docx',  // Updated from .doc to .docx
     excel: '.xlsx',
     ppt: '.pptx',
     epub: '.epub',
@@ -182,7 +182,9 @@ async function convertDocument() {
         break;
         
       case 'doc':
+        console.log('Converting to DOCX');
         result = await ApiClient.htmlToDoc(html, filename, storeDocument);
+        console.log('DOCX conversion successful');
         break;
         
       case 'excel':
