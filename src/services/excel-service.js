@@ -1,62 +1,45 @@
-import { exec } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { promisify } from 'util';
-import { v4 as uuidv4 } from 'uuid';
-import os from 'os';
-
-const execPromise = promisify(exec);
+import * as XLSX from 'xlsx';
+import { JSDOM } from 'jsdom';
 
 /**
  * Service for generating Excel spreadsheets from HTML content
  */
 export const excelService = {
   /**
-   * Generate an Excel spreadsheet from HTML content using pandoc
+   * Generate an Excel spreadsheet from HTML content containing tables
    * @param {string} html - The HTML content containing tables
    * @param {string} sheetName - The name for the worksheet (default: 'Sheet1')
    * @returns {Promise<Buffer>} - A buffer containing the Excel file data
-   * @throws {Error} - If pandoc conversion fails
+   * @throws {Error} - If no tables are found in the HTML content
    */
   async generateExcel(html, sheetName = 'Sheet1') {
-    try {
-      // Create temporary files for input and output
-      const tempDir = os.tmpdir();
-      const inputId = uuidv4();
-      const outputId = uuidv4();
-      const inputPath = path.join(tempDir, `${inputId}.html`);
-      const outputPath = path.join(tempDir, `${outputId}.xlsx`);
-      
-      // Write HTML to temporary file
-      await fs.promises.writeFile(inputPath, html, 'utf8');
-      
-      // Use pandoc to convert HTML to XLSX
-      const command = `pandoc -f html -t xlsx "${inputPath}" -o "${outputPath}"`;
-      console.log(`Executing pandoc command: ${command}`);
-      
-      await execPromise(command);
-      
-      // Read the generated XLSX file
-      const excelBuffer = await fs.promises.readFile(outputPath);
-      
-      // Clean up temporary files
-      try {
-        await fs.promises.unlink(inputPath);
-        await fs.promises.unlink(outputPath);
-      } catch (cleanupError) {
-        console.warn('Error cleaning up temporary files:', cleanupError);
-      }
-      
-      return excelBuffer;
-    } catch (error) {
-      console.error('Error generating Excel document with pandoc:', error);
-      
-      // If pandoc fails, provide a detailed error message
-      if (error.stderr) {
-        console.error('Pandoc error output:', error.stderr);
-      }
-      
-      throw new Error(`Failed to generate Excel document: ${error.message}`);
+    // Create a DOM from the HTML
+    const dom = new JSDOM(html);
+    const document = dom.window.document;
+    
+    // Find all tables in the HTML
+    const tables = document.querySelectorAll('table');
+    
+    if (tables.length === 0) {
+      throw new Error('No tables found in the HTML content');
     }
+    
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+    
+    // Process each table and add it as a sheet
+    tables.forEach((table, index) => {
+      // Convert table to worksheet
+      const worksheet = XLSX.utils.table_to_sheet(table);
+      
+      // Add the worksheet to the workbook
+      const currentSheetName = tables.length === 1 ? sheetName : `${sheetName}${index + 1}`;
+      XLSX.utils.book_append_sheet(workbook, worksheet, currentSheetName);
+    });
+    
+    // Write the workbook to a buffer
+    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    
+    return excelBuffer;
   }
 };
