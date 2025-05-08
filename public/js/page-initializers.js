@@ -800,6 +800,15 @@ export function initSubscriptionPage() {
 }
 
 /**
+ * Initialize manage subscription page
+ */
+export async function initManageSubscriptionPage() {
+  // Import and initialize the subscription management page
+  const { initSubscriptionManagement } = await import('./views/manage-subscription.js');
+  return initSubscriptionManagement();
+}
+
+/**
  * Initialize reset password page
  */
 export async function initResetPasswordPage() {
