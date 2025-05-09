@@ -21,12 +21,38 @@ usage() {
   echo "  setup    - Install Supabase CLI and link to your cloud project"
   echo "  migrate  - Run migrations on your Supabase database"
   echo "  new NAME - Create a new migration file"
+  echo "  update   - Check for Supabase CLI updates and upgrade if available"
   echo ""
   echo "Example:"
   echo "  $0 setup"
   echo "  $0 migrate"
   echo "  $0 new add_user_preferences"
+  echo "  $0 update"
   exit 1
+}
+
+# Function to get the latest Supabase CLI version from GitHub
+get_latest_version() {
+  # Print status messages to stderr so they don't get captured in command substitution
+  echo -e "${YELLOW}Checking for latest Supabase CLI version...${NC}" >&2
+  
+  # Use GitHub API to get the latest release
+  LATEST_VERSION=$(curl -s https://api.github.com/repos/supabase/cli/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+  
+  if [ -z "$LATEST_VERSION" ]; then
+    echo -e "${YELLOW}Could not determine latest version, using fallback version.${NC}" >&2
+    LATEST_VERSION="2.20.12"  # Fallback to known working version
+  else
+    echo -e "${GREEN}Latest version is: $LATEST_VERSION${NC}" >&2
+  fi
+  
+  # Only output the version number to stdout for capture by command substitution
+  echo "$LATEST_VERSION"
+}
+
+# Function to compare version strings
+version_gt() {
+  test "$(printf '%s\n' "$1" "$2" | sort -V | head -n 1)" != "$1"
 }
 
 # Function to install Supabase CLI
@@ -43,12 +69,26 @@ install_cli() {
   fi
   
   # Check if supabase is already installed
+  local INSTALLED_VERSION=""
   if command -v supabase &>/dev/null; then
-    echo -e "${GREEN}Supabase CLI already installed: $(supabase --version 2>&1)${NC}"
-    return 0
+    INSTALLED_VERSION=$(supabase --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    echo -e "${GREEN}Supabase CLI already installed: v$INSTALLED_VERSION${NC}"
+    
+    # Check for newer version
+    LATEST_VERSION=$(get_latest_version)
+    
+    if version_gt "$LATEST_VERSION" "$INSTALLED_VERSION"; then
+      echo -e "${YELLOW}Newer version available (v$LATEST_VERSION). Upgrading from v$INSTALLED_VERSION...${NC}"
+    else
+      echo -e "${GREEN}You have the latest version.${NC}"
+      return 0
+    fi
+  else
+    LATEST_VERSION=$(get_latest_version)
+    echo -e "${YELLOW}Installing Supabase CLI v$LATEST_VERSION...${NC}"
   fi
   
-  SUPABASE_VERSION="2.20.12"  # Latest stable version that works with cloud
+  SUPABASE_VERSION="$LATEST_VERSION"
   
   # Compile from source using ZIP file
   echo "Compiling Supabase CLI from source..."
@@ -325,6 +365,34 @@ create_migration() {
   echo -e "${GREEN}$0 migrate${NC}"
 }
 
+# Function to check for updates and upgrade if needed
+check_for_updates() {
+  echo -e "${YELLOW}Checking for Supabase CLI updates...${NC}"
+  
+  # Check if Supabase CLI is installed
+  if ! command -v supabase &>/dev/null; then
+    echo -e "${YELLOW}Supabase CLI not installed. Installing...${NC}"
+    install_cli
+    return 0
+  fi
+  
+  # Get installed version
+  local INSTALLED_VERSION=$(supabase --version 2>&1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  echo -e "${GREEN}Current Supabase CLI version: v$INSTALLED_VERSION${NC}"
+  
+  # Get latest version
+  local LATEST_VERSION=$(get_latest_version)
+  
+  # Compare versions
+  if version_gt "$LATEST_VERSION" "$INSTALLED_VERSION"; then
+    echo -e "${YELLOW}Newer version available (v$LATEST_VERSION). Upgrading from v$INSTALLED_VERSION...${NC}"
+    install_cli
+    echo -e "${GREEN}Supabase CLI has been updated to the latest version.${NC}"
+  else
+    echo -e "${GREEN}You already have the latest version (v$INSTALLED_VERSION).${NC}"
+  fi
+}
+
 # Main script
 if [ $# -eq 0 ]; then
   usage
@@ -343,6 +411,9 @@ case "$1" in
       usage
     fi
     create_migration "$2"
+    ;;
+  update)
+    check_for_updates
     ;;
   *)
     echo -e "${RED}Error: Unknown command: $1${NC}"
