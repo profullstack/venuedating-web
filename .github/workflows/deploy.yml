@@ -88,10 +88,10 @@ jobs:
           # Explicitly copy the .env file to the remote server
           echo "Copying .env file to remote server..."
           scp -P 2048 .env ubuntu@104.36.23.197:$DEPLOY_REMOTE_DIR/.env
-          
+
           # Run deploy script with migrations
           ./bin/deploy-with-migrations.sh
-
+                    
           # Create a timestamp file to verify deployment
           echo "Creating timestamp file to verify deployment..."
           TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")

@@ -9,7 +9,8 @@ import {
   initApiKeysPage, 
   initSettingsPage, 
   initSubscriptionPage, 
-  initResetPasswordPage 
+  initResetPasswordPage,
+  initManageSubscriptionPage
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
@@ -479,6 +480,24 @@ export function defineRoutes(router) {
     },
     '/i18n-demo': {
       view: () => loadPage('/views/i18n-demo.html')
+    },
+    '/manage-subscription': {
+      view: () => loadPage('/views/manage-subscription.html'),
+      afterRender: () => initManageSubscriptionPage(),
+      beforeEnter: async (to, from, next) => {
+        try {
+          const { checkAuthStatus } = await import('./utils/auth-status.js');
+          const status = await checkAuthStatus();
+          
+          if (!status.authenticated) {
+            return next('/login');
+          }
+          next();
+        } catch (error) {
+          console.error('Error checking authentication status:', error);
+          return next('/login');
+        }
+      }
     }
   };
   

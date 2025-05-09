@@ -11,6 +11,11 @@ import {
   subscriptionRoute,
   subscriptionStatusRoute
 } from './subscription.js';
+import {
+  getSubscriptionDetails,
+  createStripePortalSession,
+  cancelSubscription
+} from './subscription-management.js';
 import { stripePaymentRoutes } from './stripe-payments.js';
 import stripeDirectRouter from './stripe-direct.js';
 import { apiKeyRoutes } from './api-keys.js';
@@ -59,7 +64,26 @@ const publicRoutes = [
   resetPasswordConfirmRoute,
   authStatusRoute,
   supabaseConfigRoute,
-  websocketRoute
+  websocketRoute,
+  // Subscription management routes
+  {
+    method: 'GET',
+    path: '/api/subscription/details',
+    handler: getSubscriptionDetails,
+    middleware: [authMiddleware] // This one needs auth
+  },
+  {
+    method: 'POST',
+    path: '/api/stripe/create-portal-session',
+    handler: createStripePortalSession,
+    middleware: [authMiddleware] // This one needs auth
+  },
+  {
+    method: 'POST',
+    path: '/api/subscription/cancel',
+    handler: cancelSubscription,
+    middleware: [authMiddleware] // This one needs auth
+  }
 ];
 
 /**
