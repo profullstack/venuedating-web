@@ -16,6 +16,9 @@
     "electron": "^25.0.0",
     "electron-builder": "^24.0.0"
   },
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  },
   "build": {
     "appId": "com.profullstack.pdfconverter",
     "productName": "PDF Converter",

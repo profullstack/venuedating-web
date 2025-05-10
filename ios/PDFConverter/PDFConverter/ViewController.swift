@@ -62,8 +62,8 @@ class ViewController: UIViewController, WKNavigationDelegate {
     }
     
     private func loadWebsite() {
-        // Replace with your actual production URL
-        if let url = URL(string: "https://profullstack.com/pdf") {
+        // Load URL from Config which reads from .env file
+        if let url = URL(string: Config.apiBaseURL) {
             let request = URLRequest(url: url)
             webView.load(request)
         }

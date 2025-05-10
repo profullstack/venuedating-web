@@ -13,14 +13,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    // URL of the PWA - will be loaded from .env file
+    private lateinit var pwaUrl: String
     
-    // URL of the PWA
-    private val pwaUrl = "https://profullstack.com/pdf"
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        
+        // Get API base URL from .env file
+        pwaUrl = Config.getApiBaseUrl(this)
         
         // Initialize WebView
         webView = findViewById(R.id.webView)

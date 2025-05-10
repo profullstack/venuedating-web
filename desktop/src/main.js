@@ -1,8 +1,9 @@
 const { app, BrowserWindow, Menu, shell } = require('electron');
 const path = require('path');
+const { getApiBaseUrl } = require('./config');
 
-// URL of the PWA
-const pwaUrl = 'https://profullstack.com/pdf';
+// URL of the PWA - loaded from .env file
+const pwaUrl = getApiBaseUrl();
 
 // Keep a global reference of the window object to prevent it from being garbage collected
 let mainWindow;

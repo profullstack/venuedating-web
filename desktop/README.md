@@ -4,7 +4,7 @@ A cross-platform desktop application that wraps the PDF Converter PWA in an Elec
 
 ## Features
 
-- Loads the PWA from https://profullstack.com/pdf
+- Loads the PWA from the URL specified in the project's root .env file
 - Native desktop integration
 - Cross-platform support (Windows, macOS, Linux)
 - Custom application menu
@@ -15,6 +15,7 @@ A cross-platform desktop application that wraps the PDF Converter PWA in an Elec
 
 - Node.js 16.x or later
 - npm or yarn
+- dotenv (for .env file parsing)
 
 ## Getting Started
 
@@ -72,15 +73,59 @@ This will generate:
 - Debian package (.deb)
 - RPM package (.rpm)
 
-## Customization
+## Configuration
 
-### PWA URL
+The app reads the PWA URL from the `API_BASE_URL` variable in the project's root `.env` file. This allows you to easily switch between different environments (development, staging, production) by modifying a single configuration file.
 
-To change the URL of the PWA, modify the `pwaUrl` variable in `src/main.js`:
+### .env Configuration
+
+In the project root's `.env` file:
+
+```
+API_BASE_URL=https://profullstack.com/pdf
+```
+
+### How It Works
+
+The `config.js` file reads the API_BASE_URL from the .env file:
 
 ```javascript
-// URL of the PWA
-const pwaUrl = 'https://profullstack.com/pdf';
+// In src/config.js
+function getApiBaseUrl() {
+  try {
+    // Try to find the .env file in the project root
+    const rootPath = path.resolve(__dirname, '../../');
+    const envPath = path.join(rootPath, '.env');
+    
+    if (fs.existsSync(envPath)) {
+      // Parse .env file
+      const envConfig = dotenv.parse(fs.readFileSync(envPath));
+      
+      // Return API_BASE_URL if found
+      if (envConfig.API_BASE_URL) {
+        return envConfig.API_BASE_URL;
+      }
+    }
+    
+    // Check environment variables as fallback
+    // ...
+    
+    // Return default URL if not found
+    return DEFAULT_API_BASE_URL;
+  } catch (error) {
+    // Handle errors
+  }
+}
+```
+
+And the main.js uses this configuration:
+
+```javascript
+// In src/main.js
+const { getApiBaseUrl } = require('./config');
+
+// URL of the PWA - loaded from .env file
+const pwaUrl = getApiBaseUrl();
 ```
 
 ### Application Icons
@@ -93,6 +138,7 @@ Replace the placeholder icon files in the `assets` directory with your own icons
 ## Project Structure
 
 - `src/main.js`: Main process script
+- `src/config.js`: Configuration module that reads from the .env file
 - `src/preload.js`: Preload script for secure renderer process
 - `assets/`: Application icons and resources
 - `package.json`: Project configuration and dependencies

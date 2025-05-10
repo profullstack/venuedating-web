@@ -4,7 +4,7 @@ A simple Android app that uses WebView to load the PDF Converter PWA from the pr
 
 ## Features
 
-- Loads the PWA from https://profullstack.com/pdf
+- Loads the PWA from the URL specified in the project's root .env file
 - Supports all PWA features through WebView
 - Pull-to-refresh functionality
 - Handles back navigation within the WebView
@@ -27,17 +27,51 @@ A simple Android app that uses WebView to load the PDF Converter PWA from the pr
 ## Project Structure
 
 - `MainActivity.kt`: Main activity with WebView implementation
+- `Config.kt`: Configuration class that reads from the .env file
 - `activity_main.xml`: Main layout with WebView and SwipeRefreshLayout
 - `AndroidManifest.xml`: App configuration and permissions
 - `build.gradle`: Project and app-level build configurations
 
-## Customization
+## Configuration
 
-To change the URL of the PWA, modify the `pwaUrl` variable in `MainActivity.kt`:
+The app reads the PWA URL from the `API_BASE_URL` variable in the project's root `.env` file. This allows you to easily switch between different environments (development, staging, production) by modifying a single configuration file.
+
+### How It Works
+
+The `Config.kt` file reads the API_BASE_URL from the .env file:
 
 ```kotlin
-// URL of the PWA
-private val pwaUrl = "https://profullstack.com/pdf"
+// In Config.kt
+object Config {
+    // Default fallback URL
+    private const val DEFAULT_API_BASE_URL = "https://profullstack.com/pdf"
+    
+    // Get API base URL from .env file
+    fun getApiBaseUrl(context: Context): String {
+        // Try to find and parse the .env file
+        // ...parsing logic...
+        
+        // Return default URL if .env file not found or error occurs
+        return DEFAULT_API_BASE_URL
+    }
+}
+```
+
+And the MainActivity uses this configuration:
+
+```kotlin
+// In MainActivity.kt
+private lateinit var pwaUrl: String
+
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
+    
+    // Get API base URL from .env file
+    pwaUrl = Config.getApiBaseUrl(this)
+    
+    // ...rest of the code...
+}
 ```
 
 ## Additional WebView Settings

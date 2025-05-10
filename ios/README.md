@@ -4,7 +4,7 @@ A simple iOS app that uses WKWebView to load the PDF Converter PWA from the prod
 
 ## Features
 
-- Loads the PWA from https://profullstack.com/pdf
+- Loads the PWA from the URL specified in the project's root .env file
 - Supports all PWA features through WKWebView
 - Handles navigation within the app
 - Provides a native iOS experience for the web application
@@ -26,16 +26,39 @@ A simple iOS app that uses WKWebView to load the PDF Converter PWA from the prod
 - `AppDelegate.swift`: Main application delegate
 - `SceneDelegate.swift`: Scene management for iOS 13+
 - `ViewController.swift`: Main view controller with WebView implementation
+- `Config.swift`: Configuration class that reads from the .env file
 - `Info.plist`: App configuration
 - `LaunchScreen.storyboard`: Launch screen
 
-## Customization
+## Configuration
 
-To change the URL of the PWA, modify the `loadWebsite()` method in `ViewController.swift`:
+The app reads the PWA URL from the `API_BASE_URL` variable in the project's root `.env` file. This allows you to easily switch between different environments (development, staging, production) by modifying a single configuration file.
+
+### How It Works
+
+The `Config.swift` file reads the API_BASE_URL from the .env file:
+
+```swift
+// In Config.swift
+static let apiBaseURL: String = {
+    // Try to read from environment variables first (for CI/CD)
+    if let envURL = ProcessInfo.processInfo.environment["API_BASE_URL"] {
+        return envURL
+    }
+    
+    // Then try to read from .env file in the project root
+    // ...parsing logic...
+    
+    // Fallback to default URL
+    return "https://profullstack.com/pdf"
+}()
+```
+
+And the ViewController uses this configuration:
 
 ```swift
 private func loadWebsite() {
-    if let url = URL(string: "https://profullstack.com/pdf") {
+    if let url = URL(string: Config.apiBaseURL) {
         let request = URLRequest(url: url)
         webView.load(request)
     }

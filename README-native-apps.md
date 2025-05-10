@@ -46,39 +46,66 @@ The desktop app uses Electron to load the PWA from the production website. It pr
 
 See the [Desktop README](./desktop/README.md) for detailed instructions on building and running the desktop app.
 
-## Customization
+## Configuration
 
-All apps can be easily customized to point to different environments (development, staging, production) by modifying the URL in the respective WebView implementation.
+All apps are configured to load the PWA URL from the `API_BASE_URL` variable in the project's root `.env` file. This allows you to easily switch between different environments (development, staging, production) by modifying a single configuration file.
 
-### iOS URL Configuration
+### .env Configuration
 
-In `ios/PDFConverter/PDFConverter/ViewController.swift`:
+In the project root's `.env` file:
+
+```
+API_BASE_URL=https://profullstack.com/pdf
+```
+
+### How Each App Reads the Configuration
+
+#### iOS App
+
+The iOS app uses a `Config.swift` file that reads from the `.env` file in the project root:
 
 ```swift
-private func loadWebsite() {
-    if let url = URL(string: "https://profullstack.com/pdf") {
-        let request = URLRequest(url: url)
-        webView.load(request)
-    }
+// In Config.swift
+static let apiBaseURL: String = {
+    // Try to read from .env file in the project root
+    // Falls back to default URL if not found
+}()
+
+// In ViewController.swift
+if let url = URL(string: Config.apiBaseURL) {
+    let request = URLRequest(url: url)
+    webView.load(request)
 }
 ```
 
-### Android URL Configuration
+#### Android App
 
-In `android/PDFConverter/app/src/main/java/com/profullstack/pdfconverter/MainActivity.kt`:
+The Android app uses a `Config.kt` file that reads from the `.env` file in the project root:
 
 ```kotlin
-// URL of the PWA
-private val pwaUrl = "https://profullstack.com/pdf"
+// In Config.kt
+fun getApiBaseUrl(context: Context): String {
+    // Try to read from .env file in the project root
+    // Falls back to default URL if not found
+}
+
+// In MainActivity.kt
+pwaUrl = Config.getApiBaseUrl(this)
 ```
 
-### Desktop URL Configuration
+#### Desktop App
 
-In `desktop/src/main.js`:
+The desktop app uses a `config.js` file that reads from the `.env` file in the project root:
 
 ```javascript
-// URL of the PWA
-const pwaUrl = 'https://profullstack.com/pdf';
+// In config.js
+function getApiBaseUrl() {
+    // Try to read from .env file in the project root
+    // Falls back to default URL if not found
+}
+
+// In main.js
+const pwaUrl = getApiBaseUrl();
 ```
 
 ## Benefits of Native WebView Apps
