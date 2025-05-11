@@ -4,6 +4,7 @@ import WebKit
 class ViewController: UIViewController, WKNavigationDelegate {
     private var webView: WKWebView!
     private var progressView: UIProgressView!
+    private var bottomNavigationBar: BottomNavigationBar!
     private var observation: NSKeyValueObservation?
     
     override func viewDidLoad() {
@@ -12,6 +13,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         setupWebView()
         setupProgressView()
         setupNavigationBar()
+        setupBottomNavigationBar()
         loadWebsite()
     }
     
@@ -25,7 +27,12 @@ class ViewController: UIViewController, WKNavigationDelegate {
         preferences.allowsContentJavaScript = true
         configuration.defaultWebpagePreferences = preferences
         
-        webView = WKWebView(frame: view.bounds, configuration: configuration)
+        // Create webView with adjusted frame to account for bottom navigation bar
+        let bottomBarHeight: CGFloat = 56
+        var webViewFrame = view.bounds
+        webViewFrame.size.height -= bottomBarHeight
+        
+        webView = WKWebView(frame: webViewFrame, configuration: configuration)
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         webView.navigationDelegate = self
         view.addSubview(webView)
@@ -59,6 +66,25 @@ class ViewController: UIViewController, WKNavigationDelegate {
             target: self,
             action: #selector(refreshTapped)
         )
+    }
+    
+    private func setupBottomNavigationBar() {
+        let bottomBarHeight: CGFloat = 56
+        let bottomBarFrame = CGRect(
+            x: 0,
+            y: view.bounds.height - bottomBarHeight,
+            width: view.bounds.width,
+            height: bottomBarHeight
+        )
+        
+        bottomNavigationBar = BottomNavigationBar(frame: bottomBarFrame)
+        bottomNavigationBar.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        view.addSubview(bottomNavigationBar)
+        
+        // Set up home button action
+        bottomNavigationBar.onHomeTapped = { [weak self] in
+            self?.loadWebsite()
+        }
     }
     
     private func loadWebsite() {

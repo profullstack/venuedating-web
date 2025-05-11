@@ -27,6 +27,6 @@ struct Config {
         }
         
         // Fallback to default URL
-        return "https://profullstack.com/pdf"
+        return "https://convert2doc.com"
     }()
 }
