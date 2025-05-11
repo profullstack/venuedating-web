@@ -3,7 +3,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 // Default fallback URL
-const DEFAULT_API_BASE_URL = 'https://profullstack.com/pdf';
+const DEFAULT_API_BASE_URL = 'https://convert2doc.com';
 
 // Function to get API base URL from .env file
 function getApiBaseUrl() {

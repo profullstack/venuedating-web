@@ -18,8 +18,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // You can inject custom CSS or JS here if needed for desktop-specific features
   
   // Example: Add a class to the body to enable desktop-specific styles
-  document.body.classList.add('electron-app');
+  document.body.classList.add('convert2doc-desktop-app');
   
   // Example: Log when the app is fully loaded
-  console.log('PDF Converter Desktop App loaded');
+  console.log('Convert2Doc Desktop App loaded - connecting to https://convert2doc.com');
 });

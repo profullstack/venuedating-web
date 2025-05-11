@@ -18,8 +18,7 @@ function createWindow() {
       contextIsolation: true, // Protect against prototype pollution
       webSecurity: true, // Enable web security
       preload: path.join(__dirname, 'preload.js') // Use a preload script
-    },
-    icon: path.join(__dirname, '../assets/icon.png')
+    }
   });
 
   // Load the PWA
@@ -91,7 +90,7 @@ function createMenu() {
         {
           label: 'About',
           click() {
-            shell.openExternal('https://profullstack.com/about');
+            shell.openExternal('https://convert2doc.com/about');
           }
         }
       ]

@@ -1,7 +1,7 @@
 {
-  "name": "pdf-converter-desktop",
+  "name": "convert2doc-desktop",
   "version": "1.0.0",
-  "description": "PDF Converter Desktop App",
+  "description": "Convert2Doc Desktop App",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
@@ -10,8 +10,9 @@
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux"
   },
-  "author": "ProFullStack",
+  "author": "ProFullStack <info@convert2doc.com>",
   "license": "MIT",
+  "homepage": "https://convert2doc.com",
   "devDependencies": {
     "electron": "^25.0.0",
     "electron-builder": "^24.0.0"
@@ -20,8 +21,8 @@
     "dotenv": "^16.0.3"
   },
   "build": {
-    "appId": "com.profullstack.pdfconverter",
-    "productName": "PDF Converter",
+    "appId": "com.convert2doc.app",
+    "productName": "Convert2Doc",
     "directories": {
       "output": "dist"
     },
@@ -30,29 +31,10 @@
       "assets/**/*",
       "package.json"
     ],
-    "mac": {
-      "category": "public.app-category.productivity",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "assets/icon.icns"
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
-      "icon": "assets/icon.ico"
-    },
     "linux": {
-      "target": [
-        "AppImage",
-        "deb",
-        "rpm"
-      ],
+      "target": ["AppImage"],
       "category": "Office",
-      "icon": "assets/icon.png"
+      "maintainer": "ProFullStack <info@convert2doc.com>"
     }
   }
 }
