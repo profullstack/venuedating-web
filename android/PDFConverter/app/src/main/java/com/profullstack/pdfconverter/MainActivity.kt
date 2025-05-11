@@ -8,6 +8,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -112,6 +113,20 @@ class MainActivity : AppCompatActivity() {
         // Load the PWA
         Log.d("PDFConverter", "Loading PWA URL: $pwaUrl")
         webView.loadUrl(pwaUrl)
+        
+        // Set up bottom navigation
+        setupBottomNavigation()
+    }
+    
+    /**
+     * Set up the bottom navigation bar
+     */
+    private fun setupBottomNavigation() {
+        val homeButton = findViewById<TextView>(R.id.homeButton)
+        homeButton.setOnClickListener {
+            // Navigate to home page
+            webView.loadUrl(pwaUrl)
+        }
     }
     
     // Handle back button to navigate within WebView history
