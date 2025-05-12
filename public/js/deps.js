@@ -7,18 +7,18 @@
  */
 
 // Import and re-export spa-router
-export { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router?no-dts';
+export { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router';
 
 // Import and re-export localizer
-export { localizer, _t } from 'https://esm.sh/@profullstack/localizer?no-dts';
+export { localizer, _t } from 'https://esm.sh/@profullstack/localizer';
 
 // Import and re-export enhanced-router
-export * as enhancedRouter from 'https://esm.sh/@profullstack/enhanced-router?no-dts';
+export * as enhancedRouter from 'https://esm.sh/@profullstack/enhanced-router';
 
 // Re-export other modules
-export * as apiKeyManager from 'https://esm.sh/@profullstack/api-key-manager?no-dts';
-export * as authSystem from 'https://esm.sh/@profullstack/auth-system?no-dts';
-export * as documentConverters from 'https://esm.sh/@profullstack/document-converters?no-dts';
-export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway?no-dts';
-export * as storageService from 'https://esm.sh/@profullstack/storage-service?no-dts';
-export * as websocketClient from 'https://esm.sh/@profullstack/websocket-client?no-dts';
+export * as apiKeyManager from 'https://esm.sh/@profullstack/api-key-manager';
+export * as authSystem from 'https://esm.sh/@profullstack/auth-system';
+export * as documentConverters from 'https://esm.sh/@profullstack/document-converters';
+export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway';
+export * as storageService from 'https://esm.sh/@profullstack/storage-service';
+export * as websocketClient from 'https://esm.sh/@profullstack/websocket-client';
