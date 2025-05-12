@@ -20,4 +20,3 @@ export * as apiKeyManager from 'https://esm.sh/@profullstack/api-key-manager@0.2
 export * as authSystem from 'https://esm.sh/@profullstack/auth-system@0.2.16';
 export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway@0.2.16';
 export * as storageService from 'https://esm.sh/@profullstack/storage-service@0.2.15';
-export * as websocketClient from 'https://esm.sh/@profullstack/websocket-client@0.2.16';
