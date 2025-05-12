@@ -18,5 +18,7 @@ export * as enhancedRouter from 'https://esm.sh/@profullstack/enhanced-router@0.
 // Re-export other modules
 export * as apiKeyManager from 'https://esm.sh/@profullstack/api-key-manager@0.2.13';
 export * as authSystem from 'https://esm.sh/@profullstack/auth-system@0.2.16';
+export * as documentConverters from 'https://esm.sh/@profullstack/document-converters@0.2.16';
 export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway@0.2.16';
+export * as stateManager from 'https://esm.sh/@profullstack/state-manager@0.5.17';
 export * as storageService from 'https://esm.sh/@profullstack/storage-service@0.2.15';
