@@ -22,3 +22,4 @@ export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway@0.
 export * as stateManager from 'https://esm.sh/@profullstack/state-manager@0.5.17';
 export * as storageService from 'https://esm.sh/@profullstack/storage-service@0.2.15';
 export { StoreConnector } from 'https://esm.sh/@profullstack/state-manager@0.5.17';
+export { createStateManager as createStore } from 'https://esm.sh/@profullstack/state-manager@0.5.17';
