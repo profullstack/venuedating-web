@@ -1,7 +1,7 @@
 /**
  * Router module for SPA navigation
  */
-import { Router, transitions, renderer, componentLoader } from './deps.js';
+import { Router, transitions, renderer, componentLoader, enhancedRouter } from './deps.js';
 import { localizer } from './i18n-setup.js';
 import {
   initLoginPage, 
@@ -215,8 +215,8 @@ export function createRouter(options = {}) {
     }
   });
   
-  // Create the router
-  const router = new Router({
+  // Create the router using enhancedRouter
+  const router = enhancedRouter.createEnhancedRouter({
     rootElement: options.rootElement || '#app',
     transition: customFade,
     renderer: renderer.createRenderer({
@@ -224,6 +224,7 @@ export function createRouter(options = {}) {
       applyRTLToDocument: localizer.applyRTLToDocument.bind(localizer),
       keepScripts: true // Keep script tags in views
     }),
+    i18n: localizer, // Pass the localizer to the enhanced router
     errorHandler: (path) => {
       console.log('Custom error handler called for path:', path);
       
