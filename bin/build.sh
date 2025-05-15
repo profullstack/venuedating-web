@@ -6,10 +6,6 @@ set -e
 # Script to build the project and copy modules
 echo "Starting build process..."
 
-# Run pnpm build
-echo "Running pnpm build..."
-pnpm build
-
 # Create modules directory if it doesn't exist
 echo "Setting up modules directory..."
 mkdir -p ./public/js/modules
