@@ -2,8 +2,15 @@
  * Example component demonstrating state manager integration
  */
 console.log('Loading state-example.js');
-import { StateMixin, defaultStateManager } from '../state-manager.js';
-console.log('Imported StateMixin and defaultStateManager');
+import { createStore, StoreConnector } from '../deps.js';
+console.log('Imported createStore and StoreConnector from deps.js');
+
+// Create a store for this component
+const store = createStore('stateExample', {
+  counter: 0,
+  theme: document.documentElement.getAttribute('data-theme') || 'light',
+  user: { loggedIn: false }
+});
 
 // Define a base component class
 class StateExampleBase extends HTMLElement {
@@ -241,22 +248,14 @@ class StateExampleBase extends HTMLElement {
   }
 }
 
-// Create the connected component using the StateMixin
-const StateExample = StateMixin()(StateExampleBase);
+// Create the connected component using the StoreConnector
+const StateExample = StoreConnector(store)(StateExampleBase);
 
 // Register the custom element
 customElements.define('state-example', StateExample);
 
 // Initialize default state if not already set
-document.addEventListener('DOMContentLoaded', () => {
-  // Only set initial values if they don't exist
-  if (defaultStateManager.getState('counter') === undefined) {
-    defaultStateManager.setState({
-      counter: 0,
-      theme: document.documentElement.getAttribute('data-theme') || 'light',
-      user: { loggedIn: false }
-    }, true); // Silent update to avoid unnecessary renders
-  }
-});
+// No need for DOMContentLoaded event handler as we're using a local store
+// that's already initialized with default values
 
 export default StateExample;
