@@ -7,10 +7,10 @@
  */
 
 // Import and re-export spa-router
-export { Router, transitions, renderer, componentLoader } from 'https://esm.sh/@profullstack/spa-router@1.11.8';
+export { Router, transitions, renderer, componentLoader } from './modules/spa-router/src/index.js';
 
 // Import and re-export state-manager
-export { createStore, StoreConnector } from 'https://esm.sh/@profullstack/state-manager@1.0.1';
+export { createStore, StoreConnector } from './modules/state-manager/src/index.js';
 
 // Import and re-export localizer
-export { localizer, _t } from 'https://esm.sh/@profullstack/localizer@0.5.0';
+export { localizer, _t } from './modules/localizer/src/index.js';
