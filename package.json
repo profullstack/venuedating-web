@@ -6,9 +6,10 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "pnpm build && nodemon src/index.js",
     "test": "node test.js",
-    "deploy": "./bin/deploy.sh",
+    "deploy": "pnpm build && ./bin/deploy.sh",
+    "build": "./bin/build.sh",
     "stripe:products": "node bin/create-stripe-products.js"
   },
   "keywords": [
