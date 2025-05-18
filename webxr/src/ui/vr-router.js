@@ -5,7 +5,7 @@
  * allowing for different "scenes" or "views" within the VR environment.
  */
 
-import { Router } from '@profullstack/spa-router';
+import { Router as SPARouter } from '@profullstack/spa-router';
 
 export class VRRouter extends HTMLElement {
   constructor() {
@@ -69,7 +69,7 @@ export class VRRouter extends HTMLElement {
     };
     
     // Initialize the router
-    this.router = new Router(routerConfig);
+    this.router = new SPARouter(routerConfig);
     
     // Navigate to the initial route
     const initialRoute = this.getAttribute('initial-route') || '/';
