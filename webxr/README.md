@@ -218,6 +218,62 @@ settingsPanel.addToggle(true, (checked) => {
 
 See the [UI Components Example](./examples/ui-components-example.html) for a complete demonstration.
 
+#### VR Router
+
+The WebXR experience includes a router component that integrates with @profullstack/spa-router, allowing for navigation between different "scenes" or "views" within the VR environment:
+
+```html
+<!-- Define routes using the vr-router component -->
+<vr-router id="vr-router" initial-route="/">
+  <vr-route path="/" component="vr-scene-home" title="Home"></vr-route>
+  <vr-route path="/gallery" component="vr-scene-gallery" title="Gallery"></vr-route>
+  <vr-route path="/settings" component="vr-scene-settings" title="Settings"></vr-route>
+</vr-router>
+```
+
+You can also navigate programmatically:
+
+```javascript
+// Get the router instance
+const vrRouter = document.getElementById('vr-router');
+
+// Navigate to a specific route
+vrRouter.navigate('/gallery');
+
+// Listen for route changes
+vrRouter.addEventListener('vr-route-changed', (event) => {
+  console.log('Route changed:', event.detail.route);
+});
+```
+
+Each route component is a web component that defines the content for that route:
+
+```javascript
+// Define a scene component for a route
+class VRSceneHome extends HTMLElement {
+  constructor() {
+    super();
+    this.attachShadow({ mode: 'open' });
+    
+    // Create scene content
+    const content = document.createElement('div');
+    content.innerHTML = `
+      <vr-ui-panel title="Home Scene" position="0,1.6,-1" follow-gaze>
+        <div>Welcome to the WebXR Router Example!</div>
+        <vr-button data-route="/gallery">Go to Gallery</vr-button>
+      </vr-ui-panel>
+    `;
+    
+    this.shadowRoot.appendChild(content);
+  }
+}
+
+// Register the component
+customElements.define('vr-scene-home', VRSceneHome);
+```
+
+See the [VR Router Example](./examples/vr-router-example.html) for a complete demonstration.
+
 ### Adding Sounds
 
 To add spatial audio:

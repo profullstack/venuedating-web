@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebXR Experience</title>
+  <title>WebXR Router Example</title>
   <!-- Import the main application's theme -->
   <link rel="stylesheet" href="/public/css/theme.css">
   <style>
@@ -12,8 +12,22 @@
       padding: 0;
       overflow: hidden;
       font-family: var(--font-family);
-      background-color: var(--background-color);
+    }
+    
+    #info {
+      position: absolute;
+      top: 10px;
+      width: 100%;
+      text-align: center;
       color: var(--text-primary);
+      background-color: var(--card-background);
+      padding: 10px;
+      z-index: 100;
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    #info a {
+      color: var(--primary-color);
     }
     
     #loading-overlay {
@@ -28,6 +42,7 @@
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      color: var(--text-primary);
       transition: opacity 0.5s ease;
     }
     
@@ -71,30 +86,6 @@
       background-color: var(--surface-variant);
     }
     
-    #info {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 100;
-      background-color: var(--card-background);
-      border-radius: var(--border-radius-md);
-      padding: 10px;
-      max-width: 300px;
-      box-shadow: var(--shadow-md);
-      border: 1px solid var(--border-color);
-    }
-    
-    #info h1 {
-      margin-top: 0;
-      font-size: var(--font-size-lg);
-      color: var(--primary-color);
-    }
-    
-    #info p {
-      margin-bottom: 0;
-      font-size: var(--font-size-sm);
-    }
-    
     #navigation {
       position: absolute;
       bottom: 20px;
@@ -122,12 +113,38 @@
       transform: translateY(-2px);
     }
     
-    .nav-button.active {
-      background-color: var(--accent-color);
+    /* VR Scene Components */
+    .vr-scene {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Home Scene */
+    vr-scene-home {
+      --scene-color: var(--primary-color);
+    }
+    
+    /* Gallery Scene */
+    vr-scene-gallery {
+      --scene-color: var(--secondary-color);
+    }
+    
+    /* Settings Scene */
+    vr-scene-settings {
+      --scene-color: var(--accent-color);
     }
   </style>
 </head>
 <body>
+  <button id="theme-toggle">Toggle Dark Mode</button>
+  
+  <div id="info">
+    <h1>WebXR Router Example</h1>
+    <p>This example demonstrates how to use the VR Router component with @profullstack/spa-router.</p>
+    <p>Click the 'Enter VR' button to experience in VR.</p>
+  </div>
+  
   <div id="loading-overlay">
     <h2>Loading WebXR Experience</h2>
     <div id="loading-progress">
@@ -135,15 +152,8 @@
     </div>
   </div>
   
-  <button id="theme-toggle">Toggle Dark Mode</button>
-  
-  <div id="info">
-    <h1>WebXR Experience</h1>
-    <p>Click the 'Enter VR' button to start the experience.</p>
-  </div>
-  
   <div id="navigation">
-    <button class="nav-button active" data-route="/">Home</button>
+    <button class="nav-button" data-route="/">Home</button>
     <button class="nav-button" data-route="/gallery">Gallery</button>
     <button class="nav-button" data-route="/settings">Settings</button>
   </div>
@@ -167,11 +177,8 @@
   </script>
   
   <script type="module">
-    // Import components and modules
-    import { VRRouter, VRRoute } from './src/ui/vr-router.js';
-    import { VRSceneHome } from './src/scenes/home-scene.js';
-    import { VRSceneGallery } from './src/scenes/gallery-scene.js';
-    import { VRSceneSettings } from './src/scenes/settings-scene.js';
+    // Import the VR Router component
+    import { VRRouter, VRRoute } from '../src/ui/vr-router.js';
     
     // Theme toggle functionality
     const themeToggle = document.getElementById('theme-toggle');
@@ -227,6 +234,121 @@
       });
     });
     
+    // Define VR Scene Components
+    class VRSceneHome extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        
+        // Add the theme stylesheet
+        const linkElem = document.createElement('link');
+        linkElem.setAttribute('rel', 'stylesheet');
+        linkElem.setAttribute('href', '/webxr/src/ui/vr-theme.css');
+        
+        // Create scene content
+        const content = document.createElement('div');
+        content.className = 'vr-scene';
+        content.innerHTML = `
+          <vr-ui-panel title="Home Scene" position="0,1.6,-1" follow-gaze>
+            <div>Welcome to the WebXR Router Example!</div>
+            <div>This is the Home scene.</div>
+            <vr-button data-route="/gallery">Go to Gallery</vr-button>
+            <vr-button data-route="/settings">Go to Settings</vr-button>
+          </vr-ui-panel>
+        `;
+        
+        this.shadowRoot.appendChild(linkElem);
+        this.shadowRoot.appendChild(content);
+        
+        // Add event listeners
+        this.shadowRoot.addEventListener('click', (event) => {
+          const button = event.target.closest('vr-button');
+          if (button) {
+            const route = button.getAttribute('data-route');
+            if (route) {
+              vrRouter.navigate(route);
+            }
+          }
+        });
+      }
+    }
+    
+    class VRSceneGallery extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        
+        // Add the theme stylesheet
+        const linkElem = document.createElement('link');
+        linkElem.setAttribute('rel', 'stylesheet');
+        linkElem.setAttribute('href', '/webxr/src/ui/vr-theme.css');
+        
+        // Create scene content
+        const content = document.createElement('div');
+        content.className = 'vr-scene';
+        content.innerHTML = `
+          <vr-ui-panel title="Gallery Scene" position="0,1.6,-1" follow-gaze>
+            <div>This is the Gallery scene.</div>
+            <div>Here you can view 3D models and images.</div>
+            <vr-button data-route="/">Go to Home</vr-button>
+            <vr-button data-route="/settings">Go to Settings</vr-button>
+          </vr-ui-panel>
+        `;
+        
+        this.shadowRoot.appendChild(linkElem);
+        this.shadowRoot.appendChild(content);
+        
+        // Add event listeners
+        this.shadowRoot.addEventListener('click', (event) => {
+          const button = event.target.closest('vr-button');
+          if (button) {
+            const route = button.getAttribute('data-route');
+            if (route) {
+              vrRouter.navigate(route);
+            }
+          }
+        });
+      }
+    }
+    
+    class VRSceneSettings extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+        
+        // Add the theme stylesheet
+        const linkElem = document.createElement('link');
+        linkElem.setAttribute('rel', 'stylesheet');
+        linkElem.setAttribute('href', '/webxr/src/ui/vr-theme.css');
+        
+        // Create scene content
+        const content = document.createElement('div');
+        content.className = 'vr-scene';
+        content.innerHTML = `
+          <vr-ui-panel title="Settings Scene" position="0,1.6,-1" follow-gaze>
+            <div>This is the Settings scene.</div>
+            <div>Here you can adjust your VR preferences.</div>
+            <vr-button data-route="/">Go to Home</vr-button>
+            <vr-button data-route="/gallery">Go to Gallery</vr-button>
+          </vr-ui-panel>
+        `;
+        
+        this.shadowRoot.appendChild(linkElem);
+        this.shadowRoot.appendChild(content);
+        
+        // Add event listeners
+        this.shadowRoot.addEventListener('click', (event) => {
+          const button = event.target.closest('vr-button');
+          if (button) {
+            const route = button.getAttribute('data-route');
+            if (route) {
+              vrRouter.navigate(route);
+            }
+          }
+        });
+      }
+    }
+    
     // Register the VR Scene Components
     customElements.define('vr-scene-home', VRSceneHome);
     customElements.define('vr-scene-gallery', VRSceneGallery);
@@ -245,11 +367,6 @@
           button.classList.remove('active');
         }
       });
-      
-      // Update info text
-      const info = document.getElementById('info');
-      const title = event.detail.route.title || 'WebXR Experience';
-      info.querySelector('h1').textContent = title;
     });
   </script>
 </body>
