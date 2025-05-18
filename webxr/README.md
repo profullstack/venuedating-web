@@ -160,6 +160,64 @@ scene.add(myObject);
 controllerManager.registerInteractable(myObject);
 ```
 
+### Using Web Components for UI
+
+The WebXR experience includes a set of Web Components for creating UI elements in VR:
+
+#### VR UI Panel
+
+The `<vr-ui-panel>` component creates a panel that can be positioned in 3D space, attached to controllers, or set to follow the user's gaze:
+
+```html
+<!-- Create a panel that follows the user's gaze -->
+<vr-ui-panel title="Settings" follow-gaze>
+  <!-- Panel content goes here -->
+</vr-ui-panel>
+
+<!-- Create a panel attached to a controller -->
+<vr-ui-panel title="Controller Menu" controller-attached controller-index="0">
+  <!-- Panel content goes here -->
+</vr-ui-panel>
+
+<!-- Create a panel fixed in the world -->
+<vr-ui-panel title="World Panel" position="0,1.6,-1" rotation="0,0,0">
+  <!-- Panel content goes here -->
+</vr-ui-panel>
+```
+
+You can also create panels programmatically using the VRUIManager:
+
+```javascript
+// Create a VR UI Manager
+const uiManager = new VRUIManager({
+  scene: scene,
+  camera: camera,
+  controllers: controllers
+});
+
+// Create a settings panel
+const settingsPanel = uiManager.createSettingsPanel({
+  title: 'VR Settings',
+  position: { x: 0, y: 1.6, z: -1 },
+  followGaze: true
+});
+
+// Add UI elements to the panel
+settingsPanel.addButton('Reset Position', () => {
+  // Reset the user's position
+});
+
+settingsPanel.addSlider(0, 100, 50, (value) => {
+  // Handle slider change
+}, 'Volume');
+
+settingsPanel.addToggle(true, (checked) => {
+  // Handle toggle change
+}, 'Enable Teleportation');
+```
+
+See the [UI Components Example](./examples/ui-components-example.html) for a complete demonstration.
+
 ### Adding Sounds
 
 To add spatial audio:
@@ -204,6 +262,24 @@ import { integrateWebXR } from './webxr/hono-integration.js';
 // Integrate WebXR experience at /webxr path
 integrateWebXR(app);
 ```
+
+### Theme Integration
+
+The WebXR UI components use the main application's theme.css file to ensure a consistent look and feel. The UI components automatically adapt to theme changes, including dark mode support.
+
+```css
+/* WebXR UI components use the main application's theme variables */
+@import url('/public/css/theme.css');
+
+.vr-panel {
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  border: 2px solid var(--primary-color);
+  /* ... */
+}
+```
+
+This ensures that the WebXR experience looks and feels like a natural extension of the main application, with consistent colors, typography, and styling.
 
 ### Other Integration Options
 
