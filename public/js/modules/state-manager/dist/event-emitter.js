@@ -6,45 +6,11 @@
  */
 
 /**
- * Custom EventEmitter class using browser's native EventTarget or a fallback implementation
+ * Custom EventEmitter class using browser's native EventTarget
  */
 export class EventEmitter {
   constructor() {
-    try {
-      // Check if EventTarget is supported
-      if (typeof EventTarget === 'function') {
-        this._eventTarget = new EventTarget();
-      } else {
-        // Fallback for environments without EventTarget
-        this._eventTarget = {
-          addEventListener: (event, listener) => {
-            // No-op in fallback
-          },
-          removeEventListener: (event, listener) => {
-            // No-op in fallback
-          },
-          dispatchEvent: (event) => {
-            return true; // Always return true in fallback
-          }
-        };
-        console.warn('[EventEmitter] EventTarget not supported, using fallback implementation');
-      }
-    } catch (error) {
-      console.error('[EventEmitter] Error creating EventTarget:', error);
-      // Fallback implementation
-      this._eventTarget = {
-        addEventListener: (event, listener) => {
-          // No-op in fallback
-        },
-        removeEventListener: (event, listener) => {
-          // No-op in fallback
-        },
-        dispatchEvent: (event) => {
-          return true; // Always return true in fallback
-        }
-      };
-    }
-    
+    this._eventTarget = new EventTarget();
     this._listeners = new Map();
   }
 
@@ -161,46 +127,11 @@ export class EventEmitter {
    * @returns {boolean} Whether the event had listeners
    */
   emit(event, ...args) {
-    try {
-      let customEvent;
-      
-      // Check if CustomEvent is supported
-      if (typeof CustomEvent === 'function') {
-        customEvent = new CustomEvent(event, {
-          detail: args
-        });
-      } else {
-        // Fallback for environments without CustomEvent
-        customEvent = {
-          type: event,
-          detail: args,
-          preventDefault: () => {},
-          stopPropagation: () => {}
-        };
-        console.warn('[EventEmitter] CustomEvent not supported, using fallback implementation');
-      }
-      
-      // Try to dispatch the event
-      try {
-        this._eventTarget.dispatchEvent(customEvent);
-      } catch (dispatchError) {
-        console.error('[EventEmitter] Error dispatching event:', dispatchError);
-        
-        // Manual dispatch fallback
-        if (this._listeners.has(event)) {
-          const listeners = this._listeners.get(event);
-          for (const listener of listeners) {
-            try {
-              listener(...args);
-            } catch (listenerError) {
-              console.error('[EventEmitter] Error in event listener:', listenerError);
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error('[EventEmitter] Error in emit:', error);
-    }
+    const customEvent = new CustomEvent(event, {
+      detail: args
+    });
+    
+    this._eventTarget.dispatchEvent(customEvent);
     
     return this._listeners.has(event) && this._listeners.get(event).size > 0;
   }

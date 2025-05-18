@@ -9,20 +9,7 @@
  * @param {Object} stateManager - State manager instance
  * @returns {Object} Web component integration utilities
  */
-export function createWebComponentIntegration(stateManager = null) {
-  // Create a simple state manager if none is provided
-  const simpleStateManager = stateManager || {
-    getState(path) {
-      return {};
-    },
-    setState(update, options) {
-      return {};
-    },
-    subscribe(callback, paths) {
-      // Return a no-op unsubscribe function
-      return () => {};
-    }
-  };
+export function createWebComponentIntegration(stateManager) {
   /**
    * Create a connected web component
    * @param {string} tagName - Custom element tag name
@@ -48,22 +35,7 @@ export function createWebComponentIntegration(stateManager = null) {
     };
     
     // Create a new class that extends the base component
-    // Handle case where BaseComponent might be undefined or null
-    let ParentClass;
-    
-    try {
-      // Ensure BaseComponent is a valid constructor or use HTMLElement as fallback
-      if (BaseComponent && typeof BaseComponent === 'function') {
-        ParentClass = BaseComponent;
-      } else {
-        ParentClass = HTMLElement;
-      }
-    } catch (error) {
-      console.error('[state-manager] Error creating parent class:', error);
-      ParentClass = HTMLElement;
-    }
-    
-    const ConnectedComponent = class extends ParentClass {
+    const ConnectedComponent = class extends BaseComponent {
       constructor() {
         super();
         
@@ -97,7 +69,7 @@ export function createWebComponentIntegration(stateManager = null) {
        * @returns {any} The requested state
        */
       getState(path) {
-        return simpleStateManager.getState(path);
+        return stateManager.getState(path);
       }
       
       /**
@@ -107,7 +79,7 @@ export function createWebComponentIntegration(stateManager = null) {
        * @returns {Object} The new state
        */
       setState(update, options) {
-        return simpleStateManager.setState(update, options);
+        return stateManager.setState(update, options);
       }
       
       /**
@@ -151,14 +123,14 @@ export function createWebComponentIntegration(stateManager = null) {
         }
         
         // Subscribe to state changes
-        this._stateUnsubscribe = simpleStateManager.subscribe(
+        this._stateUnsubscribe = stateManager.subscribe(
           this._handleStateChange.bind(this),
           config.statePaths
         );
         
         // Initial state update
         if (typeof config.mapStateToProps === 'function') {
-          const fullState = simpleStateManager.getState();
+          const fullState = stateManager.getState();
           const props = config.mapStateToProps(fullState, this);
           
           // Update component properties
@@ -223,22 +195,7 @@ export function createWebComponentIntegration(stateManager = null) {
     };
     
     return (BaseClass) => {
-      // Handle case where BaseClass might be undefined or null
-      let ParentClass;
-      
-      try {
-        // Ensure BaseClass is a valid constructor or use HTMLElement as fallback
-        if (BaseClass && typeof BaseClass === 'function') {
-          ParentClass = BaseClass;
-        } else {
-          ParentClass = HTMLElement;
-        }
-      } catch (error) {
-        console.error('[state-manager] Error creating parent class:', error);
-        ParentClass = HTMLElement;
-      }
-      
-      return class extends ParentClass {
+      return class extends BaseClass {
         constructor() {
           super();
           
@@ -281,7 +238,7 @@ export function createWebComponentIntegration(stateManager = null) {
           }
           
           // Subscribe to state changes
-          this._stateUnsubscribe = simpleStateManager.subscribe(
+          this._stateUnsubscribe = stateManager.subscribe(
             this._handleStateChange.bind(this),
             this._statePaths
           );
@@ -295,7 +252,7 @@ export function createWebComponentIntegration(stateManager = null) {
          * @returns {any} The requested state
          */
         getState(path) {
-          return simpleStateManager.getState(path);
+          return stateManager.getState(path);
         }
         
         /**
@@ -305,7 +262,7 @@ export function createWebComponentIntegration(stateManager = null) {
          * @returns {Object} The new state
          */
         setState(update, options) {
-          return simpleStateManager.setState(update, options);
+          return stateManager.setState(update, options);
         }
         
         /**
@@ -350,7 +307,7 @@ export function createWebComponentIntegration(stateManager = null) {
           
           // Subscribe to state changes if not already subscribed
           if (!this._stateUnsubscribe && this._statePaths.length > 0) {
-            this._stateUnsubscribe = simpleStateManager.subscribe(
+            this._stateUnsubscribe = stateManager.subscribe(
               this._handleStateChange.bind(this),
               this._statePaths
             );
@@ -358,7 +315,7 @@ export function createWebComponentIntegration(stateManager = null) {
           
           // Initial state update
           if (typeof config.mapStateToProps === 'function') {
-            const fullState = simpleStateManager.getState();
+            const fullState = stateManager.getState();
             const props = config.mapStateToProps(fullState, this);
             
             // Update component properties
@@ -408,22 +365,7 @@ export function createWebComponentIntegration(stateManager = null) {
     };
     
     return (BaseElement) => {
-      // Handle case where BaseElement might be undefined or null
-      let ParentClass;
-      
-      try {
-        // Ensure BaseElement is a valid constructor or use HTMLElement as fallback
-        if (BaseElement && typeof BaseElement === 'function') {
-          ParentClass = BaseElement;
-        } else {
-          ParentClass = HTMLElement;
-        }
-      } catch (error) {
-        console.error('[state-manager] Error creating parent class:', error);
-        ParentClass = HTMLElement;
-      }
-      
-      return class extends ParentClass {
+      return class extends BaseElement {
         constructor() {
           super();
           this._stateUnsubscribe = null;
@@ -433,14 +375,14 @@ export function createWebComponentIntegration(stateManager = null) {
           super.connectedCallback();
           
           // Subscribe to state changes
-          this._stateUnsubscribe = simpleStateManager.subscribe(
+          this._stateUnsubscribe = stateManager.subscribe(
             this._handleStateChange.bind(this),
             config.statePaths
           );
           
           // Initial state update
           if (typeof config.mapStateToProps === 'function') {
-            const state = simpleStateManager.getState();
+            const state = stateManager.getState();
             const props = config.mapStateToProps(state, this);
             
             // Update component properties
@@ -482,11 +424,11 @@ export function createWebComponentIntegration(stateManager = null) {
         }
         
         getState(path) {
-          return simpleStateManager.getState(path);
+          return stateManager.getState(path);
         }
         
         setState(update, options) {
-          return simpleStateManager.setState(update, options);
+          return stateManager.setState(update, options);
         }
       };
     };
@@ -505,7 +447,7 @@ export function createWebComponentIntegration(stateManager = null) {
  * @param {Object} stateManager - State manager instance
  * @returns {Function} State mixin factory function
  */
-export function StateMixin(stateManager = null) {
+export function StateMixin(stateManager) {
   return (options = {}) => {
     const integration = createWebComponentIntegration(stateManager);
     return integration.createStateMixin(options);
@@ -517,10 +459,10 @@ export function StateMixin(stateManager = null) {
  * @param {string} tagName - Custom element tag name
  * @param {class} BaseComponent - Base component class
  * @param {Object} options - Configuration options
- * @param {Object} stateManager - State manager instance (optional)
+ * @param {Object} stateManager - State manager instance
  * @returns {class} Connected component class
  */
-export function createConnectedComponent(tagName, BaseComponent, options = {}, stateManager = null) {
+export function createConnectedComponent(tagName, BaseComponent, options = {}, stateManager) {
   const integration = createWebComponentIntegration(stateManager);
   return integration.createConnectedComponent(tagName, BaseComponent, options);
 }

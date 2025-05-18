@@ -5,7 +5,7 @@
  * This implementation is compatible with the usage in simple-counter.js.
  */
 
-// Removed import to avoid circular dependency
+import defaultStateManager from './index.js';
 
 /**
  * Create a store for state management
@@ -70,22 +70,7 @@ export function createStore(name, initialState = {}) {
  */
 export function StoreConnector(store) {
   return (BaseComponent) => {
-    // Handle case where BaseComponent might be undefined or null
-    let ParentClass;
-    
-    try {
-      // Ensure BaseComponent is a valid constructor or use HTMLElement as fallback
-      if (BaseComponent && typeof BaseComponent === 'function') {
-        ParentClass = BaseComponent;
-      } else {
-        ParentClass = HTMLElement;
-      }
-    } catch (error) {
-      console.error('[state-manager] Error creating parent class in StoreConnector:', error);
-      ParentClass = HTMLElement;
-    }
-    
-    return class extends ParentClass {
+    return class extends BaseComponent {
       constructor() {
         super();
         this._storeUnsubscribe = null;
