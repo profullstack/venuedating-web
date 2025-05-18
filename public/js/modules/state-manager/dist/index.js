@@ -8,7 +8,14 @@ import { EventEmitter } from './event-emitter.js';
 import { createPersistenceManager } from './persistence.js';
 import { createWebComponentIntegration } from './web-components.js';
 import { createMiddlewareManager } from './middleware.js';
-import logger from '../logger.js';
+
+// Create a simple logger to avoid dependency issues
+const logger = {
+  info: (msg) => console.log('[state-manager]', msg),
+  debug: () => {},
+  warn: (msg) => console.warn('[state-manager]', msg),
+  error: (msg) => console.error('[state-manager]', msg)
+};
 
 logger.info('Initializing state-manager module');
 

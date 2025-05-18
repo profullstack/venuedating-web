@@ -1,19 +1,39 @@
 /**
- * Example component demonstrating state manager integration
+ * Example component demonstrating state management
  */
 console.log('Loading state-example.js');
-import { createStateManager, createConnectedComponent } from '../modules/state-manager/dist/index.js';
-console.log('Imported createStateManager from state-manager module');
 
-// Create a state manager with initial state
-const stateManager = createStateManager({
+// Create a simple state object with a Proxy for reactivity
+const createSimpleState = (initialState = {}) => {
+  const listeners = new Set();
+  
+  const state = new Proxy(initialState, {
+    set(target, property, value) {
+      const oldValue = target[property];
+      target[property] = value;
+      
+      if (oldValue !== value) {
+        listeners.forEach(listener => listener(value, property, target));
+      }
+      
+      return true;
+    }
+  });
+  
+  return {
+    state,
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    }
+  };
+};
+
+// Create a state store with initial state
+const stateStore = createSimpleState({
   counter: 0,
   theme: document.documentElement.getAttribute('data-theme') || 'light',
   user: { loggedIn: false }
-}, {
-  enablePersistence: true,
-  persistenceKey: 'state_example',
-  debug: true
 });
 
 // Define the component class
@@ -22,31 +42,48 @@ class StateExampleElement extends HTMLElement {
     super();
     console.log('StateExampleElement constructor called');
     this.attachShadow({ mode: 'open' });
+    this._unsubscribe = null;
   }
 
   connectedCallback() {
     console.log('StateExampleElement connected to DOM');
+    
+    // Subscribe to state changes
+    this._unsubscribe = stateStore.subscribe((value, property, fullState) => {
+      console.log('State changed in component:', property);
+      console.log('New state:', fullState);
+      console.log('State value:', value);
+      
+      // Re-render the component
+      this.render();
+      
+      // If the theme changed, update the document theme
+      if (property === 'theme') {
+        document.documentElement.setAttribute('data-theme', value);
+      }
+    });
+    
     this.render();
   }
-
-  /**
-   * This method will be called when state changes
-   * @param {object} state - The current state
-   * @param {string} path - The path that changed
-   * @param {object} fullState - The full state object
-   */
-  stateChanged(state, path, fullState) {
-    console.log('State changed in component:', path);
-    console.log('New state:', fullState);
-    console.log('State value:', state);
-    
-    // Re-render the component
-    this.render();
-    
-    // If the theme changed, update the document theme
-    if (path === 'theme') {
-      document.documentElement.setAttribute('data-theme', state);
+  
+  disconnectedCallback() {
+    // Clean up subscription when element is removed
+    if (this._unsubscribe) {
+      this._unsubscribe();
+      this._unsubscribe = null;
     }
+  }
+
+  // Helper method to get state
+  getState(property) {
+    return stateStore.state[property];
+  }
+  
+  // Helper method to set state
+  setState(updates) {
+    Object.entries(updates).forEach(([key, value]) => {
+      stateStore.state[key] = value;
+    });
   }
 
   render() {
@@ -212,9 +249,7 @@ class StateExampleElement extends HTMLElement {
   }
 }
 
-// Register the component with the state manager
-createConnectedComponent('state-example', StateExampleElement, {
-  statePaths: ['counter', 'theme', 'user']
-}, stateManager);
+// Register the custom element
+customElements.define('state-example', StateExampleElement);
 
 export default StateExampleElement;

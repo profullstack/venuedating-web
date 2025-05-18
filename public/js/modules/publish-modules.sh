@@ -5,7 +5,7 @@
 # Features:
 # - Version bumping (patch, minor, major)
 # - Local linking for testing
-# - Publishing to npm
+# - Publishing to npm and JSR
 # - Building modules before publishing
 # - Dependency management
 
@@ -85,7 +85,7 @@ show_help() {
   echo -e "${BOLD}Usage:${RESET}"
   echo -e "  ./publish-modules.sh [options] <action>\n"
   echo -e "${BOLD}Actions:${RESET}"
-  echo -e "  ${BOLD}publish${RESET}    Publish modules to npm registry"
+  echo -e "  ${BOLD}publish${RESET}    Publish modules to npm registry and JSR"
   echo -e "  ${BOLD}version${RESET}    Bump version of modules"
   echo -e "  ${BOLD}link${RESET}       Create symlinks for local development"
   echo -e "  ${BOLD}unlink${RESET}     Remove symlinks created by link action"
@@ -473,6 +473,20 @@ bump_version() {
       
       echo -e "${GREEN}Bumped version from ${BOLD}v${current_version}${RESET}${GREEN} to ${BOLD}v${new_version}${RESET}"
       
+      # Update version in jsr.json if it exists
+      if [[ -f "jsr.json" ]]; then
+        echo -e "${BLUE}Updating version in jsr.json...${RESET}"
+        # Use sed to update the version in jsr.json
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+          # macOS requires an empty string for -i
+          sed -i '' "s/\"version\": *\"$current_version\"/\"version\": \"$new_version\"/" jsr.json
+        else
+          # Linux doesn't require an empty string for -i
+          sed -i "s/\"version\": *\"$current_version\"/\"version\": \"$new_version\"/" jsr.json
+        fi
+        echo -e "${GREEN}Updated version in jsr.json to ${BOLD}v${new_version}${RESET}"
+      fi
+      
       # Install dependencies
       echo -e "${BLUE}Installing dependencies...${RESET}"
       $PACKAGE_MANAGER install
@@ -604,13 +618,13 @@ unlink_module() {
   return $return_code
 }
 
-# Publish a module to npm
+# Publish a module to npm and JSR
 publish_module() {
   local module_name="$1"
   local module_dir="$2"
   local return_code=0
   
-  echo -e "${BLUE}Publishing ${BOLD}${SCOPE}/${module_name}${RESET} to npm registry..."
+  echo -e "${BLUE}Publishing ${BOLD}${SCOPE}/${module_name}${RESET} to npm registry and JSR..."
   
   if [[ "$DRY_RUN" == true ]]; then
     echo -e "${YELLOW}[DRY RUN] Would publish ${SCOPE}/${module_name}${RESET}"
@@ -656,11 +670,30 @@ publish_module() {
       yarn publish --registry "$REGISTRY" --access public
     fi
     
-    if [[ $? -eq 0 ]]; then
-      echo -e "${GREEN}Successfully published ${SCOPE}/${module_name}@${version}${RESET}"
+    local npm_result=$?
+    
+    if [[ $npm_result -eq 0 ]]; then
+      echo -e "${GREEN}Successfully published ${SCOPE}/${module_name}@${version} to npm${RESET}"
     else
-      echo -e "${RED}Failed to publish ${SCOPE}/${module_name}@${version}${RESET}"
+      echo -e "${RED}Failed to publish ${SCOPE}/${module_name}@${version} to npm${RESET}"
       return_code=1
+    fi
+    
+    # Publish to JSR
+    if [[ -f "jsr.json" ]]; then
+      echo -e "${CYAN}Publishing ${SCOPE}/${module_name}@${version} to JSR...${RESET}"
+      pnpx jsr publish
+      
+      local jsr_result=$?
+      
+      if [[ $jsr_result -eq 0 ]]; then
+        echo -e "${GREEN}Successfully published ${SCOPE}/${module_name}@${version} to JSR${RESET}"
+      else
+        echo -e "${RED}Failed to publish ${SCOPE}/${module_name}@${version} to JSR${RESET}"
+        return_code=1
+      fi
+    else
+      echo -e "${YELLOW}Warning: jsr.json not found in $module_dir, skipping JSR publish${RESET}"
     fi
   else
     echo -e "${RED}Error: package.json not found in $module_dir${RESET}"
