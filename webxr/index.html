@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generic WebXR Experience</title>
+  <meta name="description" content="A generic WebXR experience that can be forked for other projects">
+  <link rel="stylesheet" href="./src/ui/styles.css">
+  <!-- Import Three.js from CDN -->
+  <script async src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+  <script async src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <div id="container">
+    <!-- Loading overlay -->
+    <div id="loading-overlay">
+      <div class="loader"></div>
+      <div class="loading-text">Loading Experience...</div>
+    </div>
+
+    <!-- VR UI Elements -->
+    <div id="ui-container" class="ui-layer">
+      <div id="vr-button-container">
+        <button id="vr-button" class="vr-button">Enter VR</button>
+      </div>
+      <div id="info-panel" class="info-panel">
+        <h2>Generic WebXR Experience</h2>
+        <p>A flexible WebXR boilerplate that can be customized for various projects.</p>
+        <div class="controls-info">
+          <h3>Controls:</h3>
+          <ul>
+            <li>Move: Teleport with controller</li>
+            <li>Interact: Trigger button</li>
+            <li>Menu: Grip button</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance monitor -->
+    <div id="performance-stats" class="performance-stats"></div>
+
+    <!-- Settings panel -->
+    <div id="settings-panel" class="settings-panel hidden">
+      <h3>Settings</h3>
+      <div class="setting">
+        <label for="quality-setting">Quality:</label>
+        <select id="quality-setting">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="setting">
+        <label for="movement-speed">Movement Speed:</label>
+        <input type="range" id="movement-speed" min="0.5" max="2" step="0.1" value="1">
+      </div>
+      <div class="setting">
+        <label for="comfort-mode">
+          <input type="checkbox" id="comfort-mode" checked>
+          Comfort Mode (Vignette)
+        </label>
+      </div>
+      <div class="setting">
+        <label for="snap-turning">
+          <input type="checkbox" id="snap-turning" checked>
+          Snap Turning
+        </label>
+      </div>
+      <button id="close-settings">Close</button>
+    </div>
+
+    <!-- Fallback message for non-WebXR browsers -->
+    <div id="no-webxr" class="hidden">
+      <div class="message">
+        <h2>WebXR Not Available</h2>
+        <p>Your browser doesn't support WebXR or no VR headset is connected.</p>
+        <p>Try using a WebXR-compatible browser like Chrome or Firefox.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module scripts -->
+  <script type="module" src="./src/core/main.js"></script>
+</body>
+</html>
