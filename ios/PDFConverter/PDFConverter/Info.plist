@@ -61,5 +61,15 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<!-- Additional settings for WebView app -->
+	<key>WKAppBoundDomains</key>
+	<array>
+		<string>convert2doc.com</string>
+	</array>
+	<!-- Status bar appearance control -->
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
 </dict>
 </plist>

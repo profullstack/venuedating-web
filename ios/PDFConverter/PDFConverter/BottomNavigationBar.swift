@@ -1,11 +1,16 @@
 import UIKit
 
+// Define delegate protocol
+protocol BottomNavigationBarDelegate: AnyObject {
+    func didTapHomeButton()
+}
+
 class BottomNavigationBar: UIView {
     // Home button
     private let homeButton = UIButton(type: .system)
     
-    // Callback for when home button is tapped
-    var onHomeTapped: (() -> Void)?
+    // Delegate for handling button taps
+    weak var delegate: BottomNavigationBarDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,9 +42,22 @@ class BottomNavigationBar: UIView {
             homeButton.centerYAnchor.constraint(equalTo: centerYAnchor),
             homeButton.heightAnchor.constraint(equalToConstant: 44)
         ])
+        
+        // Add top border
+        let topBorder = UIView()
+        topBorder.backgroundColor = AppColors.background.withAlphaComponent(0.2)
+        topBorder.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(topBorder)
+        
+        NSLayoutConstraint.activate([
+            topBorder.topAnchor.constraint(equalTo: topAnchor),
+            topBorder.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topBorder.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topBorder.heightAnchor.constraint(equalToConstant: 1)
+        ])
     }
     
     @objc private func homeButtonTapped() {
-        onHomeTapped?()
+        delegate?.didTapHomeButton()
     }
 }
