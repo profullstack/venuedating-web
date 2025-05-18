@@ -1,7 +1,7 @@
 /**
  * Router module for SPA navigation
  */
-import { Router, transitions, renderer, componentLoader, enhancedRouter } from './deps.js';
+import { Router, transitions, renderer, componentLoader } from './deps.js';
 import { localizer } from './i18n-setup.js';
 import {
   initLoginPage, 
@@ -215,103 +215,73 @@ export function createRouter(options = {}) {
     }
   });
   
-  // Create the router using enhancedRouter with fallback to basic router
-  let router;
+  // Create a basic router
+  console.log('Creating basic router');
+  const router = new Router({
+    rootElement: options.rootElement || '#app',
+    transition: customFade,
+    renderer: renderer.createRenderer({
+      translateContainer: localizer.translateContainer.bind(localizer),
+      applyRTLToDocument: localizer.applyRTLToDocument.bind(localizer),
+      keepScripts: true // Keep script tags in views
+    })
+  });
   
-  try {
-    // Check if enhancedRouter is properly initialized
-    if (enhancedRouter && typeof enhancedRouter.createEnhancedRouter === 'function') {
-      console.log('Using enhanced router');
-      router = enhancedRouter.createEnhancedRouter({
-        rootElement: options.rootElement || '#app',
-        transition: customFade,
-        renderer: renderer.createRenderer({
-          translateContainer: localizer.translateContainer.bind(localizer),
-          applyRTLToDocument: localizer.applyRTLToDocument.bind(localizer),
-          keepScripts: true // Keep script tags in views
-        }),
-        i18n: localizer, // Pass the localizer to the enhanced router
-        errorHandler: (path) => {
-          console.log('Custom error handler called for path:', path);
-          
-          // Clean up any overlays immediately
-          cleanupOverlays();
-          
-          // Set up a safety interval to periodically check for and remove any overlays
-          const safetyInterval = setInterval(cleanupOverlays, 500);
-          
-          // Clear the safety interval after 3 seconds
-          setTimeout(() => {
-            clearInterval(safetyInterval);
-            console.log('Safety interval cleared');
-          }, 3000);
-          
-          // Create error content fragment
-          const contentFragment = document.createDocumentFragment();
-          
-          // Create content container
-          const contentContainer = document.createElement('div');
-          contentContainer.className = 'content-container';
-          contentContainer.style.display = 'flex';
-          contentContainer.style.justifyContent = 'center';
-          contentContainer.style.alignItems = 'center';
-          contentContainer.style.minHeight = '60vh';
-          
-          // Create error page div
-          const errorPage = document.createElement('div');
-          errorPage.className = 'error-page';
-          
-          // Create heading
-          const heading = document.createElement('h1');
-          heading.textContent = '404 - Page Not Found';
-          errorPage.appendChild(heading);
-          
-          // Create message
-          const message = document.createElement('p');
-          message.textContent = `The page "${path}" could not be found.`;
-          errorPage.appendChild(message);
-          
-          // Create back link
-          const backLink = document.createElement('a');
-          backLink.href = '/';
-          backLink.className = 'back-link';
-          backLink.textContent = 'Go back to home';
-          errorPage.appendChild(backLink);
-          
-          // Assemble the fragment
-          contentContainer.appendChild(errorPage);
-          contentFragment.appendChild(contentContainer);
-          
-          // Return the error wrapped in the default layout
-          return createLayoutFragment(contentFragment);
-        }
-      });
-    } else {
-      throw new Error('Enhanced router not available or createEnhancedRouter is not a function');
-    }
-  } catch (error) {
-    console.error('Error creating enhanced router:', error);
+  // Add custom error handling
+  router.errorHandler = (path) => {
+    console.log('Custom error handler called for path:', path);
     
-    // Create a basic router with minimal functionality
-    router = {
-      rootElement: options.rootElement || '#app',
-      routes: {},
-      registerRoutes(routes) {
-        this.routes = routes;
-        console.log('Routes registered with fallback router');
-      },
-      navigate(path) {
-        console.log(`Navigating to ${path} with fallback router`);
-        return Promise.resolve();
-      },
-      init() {
-        console.log('Fallback router initialized');
-      },
-      use(middleware) {
-        console.log('Middleware added to fallback router');
-      }
-    };
-  }
+    // Clean up any overlays immediately
+    cleanupOverlays();
+    
+    // Set up a safety interval to periodically check for and remove any overlays
+    const safetyInterval = setInterval(cleanupOverlays, 500);
+    
+    // Clear the safety interval after 3 seconds
+    setTimeout(() => {
+      clearInterval(safetyInterval);
+      console.log('Safety interval cleared');
+    }, 3000);
+    
+    // Create error content fragment
+    const contentFragment = document.createDocumentFragment();
+    
+    // Create content container
+    const contentContainer = document.createElement('div');
+    contentContainer.className = 'content-container';
+    contentContainer.style.display = 'flex';
+    contentContainer.style.justifyContent = 'center';
+    contentContainer.style.alignItems = 'center';
+    contentContainer.style.minHeight = '60vh';
+    
+    // Create error page div
+    const errorPage = document.createElement('div');
+    errorPage.className = 'error-page';
+    
+    // Create heading
+    const heading = document.createElement('h1');
+    heading.textContent = '404 - Page Not Found';
+    errorPage.appendChild(heading);
+    
+    // Create message
+    const message = document.createElement('p');
+    message.textContent = `The page "${path}" could not be found.`;
+    errorPage.appendChild(message);
+    
+    // Create back link
+    const backLink = document.createElement('a');
+    backLink.href = '/';
+    backLink.className = 'back-link';
+    backLink.textContent = 'Go back to home';
+    errorPage.appendChild(backLink);
+    
+    // Assemble the fragment
+    contentContainer.appendChild(errorPage);
+    contentFragment.appendChild(contentContainer);
+    
+    // Return the error wrapped in the default layout
+    return createLayoutFragment(contentFragment);
+  };
   
   // Store the original init method
   const originalInit = router.init;

@@ -24,5 +24,10 @@ export function _t(key, options = {}) {
   return localizer.translate(key, options);
 }
 
-// Import and re-export enhanced-router
-export * as enhancedRouter from './modules/enhanced-router/dist/index.js';
+// Enhanced router removed
+
+// Re-export other modules
+// export * as apiKeyManager from 'https://esm.sh/@profullstack/api-key-manager@0.2.13';
+// export * as authSystem from 'https://esm.sh/@profullstack/auth-system@0.2.16';
+// export * as paymentGateway from 'https://esm.sh/@profullstack/payment-gateway@0.2.16';
+// export * as storageService from 'https://esm.sh/@profullstack/storage-service@0.2.15';
