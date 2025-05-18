@@ -6,12 +6,12 @@
  * dependencies if needed.
  */
 
-// Import and re-export spa-router
-import { Router } from 'https://esm.sh/@profullstack/spa-router@1.12.13';
+// Import and re-export spa-router with a different name to avoid conflicts
+import { Router as VRRouter } from 'https://esm.sh/@profullstack/spa-router@1.12.13';
 import * as transitions from 'https://esm.sh/@profullstack/spa-router@1.12.13/src/transitions.js';
 import * as renderer from 'https://esm.sh/@profullstack/spa-router@1.12.13/src/renderer.js';
 import * as componentLoader from 'https://esm.sh/@profullstack/spa-router@1.12.13/src/component-loader.js';
-export { Router, transitions, renderer, componentLoader };
+export { VRRouter, transitions, renderer, componentLoader };
 
 // Import and re-export enhanced-router
 export * as enhancedRouter from 'https://esm.sh/@profullstack/enhanced-router@0.2.15';
