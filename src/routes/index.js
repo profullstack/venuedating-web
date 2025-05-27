@@ -5,6 +5,13 @@ import { htmlToPptRoute } from './html-to-ppt.js';
 import { htmlToMarkdownRoute } from './html-to-markdown.js';
 import { markdownToHtmlRoute } from './markdown-to-html.js';
 import { htmlToEpubRoute } from './html-to-epub.js';
+import { pdfToMarkdownRoute } from './pdf-to-markdown.js';
+import { docxToMarkdownRoute } from './docx-to-markdown.js';
+import { docToMarkdownRoute } from './doc-to-markdown.js';
+import { epubToMarkdownRoute } from './epub-to-markdown.js';
+import { textToMarkdownRoute } from './text-to-markdown.js';
+import { pptxToMarkdownRoute } from './pptx-to-markdown.js';
+import { xlsxToMarkdownRoute } from './xlsx-to-markdown.js';
 import { documentHistoryRoute } from './document-history.js';
 import { downloadDocumentRoute } from './download-document.js';
 import {
@@ -40,6 +47,13 @@ const protectedRoutes = [
   htmlToMarkdownRoute,
   markdownToHtmlRoute,
   htmlToEpubRoute,
+  pdfToMarkdownRoute,
+  docxToMarkdownRoute,
+  docToMarkdownRoute,
+  epubToMarkdownRoute,
+  textToMarkdownRoute,
+  pptxToMarkdownRoute,
+  xlsxToMarkdownRoute,
   documentHistoryRoute,
   downloadDocumentRoute
 ];
