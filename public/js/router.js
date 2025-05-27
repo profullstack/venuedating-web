@@ -14,18 +14,26 @@ import {
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
-function createLayoutFragment(content) {
+function createLayoutFragment(content, pageUrl) {
   // Create a document fragment
   const fragment = document.createDocumentFragment();
-  
-  // Create header
-  const header = document.createElement('pf-header');
-  fragment.appendChild(header);
-  
+
+  // If this is the splash or auth screen, do NOT add header/footer
+  const isNoHeaderFooter = (
+    pageUrl === '/views/home.html' || pageUrl === '/home.html' || pageUrl === '/' ||
+    pageUrl === '/views/auth.html' || pageUrl === '/auth.html' || pageUrl === '/auth'
+  );
+
+  if (!isNoHeaderFooter) {
+    // Create header
+    const header = document.createElement('pf-header');
+    fragment.appendChild(header);
+  }
+
   // Create content container
   const contentDiv = document.createElement('div');
   contentDiv.className = 'content';
-  
+
   // If content is a string, use createContextualFragment to parse it
   if (typeof content === 'string') {
     const range = document.createRange();
@@ -38,13 +46,15 @@ function createLayoutFragment(content) {
     // If it's a DOM node, append it directly
     contentDiv.appendChild(content);
   }
-  
+
   fragment.appendChild(contentDiv);
-  
-  // Create footer
-  const footer = document.createElement('pf-footer');
-  fragment.appendChild(footer);
-  
+
+  if (!isNoHeaderFooter) {
+    // Create footer
+    const footer = document.createElement('pf-footer');
+    fragment.appendChild(footer);
+  }
+
   return fragment;
 }
 
@@ -127,7 +137,7 @@ async function loadPage(url) {
     }
     
     // Return the content wrapped in the default layout as a DOM fragment
-    return createLayoutFragment(translatedFragment);
+    return createLayoutFragment(translatedFragment, url);
   } catch (error) {
     console.error('Error loading page:', error);
     
@@ -417,7 +427,12 @@ export function defineRoutes(router) {
   // Define routes
   const routes = {
     '/': {
-      view: () => loadPage('/views/home.html')
+      view: () => loadPage('/views/home.html'),
+      afterRender: () => {
+        setTimeout(() => {
+          window.location.href = '/auth';
+        }, 1000); // 1 second splash
+      }
     },
     '/login': {
       view: () => loadPage('/views/login.html'),
@@ -493,8 +508,11 @@ export function defineRoutes(router) {
     '/stripe-payment': {
       view: () => loadPage('/views/stripe-payment-new.html')
     },
-    '/terms': {
-      view: () => loadPage('/views/terms.html')
+    '/auth': {
+      view: () => loadPage('/views/auth.html')
+    },
+    '/auth.html': {
+      view: () => loadPage('/views/auth.html')
     },
     '/privacy': {
       view: () => loadPage('/views/privacy.html')
