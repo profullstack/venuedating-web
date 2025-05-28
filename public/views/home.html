@@ -1,1 +1,50 @@
-<pf-hero></pf-hero>
+<div class="splash-container">
+  <div class="splash-logo">
+    <img src="/images/logo.png" alt="BarCrush Logo" class="splash-img" width="417" height="419" />
+  </div>
+
+</div>
+
+<style>
+.splash-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: #fff;
+}
+.splash-logo {
+  margin-bottom: 24px;
+}
+.splash-img {
+  width: 517px;
+  height: 419px;
+  max-width: 80vw;
+  max-height: 40vh;
+  display: block;
+  object-fit: contain;
+}
+@media (max-width: 600px) {
+  .splash-img {
+    width: 317px;
+    height: 219px;
+  }
+}
+.splash-title {
+  font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+  font-size: 48px;
+  font-weight: bold;
+}
+.splash-title .bar {
+  color: #000;
+}
+.splash-title .crush {
+  color: #F85C8A;
+}
+@media (max-width: 600px) {
+  .splash-title {
+    font-size: 32px;
+  }
+}
+</style>

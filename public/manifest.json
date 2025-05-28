@@ -1,11 +1,11 @@
 {
-  "name": "convert2doc.com",
-  "short_name": "convert2doc",
-  "description": "Generate PDFs, Word documents, Excel spreadsheets, PowerPoint presentations, and EPUB e-books from HTML content",
+  "name": "BarCrush",
+  "short_name": "barcrush",
+  "description": "A dating app for people to connect with others at a bar near them.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#e02337",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

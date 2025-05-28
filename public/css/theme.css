@@ -98,7 +98,7 @@
   --accent-color: #d34bc1;         /* Accent magenta */
   
   /* Neutral colors - Dark theme */
-  --background-color: #111827;     /* Dark background */
+  --background-color: #fff;     /* Dark background */
   --surface-color: #1f2937;        /* Dark surface */
   --surface-variant: #374151;      /* Slightly lighter surface */
   --border-color: #4b5563;         /* Dark border */

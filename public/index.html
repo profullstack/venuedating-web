@@ -4,15 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>convert2doc - Profullstack, Inc.</title>
-  <meta name="description" content="Convert HTML content to PDF, Word, Excel, PowerPoint, and EPUB formats with a simple API call.">
+  <title>BarCrush</title>
+  <meta name="description" content="BarCrush">
   <meta name="theme-color" content="#e02337">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/payment-dialog.css">
   <link rel="stylesheet" href="/css/rtl.css">
-  <link id="favicon" rel="icon" type="image/svg+xml" href="/icons/favicon.light.svg">
-  <link rel="apple-touch-icon" href="/icons/favicon.light.png">
+  <link id="favicon" rel="icon" type="image/png" href="/icons/favi.png">
+  <link rel="apple-touch-icon" href="/icons/favi.png">
   <script type="module" src="/js/theme.js"></script>
   <script src="/js/alerts.js"></script>
   <script type="module" src="/js/main.js"></script>
@@ -24,22 +24,15 @@
     <div class="loading">Loading...</div>
   </div>
   
-  <!-- Initial loading overlay -->
-  <div id="initial-loading-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--background-color, #ffffff); z-index: 9999; transition: opacity 150ms ease-in-out;"></div>
   
   <div class="offline-notification" id="offline-notification">
     You are currently offline. Some features may be limited.
   </div>
   <script>
-    // Remove the loading overlay once the router has initialized
+    // Router initialization event listener
     window.addEventListener('route-changed', () => {
-      const overlay = document.getElementById('initial-loading-overlay');
-      if (overlay) {
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-          overlay.parentNode.removeChild(overlay);
-        }, 150);
-      }
+      // Router has initialized
+      console.log('Route changed, application ready');
     }, { once: true });
     
     // Update favicon based on theme
