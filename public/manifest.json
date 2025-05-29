@@ -8,6 +8,18 @@
   "theme_color": "#F44B74",
   "icons": [
     {
+      "src": "/images/favicon.barcrush.black.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/favicon.barcrush.white.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
       "src": "/icons/icon-192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
