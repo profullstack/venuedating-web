@@ -1,0 +1,939 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Profile info</h1>
+    <a href="#" class="skip-btn">Skip</a>
+  </div>
+  
+  <div class="profile-photo-container">
+    <div class="profile-photo">
+      <img src="/images/default-profile.png" alt="Profile Photo" id="profile-image">
+      <button class="camera-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div class="profile-photo-text">Profile Photo</div>
+  </div>
+  
+  <div class="profile-form">
+    <div class="input-group">
+      <label for="first-name">First name</label>
+      <input type="text" id="first-name" value="David">
+    </div>
+    
+    <div class="input-group">
+      <label for="last-name">Last name</label>
+      <input type="text" id="last-name" value="Peterson">
+    </div>
+    
+    <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M3 10H21" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Choose birthday date</span>
+    </button>
+    
+    <button class="option-btn location-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Choose your location</span>
+    </button>
+    
+    <button class="confirm-btn" id="confirm-btn" onclick="window.location.href = '/profile-gender'; return false;">Confirm</button>
+  </div>
+</div>
+
+<style>
+  /* Import Roboto font */
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+  
+  .profile-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    font-family: 'Roboto', sans-serif;
+    padding: 16px;
+    padding-top: 0;
+    box-sizing: border-box;
+  }
+  
+  .profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 16px;
+  }
+  
+  .profile-header h1 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0;
+    color: #333;
+  }
+  
+  .skip-btn {
+    color: #F44B74;
+    font-size: 14px;
+    font-weight: 400;
+    text-decoration: none;
+  }
+  
+  .profile-photo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  
+  .profile-photo {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f3f3f3;
+    margin-bottom: 8px;
+    border: 1px solid #eaeaea;
+  }
+  
+  .profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .profile-photo-text {
+    font-size: 13px;
+    color: #888;
+    text-align: center;
+  }
+  
+  .camera-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: #F44B74;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    padding: 0;
+  }
+  
+  .camera-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .profile-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .input-group {
+    margin-bottom: 15px;
+  }
+  
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  
+  .input-group input {
+    width: 100%;
+    height: 42px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 0 15px;
+    font-size: 16px;
+    box-sizing: border-box;
+    color: #333;
+    background-color: #fff;
+  }
+  
+  .option-btn {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 44px;
+    border-radius: 8px;
+    border: none;
+    background-color: #f9f9f9;
+    margin-bottom: 12px;
+    padding: 0 15px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    box-shadow: none;
+  }
+  
+  .option-btn svg {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+  }
+  
+  .birthday-btn span {
+    color: #F44B74;
+  }
+  
+  .option-btn.has-value {
+    background-color: rgba(248, 92, 138, 0.05);
+    border: 1px solid rgba(248, 92, 138, 0.1);
+  }
+  
+  .location-btn span {
+    color: #333;
+  }
+  
+  .confirm-btn {
+    width: 100%;
+    height: 44px;
+    border-radius: 22px;
+    border: none;
+    background-color: #F44B74;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 30px;
+    box-shadow: 0 2px 8px rgba(248, 92, 138, 0.3);
+  }
+  
+  @media (max-width: 600px) {
+    .profile-header h1 {
+      font-size: 17px;
+    }
+  }
+  
+  /* Date Picker Styles */
+  .date-picker-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  
+  .date-picker-container {
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 24px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+  }
+  
+  .date-picker-modal.visible .date-picker-container {
+    transform: translateY(0);
+  }
+  
+  .date-picker-container h2 {
+    font-size: 18px;
+    color: #333;
+    margin: 0 0 20px;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .year-month-selector {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .year-month-selector > div {
+    text-align: center;
+  }
+  
+  .handle-bar {
+    width: 40px;
+    height: 4px;
+    background-color: #ddd;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+
+  .selected-year {
+    font-size: 42px;
+    font-weight: 700;
+    color: #F44B74;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+  
+  .selected-month {
+    font-size: 22px;
+    color: #F44B74;
+    font-weight: 400;
+  }
+  
+  .year-selector, .month-selector {
+    display: none;
+    width: 100%;
+    margin-bottom: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .year-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 0 10px;
+  }
+  
+  .year-nav-btn {
+    background-color: #f5f5f5;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+  }
+  
+  .year-nav-btn:hover {
+    background-color: #eaeaea;
+  }
+  
+  .year-selector.active, .month-selector.active {
+    display: block;
+  }
+  
+  .year-grid, .month-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    padding: 10px 0;
+  }
+  
+  .year-item, .month-item {
+    padding: 8px 0;
+    text-align: center;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #333; /* Ensure text is black/dark */
+  }
+  
+  .year-item:hover, .month-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .year-item.selected, .month-item.selected {
+    color: #F44B74;
+    font-weight: bold;
+  }
+  
+  .selected-month {
+    cursor: pointer;
+  }
+  
+  .nav-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #555;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  
+  .day {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    color: #333;
+  }
+  
+  .day:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .day.selected {
+    background-color: #F44B74;
+    color: white;
+  }
+  
+  .save-btn {
+    width: 100%;
+    height: 50px;
+    border-radius: 25px;
+    border: none;
+    background-color: #F44B74;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(248, 92, 138, 0.3);
+  }
+  
+  .cancel-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 20px;
+    border: none;
+    background-color: transparent;
+    color: #666;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-top: 10px;
+    display: none; /* Hide cancel button as per design */
+  }
+</style>
+
+<!-- Date Picker Modal -->
+<div class="date-picker-modal" id="birthday-picker-modal">
+  <div class="date-picker-container">
+    <div class="handle-bar"></div>
+    <h2>Birthday</h2>
+    
+    <div class="year-month-selector">
+      <button class="nav-btn prev-btn">&lt;</button>
+      <div>
+        <div class="selected-year" id="selected-year" onclick="toggleYearSelector()">2025</div>
+        <div class="selected-month" id="selected-month" onclick="toggleMonthSelector()">July</div>
+      </div>
+      <button class="nav-btn next-btn">&gt;</button>
+    </div>
+    
+    <div class="year-selector" id="year-selector">
+      <div class="year-navigation">
+        <button class="year-nav-btn prev-decade-btn">&lt;&lt; Previous</button>
+        <button class="year-nav-btn next-decade-btn">Next &gt;&gt;</button>
+      </div>
+      <div class="year-grid" id="year-grid">
+        <!-- Years will be populated by JavaScript -->
+      </div>
+    </div>
+    
+    <div class="month-selector" id="month-selector">
+      <div class="month-grid" id="month-grid">
+        <!-- Months will be populated by JavaScript -->
+      </div>
+    </div>
+    
+    <div class="calendar-grid" id="calendar-grid">
+      <!-- Calendar will be populated by JavaScript -->
+    </div>
+    
+    <button class="save-btn" id="save-date-btn" onclick="saveDateSelection(); return false;">Save</button>
+    <button class="cancel-btn" id="cancel-date-btn" onclick="closeModal(); return false;">Cancel</button>
+  </div>
+</div>
+
+<script>
+  // Global function to show date picker modal
+  function showDatePicker() {
+    console.log('showDatePicker called');
+    const datePickerModal = document.getElementById('birthday-picker-modal');
+    if (datePickerModal) {
+      datePickerModal.style.display = 'flex';
+      // Use a timeout to trigger the animation after display is set
+      setTimeout(() => {
+        datePickerModal.classList.add('visible');
+      }, 10);
+      initCalendar();
+    } else {
+      console.error('Date picker modal not found');
+    }
+  }
+  
+  // Toggle year selector
+  function toggleYearSelector() {
+    const yearSelector = document.getElementById('year-selector');
+    const monthSelector = document.getElementById('month-selector');
+    const calendarGrid = document.getElementById('calendar-grid');
+    
+    // Close month selector if open
+    monthSelector.classList.remove('active');
+    
+    if (yearSelector.classList.contains('active')) {
+      yearSelector.classList.remove('active');
+      calendarGrid.style.display = 'grid';
+    } else {
+      yearSelector.classList.add('active');
+      calendarGrid.style.display = 'none';
+      populateYearGrid();
+    }
+  }
+  
+  // Toggle month selector
+  function toggleMonthSelector() {
+    const monthSelector = document.getElementById('month-selector');
+    const yearSelector = document.getElementById('year-selector');
+    const calendarGrid = document.getElementById('calendar-grid');
+    
+    // Close year selector if open
+    yearSelector.classList.remove('active');
+    
+    if (monthSelector.classList.contains('active')) {
+      monthSelector.classList.remove('active');
+      calendarGrid.style.display = 'grid';
+    } else {
+      monthSelector.classList.add('active');
+      calendarGrid.style.display = 'none';
+      populateMonthGrid();
+    }
+  }
+  
+  // Store the current decade view to support navigation
+  window.currentDecadeView = null;
+  
+  // Populate the year grid
+  function populateYearGrid() {
+    const yearGrid = document.getElementById('year-grid');
+    const currentYear = new Date().getFullYear();
+    yearGrid.innerHTML = '';
+    
+    // Set the current decade view if not already set
+    if (window.currentDecadeView === null) {
+      window.currentDecadeView = Math.floor(currentYear / 10) * 10;
+    }
+    
+    // Get reference to decade navigation buttons
+    const prevDecadeBtn = document.querySelector('.prev-decade-btn');
+    const nextDecadeBtn = document.querySelector('.next-decade-btn');
+    
+    // Configure decade navigation buttons
+    prevDecadeBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.currentDecadeView -= 30; // Go back 3 decades at a time
+      populateYearGrid();
+      return false;
+    };
+    
+    nextDecadeBtn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.currentDecadeView += 30; // Go forward 3 decades at a time
+      if (window.currentDecadeView > Math.floor(currentYear / 10) * 10) {
+        window.currentDecadeView = Math.floor(currentYear / 10) * 10; // Don't go beyond current decade
+      }
+      populateYearGrid();
+      return false;
+    };
+    
+    // Add decade headings and organize years by decade
+    // Show 3 decades at a time, with a 200-year range
+    const startDecade = window.currentDecadeView;
+    const endDecade = Math.max(startDecade - 20, startDecade - 200); // 200-year range or 20 decades
+    
+    // Create a more organized layout with decades
+    for (let decade = startDecade; decade >= endDecade; decade -= 10) {
+      // Add a decade indicator
+      const decadeIndicator = document.createElement('div');
+      decadeIndicator.classList.add('decade-indicator');
+      decadeIndicator.textContent = `${decade}s`;
+      decadeIndicator.style.gridColumn = '1 / span 4';
+      decadeIndicator.style.fontWeight = 'bold';
+      decadeIndicator.style.padding = '10px 0 5px';
+      decadeIndicator.style.borderBottom = '1px solid #eee';
+      decadeIndicator.style.marginBottom = '5px';
+      yearGrid.appendChild(decadeIndicator);
+      
+      // Add years within this decade
+      for (let i = 0; i < 10; i++) {
+        const year = decade + i;
+        if (year > currentYear) continue; // Skip future years
+        
+        const yearItem = document.createElement('div');
+        yearItem.classList.add('year-item');
+        yearItem.textContent = year;
+        
+        if (year === window.currentYear) {
+          yearItem.classList.add('selected');
+        }
+        
+        yearItem.addEventListener('click', function() {
+          // Update selected year
+          window.currentYear = year;
+          document.getElementById('selected-year').textContent = year;
+          
+          // Close year selector and show calendar
+          document.getElementById('year-selector').classList.remove('active');
+          document.getElementById('calendar-grid').style.display = 'grid';
+          
+          // Update calendar days
+          renderCalendarDays();
+        });
+        
+        yearGrid.appendChild(yearItem);
+      }
+    }
+    
+    // Add instructions for navigation
+    const instructionEl = document.createElement('div');
+    instructionEl.style.textAlign = 'center';
+    instructionEl.style.padding = '10px';
+    instructionEl.style.fontSize = '14px';
+    instructionEl.style.color = '#666';
+    instructionEl.textContent = 'Use the buttons above to navigate through more years';
+    yearGrid.appendChild(instructionEl);
+  }
+  
+  // Populate the month grid
+  function populateMonthGrid() {
+    const monthGrid = document.getElementById('month-grid');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    monthGrid.innerHTML = '';
+    
+    // Generate all 12 months
+    for (let i = 0; i < 12; i++) {
+      const monthItem = document.createElement('div');
+      monthItem.classList.add('month-item');
+      monthItem.textContent = monthNames[i];
+      
+      if (i === window.currentMonth) {
+        monthItem.classList.add('selected');
+      }
+      
+      monthItem.addEventListener('click', function() {
+        // Update selected month
+        window.currentMonth = i;
+        document.getElementById('selected-month').textContent = monthNames[i];
+        
+        // Close month selector and show calendar
+        document.getElementById('month-selector').classList.remove('active');
+        document.getElementById('calendar-grid').style.display = 'grid';
+        
+        // Update calendar days
+        renderCalendarDays();
+      });
+      
+      monthGrid.appendChild(monthItem);
+    }
+  }
+  
+  // Initialize the calendar
+  function initCalendar() {
+    const selectedYearEl = document.getElementById('selected-year');
+    const selectedMonthEl = document.getElementById('selected-month');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Default date values
+    if (window.currentYear === undefined) {
+      // Set to current year
+      const today = new Date();
+      window.currentYear = today.getFullYear();
+      window.currentMonth = today.getMonth();
+      window.selectedDate = null;
+    }
+    
+    // Update display
+    selectedYearEl.textContent = window.currentYear;
+    selectedMonthEl.textContent = monthNames[window.currentMonth];
+    
+    // Reset year selector and show calendar
+    const yearSelector = document.getElementById('year-selector');
+    yearSelector.classList.remove('active');
+    calendarGrid.style.display = 'grid';
+    
+    // Render days
+    renderCalendarDays();
+  }
+  
+  // Render calendar days
+  function renderCalendarDays() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    calendarGrid.innerHTML = '';
+    
+    // Create days of the month
+    const daysInMonth = new Date(window.currentYear, window.currentMonth + 1, 0).getDate();
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+      const dayElement = document.createElement('div');
+      dayElement.classList.add('day');
+      dayElement.textContent = i;
+      
+      // Check if this day is selected
+      if (window.selectedDate && 
+          window.selectedDate.getDate() === i && 
+          window.selectedDate.getMonth() === window.currentMonth && 
+          window.selectedDate.getFullYear() === window.currentYear) {
+        dayElement.classList.add('selected');
+      }
+      
+      // Add click handler
+      dayElement.addEventListener('click', function() {
+        selectDay(i);
+      });
+      
+      calendarGrid.appendChild(dayElement);
+    }
+  }
+  
+  // Select a day
+  function selectDay(day) {
+    window.selectedDate = new Date(window.currentYear, window.currentMonth, day);
+    
+    // Update UI
+    document.querySelectorAll('.day').forEach(el => {
+      el.classList.remove('selected');
+    });
+    
+    // Find the clicked day and add selected class
+    const dayElements = document.querySelectorAll('.day');
+    for (let i = 0; i < dayElements.length; i++) {
+      if (parseInt(dayElements[i].textContent) === day) {
+        dayElements[i].classList.add('selected');
+        break;
+      }
+    }
+  }
+  
+  // Global helper function to close the modal with animation
+  function closeModal() {
+    const datePickerModal = document.getElementById('birthday-picker-modal');
+    datePickerModal.classList.remove('visible');
+    
+    // Wait for animation to finish before hiding
+    setTimeout(() => {
+      datePickerModal.style.display = 'none';
+    }, 300); // Match the CSS transition duration
+  }
+  
+  // Global function to save the date selection
+  function saveDateSelection() {
+    console.log('Save button clicked');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const birthdayBtn = document.getElementById('birthday-btn');
+    
+    if (window.selectedDate) {
+      // Format the date as needed (e.g., July 11, 1998)
+      const formattedDate = `${monthNames[window.selectedDate.getMonth()]} ${window.selectedDate.getDate()}, ${window.selectedDate.getFullYear()}`;
+      
+      // Update the button text to show selected date
+      const birthdayBtnText = document.querySelector('.birthday-btn span');
+      if (birthdayBtnText) {
+        birthdayBtnText.textContent = formattedDate;
+        console.log('Updated birthday button text to:', formattedDate);
+      } else {
+        console.error('Could not find birthday button span element');
+      }
+      
+      // Store the date value for form submission
+      birthdayBtn.setAttribute('data-birthday', window.selectedDate.toISOString().split('T')[0]);
+      
+      // Change button color to indicate it has a value
+      birthdayBtn.classList.add('has-value');
+    }
+    
+    // Close the modal with animation
+    closeModal();
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Re-attach the event handler for the birthday button to ensure it works
+    const birthdayButton = document.getElementById('birthday-btn');
+    if (birthdayButton) {
+      console.log('Attaching event handler to birthday button');
+      birthdayButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Birthday button clicked');
+        showDatePicker();
+        return false;
+      });
+    } else {
+      console.error('Birthday button not found');
+    }
+    
+    // We'll configure the confirm button later
+    
+    // Handle profile image selection
+    const cameraBtn = document.querySelector('.camera-btn');
+    const profileImage = document.getElementById('profile-image');
+    
+    cameraBtn.addEventListener('click', function() {
+      // Create a file input element
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      
+      fileInput.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+          const reader = new FileReader();
+          
+          reader.onload = function(event) {
+            profileImage.src = event.target.result;
+            profileImage.style.display = 'block';
+            const placeholder = document.querySelector('.profile-placeholder');
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          };
+          
+          reader.readAsDataURL(e.target.files[0]);
+        }
+      });
+      
+      fileInput.click();
+    });
+    
+    // Set up date picker navigation and save button handlers
+    const datePickerModal = document.getElementById('birthday-picker-modal');
+    const birthdayBtn = document.getElementById('birthday-btn');
+    const saveBtn = document.getElementById('save-date-btn');
+    const cancelBtn = document.getElementById('cancel-date-btn');
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    // Navigate to previous year - direct binding to the DOM elements
+    document.getElementById('birthday-picker-modal').querySelector('.prev-btn').onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Previous year button clicked');
+      window.currentYear--;
+      initCalendar();
+      return false;
+    };
+    
+    // Navigate to next year - direct binding to the DOM elements
+    document.getElementById('birthday-picker-modal').querySelector('.next-btn').onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Next year button clicked');
+      window.currentYear++;
+      // Don't allow future years beyond current year
+      const currentYear = new Date().getFullYear();
+      if (window.currentYear > currentYear) {
+        window.currentYear = currentYear;
+      }
+      initCalendar();
+      return false;
+    };
+    
+    // No need to redefine closeModal and saveDateSelection functions here as they are now globally defined
+    
+    // Make sure the save button has a click handler in JavaScript too for extra compatibility
+    saveBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      saveDateSelection();
+      return false;
+    });
+    
+    // Cancel date selection
+    cancelBtn.addEventListener('click', function() {
+      closeModal();
+    });
+    
+    // Close when clicking outside the date picker
+    datePickerModal.addEventListener('click', function(e) {
+      // Check if the click was directly on the modal background (not its children)
+      if (e.target === datePickerModal) {
+        closeModal();
+      }
+    });
+    
+    // Add touch swipe down to close
+    const container = datePickerModal.querySelector('.date-picker-container');
+    let startY = 0;
+    let moveY = 0;
+    
+    container.addEventListener('touchstart', function(e) {
+      startY = e.touches[0].clientY;
+    });
+    
+    container.addEventListener('touchmove', function(e) {
+      moveY = e.touches[0].clientY - startY;
+      
+      // Only allow swiping down, not up
+      if (moveY > 0) {
+        container.style.transform = `translateY(${moveY}px)`;
+        e.preventDefault();
+      }
+    });
+    
+    container.addEventListener('touchend', function() {
+      // If swiped down enough, close the modal
+      if (moveY > 100) {
+        closeModal();
+      } else {
+        // Reset position
+        container.style.transform = '';
+      }
+      moveY = 0;
+    });
+    
+    // Handle form submission - updated to navigate to gender selection page
+    const confirmBtn = document.querySelector('.confirm-btn');
+
+    confirmBtn.addEventListener('click', function() {
+      const firstName = document.getElementById('first-name').value;
+      const lastName = document.getElementById('last-name').value;
+      const birthday = birthdayBtn.getAttribute('data-birthday') || '';
+      
+      // Validate form (simple example)
+      if (!firstName || !lastName) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Store profile data in localStorage
+      const userData = {
+        firstName,
+        lastName,
+        birthday
+      };
+      
+      console.log('Saving profile data:', userData);
+      localStorage.setItem('userProfile', JSON.stringify(userData));
+      
+      // Navigate to gender selection page
+      window.location.href = '#/profile-gender';
+    });
+  });
+</script>

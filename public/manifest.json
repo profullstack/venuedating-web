@@ -1,23 +1,54 @@
 {
   "name": "BarCrush",
-  "short_name": "barcrush",
+  "short_name": "BarCrush",
   "description": "A dating app for people to connect with others at a bar near them.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#e02337",
+  "theme_color": "#F44B74",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/icons/icon-192-maskable.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-auth.jpg",
+      "sizes": "1170x2532",
+      "type": "image/jpeg",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshots/mobile-home.jpg",
+      "sizes": "1170x2532",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/screenshots/desktop-auth.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide"
     }
   ]
 }

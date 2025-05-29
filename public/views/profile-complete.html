@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile Complete - BarCrush</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #000;
+      color: #fff;
+    }
+    
+    .complete-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    
+    .success-icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(244, 75, 116, 0.1);
+      border-radius: 50%;
+    }
+    
+    .success-icon svg {
+      width: 60px;
+      height: 60px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 40px;
+      line-height: 1.5;
+      max-width: 320px;
+    }
+    
+    .start-btn {
+      padding: 15px 30px;
+      background-color: #F44B74;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .start-btn:hover {
+      background-color: #e03b63;
+    }
+  </style>
+</head>
+<body>
+
+<div class="complete-container">
+  <div class="success-icon">
+    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M22 4L12 14.01L9 11.01" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  
+  <h1>Profile Complete!</h1>
+  <p>Your profile has been successfully created. You're now ready to start crushing it!</p>
+  
+  <button class="start-btn" onclick="startExploring()">Start Exploring</button>
+</div>
+
+<script>
+  function startExploring() {
+    // Navigate to the main app page
+    window.location.href = '/';
+  }
+  
+  // Retrieve user profile data for display (if needed)
+  document.addEventListener('DOMContentLoaded', function() {
+    // Example of how you might retrieve and use the profile data
+    const firstName = localStorage.getItem('firstName') || '';
+    const lastName = localStorage.getItem('lastName') || '';
+    const gender = localStorage.getItem('userGender') || '';
+    const interests = JSON.parse(localStorage.getItem('userInterests') || '[]');
+    
+    console.log('Profile complete for:', firstName, lastName);
+    console.log('Gender:', gender);
+    console.log('Interests:', interests);
+  });
+</script>
+
+</body>
+</html>

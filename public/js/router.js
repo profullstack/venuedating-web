@@ -18,10 +18,14 @@ function createLayoutFragment(content, pageUrl) {
   // Create a document fragment
   const fragment = document.createDocumentFragment();
 
-  // If this is the splash or auth screen, do NOT add header/footer
+  // If this is the splash, auth, or profile screen, do NOT add header/footer
   const isNoHeaderFooter = (
     pageUrl === '/views/home.html' || pageUrl === '/home.html' || pageUrl === '/' ||
-    pageUrl === '/views/auth.html' || pageUrl === '/auth.html' || pageUrl === '/auth'
+    pageUrl === '/views/auth.html' || pageUrl === '/auth.html' || pageUrl === '/auth' ||
+    pageUrl === '/views/profile.html' || pageUrl === '/profile' ||
+    pageUrl === '/views/profile-gender.html' || pageUrl === '/profile-gender' ||
+    pageUrl === '/views/profile-interests.html' || pageUrl === '/profile-interests' ||
+    pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete'
   );
 
   if (!isNoHeaderFooter) {
@@ -513,6 +517,18 @@ export function defineRoutes(router) {
     },
     '/auth.html': {
       view: () => loadPage('/views/auth.html')
+    },
+    '/profile': {
+      view: () => loadPage('/views/profile.html')
+    },
+    '/profile-gender': {
+      view: () => loadPage('/views/profile-gender.html')
+    },
+    '/profile-interests': {
+      view: () => loadPage('/views/profile-interests.html')
+    },
+    '/profile-complete': {
+      view: () => loadPage('/views/profile-complete.html')
     },
     '/privacy': {
       view: () => loadPage('/views/privacy.html')
