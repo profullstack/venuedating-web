@@ -402,6 +402,20 @@ node scripts/test-pdf-generation.js
 
 This script will generate a test PDF and output the detected Chrome path.
 
+## Frontend Development
+
+This application uses a custom SPA (Single Page Application) router for frontend navigation. The router handles page transitions, authentication checks, and subscription requirements.
+
+### Adding New Routes
+
+For detailed instructions on how to add new routes, pages, or components to the application, see the [Adding Routes Guide](README-adding-routes.md).
+
+This guide covers:
+- Creating HTML view files
+- Setting up page initializers
+- Adding routes to the router
+- Handling authentication and subscription requirements
+- Best practices for route management
 
 
 
