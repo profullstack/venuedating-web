@@ -1,6 +1,6 @@
-# PDF Document Generation Service
+# vibe-stack.dev
 
-A service for generating various document formats from HTML and Markdown.
+vibe-stack.dev is a modern, AI-first framework built for rapid development of Progressive Web Apps (PWAs). Designed for versatility and speed, it provides an optimized boilerplate for creating, testing, and deploying full-stack applications across Windows, macOS, Linux, iOS, Android, desktop, and WebXR environments. With seamless integration to backend tools like Supabase, vibe-stack.dev empowers developers to prototype quickly and scale effortlessly, ensuring a smooth, consistent experience on any platform or device.
 
 ## Automatic Deployment with GitHub Actions
 
@@ -408,7 +408,7 @@ This application uses a custom SPA (Single Page Application) router for frontend
 
 ### Adding New Routes
 
-For detailed instructions on how to add new routes, pages, or components to the application, see the [Adding Routes Guide](README-adding-routes.md).
+For detailed instructions on how to add new routes, pages, or components to the application, see the [Generator Guide](README-generator.md).
 
 This guide covers:
 - Creating HTML view files
@@ -417,12 +417,29 @@ This guide covers:
 - Handling authentication and subscription requirements
 - Best practices for route management
 
-We also provide a route generator script that automates the process:
+We also provide a template-based generator script that automates the process of creating various components:
 
 ```bash
-# Generate a new route
-./bin/generator.js --route="/my-feature" --name="My Feature" [--auth] [--subscription]
+# Generate a client-side route
+./bin/generator.js client route --route="/my-feature" --name="My Feature" [--auth] [--subscription]
+
+# Generate a server-side route
+./bin/generator.js server route --path="/api/v1/users" --controller="User" --method="get"
+
+# Generate a database migration
+./bin/generator.js server migration --name="add_user_fields"
+
+# Generate a controller
+./bin/generator.js server controller --name="User"
 ```
 
-This script creates all the necessary files and code for a new route in one step.
+This script creates all the necessary files and code in one step using templates stored in the `templates` directory. The template-based approach makes it easy to customize the generated code without modifying the generator script itself.
+
+Key features of the generator:
+- Uses external templates for all generated files
+- Supports both client-side and server-side components
+- Clearly separates up and down migrations in SQL files
+- Maintains consistent code style across generated files
+
+For detailed usage instructions and information about customizing templates, see the [Generator Guide](README-generator.md).
 
