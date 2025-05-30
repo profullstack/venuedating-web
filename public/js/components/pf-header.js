@@ -1,7 +1,6 @@
 /**
- * Header component for the application
+ * Header component for BarCrush application
  */
-import '../components/language-switcher.js';
 
 class PfHeader extends HTMLElement {
   constructor() {
@@ -19,34 +18,34 @@ class PfHeader extends HTMLElement {
   }
 
   render() {
-    // Get the current language before rendering
-    const currentLang = window.app && window.app.localizer ?
-      window.app.localizer.getLanguage() : 'en';
-    
-    // Pre-translate navigation items
-    const dashboardText = window.app && window.app._t ?
-      window.app._t('navigation.dashboard') : 'Dashboard';
-    const apiKeysText = window.app && window.app._t ?
-      window.app._t('navigation.api_keys') : 'API Keys';
-    const loginText = window.app && window.app._t ?
-      window.app._t('navigation.login') : 'Login';
-    const registerText = window.app && window.app._t ?
-      window.app._t('navigation.register') : 'Register';
-    const themeText = window.app && window.app._t ?
-      window.app._t('navigation.theme') : 'Theme';
+    // Define navigation items for BarCrush
+    const homeText = 'Home';
+    const loginText = 'Login';
+    const registerText = 'Sign Up';
+    const profileText = 'Profile';
+    const settingsText = 'Settings';
+    const logoutText = 'Logout';
     
     this.shadowRoot.innerHTML = `
       <style>
         :host {
           display: block;
-          font-family: var(--font-primary, 'SpaceMono', monospace);
+          font-family: var(--font-primary, 'Roboto', sans-serif);
+          width: 100%;
         }
         
         .header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 30px;
+          padding: 16px;
+          background-color: white;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
         }
 
         /* Mobile menu styles */
@@ -64,7 +63,7 @@ class PfHeader extends HTMLElement {
           display: block;
           height: 3px;
           width: 100%;
-          background-color: var(--text-primary);
+          background-color: #F44B74;
           border-radius: 3px;
           transition: all 0.3s ease;
         }
@@ -171,8 +170,9 @@ class PfHeader extends HTMLElement {
         
         .logo h1 {
           margin: 0;
-          color: #e02337;
+          color: #F44B74;
           font-weight: bold;
+          font-size: 24px;
         }
         
         .nav-links {
@@ -182,36 +182,38 @@ class PfHeader extends HTMLElement {
         
         .nav-link {
           padding: 8px 15px;
-          color: var(--text-primary);
+          color: #333;
           text-decoration: none;
-          border-radius: 5px;
+          border-radius: 25px;
           transition: background-color 0.2s, color 0.2s;
+          font-size: 16px;
         }
         
         .nav-link:hover {
-          background-color: var(--surface-variant);
-          color: var(--primary-color);
+          background-color: rgba(244, 75, 116, 0.1);
+          color: #F44B74;
         }
         
         .nav-link.active {
-          background-color: var(--surface-variant);
-          color: var(--primary-color);
+          background-color: rgba(244, 75, 116, 0.1);
+          color: #F44B74;
           font-weight: bold;
         }
         
-        .subscription-link {
+        .register-link {
           display: inline-block;
           padding: 8px 15px;
-          background-color: #e02337;
+          background-color: #F44B74;
           color: white;
           text-decoration: none;
-          border-radius: 5px;
+          border-radius: 25px;
           font-weight: 500;
           transition: background-color 0.2s;
+          font-size: 16px;
         }
         
-        .subscription-link:hover {
-          background-color: #c01d2f;
+        .register-link:hover {
+          background-color: #E03A63;
         }
 
         /* User dropdown styles */
@@ -289,8 +291,7 @@ class PfHeader extends HTMLElement {
       <div class="header">
         <a href="/" class="logo-link" style="text-decoration: none;">
           <div class="logo">
-            <img src="/icons/logo.${this.currentTheme === 'dark' ? 'dark' : 'light'}.svg" alt="Profullstack, Inc. Logo">
-            <h1 data-i18n="app_name">convert2doc</h1>
+            <img src="/images/app-logo.png" alt="BarCrush Logo" style="width: 100%; height: auto;">
           </div>
         </a>
         
@@ -302,49 +303,19 @@ class PfHeader extends HTMLElement {
         </div>
         
         <div class="nav-links">
-          <a href="/dashboard" class="nav-link" id="dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
-          <a href="/api-keys" class="nav-link" id="api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
-          <a href="/login" class="nav-link login-link" id="login-link" data-i18n="navigation.login">${loginText}</a>
-          <a href="/register" class="subscription-link register-link" id="register-link" data-i18n="navigation.register">${registerText}</a>
+          <a href="/" class="nav-link" id="home-link">${homeText}</a>
+          <a href="/login" class="nav-link login-link" id="login-link">${loginText}</a>
+          <a href="/register" class="register-link" id="register-link">${registerText}</a>
           
-          <!-- Language Switcher moved after user dropdown in updateNavbar() -->
-          
-          <button class="theme-toggle" title="Toggle light/dark theme">
-            ${this.currentTheme === 'dark'
-              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"/>
-                </svg>`
-              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27105 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z"/>
-                </svg>`
-            }
-          </button>
+          <!-- No theme toggle for BarCrush -->
         </div>
       </div>
       
       <!-- Mobile menu container -->
       <div class="mobile-menu">
-        <a href="/dashboard" class="nav-link" id="mobile-dashboard-link" data-i18n="navigation.dashboard">${dashboardText}</a>
-        <a href="/api-keys" class="nav-link" id="mobile-api-keys-link" data-i18n="navigation.api_keys">${apiKeysText}</a>
-        <a href="/login" class="nav-link login-link" id="mobile-login-link" data-i18n="navigation.login">${loginText}</a>
-        <a href="/register" class="subscription-link register-link" id="mobile-register-link" data-i18n="navigation.register">${registerText}</a>
-        
-        <!-- Mobile Language Switcher -->
-        <language-switcher></language-switcher>
-        
-        <div class="mobile-theme-toggle-container">
-          <span data-i18n="navigation.theme">${themeText}</span>
-          <button class="theme-toggle mobile-theme-toggle" title="Toggle light/dark theme">
-            ${this.currentTheme === 'dark'
-              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z"/>
-                </svg>`
-              : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                  <path d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27105 10 5.04157 10 7ZM4 12C4 16.4183 7.58172 20 12 20C15.0583 20 17.7158 18.2839 19.062 15.7621C18.3945 15.9187 17.7035 16 17 16C12.0294 16 8 11.9706 8 7C8 6.29648 8.08133 5.60547 8.2379 4.938C5.71611 6.28423 4 8.9417 4 12Z"/>
-                </svg>`
-            }
-          </button>
-        </div>
+        <a href="/" class="nav-link" id="mobile-home-link">${homeText}</a>
+        <a href="/login" class="nav-link login-link" id="mobile-login-link">${loginText}</a>
+        <a href="/register" class="register-link" id="mobile-register-link">${registerText}</a>
       </div>
     `;
   }
@@ -571,17 +542,15 @@ class PfHeader extends HTMLElement {
       if (loginLink) loginLink.style.display = 'none';
       if (registerLink) registerLink.style.display = 'none';
       
-      // Show the dashboard and API keys links in desktop nav
-      if (dashboardLink) dashboardLink.style.display = '';
-      if (apiKeysLink) apiKeysLink.style.display = '';
+      // No need to show additional links in the main nav when logged in for BarCrush
+      // All user-specific navigation is in the dropdown
       
       // Hide the login and register links in mobile nav
       if (mobileLoginLink) mobileLoginLink.style.display = 'none';
       if (mobileRegisterLink) mobileRegisterLink.style.display = 'none';
       
-      // Show the dashboard and API keys links in mobile nav
-      if (mobileDashboardLink) mobileDashboardLink.style.display = '';
-      if (mobileApiKeysLink) mobileApiKeysLink.style.display = '';
+      // No need to show additional links in the mobile menu when logged in for BarCrush
+      // User-specific links will be added at the bottom of the mobile menu
       
       // Add the user dropdown to desktop nav
       const dropdownHtml = `
@@ -593,7 +562,7 @@ class PfHeader extends HTMLElement {
             </svg>
           </button>
           <div class="dropdown-menu">
-            <a href="/manage-subscription" class="dropdown-item">Manage Subscription</a>
+            <a href="/profile" class="dropdown-item">Profile</a>
             <a href="/settings" class="dropdown-item">Settings</a>
             <a href="#" class="dropdown-item logout-button">Logout</a>
           </div>
@@ -652,9 +621,9 @@ class PfHeader extends HTMLElement {
         if (!mobileMenu.querySelector('.mobile-settings-link')) {
           try {
             const mobileUserLinksHtml = `
-              <a href="/manage-subscription" class="nav-link mobile-subscription-link">Manage Subscription</a>
-              <a href="/settings" class="nav-link mobile-settings-link">Settings</a>
-              <a href="#" class="nav-link mobile-logout-link">Logout</a>
+              <a href="/profile" class="nav-link mobile-profile-link">${profileText}</a>
+              <a href="/settings" class="nav-link mobile-settings-link">${settingsText}</a>
+              <a href="#" class="nav-link mobile-logout-link">${logoutText}</a>
             `;
             mobileMenu.insertAdjacentHTML('beforeend', mobileUserLinksHtml);
             console.log('Mobile menu items added');
@@ -741,17 +710,17 @@ class PfHeader extends HTMLElement {
       if (loginLink) loginLink.style.display = '';
       if (registerLink) registerLink.style.display = '';
       
-      // Hide the dashboard and API keys links in desktop nav
-      if (dashboardLink) dashboardLink.style.display = 'none';
-      if (apiKeysLink) apiKeysLink.style.display = 'none';
+      // Hide any profile-related links in desktop nav when logged out
+      const profileLink = navLinks.querySelector('#profile-link');
+      if (profileLink) profileLink.style.display = 'none';
       
       // Show the login and register links in mobile nav
       if (mobileLoginLink) mobileLoginLink.style.display = '';
       if (mobileRegisterLink) mobileRegisterLink.style.display = '';
       
-      // Hide the dashboard and API keys links in mobile nav
-      if (mobileDashboardLink) mobileDashboardLink.style.display = 'none';
-      if (mobileApiKeysLink) mobileApiKeysLink.style.display = 'none';
+      // Hide any profile-related links in mobile nav when logged out
+      const mobileProfileLink = mobileMenu?.querySelector('.mobile-profile-link');
+      if (mobileProfileLink) mobileProfileLink.style.display = 'none';
       
       // Remove any user-specific links from mobile menu
       const mobileSettingsLink = mobileMenu?.querySelector('.mobile-settings-link');
