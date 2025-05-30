@@ -253,3 +253,55 @@ The router will handle loading the HTML, running the initializer function, and c
 6. **Clean Up Event Listeners**: If your initializer adds event listeners, make sure to remove them when the page is unloaded to prevent memory leaks.
 
 7. **Test Thoroughly**: Test your new route with different scenarios (logged in, logged out, with/without subscription) to ensure it behaves correctly.
+
+## Using the Route Generator Script
+
+For faster development, you can use the provided route generator script to automatically create all the necessary files and code for a new route.
+
+### Prerequisites
+
+Make sure the script is executable:
+
+```bash
+chmod +x bin/generator.js
+```
+
+### Usage
+
+```bash
+./bin/generator.js --route="/my-feature" --name="My Feature" [--auth] [--subscription]
+```
+
+### Options
+
+- `--route`: The route path (required, e.g., "/my-feature")
+- `--name`: The feature name (required, e.g., "My Feature")
+- `--auth`: Add this flag if the route requires authentication
+- `--subscription`: Add this flag if the route requires an active subscription
+- `--help`: Show help information
+
+### Example
+
+```bash
+./bin/generator.js --route="/contact-us" --name="Contact Us"
+```
+
+This will:
+
+1. Create a new HTML view file at `public/views/contact-us.html`
+2. Add an initializer function `initContactUsPage` to `public/js/page-initializers.js`
+3. Add the route to `public/js/router.js`
+
+For a protected route that requires authentication:
+
+```bash
+./bin/generator.js --route="/dashboard" --name="Dashboard" --auth
+```
+
+For a premium route that requires a subscription:
+
+```bash
+./bin/generator.js --route="/premium-feature" --name="Premium Feature" --auth --subscription
+```
+
+After running the generator, you can customize the generated files to fit your specific requirements.

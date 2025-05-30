@@ -417,3 +417,12 @@ This guide covers:
 - Handling authentication and subscription requirements
 - Best practices for route management
 
+We also provide a route generator script that automates the process:
+
+```bash
+# Generate a new route
+./bin/generator.js --route="/my-feature" --name="My Feature" [--auth] [--subscription]
+```
+
+This script creates all the necessary files and code for a new route in one step.
+
