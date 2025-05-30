@@ -1,4 +1,5 @@
 import { paymentService } from '../services/payment-service.js';
+import { apiKeyService } from '../services/api-key-service.js';
 import { errorUtils } from '../utils/error-utils.js';
 
 /**
@@ -33,10 +34,10 @@ export async function subscriptionCheck(c, next) {
     // For simplicity, we're using the API key as the email address
     const email = apiKey;
     
-    // Check if user has an active subscription
-    const hasActiveSubscription = await paymentService.hasActiveSubscription(email);
+    // Check if user has an active subscription or is an admin
+    const hasAccess = await apiKeyService.hasAccess(email);
     
-    if (!hasActiveSubscription) {
+    if (!hasAccess) {
       return c.json({ 
         error: 'Active subscription required', 
         subscription_required: true,

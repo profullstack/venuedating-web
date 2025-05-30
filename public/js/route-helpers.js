@@ -4,7 +4,23 @@
  * This module provides helper functions to simplify route creation and registration
  * for the SPA router.
  */
+import { apiKeyService } from '../../src/services/api-key-service.js';
 import { loadPage } from './router.js';
+
+/**
+ * Check if a user has access based on subscription status or admin privileges
+ * @param {Object} user - User object
+ * @returns {boolean} - Whether the user has access
+ */
+function hasAccess(user) {
+  if (!user) return false;
+  
+  // Admin users always have access
+  if (user.is_admin === true) return true;
+  
+  // Otherwise, check for active subscription
+  return user.subscription?.status === 'active';
+}
 
 /**
  * Create a route configuration object with common patterns
@@ -46,11 +62,10 @@ export function createRoute(viewPath, options = {}) {
             const userJson = localStorage.getItem('user');
             if (userJson) {
               const user = JSON.parse(userJson);
-              const hasActiveSubscription = user?.subscription?.status === 'active';
-              const isAdmin = user?.isAdmin === true;
+
+              const hasAccess = await apiKeyService.hasAccess(user.email);
               
-              // Allow access for users with either an active subscription or admin privileges
-              if (!hasActiveSubscription && !isAdmin) {
+              if (!hasAccess) {
                 console.log('Subscription required, redirecting to subscription page');
                 alert('You need an active subscription to access this page.');
                 return next('/subscription');
