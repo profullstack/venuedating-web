@@ -448,13 +448,13 @@ export function defineRoutes(router) {
       viewPath: '/views/simple-state-demo.html',
       afterRender: () => {
         import('./components/simple-counter.js').catch(error => {
-          console.error('Error loading simple-counter component:',
-  '/new-test-feature': {
-    viewPath: '/views/new-test-feature.html',
-    afterRender: initNewTestFeaturePage
-  } error);
+          console.error('Error loading simple-counter component:', error);
         });
       }
+    },
+    '/new-test-feature': {
+      viewPath: '/views/new-test-feature.html',
+      afterRender: initNewTestFeaturePage
     },
     '/test-feature': {
       viewPath: '/views/test-feature.html',
