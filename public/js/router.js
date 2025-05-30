@@ -12,8 +12,7 @@ import {
   initSubscriptionPage,
   initResetPasswordPage,
   initManageSubscriptionPage,
-  initTestFeaturePage,
-  initNewTestFeaturePage
+  initTestFeaturePage
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
@@ -465,10 +464,6 @@ export function defineRoutes(router) {
           console.error('Error loading simple-counter component:', error);
         });
       }
-    },
-    '/new-test-feature': {
-      viewPath: '/views/new-test-feature.html',
-      afterRender: initNewTestFeaturePage
     },
     '/test-feature': {
       viewPath: '/views/test-feature.html',
