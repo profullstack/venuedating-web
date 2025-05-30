@@ -302,6 +302,27 @@ This will:
 2. Add an initializer function `initContactUsPage` to `public/js/page-initializers.js`
 3. Add the route to `public/js/router.js`
 
+#### Generate a Client Component
+
+```bash
+./bin/generator.js client component --name="MyComponent" [--tag="my-component"] [--description="Description"]
+```
+
+Options:
+- `--name`: Component name (required, e.g., "UserCard" or "DataTable")
+- `--tag`: Custom HTML tag name (optional, default: kebab-case of component name)
+- `--description`: Component description (optional)
+
+Example:
+```bash
+./bin/generator.js client component --name="UserCard" --tag="user-card" --description="A custom component for displaying user information"
+```
+
+This will:
+1. Create a new web component file at `public/js/components/user-card.js`
+2. Set up the component to extend BaseComponent with Shadow DOM
+3. Include template, styles, and event handling
+
 ### Server-Side Commands
 
 #### Generate a Server Route
@@ -372,6 +393,7 @@ For general help:
 For command-specific help:
 ```bash
 ./bin/generator.js client route --help
+./bin/generator.js client component --help
 ./bin/generator.js server route --help
 ./bin/generator.js server migration --help
 ./bin/generator.js server controller --help
@@ -386,10 +408,12 @@ The generator script uses a template-based approach for creating files. Template
 ```
 templates/
 ├── client/
-│   └── route/
-│       ├── view.html.template
-│       ├── view.js.template
-│       └── initializer.js.template
+│   ├── route/
+│   │   ├── view.html.template
+│   │   ├── view.js.template
+│   │   └── initializer.js.template
+│   └── component/
+│       └── component.js.template
 └── server/
     ├── controller.js.template
     ├── route.js.template

@@ -1,0 +1,12 @@
+/**
+ * {{entityName}} routes
+ */
+import express from 'express';
+import * as {{controllerName}} from '../controllers/{{controllerFileName}}';
+
+const router = express.Router();
+
+// {{methodUpper}} {{routePath}}
+router.{{methodLower}}('{{routePath}}', {{controllerName}}.{{methodName}});
+
+export default router;
