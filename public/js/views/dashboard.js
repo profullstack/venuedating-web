@@ -33,12 +33,14 @@ function initDashboard() {
     }
   }
   
-  // Verify subscription status
+  // Verify subscription status or admin privileges
   const hasActiveSubscription = user &&
                                user.subscription &&
                                user.subscription.status === 'active';
+  const isAdmin = user && user.isAdmin === true;
   
-  if (!hasActiveSubscription) {
+  // Allow access for users with either an active subscription or admin privileges
+  if (!hasActiveSubscription && !isAdmin) {
     // Redirect to subscription page
     alert('You need an active subscription to access the dashboard.');
     window.router.navigate('/subscription');
