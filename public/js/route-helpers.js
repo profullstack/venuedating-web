@@ -47,8 +47,10 @@ export function createRoute(viewPath, options = {}) {
             if (userJson) {
               const user = JSON.parse(userJson);
               const hasActiveSubscription = user?.subscription?.status === 'active';
+              const isAdmin = user?.isAdmin === true;
               
-              if (!hasActiveSubscription) {
+              // Allow access for users with either an active subscription or admin privileges
+              if (!hasActiveSubscription && !isAdmin) {
                 console.log('Subscription required, redirecting to subscription page');
                 alert('You need an active subscription to access this page.');
                 return next('/subscription');
