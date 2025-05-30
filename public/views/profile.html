@@ -266,7 +266,7 @@
   }
   
   .year-month-selector {
-    display: flex;
+    display: block;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -286,7 +286,7 @@
   }
 
   .selected-year {
-    font-size: 42px;
+    font-size: 20px;
     font-weight: 700;
     color: #F44B74;
     margin-bottom: 4px;
@@ -304,6 +304,71 @@
     width: 100%;
     margin-bottom: 20px;
     max-height: 300px;
+  }
+  
+  .selector-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    margin: 10px 0;
+    color: #333;
+  }
+  
+  .year-scroll-container, .month-scroll-container {
+    height: 220px;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: y mandatory;
+    padding: 60px 0;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    background: linear-gradient(
+      to bottom,
+      white 0%,
+      rgba(255,255,255,0.8) 20%,
+      rgba(255,255,255,0.4) 40%,
+      rgba(255,255,255,0.4) 60%,
+      rgba(255,255,255,0.8) 80%,
+      white 100%
+    );
+  }
+  
+  .year-scroll-container:before, .year-scroll-container:after,
+  .month-scroll-container:before, .month-scroll-container:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  .year-scroll-container:before, .month-scroll-container:before {
+    top: 0;
+    background: linear-gradient(to bottom, white, rgba(255,255,255,0));
+  }
+  
+  .year-scroll-container:after, .month-scroll-container:after {
+    bottom: 0;
+    background: linear-gradient(to top, white, rgba(255,255,255,0));
+  }
+  
+  .year-item, .month-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    scroll-snap-align: center;
+    color: #333;
+  }
+  
+  .year-item.selected, .month-item.selected {
+    color: #F44B74;
+    font-weight: bold;
+    font-size: 22px;
     overflow-y: auto;
   }
   
@@ -441,28 +506,26 @@
     <h2>Birthday</h2>
     
     <div class="year-month-selector">
-      <button class="nav-btn prev-btn">&lt;</button>
-      <div>
+      <div style="text-align: center; font-size: 16px;">
         <div class="selected-year" id="selected-year" onclick="toggleYearSelector()">2025</div>
         <div class="selected-month" id="selected-month" onclick="toggleMonthSelector()">July</div>
       </div>
-      <button class="nav-btn next-btn">&gt;</button>
     </div>
     
     <div class="year-selector" id="year-selector">
-      <div class="year-navigation">
-        <button class="year-nav-btn prev-decade-btn">&lt;&lt; Previous</button>
-        <button class="year-nav-btn next-decade-btn">Next &gt;&gt;</button>
+      <div class="selector-header">
+        <button class="close-btn" onclick="toggleYearSelector()">Done</button>
       </div>
-      <div class="year-grid" id="year-grid">
-        <!-- Years will be populated by JavaScript -->
-      </div>
+      <div class="selector-title">Select Year</div>
+      <div class="year-scroll-container" id="year-scroll-container"></div>
     </div>
     
     <div class="month-selector" id="month-selector">
-      <div class="month-grid" id="month-grid">
-        <!-- Months will be populated by JavaScript -->
+      <div class="selector-header">
+        <button class="close-btn" onclick="toggleMonthSelector()">Done</button>
       </div>
+      <div class="selector-title">Select Month</div>
+      <div class="month-scroll-container" id="month-scroll-container"></div>
     </div>
     
     <div class="calendar-grid" id="calendar-grid">
@@ -491,30 +554,39 @@
     }
   }
   
-  // Toggle year selector
+  // Toggle the year selector
   function toggleYearSelector() {
     const yearSelector = document.getElementById('year-selector');
     const monthSelector = document.getElementById('month-selector');
     const calendarGrid = document.getElementById('calendar-grid');
+    const saveBtn = document.getElementById('save-date-btn');
     
-    // Close month selector if open
+    // Hide month selector if visible
     monthSelector.classList.remove('active');
     
+    // Toggle year selector
     if (yearSelector.classList.contains('active')) {
       yearSelector.classList.remove('active');
       calendarGrid.style.display = 'grid';
+      // Show the save button again
+      saveBtn.style.display = 'block';
     } else {
       yearSelector.classList.add('active');
       calendarGrid.style.display = 'none';
-      populateYearGrid();
+      // Hide the save button
+      saveBtn.style.display = 'none';
+      
+      // Populate the year scroller (Apple-style) dynamically
+      populateYearScroller();
     }
   }
   
   // Toggle month selector
   function toggleMonthSelector() {
-    const monthSelector = document.getElementById('month-selector');
     const yearSelector = document.getElementById('year-selector');
+    const monthSelector = document.getElementById('month-selector');
     const calendarGrid = document.getElementById('calendar-grid');
+    const saveBtn = document.getElementById('save-date-btn');
     
     // Close year selector if open
     yearSelector.classList.remove('active');
@@ -522,169 +594,272 @@
     if (monthSelector.classList.contains('active')) {
       monthSelector.classList.remove('active');
       calendarGrid.style.display = 'grid';
+      // Show the save button again
+      saveBtn.style.display = 'block';
     } else {
       monthSelector.classList.add('active');
       calendarGrid.style.display = 'none';
-      populateMonthGrid();
+      // Hide the save button
+      saveBtn.style.display = 'none';
+      populateMonthScroller();
     }
   }
   
   // Store the current decade view to support navigation
   window.currentDecadeView = null;
   
-  // Populate the year grid
-  function populateYearGrid() {
-    const yearGrid = document.getElementById('year-grid');
+  // Populate the year scroller with Apple-style picker
+  function populateYearScroller() {
+    const yearContainer = document.getElementById('year-scroll-container');
     const currentYear = new Date().getFullYear();
-    yearGrid.innerHTML = '';
+    yearContainer.innerHTML = '';
     
-    // Set the current decade view if not already set
-    if (window.currentDecadeView === null) {
-      window.currentDecadeView = Math.floor(currentYear / 10) * 10;
-    }
+    // Create a list of years starting from 18 years ago (legal age requirement)
+    const maxYear = currentYear - 18; // Start from 18 years ago (legal age)
+    const startYear = currentYear - 80; // Allow selection from 80 years ago
     
-    // Get reference to decade navigation buttons
-    const prevDecadeBtn = document.querySelector('.prev-decade-btn');
-    const nextDecadeBtn = document.querySelector('.next-decade-btn');
-    
-    // Configure decade navigation buttons
-    prevDecadeBtn.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.currentDecadeView -= 30; // Go back 3 decades at a time
-      populateYearGrid();
-      return false;
-    };
-    
-    nextDecadeBtn.onclick = function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.currentDecadeView += 30; // Go forward 3 decades at a time
-      if (window.currentDecadeView > Math.floor(currentYear / 10) * 10) {
-        window.currentDecadeView = Math.floor(currentYear / 10) * 10; // Don't go beyond current decade
+    // Add each year as a scrollable option, starting from 18 years ago
+    for (let year = maxYear; year >= startYear; year--) {
+      const yearItem = document.createElement('div');
+      yearItem.classList.add('year-item');
+      if (window.currentYear === year) {
+        yearItem.classList.add('selected');
       }
-      populateYearGrid();
-      return false;
-    };
-    
-    // Add decade headings and organize years by decade
-    // Show 3 decades at a time, with a 200-year range
-    const startDecade = window.currentDecadeView;
-    const endDecade = Math.max(startDecade - 20, startDecade - 200); // 200-year range or 20 decades
-    
-    // Create a more organized layout with decades
-    for (let decade = startDecade; decade >= endDecade; decade -= 10) {
-      // Add a decade indicator
-      const decadeIndicator = document.createElement('div');
-      decadeIndicator.classList.add('decade-indicator');
-      decadeIndicator.textContent = `${decade}s`;
-      decadeIndicator.style.gridColumn = '1 / span 4';
-      decadeIndicator.style.fontWeight = 'bold';
-      decadeIndicator.style.padding = '10px 0 5px';
-      decadeIndicator.style.borderBottom = '1px solid #eee';
-      decadeIndicator.style.marginBottom = '5px';
-      yearGrid.appendChild(decadeIndicator);
+      yearItem.setAttribute('data-year', year);
+      yearItem.textContent = year;
       
-      // Add years within this decade
-      for (let i = 0; i < 10; i++) {
-        const year = decade + i;
-        if (year > currentYear) continue; // Skip future years
-        
-        const yearItem = document.createElement('div');
-        yearItem.classList.add('year-item');
-        yearItem.textContent = year;
-        
-        if (year === window.currentYear) {
-          yearItem.classList.add('selected');
-        }
-        
-        yearItem.addEventListener('click', function() {
-          // Update selected year
-          window.currentYear = year;
-          document.getElementById('selected-year').textContent = year;
-          
-          // Close year selector and show calendar
-          document.getElementById('year-selector').classList.remove('active');
-          document.getElementById('calendar-grid').style.display = 'grid';
-          
-          // Update calendar days
-          renderCalendarDays();
-        });
-        
-        yearGrid.appendChild(yearItem);
-      }
+      yearItem.addEventListener('click', function() {
+        // Update selected year
+        selectYear(year);
+      });
+      
+      yearContainer.appendChild(yearItem);
     }
     
-    // Add instructions for navigation
-    const instructionEl = document.createElement('div');
-    instructionEl.style.textAlign = 'center';
-    instructionEl.style.padding = '10px';
-    instructionEl.style.fontSize = '14px';
-    instructionEl.style.color = '#666';
-    instructionEl.textContent = 'Use the buttons above to navigate through more years';
-    yearGrid.appendChild(instructionEl);
+    // Add scroll event to handle selection based on scroll position
+    yearContainer.addEventListener('scroll', function() {
+      const containerRect = yearContainer.getBoundingClientRect();
+      const containerCenter = containerRect.top + (containerRect.height / 2);
+      
+      // Find the item closest to center
+      let closestItem = null;
+      let closestDistance = Infinity;
+      
+      const yearItems = yearContainer.querySelectorAll('.year-item');
+      yearItems.forEach(item => {
+        const itemRect = item.getBoundingClientRect();
+        const itemCenter = itemRect.top + (itemRect.height / 2);
+        const distance = Math.abs(containerCenter - itemCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestItem = item;
+        }
+      });
+      
+      if (closestItem) {
+        // Remove selected class from all items
+        yearItems.forEach(item => item.classList.remove('selected'));
+        
+        // Add selected class to closest item
+        closestItem.classList.add('selected');
+        
+        // Update the selected year (without closing the selector)
+        const selectedYear = parseInt(closestItem.getAttribute('data-year'));
+        if (window.currentYear !== selectedYear) {
+          window.currentYear = selectedYear;
+          document.getElementById('selected-year').textContent = selectedYear;
+        }
+      }
+    });
+    
+    // Initial scroll to position the selected year in the middle
+    setTimeout(() => {
+      const selectedItem = yearContainer.querySelector('.year-item.selected');
+      if (selectedItem) {
+        selectedItem.scrollIntoView({ block: 'center' });
+      }
+    }, 100);
   }
   
-  // Populate the month grid
-  function populateMonthGrid() {
-    const monthGrid = document.getElementById('month-grid');
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    monthGrid.innerHTML = '';
+  // Function to select a year
+  function selectYear(year) {
+    // Update the selected year
+    window.currentYear = year;
+    document.getElementById('selected-year').textContent = year;
     
-    // Generate all 12 months
-    for (let i = 0; i < 12; i++) {
+    // Update the visual selection
+    const yearItems = document.querySelectorAll('.year-item');
+    yearItems.forEach(item => {
+      if (parseInt(item.getAttribute('data-year')) === year) {
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected');
+      }
+    });
+    
+    // Close the year selector if we're not just scrolling
+    document.getElementById('year-selector').classList.remove('active');
+    
+    // Show calendar grid
+    document.getElementById('calendar-grid').style.display = 'grid';
+    
+    // Show save button if both year and month are selected (month is always selected by default)
+    const saveBtn = document.getElementById('save-date-btn');
+    if (window.currentYear !== null) {
+      saveBtn.style.display = 'block';
+    }
+    
+    // Update calendar days
+    renderCalendarDays();
+  }
+  
+  // Populate the month scroller with Apple-style picker
+  function populateMonthScroller() {
+    const monthContainer = document.getElementById('month-scroll-container');
+    monthContainer.innerHTML = '';
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Add each month as a scrollable option
+    monthNames.forEach((month, index) => {
       const monthItem = document.createElement('div');
       monthItem.classList.add('month-item');
-      monthItem.textContent = monthNames[i];
-      
-      if (i === window.currentMonth) {
+      if (window.currentMonth === index) {
         monthItem.classList.add('selected');
       }
+      monthItem.setAttribute('data-month-index', index);
+      monthItem.textContent = month;
       
       monthItem.addEventListener('click', function() {
         // Update selected month
-        window.currentMonth = i;
-        document.getElementById('selected-month').textContent = monthNames[i];
-        
-        // Close month selector and show calendar
-        document.getElementById('month-selector').classList.remove('active');
-        document.getElementById('calendar-grid').style.display = 'grid';
-        
-        // Update calendar days
-        renderCalendarDays();
+        selectMonth(index);
       });
       
-      monthGrid.appendChild(monthItem);
+      monthContainer.appendChild(monthItem);
+    });
+    
+    // Add scroll event to handle selection based on scroll position
+    monthContainer.addEventListener('scroll', function() {
+      const containerRect = monthContainer.getBoundingClientRect();
+      const containerCenter = containerRect.top + (containerRect.height / 2);
+      
+      // Find the item closest to center
+      let closestItem = null;
+      let closestDistance = Infinity;
+      
+      const monthItems = monthContainer.querySelectorAll('.month-item');
+      monthItems.forEach(item => {
+        const itemRect = item.getBoundingClientRect();
+        const itemCenter = itemRect.top + (itemRect.height / 2);
+        const distance = Math.abs(containerCenter - itemCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestItem = item;
+        }
+      });
+      
+      if (closestItem) {
+        // Remove selected class from all items
+        monthItems.forEach(item => item.classList.remove('selected'));
+        
+        // Add selected class to closest item
+        closestItem.classList.add('selected');
+        
+        // Update the selected month (without closing the selector)
+        const selectedMonthIndex = parseInt(closestItem.getAttribute('data-month-index'));
+        if (window.currentMonth !== selectedMonthIndex) {
+          window.currentMonth = selectedMonthIndex;
+          document.getElementById('selected-month').textContent = monthNames[selectedMonthIndex];
+        }
+      }
+    });
+    
+    // Initial scroll to position the selected month in the middle
+    setTimeout(() => {
+      const selectedItem = monthContainer.querySelector('.month-item.selected');
+      if (selectedItem) {
+        selectedItem.scrollIntoView({ block: 'center' });
+      }
+    }, 100);
+  }
+  
+  // Function to select a month
+  function selectMonth(monthIndex) {
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Update the selected month
+    window.currentMonth = monthIndex;
+    document.getElementById('selected-month').textContent = monthNames[monthIndex];
+    
+    // Update the visual selection
+    const monthItems = document.querySelectorAll('.month-item');
+    monthItems.forEach(item => {
+      if (parseInt(item.getAttribute('data-month-index')) === monthIndex) {
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected');
+      }
+    });
+    
+    // Close the month selector if we're not just scrolling
+    document.getElementById('month-selector').classList.remove('active');
+    
+    // Show calendar grid
+    document.getElementById('calendar-grid').style.display = 'grid';
+    
+    // Show save button if both year and month are selected
+    const saveBtn = document.getElementById('save-date-btn');
+    if (window.currentYear !== null) {
+      saveBtn.style.display = 'block';
+    } else {
+      saveBtn.style.display = 'none';
     }
+    
+    // Update calendar days
+    renderCalendarDays();
   }
   
   // Initialize the calendar
   function initCalendar() {
+    const today = new Date();
     const selectedYearEl = document.getElementById('selected-year');
     const selectedMonthEl = document.getElementById('selected-month');
-    const calendarGrid = document.getElementById('calendar-grid');
+    const saveBtn = document.getElementById('save-date-btn');
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     
-    // Default date values
-    if (window.currentYear === undefined) {
-      // Set to current year
-      const today = new Date();
-      window.currentYear = today.getFullYear();
-      window.currentMonth = today.getMonth();
-      window.selectedDate = null;
-    }
+    // Set the current month for the picker
+    window.currentMonth = today.getMonth();
     
-    // Update display
+    // Default to 18 years ago - the legal age requirement
+    window.currentYear = today.getFullYear() - 18;
+    
+    // Update month display with simple label
+    selectedMonthEl.textContent = 'Select Month';
+    // Show the default year (18 years ago)
     selectedYearEl.textContent = window.currentYear;
-    selectedMonthEl.textContent = monthNames[window.currentMonth];
     
-    // Reset year selector and show calendar
-    const yearSelector = document.getElementById('year-selector');
-    yearSelector.classList.remove('active');
-    calendarGrid.style.display = 'grid';
+    // Always show the save button when in calendar view, regardless of selection state
+    saveBtn.style.display = 'block';
     
     // Render days
     renderCalendarDays();
+    
+    // Initialize grids for year and month selectors
+    populateYearGrid();
+    populateMonthGrid();
+    
+    // Close modal when clicking outside of it
+    const modal = document.getElementById('birthday-picker-modal');
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+    
+    // Disable body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
   }
   
   // Render calendar days

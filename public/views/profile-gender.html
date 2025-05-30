@@ -135,12 +135,18 @@
 </style>
 
 <script>
-  // Global function to select gender
+  // Track the selected gender
+  let selectedGender = 'man'; // Default to 'man' since it's pre-selected in the UI
+  
+  // Function to handle gender selection
   function selectGender(gender) {
-    // Get all gender option buttons
+    // Update the selected gender
+    selectedGender = gender;
+    
+    // Update UI to show selected gender
     const genderOptions = document.querySelectorAll('.gender-option');
     
-    // Remove selected class from all options
+    // First, reset all options
     genderOptions.forEach(opt => {
       opt.classList.remove('selected');
       // Reset stroke color on all checkmarks
@@ -150,12 +156,10 @@
       }
     });
     
-    // Add selected class to clicked option
+    // Select the chosen option
     const selectedOption = document.querySelector(`.gender-option[data-gender="${gender}"]`);
     if (selectedOption) {
       selectedOption.classList.add('selected');
-      
-      // Change stroke color to white for the selected option's checkmark
       const checkPath = selectedOption.querySelector('.check-icon path');
       if (checkPath) {
         checkPath.setAttribute('stroke', 'white');
@@ -196,7 +200,7 @@
         localStorage.setItem('userProfile', JSON.stringify(userData));
         
         // Navigate to next page
-        window.location.href = '#/interests'; // Assuming interests is the next page
+        window.location.href = '/profile-interests'; // Navigate to interests page
       }
     });
   });
