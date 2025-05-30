@@ -1,12 +1,27 @@
 /**
  * {{entityName}} routes
  */
-import express from 'express';
-import * as {{controllerName}} from '../controllers/{{controllerFileName}}';
+import { {{controllerName}} } from '../controllers/{{controllerFileName}}';
 
-const router = express.Router();
+/**
+ * Handler for {{methodUpper}} {{routePath}}
+ * @param {Object} c - Hono context
+ * @returns {Response} - Response object
+ */
+export async function {{methodName}}Handler(c) {
+  try {
+    return await {{controllerName}}.{{methodName}}(c);
+  } catch (error) {
+    console.error(`Error in {{methodName}}:`, error);
+    return c.json({ error: error.message || 'An unexpected error occurred' }, 500);
+  }
+}
 
-// {{methodUpper}} {{routePath}}
-router.{{methodLower}}('{{routePath}}', {{controllerName}}.{{methodName}});
-
-export default router;
+/**
+ * Route configuration for {{entityName}} endpoint
+ */
+export const {{entityName}}Route = {
+  method: '{{methodUpper}}',
+  path: '{{routePath}}',
+  handler: {{methodName}}Handler
+};
