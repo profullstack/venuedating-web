@@ -4,7 +4,6 @@
  * This module provides helper functions to simplify route creation and registration
  * for the SPA router.
  */
-import { apiKeyService } from '../../src/services/api-key-service.js';
 import { loadPage } from './router.js';
 
 /**
