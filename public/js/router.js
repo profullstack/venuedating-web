@@ -3,12 +3,13 @@
  */
 import { Router, transitions, renderer, componentLoader } from './deps.js';
 import { localizer } from './i18n-setup.js';
+import { createRoutes } from './route-helpers.js';
 import {
-  initLoginPage, 
-  initRegisterPage, 
-  initApiKeysPage, 
-  initSettingsPage, 
-  initSubscriptionPage, 
+  initLoginPage,
+  initRegisterPage,
+  initApiKeysPage,
+  initSettingsPage,
+  initSubscriptionPage,
   initResetPasswordPage,
   initManageSubscriptionPage
 } from './page-initializers.js';
@@ -67,7 +68,12 @@ function createLayoutFragment(content, pageUrl) {
  * @param {string} url - Page URL
  * @returns {Promise<string>} - Page HTML
  */
-async function loadPage(url) {
+/**
+ * Load a page from the server
+ * @param {string} url - Page URL
+ * @returns {Promise<string>} - Page HTML
+ */
+export async function loadPage(url) {
   try {
     // Add cache-busting parameter
     const fullUrl = `${url}?_=${Date.now()}`;
@@ -428,141 +434,71 @@ export function createRouter(options = {}) {
 export function defineRoutes(router) {
   console.log('Defining routes...');
   
-  // Define routes
-  const routes = {
-    '/': {
-      view: () => loadPage('/views/home.html'),
-      afterRender: () => {
-        setTimeout(() => {
-          window.location.href = '/auth';
-        }, 1000); // 1 second splash
-      }
-    },
+  // Define routes using the createRoutes helper
+  const routes = createRoutes({
+    // Public routes
+    '/': '/views/home.html',
+    
+    // Authentication routes
     '/login': {
-      view: () => loadPage('/views/login.html'),
-      afterRender: () => initLoginPage()
+      viewPath: '/views/login.html',
+      afterRender: initLoginPage
     },
     '/register': {
-      view: () => loadPage('/views/register.html'),
-      afterRender: () => initRegisterPage()
+      viewPath: '/views/register.html',
+      afterRender: initRegisterPage
     },
     '/reset-password': {
-      view: () => loadPage('/views/reset-password.html'),
-      afterRender: () => initResetPasswordPage()
+      viewPath: '/views/reset-password.html',
+      afterRender: initResetPasswordPage
     },
-    '/reset-password-confirm': {
-      view: () => loadPage('/views/reset-password-confirm.html')
-    },
-    '/state-demo': {
-      view: () => loadPage('/views/state-demo.html')
-    },
+    '/reset-password-confirm': '/views/reset-password-confirm.html',
+    
+    // Demo routes
+    '/state-demo': '/views/state-demo.html',
     '/simple-state-demo': {
-      view: () => loadPage('/views/simple-state-demo.html'),
+      viewPath: '/views/simple-state-demo.html',
       afterRender: () => {
         import('./components/simple-counter.js').catch(error => {
           console.error('Error loading simple-counter component:', error);
         });
       }
     },
+    '/i18n-demo': '/views/i18n-demo.html',
+    
+    // Protected routes
     '/dashboard': {
-      view: () => loadPage('/views/dashboard.html'),
-      beforeEnter: async (to, from, next) => {
-        try {
-          const { checkAuthStatus } = await import('./utils/auth-status.js');
-          const status = await checkAuthStatus();
-          
-          if (!status.authenticated) {
-            return next('/login');
-          }
-          
-          // Check subscription status
-          const userJson = localStorage.getItem('user');
-          if (userJson) {
-            const user = JSON.parse(userJson);
-            const hasActiveSubscription = user?.subscription?.status === 'active';
-            
-            if (!hasActiveSubscription) {
-              alert('You need an active subscription to access the dashboard.');
-              return next('/subscription');
-            }
-          }
-          
-          next();
-        } catch (error) {
-          console.error('Error checking authentication status:', error);
-          return next('/login');
-        }
-      }
+      viewPath: '/views/dashboard.html',
+      requireAuth: true,
+      requireSubscription: true
     },
-    '/api-docs': {
-      view: () => loadPage('/views/api-docs.html')
-    },
+    '/api-docs': '/views/api-docs.html',
     '/api-keys': {
-      view: () => loadPage('/views/api-keys.html'),
-      afterRender: () => initApiKeysPage()
+      viewPath: '/views/api-keys.html',
+      afterRender: initApiKeysPage,
+      requireAuth: true
     },
     '/settings': {
-      view: () => loadPage('/views/settings.html'),
-      afterRender: () => initSettingsPage()
+      viewPath: '/views/settings.html',
+      afterRender: initSettingsPage,
+      requireAuth: true
     },
     '/subscription': {
-      view: () => loadPage('/views/subscription.html'),
-      afterRender: () => initSubscriptionPage()
+      viewPath: '/views/subscription.html',
+      afterRender: initSubscriptionPage
     },
-    '/stripe-payment': {
-      view: () => loadPage('/views/stripe-payment-new.html')
-    },
-    '/auth': {
-      view: () => loadPage('/views/auth.html')
-    },
-    '/auth.html': {
-      view: () => loadPage('/views/auth.html')
-    },
-    '/profile': {
-      view: () => loadPage('/views/profile.html')
-    },
-    '/profile-gender': {
-      view: () => loadPage('/views/profile-gender.html')
-    },
-    '/profile-interests': {
-      view: () => loadPage('/views/profile-interests.html')
-    },
-    '/profile-complete': {
-      view: () => loadPage('/views/profile-complete.html')
-    },
-    '/privacy': {
-      view: () => loadPage('/views/privacy.html')
-    },
-    '/refund': {
-      view: () => loadPage('/views/refund.html')
-    },
-    '/i18n-demo': {
-      view: () => loadPage('/views/i18n-demo.html')
-    },
+    '/stripe-payment': '/views/stripe-payment-new.html',
+    
+    // Legal routes
+    '/terms': '/views/terms.html',
+    '/privacy': '/views/privacy.html',
+    '/refund': '/views/refund.html',
+    
+    // Subscription management
     '/manage-subscription': {
-      view: () => loadPage('/views/manage-subscription.html'),
-      afterRender: () => initManageSubscriptionPage(),
-      beforeEnter: async (to, from, next) => {
-        try {
-          const { checkAuthStatus } = await import('./utils/auth-status.js');
-          const status = await checkAuthStatus();
-          
-          if (!status.authenticated) {
-            return next('/login');
-          }
-          next();
-        } catch (error) {
-          console.error('Error checking authentication status:', error);
-          return next('/login');
-        }
-      }
-    }
-  };
-  
-  // Add aliases for routes with .html extension
-  Object.keys(routes).forEach(path => {
-    if (path !== '/') {
-      routes[`${path}.html`] = routes[path];
+      viewPath: '/views/manage-subscription.html',
+      afterRender: initManageSubscriptionPage,
+      requireAuth: true
     }
   });
   
