@@ -20,12 +20,12 @@
   <div class="profile-form">
     <div class="input-group">
       <label for="first-name">First name</label>
-      <input type="text" id="first-name" value="David">
+      <input type="text" id="first-name" placeholder="Jane">
     </div>
     
     <div class="input-group">
       <label for="last-name">Last name</label>
-      <input type="text" id="last-name" value="Peterson">
+      <input type="text" id="last-name" placeholder="Doe">
     </div>
     
     <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
@@ -616,7 +616,7 @@
     
     // Create a list of years starting from 18 years ago (legal age requirement)
     const maxYear = currentYear - 18; // Start from 18 years ago (legal age)
-    const startYear = currentYear - 80; // Allow selection from 80 years ago
+    const startYear = currentYear - 200; // Allow selection from 200 years ago
     
     // Add each year as a scrollable option, starting from 18 years ago
     for (let year = maxYear; year >= startYear; year--) {
@@ -838,7 +838,7 @@
     // Update month display with simple label
     selectedMonthEl.textContent = 'Select Month';
     // Show the default year (18 years ago)
-    selectedYearEl.textContent = window.currentYear;
+    selectedYearEl.textContent = 'Select Year';
     
     // Always show the save button when in calendar view, regardless of selection state
     saveBtn.style.display = 'block';
