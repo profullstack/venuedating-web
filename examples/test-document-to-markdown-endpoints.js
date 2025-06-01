@@ -65,7 +65,11 @@ async function testDocxToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testDocxBase64,
@@ -99,7 +103,11 @@ async function testDocToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testDocBase64,
@@ -133,7 +141,11 @@ async function testEpubToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testEpubBase64,
@@ -167,7 +179,11 @@ async function testTextToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testTextBase64,
@@ -201,7 +217,11 @@ async function testPptxToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testPptxBase64,
@@ -235,7 +255,11 @@ async function testXlsxToMarkdown() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer YOUR_AUTH_TOKEN' // Replace with actual token
+        // Use one of the following authentication methods:
+        // 1. For JWT tokens:
+        // 'Authorization': 'Bearer YOUR_JWT_TOKEN', // Replace with actual JWT token
+        // 2. For API keys (comment out the Authorization header above and use this instead):
+        'X-API-Key': 'YOUR_API_KEY' // Replace with actual API key (starts with pfs_)
       },
       body: JSON.stringify({
         file: testXlsxBase64,

@@ -4,7 +4,7 @@ import path from 'path';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
 import os from 'os';
-import * as XLSX from 'xlsx';
+import { read, utils } from 'xlsx/xlsx.mjs';
 
 const execPromise = promisify(exec);
 
@@ -29,7 +29,8 @@ export const xlsxToMarkdownService = {
       await fs.promises.writeFile(inputPath, xlsxBuffer);
       
       // Read the workbook using xlsx package
-      const workbook = XLSX.readFile(inputPath);
+      const buffer = await fs.promises.readFile(inputPath);
+      const workbook = read(buffer);
       
       // Array to store markdown content from each sheet
       const markdownParts = [];
@@ -42,7 +43,7 @@ export const xlsxToMarkdownService = {
         const worksheet = workbook.Sheets[sheetName];
         
         // Convert worksheet to CSV
-        const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+        const csvContent = utils.sheet_to_csv(worksheet);
         
         // Create temporary files for CSV and Markdown
         const csvId = uuidv4();
