@@ -1,5 +1,5 @@
 /**
- * Footer component for the application
+ * Footer component for BarCrush application
  */
 class PfFooter extends HTMLElement {
   constructor() {
@@ -45,13 +45,14 @@ class PfFooter extends HTMLElement {
       <style>
         :host {
           display: block;
-          font-family: var(--font-primary, 'SpaceMono', monospace);
+          font-family: var(--font-primary, 'Roboto', sans-serif);
           margin-top: 60px;
         }
         
         .footer {
-          padding: 30px 0;
-          border-top: 1px solid var(--border-color);
+          padding: 30px 16px;
+          border-top: 1px solid #eee;
+          background-color: white;
         }
         
         .footer-content {
@@ -67,10 +68,11 @@ class PfFooter extends HTMLElement {
         }
         
         .footer-section h3 {
-          color: var(--primary-color);
+          color: #F44B74;
           margin-top: 0;
           margin-bottom: 15px;
           font-size: 18px;
+          font-weight: 600;
         }
         
         .footer-links {
@@ -80,24 +82,37 @@ class PfFooter extends HTMLElement {
         }
         
         .footer-links li {
-          margin-bottom: 10px;
+          margin-bottom: 12px;
         }
         
         .footer-links a {
-          color: var(--text-secondary);
+          color: #333;
           text-decoration: none;
           transition: color 0.2s;
+          font-size: 15px;
         }
         
         .footer-links a:hover {
-          color: var(--primary-color);
+          color: #F44B74;
         }
         
         .copyright {
           margin-top: 30px;
           text-align: center;
-          color: var(--text-tertiary);
+          color: #777;
           font-size: 14px;
+        }
+        
+        .footer-logo {
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        
+        .footer-logo img {
+          width: 40px;
+          height: 32px;
+          margin-right: 10px;
         }
         
         @media (max-width: 768px) {
@@ -112,14 +127,14 @@ class PfFooter extends HTMLElement {
           <div class="footer-section">
             <h3 data-i18n="app_name">BarCrush</h3>
             <ul class="footer-links">
-              <li><a href="/" data-i18n="footer.home">Home</a></li>
-              <li><a href="/api-keys" data-i18n="footer.api_docs">API Documentation</a></li>
-              <li><a href="/subscription" data-i18n="footer.pricing">Pricing</a></li>
+              <li><a href="/">Home</a></li>
+              <li><a href="/auth">Login / Sign Up</a></li>
+              <li><a href="/about">About Us</a></li>
             </ul>
           </div>
           
           <div class="footer-section">
-            <h3 data-i18n="footer.resources">Resources</h3>
+            <h3>Discover</h3>
             <ul class="footer-links">
               <li><a href="/api-keys" data-i18n="footer.api_keys">API Keys</a></li>
               <li><a href="mailto:support@barcrush.app" data-i18n="footer.support">Support</a></li>
@@ -127,11 +142,11 @@ class PfFooter extends HTMLElement {
           </div>
           
           <div class="footer-section">
-            <h3 data-i18n="footer.legal">Legal</h3>
+            <h3>Legal</h3>
             <ul class="footer-links">
-              <li><a href="/terms" data-i18n="footer.terms">Terms of Service</a></li>
-              <li><a href="/privacy" data-i18n="footer.privacy">Privacy Policy</a></li>
-              <li><a href="/refund" data-i18n="footer.refund">Refund Policy</a></li>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="/contact">Contact Us</a></li>
             </ul>
           </div>
         </div>
@@ -147,42 +162,12 @@ class PfFooter extends HTMLElement {
   }
   
   /**
-   * Translate elements with data-i18n attributes in the shadow DOM
+   * Method kept for compatibility but simplified since we're not using translations in BarCrush
    */
   translateElements() {
-    console.log('pf-footer: Translating elements in shadow DOM');
-    
-    // Check if there are any elements to translate
-    const elementsToTranslate = this.shadowRoot.querySelectorAll('[data-i18n]');
-    if (elementsToTranslate.length === 0) {
-      console.log('pf-footer: No elements with data-i18n attribute found');
-      return;
-    }
-    
-    // Check if window.app._t is available (faster than importing)
-    if (window.app && window.app._t) {
-      console.log('pf-footer: Using window.app._t for translation');
-      elementsToTranslate.forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        const translated = window.app._t(key);
-        element.textContent = translated;
-        console.log(`pf-footer: Translated "${key}" to "${translated}"`);
-      });
-      return;
-    }
-    
-    // Fallback to importing the translation function
-    console.log('pf-footer: Importing i18n module for translation');
-    import('../i18n.js').then(({ _t }) => {
-      elementsToTranslate.forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        const translated = _t(key);
-        element.textContent = translated;
-        console.log(`pf-footer: Translated "${key}" to "${translated}"`);
-      });
-    }).catch(error => {
-      console.error('Error importing i18n module:', error);
-    });
+    console.log('pf-footer: Translation not needed for BarCrush');
+    // No translation needed for BarCrush
+    return;
   }
 }
 

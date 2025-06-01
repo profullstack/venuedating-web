@@ -105,7 +105,7 @@
   --divider-color: #6b7280;        /* Divider color */
   
   /* Text colors - Dark theme */
-  --text-primary: #f9fafb;         /* Near white for primary text */
+  --text-primary: #000;         /* Near white for primary text */
   --text-secondary: #e5e7eb;       /* Light gray for secondary text */
   --text-tertiary: #d1d5db;        /* Medium light gray for tertiary text */
   --text-disabled: #9ca3af;        /* Gray for disabled text */

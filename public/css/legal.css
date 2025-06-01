@@ -16,7 +16,7 @@
 .legal-page .last-updated {
   text-align: center;
   font-style: italic;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   margin-bottom: 2rem;
 }
 

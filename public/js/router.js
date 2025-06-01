@@ -439,14 +439,20 @@ export function defineRoutes(router) {
   const routes = createRoutes({
     // Public routes
     '/': '/views/home.html',
+
+    '/auth': '/views/auth.html',
+
+    '/profile': '/views/profile.html',
+
+    '/profile-gender': '/views/profile-gender.html',
     
     // Authentication routes
     '/login': {
-      viewPath: '/views/login.html',
+      viewPath: '/views/auth.html',
       afterRender: initLoginPage
     },
     '/register': {
-      viewPath: '/views/register.html',
+      viewPath: '/views/profile.html',
       afterRender: initRegisterPage
     },
     '/reset-password': {
@@ -498,6 +504,8 @@ export function defineRoutes(router) {
     '/terms': '/views/terms.html',
     '/privacy': '/views/privacy.html',
     '/refund': '/views/refund.html',
+    '/contact': '/views/contact.html',
+    '/about': '/views/about.html',
     
     // Subscription management
     '/manage-subscription': {
