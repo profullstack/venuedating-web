@@ -110,7 +110,7 @@ class PfFooter extends HTMLElement {
       <div class="footer">
         <div class="footer-content">
           <div class="footer-section">
-            <h3 data-i18n="app_name">convert2doc</h3>
+            <h3 data-i18n="app_name">BarCrush</h3>
             <ul class="footer-links">
               <li><a href="/" data-i18n="footer.home">Home</a></li>
               <li><a href="/api-keys" data-i18n="footer.api_docs">API Documentation</a></li>
@@ -122,8 +122,7 @@ class PfFooter extends HTMLElement {
             <h3 data-i18n="footer.resources">Resources</h3>
             <ul class="footer-links">
               <li><a href="/api-keys" data-i18n="footer.api_keys">API Keys</a></li>
-              <li><a href="https://github.com/convert2doc/pdf" target="_blank" data-i18n="footer.github">GitHub</a></li>
-              <li><a href="mailto:support@convert2doc.com" data-i18n="footer.support">Support</a></li>
+              <li><a href="mailto:support@barcrush.app" data-i18n="footer.support">Support</a></li>
             </ul>
           </div>
           
@@ -138,7 +137,7 @@ class PfFooter extends HTMLElement {
         </div>
         
         <div class="copyright">
-          &copy; ${year} <span data-i18n="footer.company_name">Profullstack, Inc.</span> <span data-i18n="footer.all_rights_reserved">All rights reserved.</span>
+          &copy; ${year} <span data-i18n="footer.company_name">BarCrush, Inc.</span> <span data-i18n="footer.all_rights_reserved">All rights reserved.</span>
         </div>
       </div>
     `;

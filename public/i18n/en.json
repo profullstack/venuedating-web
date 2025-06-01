@@ -1,5 +1,5 @@
 {
-  "app_name": "convert2doc",
+  "app_name": "BarCrush",
   "navigation": {
     "dashboard": "Dashboard",
     "api_docs": "API Docs",
@@ -121,7 +121,7 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "refund": "Refund Policy",
-    "company_name": "Profullstack, Inc.",
+    "company_name": "BarCrush, Inc.",
     "all_rights_reserved": "All rights reserved."
   }
 }
