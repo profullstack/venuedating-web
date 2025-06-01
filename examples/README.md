@@ -100,11 +100,21 @@ const API_BASE_URL = 'http://localhost:3000'; // Change as needed
 
 ### Authentication
 
-Replace the placeholder token in each example:
+There are two ways to authenticate with the API:
+
+1. **JWT Tokens** - Use the Authorization header with Bearer prefix:
 
 ```javascript
-'Authorization': 'Bearer YOUR_ACTUAL_TOKEN_HERE'
+'Authorization': 'Bearer YOUR_JWT_TOKEN_HERE'
 ```
+
+2. **API Keys** - Use the X-API-Key header:
+
+```javascript
+'X-API-Key': 'YOUR_API_KEY_HERE'  // API keys start with 'pfs_'
+```
+
+> **Important**: API keys should be sent in the X-API-Key header, not in the Authorization header.
 
 ### File Paths
 
@@ -154,7 +164,10 @@ Each example will:
 
 ### Common Issues
 
-1. **Authentication Error**: Check your bearer token
+1. **Authentication Error**:
+   - For JWT tokens: Ensure your token is valid and sent in the Authorization header
+   - For API keys: Make sure to use the X-API-Key header (not Authorization) for API keys
+   - API keys should start with 'pfs_' and be sent without any 'Bearer' prefix
 2. **Server Connection**: Verify the API_BASE_URL and server status
 3. **File Not Found**: Check file paths and permissions
 4. **Conversion Failed**: Some formats have limitations (see above)
