@@ -43,7 +43,7 @@ export const pdfToMarkdownService = {
       await execPromise(pdftotextCommand);
       
       // Step 2: Use pandoc to convert text to Markdown
-      const pandocCommand = `pandoc -f text -t markdown "${textPath}" -o "${outputPath}"`;
+      const pandocCommand = `pandoc -f markdown -t markdown "${textPath}" -o "${outputPath}"`;
       console.log(`Executing pandoc command: ${pandocCommand}`);
       
       await execPromise(pandocCommand);
