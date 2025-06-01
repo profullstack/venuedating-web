@@ -29,7 +29,7 @@ export const docToMarkdownService = {
       await fs.promises.writeFile(inputPath, docBuffer);
       
       // Use pandoc to convert DOC to Markdown
-      const command = `pandoc -f doc -t markdown "${inputPath}" -o "${outputPath}"`;
+      const command = `pandoc -f docx -t markdown "${inputPath}" -o "${outputPath}"`;
       console.log(`Executing pandoc command: ${command}`);
       
       await execPromise(command);

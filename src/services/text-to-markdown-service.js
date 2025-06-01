@@ -29,7 +29,7 @@ export const textToMarkdownService = {
       await fs.promises.writeFile(inputPath, textBuffer);
       
       // Use pandoc to convert plain text to Markdown
-      const command = `pandoc -f plain -t markdown "${inputPath}" -o "${outputPath}"`;
+      const command = `pandoc -f text -t markdown "${inputPath}" -o "${outputPath}"`;
       console.log(`Executing pandoc command: ${command}`);
       
       await execPromise(command);
