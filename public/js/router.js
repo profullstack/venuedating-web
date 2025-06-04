@@ -445,6 +445,8 @@ export function defineRoutes(router) {
     '/profile': '/views/profile.html',
 
     '/profile-gender': '/views/profile-gender.html',
+
+    '/profile-interests': '/views/profile-interests.html',
     
     // Authentication routes
     '/login': {

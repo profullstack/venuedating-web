@@ -1,145 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Select Your Interests - BarCrush</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Roboto', sans-serif;
-      background-color: #fff;
-      color: #000;
-    }
-    
-    .interests-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    
-    .interests-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-top: 10px;
-    }
-    
-    .back-btn, .skip-btn {
-      text-decoration: none;
-    }
-    
-    .back-btn {
-      color: #F44B74;
-    }
-    
-    .back-btn svg {
-      width: 24px;
-      height: 24px;
-    }
-    
-    .skip-btn {
-      color: #F44B74;
-      font-weight: 500;
-      font-size: 16px;
-    }
-    
-    .interests-title {
-      margin-bottom: 30px;
-    }
-    
-    .interests-title h1 {
-      font-size: 32px;
-      margin-bottom: 8px;
-      margin-top: 0;
-      font-weight: 700;
-      color: #000;
-    }
-    
-    .interests-title p {
-      font-size: 16px;
-      color: #666;
-      margin-top: 0;
-      line-height: 1.4;
-    }
-    
-    .interests-options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 30px;
-      overflow-y: auto;
-      flex-grow: 1;
-    }
-    
-    .interest-row {
-      display: flex;
-      gap: 10px;
-    }
-    
-    .interest-option {
-      display: flex;
-      align-items: center;
-      padding: 12px 20px;
-      background-color: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      flex: 1;
-      height: 24px;
-      justify-content: flex-start;
-      white-space: nowrap;
-    }
-    
-    .interest-option.selected {
-      background-color: #F44B74;
-      border-color: #F44B74;
-      color: white;
-    }
-    
-    .interest-option svg {
-      margin-right: 8px;
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-    
-    .interest-option.selected svg path {
-      stroke: white;
-    }
-    
-    .interest-option span {
-      font-size: 16px;
-      font-weight: 500;
-    }
-    
-    .continue-btn {
-      padding: 16px;
-      background-color: #F44B74;
-      color: white;
-      border: none;
-      border-radius: 100px;
-      font-size: 18px;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: auto;
-      transition: background-color 0.3s ease;
-      width: 100%;
-    }
-    
-    .continue-btn:hover {
-      background-color: #e03b63;
-    }
-  </style>
-</head>
-<body>
-
 <div class="interests-container">
   <div class="interests-header">
     <a href="/profile-gender" class="back-btn">
@@ -149,215 +7,197 @@
     </a>
     <a href="#" class="skip-btn">Skip</a>
   </div>
-  
+
   <div class="interests-title">
     <h1>Your interests</h1>
-    <p>Select a few of your interests and let everyone know what you're passionate about.</p>
+    <p>Select a few of your interests and let everyone know what you’re passionate about.</p>
   </div>
-  
-  <div class="interests-options">
-    <div class="interest-row">
-      <button class="interest-option" data-interest="photography" onclick="toggleInterest('photography')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Photography</span>
-      </button>
-      
-      <button class="interest-option selected" data-interest="shopping" onclick="toggleInterest('shopping')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Shopping</span>
-      </button>
-    </div>
-    
-    <div class="interest-row">
-      <button class="interest-option" data-interest="karaoke" onclick="toggleInterest('karaoke')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 19v4" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 23h8" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Karaoke</span>
-      </button>
-      
-      <button class="interest-option" data-interest="yoga" onclick="toggleInterest('yoga')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14 18.5C13.3 21.2 13 22 12 22C11 22 10.7 21.2 10 18.5L9 15C8.7 14.4 8.2 14 7.5 14H4C3.4 14 3 13.6 3 13C3 12.4 3.4 12 4 12H7.5C9.2 12 10.7 13 11.3 14.5L12 16L12.7 14.5C13.3 13 14.8 12 16.5 12H20C20.6 12 21 12.4 21 13C21 13.6 20.6 14 20 14H16.5C15.8 14 15.3 14.4 15 15L14 18.5Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Yoga</span>
-      </button>
-    </div>
-    
-    <div class="interest-row">
-      <button class="interest-option" data-interest="cooking" onclick="toggleInterest('cooking')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 13.87C6 13.09 6.27 12.33 6.75 11.7C7.24 11.07 7.92 10.61 8.67 10.4C9.42 10.18 10.22 10.23 10.94 10.54C11.66 10.85 12.26 11.39 12.67 12.08" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 17.14L9.05 17.17" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M14.11 8.86C14.11 8.86 14.12 8.86 14.12 8.87" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M18 8.95C17.94 11.5 19 13.83 19 16.5C19 17.24 18.84 17.96 18.53 18.61C18.22 19.26 17.77 19.82 17.2 20.27C16.63 20.72 15.97 21.04 15.27 21.21C14.57 21.39 13.84 21.41 13.13 21.29C12.42 21.16 11.75 20.88 11.17 20.47C10.59 20.06 10.11 19.53 9.77 18.92C9.43 18.31 9.23 17.63 9.19 16.92C9.15 16.22 9.26 15.52 9.52 14.87L13 8.96C13.14 8.37 13.42 7.82 13.83 7.37C14.23 6.91 14.74 6.57 15.31 6.37C15.87 6.18 16.48 6.13 17.07 6.24C17.67 6.34 18.22 6.59 18.68 6.96C19.14 7.33 19.49 7.8 19.71 8.34" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Cooking</span>
-      </button>
-      
-      <button class="interest-option" data-interest="tennis" onclick="toggleInterest('tennis')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 6a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2 2 2 0 0 0-2-2z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16 16a2 2 0 0 0 2-2c0-1.1-.9-2-2-2a2 2 0 0 0-2 2c0 1.1.9 2 2 2z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 16a2 2 0 0 0 2-2c0-1.1-.9-2-2-2a2 2 0 0 0-2 2c0 1.1.9 2 2 2z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 13a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 0 2-2 2 2 0 0 0-2-2z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Tennis</span>
-      </button>
-    </div>
 
-    <div class="interest-row">
-      <button class="interest-option selected" data-interest="run" onclick="toggleInterest('run')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 4m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4 17l5 1l.75 -1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M15 21l0 -4l-4 -3l1 -6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M7 12l5 -1l2 -3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Run</span>
-      </button>
-      
-      <button class="interest-option" data-interest="swimming" onclick="toggleInterest('swimming')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 16.5C3.67 16.5 4.33 16.44 5 16.33C7.36 15.94 9.73 15.55 12.09 16.37C14.45 17.19 16.82 17.62 19.18 17.06C19.78 16.95 20.38 16.78 21 16.55" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M3 20.5C3.67 20.5 4.33 20.44 5 20.33C7.36 19.94 9.73 19.55 12.09 20.37C14.45 21.19 16.82 21.62 19.18 21.06C19.78 20.95 20.38 20.78 21 20.55" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 16.33C10.5883 14.9225 9.67818 13.0593 9.4 11.06C9.4 9.41 10.54 8.15 12 8C13.46 7.85 14.6 9.12 14.6 10.76V12.33" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M7 10.5C7.2 10.55 7.4 10.55 7.6 10.5C8.63661 10.1287 9.3631 9.00732 9.18 7.85001C9.07 7.13001 8.53 6.60001 7.81 6.50001C6.38 6.31001 5.26 7.51001 5.5 8.94001C5.75 10.38 6.92 11.14 8.28 10.86" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M17 9.5C17.2 9.55 17.4 9.55 17.6 9.5C18.63661 9.12868 19.3631 8.00732 19.18 6.85001C19.07 6.13001 18.53 5.60001 17.81 5.50001C16.38 5.31001 15.26 6.51001 15.5 7.94001C15.75 9.38 16.92 10.14 18.28 9.86" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Swimming</span>
-      </button>
-    </div>
-    
-    <div class="interest-row">
-      <button class="interest-option" data-interest="art" onclick="toggleInterest('art')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 9C12 7.34315 10.6569 6 9 6C7.34315 6 6 7.34315 6 9C6 10.6569 7.34315 12 9 12" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 15C12 16.6569 13.3431 18 15 18C16.6569 18 18 16.6569 18 15C18 13.3431 16.6569 12 15 12" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Art</span>
-      </button>
-      
-      <button class="interest-option selected" data-interest="traveling" onclick="toggleInterest('traveling')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 21h18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5 21V7l8 -4v18" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M19 21V11l-6 -4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 9v.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 12v.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 15v.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M9 18v.01" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Traveling</span>
-      </button>
-    </div>
-    
-    <div class="interest-row">
-      <button class="interest-option" data-interest="extreme" onclick="toggleInterest('extreme')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13 20V10L8 15V4L3 9L3 19" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M21 12L16 7L11 12L16 17L21 12Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Extreme</span>
-      </button>
-      
-      <button class="interest-option" data-interest="music" onclick="toggleInterest('music')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 18V5l12-2v13" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M6 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M18 16m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Music</span>
-      </button>
-    </div>
-    
-    <div class="interest-row">
-      <button class="interest-option" data-interest="drink" onclick="toggleInterest('drink')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 21V11" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 21V11" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16 21V11" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M3 7h18" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5 3h14a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-2a2 2 0 0 1 2 -2z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Drink</span>
-      </button>
-      
-      <button class="interest-option" data-interest="videogames" onclick="toggleInterest('videogames')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 12h4m-2 -2v4" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M15 11l0 .01" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M18 13l0 .01" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M17.5 20h-11c-2.748 0 -4.5 -2.236 -4.5 -5v-4c0 -2.21 1.5 -4 4.5 -4h11c3 0 4.5 1.79 4.5 4v4c0 2.764 -1.752 5 -4.5 5z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Video games</span>
-      </button>
-    </div>
+  <div class="interests-options">
+    <button class="interest-option" data-interest="Photography" onclick="toggleInterest(this)">
+      <span><img src="/images/cam.svg" alt="Photography" data-unselected="/images/cam.svg" data-selected="/images/cam-white.svg" /> Photography</span>
+    </button>
+    <button class="interest-option" data-interest="Shopping" onclick="toggleInterest(this)">
+      <span><img src="/images/shopping.svg" alt="Shopping" data-unselected="/images/shopping.svg" data-selected="/images/shopping.white.svg" /> Shopping</span>
+    </button>
+    <button class="interest-option" data-interest="Karaoke" onclick="toggleInterest(this)">
+      <span><img src="/images/karaoke.svg" alt="Karaoke" data-unselected="/images/karaoke.svg" data-selected="/images/karaoke.white.svg" /> Karaoke</span>
+    </button>
+    <button class="interest-option" data-interest="Yoga" onclick="toggleInterest(this)">
+      <span><img src="/images/yoga.svg" alt="Yoga" data-unselected="/images/yoga.svg" data-selected="/images/yoga.white.svg" /> Yoga</span>
+    </button>
+    <button class="interest-option" data-interest="Cooking" onclick="toggleInterest(this)">
+      <span><img src="/images/cooking.svg" alt="Cooking" data-unselected="/images/cooking.svg" data-selected="/images/cooking.white.svg" /> Cooking</span>
+    </button>
+    <button class="interest-option" data-interest="Tennis" onclick="toggleInterest(this)">
+      <span><img src="/images/tennis.svg" alt="Tennis" data-unselected="/images/tennis.svg" data-selected="/images/tennis.white.svg" /> Tennis</span>
+    </button>
+    <button class="interest-option" data-interest="Run" onclick="toggleInterest(this)">
+      <span><img src="/images/run.svg" alt="Run" data-unselected="/images/run.svg" data-selected="/images/run.white.svg" /> Run</span>
+    </button>
+    <button class="interest-option" data-interest="Swimming" onclick="toggleInterest(this)">
+      <span><img src="/images/swimming.svg" alt="Swimming" data-unselected="/images/swimming.svg" data-selected="/images/swimming.white.svg" /> Swimming</span>
+    </button>
+    <button class="interest-option" data-interest="Art" onclick="toggleInterest(this)">
+      <span><img src="/images/art.svg" alt="Art" data-unselected="/images/art.svg" data-selected="/images/art.white.svg" /> Art</span>
+    </button>
+    <button class="interest-option" data-interest="Traveling" onclick="toggleInterest(this)">
+      <span><img src="/images/traveling.svg" alt="Traveling" data-unselected="/images/traveling.svg" data-selected="/images/traveling.white.svg" /> Traveling</span>
+    </button>
+    <button class="interest-option" data-interest="Extreme" onclick="toggleInterest(this)">
+      <span><img src="/images/extreme.svg" alt="Extreme" data-unselected="/images/extreme.svg" data-selected="/images/extreme.white.svg" /> Extreme</span>
+    </button>
+    <button class="interest-option" data-interest="Music" onclick="toggleInterest(this)">
+      <span><img src="/images/music.svg" alt="Music" data-unselected="/images/music.svg" data-selected="/images/music.white.svg" /> Music</span>
+    </button>
+    <button class="interest-option" data-interest="Drink" onclick="toggleInterest(this)">
+      <span><img src="/images/drink.svg" alt="Drink" data-unselected="/images/drink.svg" data-selected="/images/drink.white.svg" /> Drink</span>
+    </button>
+    <button class="interest-option" data-interest="Video games" onclick="toggleInterest(this)">
+      <span><img src="/images/video-games.svg" alt="Video games" data-unselected="/images/video-games.svg" data-selected="/images/video-games.white.svg" /> Video games</span>
+    </button>
   </div>
-  
-  <button class="continue-btn" onclick="saveInterests()">Continue</button>
+
+  <button class="continue-btn" onclick="onContinue()">Continue</button>
 </div>
 
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+  .interests-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    font-family: 'Roboto', sans-serif;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+  .interests-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+  }
+  .back-btn, .skip-btn {
+    color: #F44B74;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 400;
+  }
+  .interests-title {
+    margin-bottom: 32px;
+  }
+  .interests-title h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #000;
+  }
+  .interests-title p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+  .interests-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .interest-option {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 16px 20px;
+    border-radius: 32px;
+    border: 1px solid #E8E8E8;
+    background-color: #fff;
+    font-size: 18px;
+    font-weight: 400;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    gap: 10px;
+  }
+  .interest-option.selected {
+    background-color: #F44B74;
+    border-color: #F44B74;
+    color: #fff;
+  }
+  .continue-btn {
+    margin-top: auto;
+    width: 100%;
+    height: 55px;
+    border-radius: 30px;
+    border: none;
+    background-color: #F44B74;
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .continue-btn:hover {
+    background-color: #F44B74;
+  }
+</style>
+
 <script>
-  // Keep track of selected interests
+  // Track selected interests
   let selectedInterests = [];
-  
-  // Initialize selected interests from localStorage if available
+
+  // Toggle interest selection
+  function toggleInterest(btn) {
+    const interest = btn.getAttribute('data-interest');
+    btn.classList.toggle('selected');
+    const img = btn.querySelector('img');
+    if (btn.classList.contains('selected')) {
+      if (!selectedInterests.includes(interest)) {
+        selectedInterests.push(interest);
+      }
+      if (img) img.src = img.getAttribute('data-selected');
+    } else {
+      selectedInterests = selectedInterests.filter(i => i !== interest);
+      if (img) img.src = img.getAttribute('data-unselected');
+    }
+    // Save to localStorage
+    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
+    userData.interests = selectedInterests;
+    localStorage.setItem('userProfile', JSON.stringify(userData));
+  }
+
+  // Restore previous selection if any
   document.addEventListener('DOMContentLoaded', function() {
-    const savedInterests = localStorage.getItem('userInterests');
-    if (savedInterests) {
-      selectedInterests = JSON.parse(savedInterests);
-      // Mark pre-selected interests
-      selectedInterests.forEach(interest => {
-        const option = document.querySelector(`.interest-option[data-interest="${interest}"]`);
-        if (option) {
-          option.classList.add('selected');
+    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
+    if (userData.interests && Array.isArray(userData.interests)) {
+      selectedInterests = userData.interests;
+      document.querySelectorAll('.interest-option').forEach(btn => {
+        const interest = btn.getAttribute('data-interest');
+        const img = btn.querySelector('img');
+        if (selectedInterests.includes(interest)) {
+          btn.classList.add('selected');
+          if (img) img.src = img.getAttribute('data-selected');
+        } else {
+          btn.classList.remove('selected');
+          if (img) img.src = img.getAttribute('data-unselected');
         }
       });
-    } else {
-      // Default selections if any
-      const defaultSelected = document.querySelectorAll('.interest-option.selected');
-      defaultSelected.forEach(option => {
-        selectedInterests.push(option.getAttribute('data-interest'));
-      });
     }
+    // Skip button handler
+    document.querySelector('.skip-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.href = '/profile-complete';
+    });
   });
-  
-  // Toggle interest selection
-  function toggleInterest(interest) {
-    const option = document.querySelector(`.interest-option[data-interest="${interest}"]`);
-    
-    if (option.classList.contains('selected')) {
-      // Deselect interest
-      option.classList.remove('selected');
-      selectedInterests = selectedInterests.filter(item => item !== interest);
-    } else {
-      // Select interest
-      option.classList.add('selected');
-      selectedInterests.push(interest);
-    }
-  }
-  
-  // Save interests and navigate to next page
-  function saveInterests() {
-    // Save to localStorage
-    localStorage.setItem('userInterests', JSON.stringify(selectedInterests));
-    
-    // Navigate to next page (update this to the next page in your flow)
+
+  // Continue button handler
+  function onContinue() {
+    // Save again just in case
+    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
+    userData.interests = selectedInterests;
+    localStorage.setItem('userProfile', JSON.stringify(userData));
     window.location.href = '/profile-complete';
   }
 </script>
