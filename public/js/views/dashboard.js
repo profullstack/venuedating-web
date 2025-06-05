@@ -45,11 +45,15 @@ function initDashboard() {
   }
   
   // Check if user has access
-  if (!hasAccess(user)) {
+  if(user.is_admin === true) {
+    
+  } else {
+    if (!hasAccess(user)) {
     // Redirect to subscription page
     alert('You need an active subscription to access the dashboard.');
     window.router.navigate('/subscription');
     return;
+    }
   }
   
   // Set up tab switching
