@@ -12,7 +12,8 @@ import {
   initSubscriptionPage,
   initResetPasswordPage,
   initManageSubscriptionPage,
-  initTestFeaturePage
+  initTestFeaturePage,
+  initFeedPage
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
@@ -27,7 +28,8 @@ function createLayoutFragment(content, pageUrl) {
     pageUrl === '/views/profile.html' || pageUrl === '/profile' ||
     pageUrl === '/views/profile-gender.html' || pageUrl === '/profile-gender' ||
     pageUrl === '/views/profile-interests.html' || pageUrl === '/profile-interests' ||
-    pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete'
+    pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete' ||
+    pageUrl === '/views/feed.html' || pageUrl === '/feed'
   );
 
   if (!isNoHeaderFooter) {
@@ -472,6 +474,11 @@ export function defineRoutes(router) {
           console.error('Error loading simple-counter component:', error);
         });
       }
+    },
+    '/feed': {
+      viewPath: '/views/feed.html',
+      afterRender: initFeedPage,
+      requireAuth: false
     },
     '/test-feature': {
       viewPath: '/views/test-feature.html',

@@ -188,7 +188,7 @@
     // Skip button handler
     document.querySelector('.skip-btn').addEventListener('click', function(e) {
       e.preventDefault();
-      window.location.href = '/profile-complete';
+      window.location.href = '/feed';
     });
   });
 
@@ -198,6 +198,6 @@
     const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
     userData.interests = selectedInterests;
     localStorage.setItem('userProfile', JSON.stringify(userData));
-    window.location.href = '/profile-complete';
+    window.location.href = '/feed';
   }
 </script>
