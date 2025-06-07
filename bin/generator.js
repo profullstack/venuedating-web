@@ -805,22 +805,8 @@ function createViewFile(filePath, featureName, kebabCase) {
     i18nPrefix
   });
 
-  // Create the full HTML document
-  const fullHtmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${featureName}</title>
-  <link rel="stylesheet" href="/css/main.css">
-</head>
-<body>
-${htmlContent}
-</body>
-</html>`;
-
-  // Write the file
-  fs.writeFileSync(filePath, fullHtmlContent);
+  // Write the file with just the template content (no full HTML wrapper)
+  fs.writeFileSync(filePath, htmlContent);
   
   // Create the JS view file
   const jsViewsDir = path.join(projectRoot, 'public', 'js', 'views');
