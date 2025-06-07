@@ -19,7 +19,13 @@ export async function subscriptionCheck(c, next) {
     if (freeEndpoints.includes(c.req.path)) {
       return next();
     }
-    
+
+    // Bypass subscription check for admin users
+    const user = c.get('user');
+    if (user && user.is_admin) {
+      return next();
+    }
+
     // Get API key from header
     const apiKey = c.req.header('X-API-Key');
     
