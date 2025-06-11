@@ -221,23 +221,52 @@ async function savePlacesToDatabase(places, city, state) {
   }
   
   try {
-    // Transform the places data
-    const transformedPlaces = places.map(place => transformPlaceData(place, city, state));
+    // Transform the places data for direct insertion
+    const transformedPlaces = places.map(place => {
+      const transformed = transformPlaceData(place, city, state);
+      // Convert from function parameters to table columns
+      return {
+        title: transformed.p_title,
+        data_cid: transformed.p_data_cid,
+        knowledge_graph_id: transformed.p_knowledge_graph_id,
+        address: transformed.p_address,
+        category: transformed.p_category,
+        latitude: transformed.p_latitude,
+        longitude: transformed.p_longitude,
+        city: transformed.p_city,
+        state: transformed.p_state,
+        country: transformed.p_country,
+        rating: transformed.p_rating,
+        reviews: transformed.p_reviews,
+        phone: transformed.p_phone,
+        sponsored: transformed.p_sponsored,
+        extensions: transformed.p_extensions,
+        price: transformed.p_price,
+        price_parsed: transformed.p_price_parsed,
+        price_description: transformed.p_price_description,
+        position: transformed.p_position,
+        search_query: transformed.p_search_query,
+        source: transformed.p_source
+      };
+    });
     
-    // Use the database function to insert places with PostGIS coordinates
+    // Use direct table insertion (the trigger will handle PostGIS coordinates)
     const savedPlaces = [];
     
     for (const place of transformedPlaces) {
       try {
-        const { data, error } = await supabase.rpc('insert_place_with_coordinates', place);
+        const { data, error } = await supabase
+          .from('places')
+          .insert(place)
+          .select('id');
         
         if (error) {
-          console.warn(`   Warning: Could not save place ${place.p_title}:`, error.message);
-        } else if (data) {
-          savedPlaces.push(data);
+          console.warn(`   Warning: Could not save place ${place.title}:`, error.message);
+        } else if (data && data[0]) {
+          savedPlaces.push(data[0]);
         }
       } catch (placeError) {
-        console.warn(`   Warning: Could not save place ${place.p_title}:`, placeError.message);
+        console.warn(`   Warning: Could not save place ${place.title}:`, placeError.message);
       }
     }
     
