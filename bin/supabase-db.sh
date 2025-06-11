@@ -227,10 +227,8 @@ setup_project() {
   if [ -z "$PROJECT_REF" ]; then
     echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    
-    # Hardcode the project reference as a fallback
-    PROJECT_REF="arokhsfbkdnfuklmqajh"
-    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
+    echo -e "${RED}Please check your SUPABASE_URL environment variable and try again.${NC}"
+    exit 1
   fi
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
@@ -307,10 +305,8 @@ run_migrations() {
   if [ -z "$PROJECT_REF" ]; then
     echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    
-    # Hardcode the project reference as a fallback
-    PROJECT_REF="arokhsfbkdnfuklmqajh"
-    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
+    echo -e "${RED}Please check your SUPABASE_URL environment variable and try again.${NC}"
+    exit 1
   fi
   
   # Step 1: Sync local migration history with remote database
