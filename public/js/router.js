@@ -14,7 +14,8 @@ import {
   initManageSubscriptionPage,
   initTestFeaturePage,
   initFaqsPage,
-  initFeedPage
+  initFeedPage,
+  initAuthPage
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
@@ -443,18 +444,21 @@ export function defineRoutes(router) {
     // Public routes
     '/': '/views/home.html',
 
-    '/auth': '/views/auth.html',
+    '/auth': {
+      viewPath: '/views/auth.html',
+      afterRender: initAuthPage
+    },
 
     '/profile': '/views/profile.html',
 
     '/profile-gender': '/views/profile-gender.html',
-
+    
     '/profile-interests': '/views/profile-interests.html',
     
     // Authentication routes
     '/login': {
       viewPath: '/views/auth.html',
-      afterRender: initLoginPage
+      afterRender: initAuthPage
     },
     '/register': {
       viewPath: '/views/profile.html',
