@@ -227,10 +227,8 @@ setup_project() {
   if [ -z "$PROJECT_REF" ]; then
     echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    
-    # Hardcode the project reference as a fallback
-    PROJECT_REF="arokhsfbkdnfuklmqajh"
-    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
+    echo -e "${RED}Please check your SUPABASE_URL environment variable and try again.${NC}"
+    exit 1
   fi
   
   echo -e "${YELLOW}Project reference: ${PROJECT_REF}${NC}"
@@ -307,23 +305,29 @@ run_migrations() {
   if [ -z "$PROJECT_REF" ]; then
     echo -e "${RED}Error: Could not extract project reference from SUPABASE_URL: $SUPABASE_URL${NC}"
     echo -e "${YELLOW}SUPABASE_URL should be in the format: https://your-project-ref.supabase.co${NC}"
-    
-    # Hardcode the project reference as a fallback
-    PROJECT_REF="arokhsfbkdnfuklmqajh"
-    echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
+    echo -e "${RED}Please check your SUPABASE_URL environment variable and try again.${NC}"
+    exit 1
   fi
   
   # Step 1: Sync local migration history with remote database
   echo -e "${YELLOW}Step 1: Syncing local migration history with remote database...${NC}"
   echo -e "${YELLOW}Running: supabase db pull${NC}"
   
-  # Capture the output from supabase db pull to parse repair commands
-  PULL_OUTPUT=$(supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1)
+  # Try to capture output, but also show it in real-time
+  echo -e "${YELLOW}Attempting to sync migration history...${NC}"
+  
+  # Create a temporary file to capture output
+  TEMP_OUTPUT=$(mktemp)
+  
+  # Run the command and capture both stdout and stderr, while also showing output
+  supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1 | tee "$TEMP_OUTPUT"
   PULL_EXIT_CODE=$?
   
   if [ $PULL_EXIT_CODE -ne 0 ]; then
-    echo -e "${YELLOW}Migration history sync failed. Analyzing output for repair commands...${NC}"
-    echo "$PULL_OUTPUT"
+    echo -e "${YELLOW}Migration history sync failed (exit code: $PULL_EXIT_CODE). Analyzing output for repair commands...${NC}"
+    
+    # Read the captured output
+    PULL_OUTPUT=$(cat "$TEMP_OUTPUT")
     
     # Extract repair commands from the output
     REPAIR_COMMANDS=$(echo "$PULL_OUTPUT" | grep "supabase migration repair" | sed 's/^[[:space:]]*//')
@@ -355,19 +359,27 @@ run_migrations() {
         echo -e "${YELLOW}Warning: Sync still failed after repairs. Continuing with migration application...${NC}"
       fi
     else
-      echo -e "${YELLOW}No repair commands found in output. Continuing with migration application...${NC}"
+      echo -e "${YELLOW}No repair commands found in output. This might be a different type of error.${NC}"
+      echo -e "${YELLOW}Common issues:${NC}"
+      echo -e "${YELLOW}  - Network connectivity problems${NC}"
+      echo -e "${YELLOW}  - Authentication issues${NC}"
+      echo -e "${YELLOW}  - Database connection problems${NC}"
+      echo -e "${YELLOW}Continuing with migration application...${NC}"
     fi
   else
     echo -e "${GREEN}Migration history synced successfully!${NC}"
   fi
   
+  # Clean up temporary file
+  rm -f "$TEMP_OUTPUT"
+  
   # Step 2: Apply any pending migrations
   echo -e "${YELLOW}Step 2: Applying pending migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
-  # Use the Supabase CLI to push migrations
-  echo -e "${YELLOW}Running: supabase db push${NC}"
-  supabase db push
+  # Use the Supabase CLI to push migrations with --include-all flag
+  echo -e "${YELLOW}Running: supabase db push --include-all${NC}"
+  supabase db push --include-all
   
   if [ $? -eq 0 ]; then
     echo -e "${GREEN}Migration successful!${NC}"
