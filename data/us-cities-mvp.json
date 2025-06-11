@@ -1,0 +1,32 @@
+[
+  {
+    "city": "Cleveland",
+    "state": "Ohio",
+    "location": "Cleveland, OH, USA"
+  },
+  {
+    "city": "Lakewood",
+    "state": "Ohio",
+    "location": "Lakewood, OH, USA"
+  },
+  {
+    "city": "Columbus",
+    "state": "Ohio",
+    "location": "Columbus, OH, USA"
+  },
+  {
+    "city": "Pittsburgh",
+    "state": "Pennsylvania",
+    "location": "Pittsburgh, PA, USA"
+  },
+  {
+    "city": "Buffalo",
+    "state": "New York",
+    "location": "Buffalo, NY, USA"
+  },
+  {
+    "city": "Detroit",
+    "state": "Michigan",
+    "location": "Detroit, MI, USA"
+  }
+]

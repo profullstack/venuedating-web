@@ -15,6 +15,7 @@
  *   --start <number>     Start from a specific city index (default: 0)
  *   --pages <number>     Number of pages to fetch per city (default: 3, max: 3)
  *   --delay <number>     Delay between API calls in milliseconds (default: 1500)
+ *   --mvp               Use MVP cities list (6 cities) instead of full list (200 cities)
  *   --dry-run           Show what would be done without making API calls
  *   --help              Show this help message
  */
@@ -44,6 +45,7 @@ const options = {
   start: 0,
   pages: 3,
   delay: 1500,
+  mvp: false,
   dryRun: false,
   help: false
 };
@@ -62,6 +64,9 @@ for (let i = 0; i < args.length; i++) {
       break;
     case '--delay':
       options.delay = parseInt(args[++i]);
+      break;
+    case '--mvp':
+      options.mvp = true;
       break;
     case '--dry-run':
       options.dryRun = true;
@@ -121,11 +126,13 @@ function validateEnvironment() {
  */
 async function loadCities() {
   try {
-    const citiesPath = path.join(rootDir, 'data', 'us-cities-top-200.json');
+    const citiesFileName = options.mvp ? 'us-cities-mvp.json' : 'us-cities-top-200.json';
+    const citiesPath = path.join(rootDir, 'data', citiesFileName);
     const citiesData = await fs.readFile(citiesPath, 'utf-8');
     const cities = JSON.parse(citiesData);
     
-    console.log(`✅ Loaded ${cities.length} cities from data file`);
+    const cityType = options.mvp ? 'MVP' : 'full';
+    console.log(`✅ Loaded ${cities.length} cities from ${cityType} data file (${citiesFileName})`);
     return cities;
   } catch (error) {
     console.error('❌ Error loading cities data:', error.message);
@@ -368,7 +375,8 @@ async function main() {
   
   const citiesToProcess = allCities.slice(startIndex, endIndex);
   
-  console.log(`📍 Processing ${citiesToProcess.length} cities (${startIndex + 1}-${endIndex} of ${allCities.length})`);
+  const cityType = options.mvp ? 'MVP' : 'full';
+  console.log(`📍 Processing ${citiesToProcess.length} cities (${startIndex + 1}-${endIndex} of ${allCities.length}) from ${cityType} list`);
   console.log(`📄 Pages per city: ${options.pages}`);
   console.log(`⏱️  Delay between requests: ${options.delay}ms`);
   console.log(`🔄 Dry run mode: ${options.dryRun ? 'ON' : 'OFF'}\n`);
