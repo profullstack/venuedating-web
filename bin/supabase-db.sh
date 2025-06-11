@@ -325,7 +325,7 @@ run_migrations() {
   
   # Run the command and capture both stdout and stderr, while also showing output
   supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1 | tee "$TEMP_OUTPUT"
-  PULL_EXIT_CODE=${PIPESTATUS[0]}
+  PULL_EXIT_CODE=$?
   
   if [ $PULL_EXIT_CODE -ne 0 ]; then
     echo -e "${YELLOW}Migration history sync failed (exit code: $PULL_EXIT_CODE). Analyzing output for repair commands...${NC}"
@@ -381,9 +381,9 @@ run_migrations() {
   echo -e "${YELLOW}Step 2: Applying pending migrations to database...${NC}"
   echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
   
-  # Use the Supabase CLI to push migrations
-  echo -e "${YELLOW}Running: supabase db push${NC}"
-  supabase db push
+  # Use the Supabase CLI to push migrations with --include-all flag
+  echo -e "${YELLOW}Running: supabase db push --include-all${NC}"
+  supabase db push --include-all
   
   if [ $? -eq 0 ]; then
     echo -e "${GREEN}Migration successful!${NC}"
