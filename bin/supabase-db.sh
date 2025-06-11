@@ -19,13 +19,15 @@ usage() {
   echo ""
   echo "Commands:"
   echo "  setup    - Install Supabase CLI and link to your cloud project"
-  echo "  migrate  - Run migrations on your Supabase database"
+  echo "  migrate  - Sync with remote DB and run migrations"
+  echo "  sync     - Sync local migration history with remote database"
   echo "  new NAME - Create a new migration file"
   echo "  update   - Check for Supabase CLI updates and upgrade if available"
   echo ""
   echo "Example:"
   echo "  $0 setup"
   echo "  $0 migrate"
+  echo "  $0 sync"
   echo "  $0 new add_user_preferences"
   echo "  $0 update"
   exit 1
@@ -284,10 +286,6 @@ run_migrations() {
     setup_project
   fi
   
-  # Run migrations
-  echo -e "${YELLOW}Applying migrations to database...${NC}"
-  echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
-  
   # Make sure we have all environment variables
   if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
     if [ -f .env ]; then
@@ -315,10 +313,25 @@ run_migrations() {
     echo -e "${YELLOW}Using hardcoded project reference as fallback: $PROJECT_REF${NC}"
   fi
   
-  # Use the Supabase CLI to push migrations without direct database connection
-  echo -e "${YELLOW}Running migrations using Supabase CLI...${NC}"
+  # Step 1: Sync local migration history with remote database
+  echo -e "${YELLOW}Step 1: Syncing local migration history with remote database...${NC}"
+  echo -e "${YELLOW}Running: supabase db pull${NC}"
   
-  # Run the command without direct database URL to use the linked project
+  # Pull remote migration history to sync local state
+  supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions
+  
+  if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}Warning: Could not sync migration history. This might be expected for new projects.${NC}"
+    echo -e "${YELLOW}Continuing with migration application...${NC}"
+  else
+    echo -e "${GREEN}Migration history synced successfully!${NC}"
+  fi
+  
+  # Step 2: Apply any pending migrations
+  echo -e "${YELLOW}Step 2: Applying pending migrations to database...${NC}"
+  echo "Using database password: ${SUPABASE_DB_PASSWORD:0:3}*****"
+  
+  # Use the Supabase CLI to push migrations
   echo -e "${YELLOW}Running: supabase db push${NC}"
   supabase db push
   
@@ -363,6 +376,44 @@ create_migration() {
   echo -e "${GREEN}Migration created successfully!${NC}"
   echo -e "${YELLOW}Edit the migration file in supabase/migrations/ and then run:${NC}"
   echo -e "${GREEN}$0 migrate${NC}"
+}
+
+# Function to sync with remote database
+sync_with_remote() {
+  echo -e "${YELLOW}Syncing local migration history with remote database...${NC}"
+  
+  # Check if Supabase CLI is installed
+  if ! command -v supabase &> /dev/null; then
+    install_cli
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  
+  # Check if Supabase project is initialized
+  if [ ! -d "supabase" ]; then
+    echo -e "${YELLOW}Supabase project not initialized. Setting up...${NC}"
+    setup_project
+  fi
+  
+  # Make sure we have all environment variables
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+    if [ -f .env ]; then
+      echo -e "${YELLOW}Reloading environment variables from .env file...${NC}"
+      source .env
+    fi
+  fi
+  
+  # Set environment variables for Supabase CLI
+  export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
+  
+  # Pull remote migration history to sync local state
+  echo -e "${YELLOW}Running: supabase db pull${NC}"
+  supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions
+  
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Migration history synced successfully!${NC}"
+  else
+    echo -e "${YELLOW}Warning: Could not sync migration history. This might be expected for new projects.${NC}"
+  fi
 }
 
 # Function to check for updates and upgrade if needed
