@@ -568,8 +568,10 @@ function generateServerMigration(args) {
     // Suggest next steps
     console.log('\nNext steps:');
     console.log('1. Edit the migration file to add your SQL commands');
-    console.log('2. Apply the migration using the appropriate command');
-    console.log('   Example: node bin/apply-migration.js');
+    console.log('2. Apply the migration using Supabase CLI:');
+    console.log('   ./bin/supabase-db.sh migrate');
+    console.log('3. Or deploy with migrations:');
+    console.log('   ./bin/deploy-with-migrations.sh');
   } catch (error) {
     throw error;
   }
@@ -582,7 +584,7 @@ function showServerMigrationHelp() {
   console.log(`
 Server Migration Generator
 
-Generates a new SQL migration file with a timestamp prefix.
+Generates a new SQL migration file with a timestamp prefix that works with Supabase CLI.
 
 Usage:
   node bin/generator.js server migration --name="add_user_fields"
@@ -590,6 +592,12 @@ Usage:
 Options:
   --name           Migration name (required, e.g., "add_user_fields" or "AddUserFields")
   --help           Show this help information
+
+Migration Application:
+  After creating a migration, apply it using one of these methods:
+  1. ./bin/supabase-db.sh migrate
+  2. node bin/apply-migration.js
+  3. ./bin/deploy-with-migrations.sh
   `);
 }
 

@@ -27,12 +27,25 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ### 2. Database Migration
 
-First, apply the places table migration:
+Apply the places table migration using one of these methods:
 
+**Option 1: Using the Supabase CLI (Recommended)**
 ```bash
-# Apply the migration to create the places table
+./bin/supabase-db.sh migrate
+```
+
+**Option 2: Using the migration wrapper**
+```bash
 node bin/apply-migration.js
 ```
+
+**Option 3: Deploy with migrations**
+```bash
+./bin/deploy-with-migrations.sh
+```
+
+**Option 4: Manual application**
+Run the SQL from [`supabase/migrations/20250611060828_create_places_table_with_postgis.sql`](supabase/migrations/20250611060828_create_places_table_with_postgis.sql) in your Supabase dashboard SQL Editor.
 
 This creates a `places` table with the following schema:
 

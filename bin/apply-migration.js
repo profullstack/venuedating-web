@@ -1,64 +1,47 @@
 #!/usr/bin/env node
 
-// Apply migration to add subscription fields to users table
-import 'dotenv/config';
-import { createClient } from '@supabase/supabase-js';
+// Apply migrations using Supabase CLI
+// This script is a wrapper around the supabase-db.sh script for convenience
 
-// Access environment variables
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+import { execSync } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  console.error('Missing Supabase credentials');
+// Get the current file's directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(path.join(__dirname, '..'));
+
+// Colors for output
+const GREEN = '\x1b[32m';
+const RED = '\x1b[31m';
+const YELLOW = '\x1b[33m';
+const NC = '\x1b[0m'; // No Color
+
+console.log(`${YELLOW}Applying Supabase migrations...${NC}`);
+
+try {
+  // Change to project root directory
+  process.chdir(projectRoot);
+  
+  // Run the supabase-db.sh migrate command
+  console.log(`${YELLOW}Running: ./bin/supabase-db.sh migrate${NC}`);
+  
+  const output = execSync('./bin/supabase-db.sh migrate', {
+    stdio: 'inherit',
+    encoding: 'utf8'
+  });
+  
+  console.log(`${GREEN}✅ Migrations applied successfully!${NC}`);
+  
+} catch (error) {
+  console.error(`${RED}❌ Error applying migrations:${NC}`, error.message);
+  console.log(`\n${YELLOW}Alternative approaches:${NC}`);
+  console.log('1. Run the migration script directly:');
+  console.log('   ./bin/supabase-db.sh migrate');
+  console.log('2. Or deploy with migrations:');
+  console.log('   ./bin/deploy-with-migrations.sh');
+  console.log('3. Or apply manually in Supabase dashboard SQL Editor');
+  
   process.exit(1);
 }
-
-// Create Supabase client with service role key for admin privileges
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
-
-async function applyMigration() {
-  console.log('Applying migration: Adding subscription fields to users table...');
-  
-  try {
-    // Execute raw SQL to add the new columns
-    const { data, error } = await supabase.rpc('exec_sql', {
-      query: `
-        ALTER TABLE public.users
-          ADD COLUMN IF NOT EXISTS subscription_id UUID,
-          ADD COLUMN IF NOT EXISTS subscription_status TEXT,
-          ADD COLUMN IF NOT EXISTS subscription_plan TEXT;
-      `
-    });
-    
-    if (error) {
-      throw error;
-    }
-    
-    console.log('✅ Migration applied successfully!');
-    console.log('Added columns: subscription_id, subscription_status, subscription_plan');
-    
-    // Run the link subscription script again
-    console.log('\nNow run the link-subscription.js script to link the subscription to the user profile:');
-    console.log('node bin/link-subscription.js --email devpreshy@gmail.com');
-    
-  } catch (error) {
-    console.error('❌ Error applying migration:', error.message);
-    console.log('\nAlternative approach:');
-    console.log('1. Log into the Supabase dashboard');
-    console.log('2. Go to the SQL Editor');
-    console.log('3. Run the following SQL:');
-    console.log(`
-      ALTER TABLE public.users
-        ADD COLUMN IF NOT EXISTS subscription_id UUID,
-        ADD COLUMN IF NOT EXISTS subscription_status TEXT,
-        ADD COLUMN IF NOT EXISTS subscription_plan TEXT;
-    `);
-  }
-}
-
-applyMigration();
