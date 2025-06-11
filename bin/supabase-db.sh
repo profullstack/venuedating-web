@@ -317,12 +317,46 @@ run_migrations() {
   echo -e "${YELLOW}Step 1: Syncing local migration history with remote database...${NC}"
   echo -e "${YELLOW}Running: supabase db pull${NC}"
   
-  # Pull remote migration history to sync local state
-  supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions
+  # Capture the output from supabase db pull to parse repair commands
+  PULL_OUTPUT=$(supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1)
+  PULL_EXIT_CODE=$?
   
-  if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}Warning: Could not sync migration history. This might be expected for new projects.${NC}"
-    echo -e "${YELLOW}Continuing with migration application...${NC}"
+  if [ $PULL_EXIT_CODE -ne 0 ]; then
+    echo -e "${YELLOW}Migration history sync failed. Analyzing output for repair commands...${NC}"
+    echo "$PULL_OUTPUT"
+    
+    # Extract repair commands from the output
+    REPAIR_COMMANDS=$(echo "$PULL_OUTPUT" | grep "supabase migration repair" | sed 's/^[[:space:]]*//')
+    
+    if [ -n "$REPAIR_COMMANDS" ]; then
+      echo -e "${YELLOW}Found repair commands. Executing them...${NC}"
+      
+      # Execute each repair command
+      echo "$REPAIR_COMMANDS" | while IFS= read -r repair_cmd; do
+        if [ -n "$repair_cmd" ]; then
+          echo -e "${YELLOW}Running: $repair_cmd${NC}"
+          eval "$repair_cmd"
+          
+          if [ $? -eq 0 ]; then
+            echo -e "${GREEN}Repair command executed successfully${NC}"
+          else
+            echo -e "${RED}Repair command failed: $repair_cmd${NC}"
+          fi
+        fi
+      done
+      
+      # Try pulling again after repairs
+      echo -e "${YELLOW}Retrying sync after repairs...${NC}"
+      supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions
+      
+      if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Migration history synced successfully after repairs!${NC}"
+      else
+        echo -e "${YELLOW}Warning: Sync still failed after repairs. Continuing with migration application...${NC}"
+      fi
+    else
+      echo -e "${YELLOW}No repair commands found in output. Continuing with migration application...${NC}"
+    fi
   else
     echo -e "${GREEN}Migration history synced successfully!${NC}"
   fi
