@@ -1,0 +1,1062 @@
+[
+  {
+    "city": "Shanghai",
+    "state": "Shanghai",
+    "location": "Shanghai, Shanghai, China"
+  },
+  {
+    "city": "Beijing",
+    "state": "Beijing",
+    "location": "Beijing, Beijing, China"
+  },
+  {
+    "city": "Chongqing",
+    "state": "Chongqing",
+    "location": "Chongqing, Chongqing, China"
+  },
+  {
+    "city": "Tianjin",
+    "state": "Tianjin",
+    "location": "Tianjin, Tianjin, China"
+  },
+  {
+    "city": "Guangzhou",
+    "state": "Guangdong",
+    "location": "Guangzhou, Guangdong, China"
+  },
+  {
+    "city": "Shenzhen",
+    "state": "Guangdong",
+    "location": "Shenzhen, Guangdong, China"
+  },
+  {
+    "city": "Wuhan",
+    "state": "Hubei",
+    "location": "Wuhan, Hubei, China"
+  },
+  {
+    "city": "Dongguan",
+    "state": "Guangdong",
+    "location": "Dongguan, Guangdong, China"
+  },
+  {
+    "city": "Chengdu",
+    "state": "Sichuan",
+    "location": "Chengdu, Sichuan, China"
+  },
+  {
+    "city": "Nanjing",
+    "state": "Jiangsu",
+    "location": "Nanjing, Jiangsu, China"
+  },
+  {
+    "city": "Foshan",
+    "state": "Guangdong",
+    "location": "Foshan, Guangdong, China"
+  },
+  {
+    "city": "Shenyang",
+    "state": "Liaoning",
+    "location": "Shenyang, Liaoning, China"
+  },
+  {
+    "city": "Hangzhou",
+    "state": "Zhejiang",
+    "location": "Hangzhou, Zhejiang, China"
+  },
+  {
+    "city": "Xi'an",
+    "state": "Shaanxi",
+    "location": "Xi'an, Shaanxi, China"
+  },
+  {
+    "city": "Harbin",
+    "state": "Heilongjiang",
+    "location": "Harbin, Heilongjiang, China"
+  },
+  {
+    "city": "Suzhou",
+    "state": "Jiangsu",
+    "location": "Suzhou, Jiangsu, China"
+  },
+  {
+    "city": "Qingdao",
+    "state": "Shandong",
+    "location": "Qingdao, Shandong, China"
+  },
+  {
+    "city": "Dalian",
+    "state": "Liaoning",
+    "location": "Dalian, Liaoning, China"
+  },
+  {
+    "city": "Zhengzhou",
+    "state": "Henan",
+    "location": "Zhengzhou, Henan, China"
+  },
+  {
+    "city": "Shantou",
+    "state": "Guangdong",
+    "location": "Shantou, Guangdong, China"
+  },
+  {
+    "city": "Jinan",
+    "state": "Shandong",
+    "location": "Jinan, Shandong, China"
+  },
+  {
+    "city": "Changchun",
+    "state": "Jilin",
+    "location": "Changchun, Jilin, China"
+  },
+  {
+    "city": "Kunming",
+    "state": "Yunnan",
+    "location": "Kunming, Yunnan, China"
+  },
+  {
+    "city": "Changsha",
+    "state": "Hunan",
+    "location": "Changsha, Hunan, China"
+  },
+  {
+    "city": "Taiyuan",
+    "state": "Shanxi",
+    "location": "Taiyuan, Shanxi, China"
+  },
+  {
+    "city": "Xiamen",
+    "state": "Fujian",
+    "location": "Xiamen, Fujian, China"
+  },
+  {
+    "city": "Shijiazhuang",
+    "state": "Hebei",
+    "location": "Shijiazhuang, Hebei, China"
+  },
+  {
+    "city": "Hefei",
+    "state": "Anhui",
+    "location": "Hefei, Anhui, China"
+  },
+  {
+    "city": "Urumqi",
+    "state": "Xinjiang",
+    "location": "Urumqi, Xinjiang, China"
+  },
+  {
+    "city": "Fuzhou",
+    "state": "Fujian",
+    "location": "Fuzhou, Fujian, China"
+  },
+  {
+    "city": "Wuxi",
+    "state": "Jiangsu",
+    "location": "Wuxi, Jiangsu, China"
+  },
+  {
+    "city": "Zhongshan",
+    "state": "Guangdong",
+    "location": "Zhongshan, Guangdong, China"
+  },
+  {
+    "city": "Wenzhou",
+    "state": "Zhejiang",
+    "location": "Wenzhou, Zhejiang, China"
+  },
+  {
+    "city": "Nanning",
+    "state": "Guangxi",
+    "location": "Nanning, Guangxi, China"
+  },
+  {
+    "city": "Nanchang",
+    "state": "Jiangxi",
+    "location": "Nanchang, Jiangxi, China"
+  },
+  {
+    "city": "Ningbo",
+    "state": "Zhejiang",
+    "location": "Ningbo, Zhejiang, China"
+  },
+  {
+    "city": "Guiyang",
+    "state": "Guizhou",
+    "location": "Guiyang, Guizhou, China"
+  },
+  {
+    "city": "Lanzhou",
+    "state": "Gansu",
+    "location": "Lanzhou, Gansu, China"
+  },
+  {
+    "city": "Zhuhai",
+    "state": "Guangdong",
+    "location": "Zhuhai, Guangdong, China"
+  },
+  {
+    "city": "Changzhou",
+    "state": "Jiangsu",
+    "location": "Changzhou, Jiangsu, China"
+  },
+  {
+    "city": "Xuzhou",
+    "state": "Jiangsu",
+    "location": "Xuzhou, Jiangsu, China"
+  },
+  {
+    "city": "Haikou",
+    "state": "Hainan",
+    "location": "Haikou, Hainan, China"
+  },
+  {
+    "city": "Hohhot",
+    "state": "Inner Mongolia",
+    "location": "Hohhot, Inner Mongolia, China"
+  },
+  {
+    "city": "Yinchuan",
+    "state": "Ningxia",
+    "location": "Yinchuan, Ningxia, China"
+  },
+  {
+    "city": "Xining",
+    "state": "Qinghai",
+    "location": "Xining, Qinghai, China"
+  },
+  {
+    "city": "Lhasa",
+    "state": "Tibet",
+    "location": "Lhasa, Tibet, China"
+  },
+  {
+    "city": "Tangshan",
+    "state": "Hebei",
+    "location": "Tangshan, Hebei, China"
+  },
+  {
+    "city": "Baoding",
+    "state": "Hebei",
+    "location": "Baoding, Hebei, China"
+  },
+  {
+    "city": "Handan",
+    "state": "Hebei",
+    "location": "Handan, Hebei, China"
+  },
+  {
+    "city": "Zhangjiakou",
+    "state": "Hebei",
+    "location": "Zhangjiakou, Hebei, China"
+  },
+  {
+    "city": "Cangzhou",
+    "state": "Hebei",
+    "location": "Cangzhou, Hebei, China"
+  },
+  {
+    "city": "Langfang",
+    "state": "Hebei",
+    "location": "Langfang, Hebei, China"
+  },
+  {
+    "city": "Hengshui",
+    "state": "Hebei",
+    "location": "Hengshui, Hebei, China"
+  },
+  {
+    "city": "Xingtai",
+    "state": "Hebei",
+    "location": "Xingtai, Hebei, China"
+  },
+  {
+    "city": "Chengde",
+    "state": "Hebei",
+    "location": "Chengde, Hebei, China"
+  },
+  {
+    "city": "Qinhuangdao",
+    "state": "Hebei",
+    "location": "Qinhuangdao, Hebei, China"
+  },
+  {
+    "city": "Datong",
+    "state": "Shanxi",
+    "location": "Datong, Shanxi, China"
+  },
+  {
+    "city": "Yangquan",
+    "state": "Shanxi",
+    "location": "Yangquan, Shanxi, China"
+  },
+  {
+    "city": "Changzhi",
+    "state": "Shanxi",
+    "location": "Changzhi, Shanxi, China"
+  },
+  {
+    "city": "Jincheng",
+    "state": "Shanxi",
+    "location": "Jincheng, Shanxi, China"
+  },
+  {
+    "city": "Shuozhou",
+    "state": "Shanxi",
+    "location": "Shuozhou, Shanxi, China"
+  },
+  {
+    "city": "Jinzhong",
+    "state": "Shanxi",
+    "location": "Jinzhong, Shanxi, China"
+  },
+  {
+    "city": "Yuncheng",
+    "state": "Shanxi",
+    "location": "Yuncheng, Shanxi, China"
+  },
+  {
+    "city": "Xinzhou",
+    "state": "Shanxi",
+    "location": "Xinzhou, Shanxi, China"
+  },
+  {
+    "city": "Linfen",
+    "state": "Shanxi",
+    "location": "Linfen, Shanxi, China"
+  },
+  {
+    "city": "Lvliang",
+    "state": "Shanxi",
+    "location": "Lvliang, Shanxi, China"
+  },
+  {
+    "city": "Baotou",
+    "state": "Inner Mongolia",
+    "location": "Baotou, Inner Mongolia, China"
+  },
+  {
+    "city": "Wuhai",
+    "state": "Inner Mongolia",
+    "location": "Wuhai, Inner Mongolia, China"
+  },
+  {
+    "city": "Chifeng",
+    "state": "Inner Mongolia",
+    "location": "Chifeng, Inner Mongolia, China"
+  },
+  {
+    "city": "Tongliao",
+    "state": "Inner Mongolia",
+    "location": "Tongliao, Inner Mongolia, China"
+  },
+  {
+    "city": "Ordos",
+    "state": "Inner Mongolia",
+    "location": "Ordos, Inner Mongolia, China"
+  },
+  {
+    "city": "Hulunbuir",
+    "state": "Inner Mongolia",
+    "location": "Hulunbuir, Inner Mongolia, China"
+  },
+  {
+    "city": "Bayannur",
+    "state": "Inner Mongolia",
+    "location": "Bayannur, Inner Mongolia, China"
+  },
+  {
+    "city": "Ulanqab",
+    "state": "Inner Mongolia",
+    "location": "Ulanqab, Inner Mongolia, China"
+  },
+  {
+    "city": "Anshan",
+    "state": "Liaoning",
+    "location": "Anshan, Liaoning, China"
+  },
+  {
+    "city": "Fushun",
+    "state": "Liaoning",
+    "location": "Fushun, Liaoning, China"
+  },
+  {
+    "city": "Benxi",
+    "state": "Liaoning",
+    "location": "Benxi, Liaoning, China"
+  },
+  {
+    "city": "Dandong",
+    "state": "Liaoning",
+    "location": "Dandong, Liaoning, China"
+  },
+  {
+    "city": "Jinzhou",
+    "state": "Liaoning",
+    "location": "Jinzhou, Liaoning, China"
+  },
+  {
+    "city": "Yingkou",
+    "state": "Liaoning",
+    "location": "Yingkou, Liaoning, China"
+  },
+  {
+    "city": "Fuxin",
+    "state": "Liaoning",
+    "location": "Fuxin, Liaoning, China"
+  },
+  {
+    "city": "Liaoyang",
+    "state": "Liaoning",
+    "location": "Liaoyang, Liaoning, China"
+  },
+  {
+    "city": "Panjin",
+    "state": "Liaoning",
+    "location": "Panjin, Liaoning, China"
+  },
+  {
+    "city": "Tieling",
+    "state": "Liaoning",
+    "location": "Tieling, Liaoning, China"
+  },
+  {
+    "city": "Chaoyang",
+    "state": "Liaoning",
+    "location": "Chaoyang, Liaoning, China"
+  },
+  {
+    "city": "Huludao",
+    "state": "Liaoning",
+    "location": "Huludao, Liaoning, China"
+  },
+  {
+    "city": "Jilin",
+    "state": "Jilin",
+    "location": "Jilin, Jilin, China"
+  },
+  {
+    "city": "Siping",
+    "state": "Jilin",
+    "location": "Siping, Jilin, China"
+  },
+  {
+    "city": "Liaoyuan",
+    "state": "Jilin",
+    "location": "Liaoyuan, Jilin, China"
+  },
+  {
+    "city": "Tonghua",
+    "state": "Jilin",
+    "location": "Tonghua, Jilin, China"
+  },
+  {
+    "city": "Baishan",
+    "state": "Jilin",
+    "location": "Baishan, Jilin, China"
+  },
+  {
+    "city": "Songyuan",
+    "state": "Jilin",
+    "location": "Songyuan, Jilin, China"
+  },
+  {
+    "city": "Baicheng",
+    "state": "Jilin",
+    "location": "Baicheng, Jilin, China"
+  },
+  {
+    "city": "Yanbian",
+    "state": "Jilin",
+    "location": "Yanbian, Jilin, China"
+  },
+  {
+    "city": "Qiqihar",
+    "state": "Heilongjiang",
+    "location": "Qiqihar, Heilongjiang, China"
+  },
+  {
+    "city": "Jixi",
+    "state": "Heilongjiang",
+    "location": "Jixi, Heilongjiang, China"
+  },
+  {
+    "city": "Hegang",
+    "state": "Heilongjiang",
+    "location": "Hegang, Heilongjiang, China"
+  },
+  {
+    "city": "Shuangyashan",
+    "state": "Heilongjiang",
+    "location": "Shuangyashan, Heilongjiang, China"
+  },
+  {
+    "city": "Daqing",
+    "state": "Heilongjiang",
+    "location": "Daqing, Heilongjiang, China"
+  },
+  {
+    "city": "Yichun",
+    "state": "Heilongjiang",
+    "location": "Yichun, Heilongjiang, China"
+  },
+  {
+    "city": "Jiamusi",
+    "state": "Heilongjiang",
+    "location": "Jiamusi, Heilongjiang, China"
+  },
+  {
+    "city": "Qitaihe",
+    "state": "Heilongjiang",
+    "location": "Qitaihe, Heilongjiang, China"
+  },
+  {
+    "city": "Mudanjiang",
+    "state": "Heilongjiang",
+    "location": "Mudanjiang, Heilongjiang, China"
+  },
+  {
+    "city": "Heihe",
+    "state": "Heilongjiang",
+    "location": "Heihe, Heilongjiang, China"
+  },
+  {
+    "city": "Suihua",
+    "state": "Heilongjiang",
+    "location": "Suihua, Heilongjiang, China"
+  },
+  {
+    "city": "Daxinganling",
+    "state": "Heilongjiang",
+    "location": "Daxinganling, Heilongjiang, China"
+  },
+  {
+    "city": "Huai'an",
+    "state": "Jiangsu",
+    "location": "Huai'an, Jiangsu, China"
+  },
+  {
+    "city": "Yancheng",
+    "state": "Jiangsu",
+    "location": "Yancheng, Jiangsu, China"
+  },
+  {
+    "city": "Yangzhou",
+    "state": "Jiangsu",
+    "location": "Yangzhou, Jiangsu, China"
+  },
+  {
+    "city": "Zhenjiang",
+    "state": "Jiangsu",
+    "location": "Zhenjiang, Jiangsu, China"
+  },
+  {
+    "city": "Taizhou",
+    "state": "Jiangsu",
+    "location": "Taizhou, Jiangsu, China"
+  },
+  {
+    "city": "Suqian",
+    "state": "Jiangsu",
+    "location": "Suqian, Jiangsu, China"
+  },
+  {
+    "city": "Lianyungang",
+    "state": "Jiangsu",
+    "location": "Lianyungang, Jiangsu, China"
+  },
+  {
+    "city": "Jinhua",
+    "state": "Zhejiang",
+    "location": "Jinhua, Zhejiang, China"
+  },
+  {
+    "city": "Jiaxing",
+    "state": "Zhejiang",
+    "location": "Jiaxing, Zhejiang, China"
+  },
+  {
+    "city": "Huzhou",
+    "state": "Zhejiang",
+    "location": "Huzhou, Zhejiang, China"
+  },
+  {
+    "city": "Shaoxing",
+    "state": "Zhejiang",
+    "location": "Shaoxing, Zhejiang, China"
+  },
+  {
+    "city": "Quzhou",
+    "state": "Zhejiang",
+    "location": "Quzhou, Zhejiang, China"
+  },
+  {
+    "city": "Zhoushan",
+    "state": "Zhejiang",
+    "location": "Zhoushan, Zhejiang, China"
+  },
+  {
+    "city": "Taizhou",
+    "state": "Zhejiang",
+    "location": "Taizhou, Zhejiang, China"
+  },
+  {
+    "city": "Lishui",
+    "state": "Zhejiang",
+    "location": "Lishui, Zhejiang, China"
+  },
+  {
+    "city": "Wuhu",
+    "state": "Anhui",
+    "location": "Wuhu, Anhui, China"
+  },
+  {
+    "city": "Bengbu",
+    "state": "Anhui",
+    "location": "Bengbu, Anhui, China"
+  },
+  {
+    "city": "Huainan",
+    "state": "Anhui",
+    "location": "Huainan, Anhui, China"
+  },
+  {
+    "city": "Ma'anshan",
+    "state": "Anhui",
+    "location": "Ma'anshan, Anhui, China"
+  },
+  {
+    "city": "Huaibei",
+    "state": "Anhui",
+    "location": "Huaibei, Anhui, China"
+  },
+  {
+    "city": "Tongling",
+    "state": "Anhui",
+    "location": "Tongling, Anhui, China"
+  },
+  {
+    "city": "Anqing",
+    "state": "Anhui",
+    "location": "Anqing, Anhui, China"
+  },
+  {
+    "city": "Huangshan",
+    "state": "Anhui",
+    "location": "Huangshan, Anhui, China"
+  },
+  {
+    "city": "Chuzhou",
+    "state": "Anhui",
+    "location": "Chuzhou, Anhui, China"
+  },
+  {
+    "city": "Fuyang",
+    "state": "Anhui",
+    "location": "Fuyang, Anhui, China"
+  },
+  {
+    "city": "Suzhou",
+    "state": "Anhui",
+    "location": "Suzhou, Anhui, China"
+  },
+  {
+    "city": "Lu'an",
+    "state": "Anhui",
+    "location": "Lu'an, Anhui, China"
+  },
+  {
+    "city": "Bozhou",
+    "state": "Anhui",
+    "location": "Bozhou, Anhui, China"
+  },
+  {
+    "city": "Chizhou",
+    "state": "Anhui",
+    "location": "Chizhou, Anhui, China"
+  },
+  {
+    "city": "Xuancheng",
+    "state": "Anhui",
+    "location": "Xuancheng, Anhui, China"
+  },
+  {
+    "city": "Putian",
+    "state": "Fujian",
+    "location": "Putian, Fujian, China"
+  },
+  {
+    "city": "Sanming",
+    "state": "Fujian",
+    "location": "Sanming, Fujian, China"
+  },
+  {
+    "city": "Quanzhou",
+    "state": "Fujian",
+    "location": "Quanzhou, Fujian, China"
+  },
+  {
+    "city": "Zhangzhou",
+    "state": "Fujian",
+    "location": "Zhangzhou, Fujian, China"
+  },
+  {
+    "city": "Nanping",
+    "state": "Fujian",
+    "location": "Nanping, Fujian, China"
+  },
+  {
+    "city": "Longyan",
+    "state": "Fujian",
+    "location": "Longyan, Fujian, China"
+  },
+  {
+    "city": "Ningde",
+    "state": "Fujian",
+    "location": "Ningde, Fujian, China"
+  },
+  {
+    "city": "Pingxiang",
+    "state": "Jiangxi",
+    "location": "Pingxiang, Jiangxi, China"
+  },
+  {
+    "city": "Jiujiang",
+    "state": "Jiangxi",
+    "location": "Jiujiang, Jiangxi, China"
+  },
+  {
+    "city": "Xinyu",
+    "state": "Jiangxi",
+    "location": "Xinyu, Jiangxi, China"
+  },
+  {
+    "city": "Yingtan",
+    "state": "Jiangxi",
+    "location": "Yingtan, Jiangxi, China"
+  },
+  {
+    "city": "Ganzhou",
+    "state": "Jiangxi",
+    "location": "Ganzhou, Jiangxi, China"
+  },
+  {
+    "city": "Ji'an",
+    "state": "Jiangxi",
+    "location": "Ji'an, Jiangxi, China"
+  },
+  {
+    "city": "Yichun",
+    "state": "Jiangxi",
+    "location": "Yichun, Jiangxi, China"
+  },
+  {
+    "city": "Fuzhou",
+    "state": "Jiangxi",
+    "location": "Fuzhou, Jiangxi, China"
+  },
+  {
+    "city": "Shangrao",
+    "state": "Jiangxi",
+    "location": "Shangrao, Jiangxi, China"
+  },
+  {
+    "city": "Zibo",
+    "state": "Shandong",
+    "location": "Zibo, Shandong, China"
+  },
+  {
+    "city": "Zaozhuang",
+    "state": "Shandong",
+    "location": "Zaozhuang, Shandong, China"
+  },
+  {
+    "city": "Dongying",
+    "state": "Shandong",
+    "location": "Dongying, Shandong, China"
+  },
+  {
+    "city": "Yantai",
+    "state": "Shandong",
+    "location": "Yantai, Shandong, China"
+  },
+  {
+    "city": "Weifang",
+    "state": "Shandong",
+    "location": "Weifang, Shandong, China"
+  },
+  {
+    "city": "Jining",
+    "state": "Shandong",
+    "location": "Jining, Shandong, China"
+  },
+  {
+    "city": "Tai'an",
+    "state": "Shandong",
+    "location": "Tai'an, Shandong, China"
+  },
+  {
+    "city": "Weihai",
+    "state": "Shandong",
+    "location": "Weihai, Shandong, China"
+  },
+  {
+    "city": "Rizhao",
+    "state": "Shandong",
+    "location": "Rizhao, Shandong, China"
+  },
+  {
+    "city": "Laiwu",
+    "state": "Shandong",
+    "location": "Laiwu, Shandong, China"
+  },
+  {
+    "city": "Linyi",
+    "state": "Shandong",
+    "location": "Linyi, Shandong, China"
+  },
+  {
+    "city": "Dezhou",
+    "state": "Shandong",
+    "location": "Dezhou, Shandong, China"
+  },
+  {
+    "city": "Liaocheng",
+    "state": "Shandong",
+    "location": "Liaocheng, Shandong, China"
+  },
+  {
+    "city": "Binzhou",
+    "state": "Shandong",
+    "location": "Binzhou, Shandong, China"
+  },
+  {
+    "city": "Heze",
+    "state": "Shandong",
+    "location": "Heze, Shandong, China"
+  },
+  {
+    "city": "Kaifeng",
+    "state": "Henan",
+    "location": "Kaifeng, Henan, China"
+  },
+  {
+    "city": "Luoyang",
+    "state": "Henan",
+    "location": "Luoyang, Henan, China"
+  },
+  {
+    "city": "Pingdingshan",
+    "state": "Henan",
+    "location": "Pingdingshan, Henan, China"
+  },
+  {
+    "city": "Anyang",
+    "state": "Henan",
+    "location": "Anyang, Henan, China"
+  },
+  {
+    "city": "Hebi",
+    "state": "Henan",
+    "location": "Hebi, Henan, China"
+  },
+  {
+    "city": "Xinxiang",
+    "state": "Henan",
+    "location": "Xinxiang, Henan, China"
+  },
+  {
+    "city": "Jiaozuo",
+    "state": "Henan",
+    "location": "Jiaozuo, Henan, China"
+  },
+  {
+    "city": "Puyang",
+    "state": "Henan",
+    "location": "Puyang, Henan, China"
+  },
+  {
+    "city": "Xuchang",
+    "state": "Henan",
+    "location": "Xuchang, Henan, China"
+  },
+  {
+    "city": "Luohe",
+    "state": "Henan",
+    "location": "Luohe, Henan, China"
+  },
+  {
+    "city": "Sanmenxia",
+    "state": "Henan",
+    "location": "Sanmenxia, Henan, China"
+  },
+  {
+    "city": "Nanyang",
+    "state": "Henan",
+    "location": "Nanyang, Henan, China"
+  },
+  {
+    "city": "Shangqiu",
+    "state": "Henan",
+    "location": "Shangqiu, Henan, China"
+  },
+  {
+    "city": "Xinyang",
+    "state": "Henan",
+    "location": "Xinyang, Henan, China"
+  },
+  {
+    "city": "Zhoukou",
+    "state": "Henan",
+    "location": "Zhoukou, Henan, China"
+  },
+  {
+    "city": "Zhumadian",
+    "state": "Henan",
+    "location": "Zhumadian, Henan, China"
+  },
+  {
+    "city": "Jiyuan",
+    "state": "Henan",
+    "location": "Jiyuan, Henan, China"
+  },
+  {
+    "city": "Xiangyang",
+    "state": "Hubei",
+    "location": "Xiangyang, Hubei, China"
+  },
+  {
+    "city": "Yichang",
+    "state": "Hubei",
+    "location": "Yichang, Hubei, China"
+  },
+  {
+    "city": "Shiyan",
+    "state": "Hubei",
+    "location": "Shiyan, Hubei, China"
+  },
+  {
+    "city": "Jingzhou",
+    "state": "Hubei",
+    "location": "Jingzhou, Hubei, China"
+  },
+  {
+    "city": "Jingmen",
+    "state": "Hubei",
+    "location": "Jingmen, Hubei, China"
+  },
+  {
+    "city": "Ezhou",
+    "state": "Hubei",
+    "location": "Ezhou, Hubei, China"
+  },
+  {
+    "city": "Xiaogan",
+    "state": "Hubei",
+    "location": "Xiaogan, Hubei, China"
+  },
+  {
+    "city": "Huanggang",
+    "state": "Hubei",
+    "location": "Huanggang, Hubei, China"
+  },
+  {
+    "city": "Xianning",
+    "state": "Hubei",
+    "location": "Xianning, Hubei, China"
+  },
+  {
+    "city": "Suizhou",
+    "state": "Hubei",
+    "location": "Suizhou, Hubei, China"
+  },
+  {
+    "city": "Enshi",
+    "state": "Hubei",
+    "location": "Enshi, Hubei, China"
+  },
+  {
+    "city": "Xiantao",
+    "state": "Hubei",
+    "location": "Xiantao, Hubei, China"
+  },
+  {
+    "city": "Qianjiang",
+    "state": "Hubei",
+    "location": "Qianjiang, Hubei, China"
+  },
+  {
+    "city": "Tianmen",
+    "state": "Hubei",
+    "location": "Tianmen, Hubei, China"
+  },
+  {
+    "city": "Shennongjia",
+    "state": "Hubei",
+    "location": "Shennongjia, Hubei, China"
+  },
+  {
+    "city": "Zhuzhou",
+    "state": "Hunan",
+    "location": "Zhuzhou, Hunan, China"
+  },
+  {
+    "city": "Xiangtan",
+    "state": "Hunan",
+    "location": "Xiangtan, Hunan, China"
+  },
+  {
+    "city": "Hengyang",
+    "state": "Hunan",
+    "location": "Hengyang, Hunan, China"
+  },
+  {
+    "city": "Shaoyang",
+    "state": "Hunan",
+    "location": "Shaoyang, Hunan, China"
+  },
+  {
+    "city": "Yueyang",
+    "state": "Hunan",
+    "location": "Yueyang, Hunan, China"
+  },
+  {
+    "city": "Changde",
+    "state": "Hunan",
+    "location": "Changde, Hunan, China"
+  },
+  {
+    "city": "Zhangjiajie",
+    "state": "Hunan",
+    "location": "Zhangjiajie, Hunan, China"
+  },
+  {
+    "city": "Yiyang",
+    "state": "Hunan",
+    "location": "Yiyang, Hunan, China"
+  },
+  {
+    "city": "Chenzhou",
+    "state": "Hunan",
+    "location": "Chenzhou, Hunan, China"
+  },
+  {
+    "city": "Yongzhou",
+    "state": "Hunan",
+    "location": "Yongzhou, Hunan, China"
+  },
+  {
+    "city": "Huaihua",
+    "state": "Hunan",
+    "location": "Huaihua, Hunan, China"
+  },
+  {
+    "city": "Loudi",
+    "state": "Hunan",
+    "location": "Loudi, Hunan, China"
+  },
+  {
+    "city": "Xiangxi",
+    "state": "Hunan",
+    "location": "Xiangxi, Hunan, China"
+  }
+]

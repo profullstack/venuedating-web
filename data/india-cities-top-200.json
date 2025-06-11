@@ -1,0 +1,1082 @@
+[
+  {
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "location": "Mumbai, Maharashtra, India"
+  },
+  {
+    "city": "Delhi",
+    "state": "Delhi",
+    "location": "Delhi, Delhi, India"
+  },
+  {
+    "city": "Bangalore",
+    "state": "Karnataka",
+    "location": "Bangalore, Karnataka, India"
+  },
+  {
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "location": "Hyderabad, Telangana, India"
+  },
+  {
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "location": "Ahmedabad, Gujarat, India"
+  },
+  {
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "location": "Chennai, Tamil Nadu, India"
+  },
+  {
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "location": "Kolkata, West Bengal, India"
+  },
+  {
+    "city": "Surat",
+    "state": "Gujarat",
+    "location": "Surat, Gujarat, India"
+  },
+  {
+    "city": "Pune",
+    "state": "Maharashtra",
+    "location": "Pune, Maharashtra, India"
+  },
+  {
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "location": "Jaipur, Rajasthan, India"
+  },
+  {
+    "city": "Lucknow",
+    "state": "Uttar Pradesh",
+    "location": "Lucknow, Uttar Pradesh, India"
+  },
+  {
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "location": "Kanpur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Nagpur",
+    "state": "Maharashtra",
+    "location": "Nagpur, Maharashtra, India"
+  },
+  {
+    "city": "Indore",
+    "state": "Madhya Pradesh",
+    "location": "Indore, Madhya Pradesh, India"
+  },
+  {
+    "city": "Thane",
+    "state": "Maharashtra",
+    "location": "Thane, Maharashtra, India"
+  },
+  {
+    "city": "Bhopal",
+    "state": "Madhya Pradesh",
+    "location": "Bhopal, Madhya Pradesh, India"
+  },
+  {
+    "city": "Visakhapatnam",
+    "state": "Andhra Pradesh",
+    "location": "Visakhapatnam, Andhra Pradesh, India"
+  },
+  {
+    "city": "Pimpri-Chinchwad",
+    "state": "Maharashtra",
+    "location": "Pimpri-Chinchwad, Maharashtra, India"
+  },
+  {
+    "city": "Patna",
+    "state": "Bihar",
+    "location": "Patna, Bihar, India"
+  },
+  {
+    "city": "Vadodara",
+    "state": "Gujarat",
+    "location": "Vadodara, Gujarat, India"
+  },
+  {
+    "city": "Ghaziabad",
+    "state": "Uttar Pradesh",
+    "location": "Ghaziabad, Uttar Pradesh, India"
+  },
+  {
+    "city": "Ludhiana",
+    "state": "Punjab",
+    "location": "Ludhiana, Punjab, India"
+  },
+  {
+    "city": "Agra",
+    "state": "Uttar Pradesh",
+    "location": "Agra, Uttar Pradesh, India"
+  },
+  {
+    "city": "Nashik",
+    "state": "Maharashtra",
+    "location": "Nashik, Maharashtra, India"
+  },
+  {
+    "city": "Faridabad",
+    "state": "Haryana",
+    "location": "Faridabad, Haryana, India"
+  },
+  {
+    "city": "Meerut",
+    "state": "Uttar Pradesh",
+    "location": "Meerut, Uttar Pradesh, India"
+  },
+  {
+    "city": "Rajkot",
+    "state": "Gujarat",
+    "location": "Rajkot, Gujarat, India"
+  },
+  {
+    "city": "Kalyan-Dombivali",
+    "state": "Maharashtra",
+    "location": "Kalyan-Dombivali, Maharashtra, India"
+  },
+  {
+    "city": "Vasai-Virar",
+    "state": "Maharashtra",
+    "location": "Vasai-Virar, Maharashtra, India"
+  },
+  {
+    "city": "Varanasi",
+    "state": "Uttar Pradesh",
+    "location": "Varanasi, Uttar Pradesh, India"
+  },
+  {
+    "city": "Srinagar",
+    "state": "Jammu and Kashmir",
+    "location": "Srinagar, Jammu and Kashmir, India"
+  },
+  {
+    "city": "Aurangabad",
+    "state": "Maharashtra",
+    "location": "Aurangabad, Maharashtra, India"
+  },
+  {
+    "city": "Dhanbad",
+    "state": "Jharkhand",
+    "location": "Dhanbad, Jharkhand, India"
+  },
+  {
+    "city": "Amritsar",
+    "state": "Punjab",
+    "location": "Amritsar, Punjab, India"
+  },
+  {
+    "city": "Navi Mumbai",
+    "state": "Maharashtra",
+    "location": "Navi Mumbai, Maharashtra, India"
+  },
+  {
+    "city": "Allahabad",
+    "state": "Uttar Pradesh",
+    "location": "Allahabad, Uttar Pradesh, India"
+  },
+  {
+    "city": "Ranchi",
+    "state": "Jharkhand",
+    "location": "Ranchi, Jharkhand, India"
+  },
+  {
+    "city": "Howrah",
+    "state": "West Bengal",
+    "location": "Howrah, West Bengal, India"
+  },
+  {
+    "city": "Coimbatore",
+    "state": "Tamil Nadu",
+    "location": "Coimbatore, Tamil Nadu, India"
+  },
+  {
+    "city": "Jabalpur",
+    "state": "Madhya Pradesh",
+    "location": "Jabalpur, Madhya Pradesh, India"
+  },
+  {
+    "city": "Gwalior",
+    "state": "Madhya Pradesh",
+    "location": "Gwalior, Madhya Pradesh, India"
+  },
+  {
+    "city": "Vijayawada",
+    "state": "Andhra Pradesh",
+    "location": "Vijayawada, Andhra Pradesh, India"
+  },
+  {
+    "city": "Jodhpur",
+    "state": "Rajasthan",
+    "location": "Jodhpur, Rajasthan, India"
+  },
+  {
+    "city": "Madurai",
+    "state": "Tamil Nadu",
+    "location": "Madurai, Tamil Nadu, India"
+  },
+  {
+    "city": "Raipur",
+    "state": "Chhattisgarh",
+    "location": "Raipur, Chhattisgarh, India"
+  },
+  {
+    "city": "Kota",
+    "state": "Rajasthan",
+    "location": "Kota, Rajasthan, India"
+  },
+  {
+    "city": "Guwahati",
+    "state": "Assam",
+    "location": "Guwahati, Assam, India"
+  },
+  {
+    "city": "Chandigarh",
+    "state": "Chandigarh",
+    "location": "Chandigarh, Chandigarh, India"
+  },
+  {
+    "city": "Solapur",
+    "state": "Maharashtra",
+    "location": "Solapur, Maharashtra, India"
+  },
+  {
+    "city": "Hubli-Dharwad",
+    "state": "Karnataka",
+    "location": "Hubli-Dharwad, Karnataka, India"
+  },
+  {
+    "city": "Bareilly",
+    "state": "Uttar Pradesh",
+    "location": "Bareilly, Uttar Pradesh, India"
+  },
+  {
+    "city": "Moradabad",
+    "state": "Uttar Pradesh",
+    "location": "Moradabad, Uttar Pradesh, India"
+  },
+  {
+    "city": "Mysore",
+    "state": "Karnataka",
+    "location": "Mysore, Karnataka, India"
+  },
+  {
+    "city": "Gurgaon",
+    "state": "Haryana",
+    "location": "Gurgaon, Haryana, India"
+  },
+  {
+    "city": "Aligarh",
+    "state": "Uttar Pradesh",
+    "location": "Aligarh, Uttar Pradesh, India"
+  },
+  {
+    "city": "Jalandhar",
+    "state": "Punjab",
+    "location": "Jalandhar, Punjab, India"
+  },
+  {
+    "city": "Tiruchirappalli",
+    "state": "Tamil Nadu",
+    "location": "Tiruchirappalli, Tamil Nadu, India"
+  },
+  {
+    "city": "Bhubaneswar",
+    "state": "Odisha",
+    "location": "Bhubaneswar, Odisha, India"
+  },
+  {
+    "city": "Salem",
+    "state": "Tamil Nadu",
+    "location": "Salem, Tamil Nadu, India"
+  },
+  {
+    "city": "Mira-Bhayandar",
+    "state": "Maharashtra",
+    "location": "Mira-Bhayandar, Maharashtra, India"
+  },
+  {
+    "city": "Warangal",
+    "state": "Telangana",
+    "location": "Warangal, Telangana, India"
+  },
+  {
+    "city": "Thiruvananthapuram",
+    "state": "Kerala",
+    "location": "Thiruvananthapuram, Kerala, India"
+  },
+  {
+    "city": "Guntur",
+    "state": "Andhra Pradesh",
+    "location": "Guntur, Andhra Pradesh, India"
+  },
+  {
+    "city": "Bhiwandi",
+    "state": "Maharashtra",
+    "location": "Bhiwandi, Maharashtra, India"
+  },
+  {
+    "city": "Saharanpur",
+    "state": "Uttar Pradesh",
+    "location": "Saharanpur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Gorakhpur",
+    "state": "Uttar Pradesh",
+    "location": "Gorakhpur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Bikaner",
+    "state": "Rajasthan",
+    "location": "Bikaner, Rajasthan, India"
+  },
+  {
+    "city": "Amravati",
+    "state": "Maharashtra",
+    "location": "Amravati, Maharashtra, India"
+  },
+  {
+    "city": "Noida",
+    "state": "Uttar Pradesh",
+    "location": "Noida, Uttar Pradesh, India"
+  },
+  {
+    "city": "Jamshedpur",
+    "state": "Jharkhand",
+    "location": "Jamshedpur, Jharkhand, India"
+  },
+  {
+    "city": "Bhilai",
+    "state": "Chhattisgarh",
+    "location": "Bhilai, Chhattisgarh, India"
+  },
+  {
+    "city": "Cuttack",
+    "state": "Odisha",
+    "location": "Cuttack, Odisha, India"
+  },
+  {
+    "city": "Firozabad",
+    "state": "Uttar Pradesh",
+    "location": "Firozabad, Uttar Pradesh, India"
+  },
+  {
+    "city": "Kochi",
+    "state": "Kerala",
+    "location": "Kochi, Kerala, India"
+  },
+  {
+    "city": "Nellore",
+    "state": "Andhra Pradesh",
+    "location": "Nellore, Andhra Pradesh, India"
+  },
+  {
+    "city": "Bhavnagar",
+    "state": "Gujarat",
+    "location": "Bhavnagar, Gujarat, India"
+  },
+  {
+    "city": "Dehradun",
+    "state": "Uttarakhand",
+    "location": "Dehradun, Uttarakhand, India"
+  },
+  {
+    "city": "Durgapur",
+    "state": "West Bengal",
+    "location": "Durgapur, West Bengal, India"
+  },
+  {
+    "city": "Asansol",
+    "state": "West Bengal",
+    "location": "Asansol, West Bengal, India"
+  },
+  {
+    "city": "Rourkela",
+    "state": "Odisha",
+    "location": "Rourkela, Odisha, India"
+  },
+  {
+    "city": "Nanded",
+    "state": "Maharashtra",
+    "location": "Nanded, Maharashtra, India"
+  },
+  {
+    "city": "Kolhapur",
+    "state": "Maharashtra",
+    "location": "Kolhapur, Maharashtra, India"
+  },
+  {
+    "city": "Ajmer",
+    "state": "Rajasthan",
+    "location": "Ajmer, Rajasthan, India"
+  },
+  {
+    "city": "Akola",
+    "state": "Maharashtra",
+    "location": "Akola, Maharashtra, India"
+  },
+  {
+    "city": "Gulbarga",
+    "state": "Karnataka",
+    "location": "Gulbarga, Karnataka, India"
+  },
+  {
+    "city": "Jamnagar",
+    "state": "Gujarat",
+    "location": "Jamnagar, Gujarat, India"
+  },
+  {
+    "city": "Ujjain",
+    "state": "Madhya Pradesh",
+    "location": "Ujjain, Madhya Pradesh, India"
+  },
+  {
+    "city": "Loni",
+    "state": "Uttar Pradesh",
+    "location": "Loni, Uttar Pradesh, India"
+  },
+  {
+    "city": "Siliguri",
+    "state": "West Bengal",
+    "location": "Siliguri, West Bengal, India"
+  },
+  {
+    "city": "Jhansi",
+    "state": "Uttar Pradesh",
+    "location": "Jhansi, Uttar Pradesh, India"
+  },
+  {
+    "city": "Ulhasnagar",
+    "state": "Maharashtra",
+    "location": "Ulhasnagar, Maharashtra, India"
+  },
+  {
+    "city": "Jammu",
+    "state": "Jammu and Kashmir",
+    "location": "Jammu, Jammu and Kashmir, India"
+  },
+  {
+    "city": "Sangli-Miraj & Kupwad",
+    "state": "Maharashtra",
+    "location": "Sangli-Miraj & Kupwad, Maharashtra, India"
+  },
+  {
+    "city": "Mangalore",
+    "state": "Karnataka",
+    "location": "Mangalore, Karnataka, India"
+  },
+  {
+    "city": "Erode",
+    "state": "Tamil Nadu",
+    "location": "Erode, Tamil Nadu, India"
+  },
+  {
+    "city": "Belgaum",
+    "state": "Karnataka",
+    "location": "Belgaum, Karnataka, India"
+  },
+  {
+    "city": "Ambattur",
+    "state": "Tamil Nadu",
+    "location": "Ambattur, Tamil Nadu, India"
+  },
+  {
+    "city": "Tirunelveli",
+    "state": "Tamil Nadu",
+    "location": "Tirunelveli, Tamil Nadu, India"
+  },
+  {
+    "city": "Malegaon",
+    "state": "Maharashtra",
+    "location": "Malegaon, Maharashtra, India"
+  },
+  {
+    "city": "Gaya",
+    "state": "Bihar",
+    "location": "Gaya, Bihar, India"
+  },
+  {
+    "city": "Jalgaon",
+    "state": "Maharashtra",
+    "location": "Jalgaon, Maharashtra, India"
+  },
+  {
+    "city": "Udaipur",
+    "state": "Rajasthan",
+    "location": "Udaipur, Rajasthan, India"
+  },
+  {
+    "city": "Maheshtala",
+    "state": "West Bengal",
+    "location": "Maheshtala, West Bengal, India"
+  },
+  {
+    "city": "Davanagere",
+    "state": "Karnataka",
+    "location": "Davanagere, Karnataka, India"
+  },
+  {
+    "city": "Kozhikode",
+    "state": "Kerala",
+    "location": "Kozhikode, Kerala, India"
+  },
+  {
+    "city": "Kurnool",
+    "state": "Andhra Pradesh",
+    "location": "Kurnool, Andhra Pradesh, India"
+  },
+  {
+    "city": "Rajpur Sonarpur",
+    "state": "West Bengal",
+    "location": "Rajpur Sonarpur, West Bengal, India"
+  },
+  {
+    "city": "Rajahmundry",
+    "state": "Andhra Pradesh",
+    "location": "Rajahmundry, Andhra Pradesh, India"
+  },
+  {
+    "city": "Bokaro",
+    "state": "Jharkhand",
+    "location": "Bokaro, Jharkhand, India"
+  },
+  {
+    "city": "South Dumdum",
+    "state": "West Bengal",
+    "location": "South Dumdum, West Bengal, India"
+  },
+  {
+    "city": "Bellary",
+    "state": "Karnataka",
+    "location": "Bellary, Karnataka, India"
+  },
+  {
+    "city": "Patiala",
+    "state": "Punjab",
+    "location": "Patiala, Punjab, India"
+  },
+  {
+    "city": "Gopalpur",
+    "state": "West Bengal",
+    "location": "Gopalpur, West Bengal, India"
+  },
+  {
+    "city": "Agartala",
+    "state": "Tripura",
+    "location": "Agartala, Tripura, India"
+  },
+  {
+    "city": "Bhagalpur",
+    "state": "Bihar",
+    "location": "Bhagalpur, Bihar, India"
+  },
+  {
+    "city": "Muzaffarnagar",
+    "state": "Uttar Pradesh",
+    "location": "Muzaffarnagar, Uttar Pradesh, India"
+  },
+  {
+    "city": "Bhatpara",
+    "state": "West Bengal",
+    "location": "Bhatpara, West Bengal, India"
+  },
+  {
+    "city": "Panihati",
+    "state": "West Bengal",
+    "location": "Panihati, West Bengal, India"
+  },
+  {
+    "city": "Latur",
+    "state": "Maharashtra",
+    "location": "Latur, Maharashtra, India"
+  },
+  {
+    "city": "Dhule",
+    "state": "Maharashtra",
+    "location": "Dhule, Maharashtra, India"
+  },
+  {
+    "city": "Rohtak",
+    "state": "Haryana",
+    "location": "Rohtak, Haryana, India"
+  },
+  {
+    "city": "Korba",
+    "state": "Chhattisgarh",
+    "location": "Korba, Chhattisgarh, India"
+  },
+  {
+    "city": "Bhilwara",
+    "state": "Rajasthan",
+    "location": "Bhilwara, Rajasthan, India"
+  },
+  {
+    "city": "Berhampur",
+    "state": "Odisha",
+    "location": "Berhampur, Odisha, India"
+  },
+  {
+    "city": "Muzaffarpur",
+    "state": "Bihar",
+    "location": "Muzaffarpur, Bihar, India"
+  },
+  {
+    "city": "Ahmednagar",
+    "state": "Maharashtra",
+    "location": "Ahmednagar, Maharashtra, India"
+  },
+  {
+    "city": "Mathura",
+    "state": "Uttar Pradesh",
+    "location": "Mathura, Uttar Pradesh, India"
+  },
+  {
+    "city": "Kollam",
+    "state": "Kerala",
+    "location": "Kollam, Kerala, India"
+  },
+  {
+    "city": "Avadi",
+    "state": "Tamil Nadu",
+    "location": "Avadi, Tamil Nadu, India"
+  },
+  {
+    "city": "Kadapa",
+    "state": "Andhra Pradesh",
+    "location": "Kadapa, Andhra Pradesh, India"
+  },
+  {
+    "city": "Kamarhati",
+    "state": "West Bengal",
+    "location": "Kamarhati, West Bengal, India"
+  },
+  {
+    "city": "Sambalpur",
+    "state": "Odisha",
+    "location": "Sambalpur, Odisha, India"
+  },
+  {
+    "city": "Bilaspur",
+    "state": "Chhattisgarh",
+    "location": "Bilaspur, Chhattisgarh, India"
+  },
+  {
+    "city": "Shahjahanpur",
+    "state": "Uttar Pradesh",
+    "location": "Shahjahanpur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Satara",
+    "state": "Maharashtra",
+    "location": "Satara, Maharashtra, India"
+  },
+  {
+    "city": "Bijapur",
+    "state": "Karnataka",
+    "location": "Bijapur, Karnataka, India"
+  },
+  {
+    "city": "Rampur",
+    "state": "Uttar Pradesh",
+    "location": "Rampur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Shivamogga",
+    "state": "Karnataka",
+    "location": "Shivamogga, Karnataka, India"
+  },
+  {
+    "city": "Chandrapur",
+    "state": "Maharashtra",
+    "location": "Chandrapur, Maharashtra, India"
+  },
+  {
+    "city": "Junagadh",
+    "state": "Gujarat",
+    "location": "Junagadh, Gujarat, India"
+  },
+  {
+    "city": "Thrissur",
+    "state": "Kerala",
+    "location": "Thrissur, Kerala, India"
+  },
+  {
+    "city": "Alwar",
+    "state": "Rajasthan",
+    "location": "Alwar, Rajasthan, India"
+  },
+  {
+    "city": "Bardhaman",
+    "state": "West Bengal",
+    "location": "Bardhaman, West Bengal, India"
+  },
+  {
+    "city": "Kulti",
+    "state": "West Bengal",
+    "location": "Kulti, West Bengal, India"
+  },
+  {
+    "city": "Kakinada",
+    "state": "Andhra Pradesh",
+    "location": "Kakinada, Andhra Pradesh, India"
+  },
+  {
+    "city": "Nizamabad",
+    "state": "Telangana",
+    "location": "Nizamabad, Telangana, India"
+  },
+  {
+    "city": "Parbhani",
+    "state": "Maharashtra",
+    "location": "Parbhani, Maharashtra, India"
+  },
+  {
+    "city": "Tumkur",
+    "state": "Karnataka",
+    "location": "Tumkur, Karnataka, India"
+  },
+  {
+    "city": "Khammam",
+    "state": "Telangana",
+    "location": "Khammam, Telangana, India"
+  },
+  {
+    "city": "Ozhukarai",
+    "state": "Puducherry",
+    "location": "Ozhukarai, Puducherry, India"
+  },
+  {
+    "city": "Bihar Sharif",
+    "state": "Bihar",
+    "location": "Bihar Sharif, Bihar, India"
+  },
+  {
+    "city": "Panipat",
+    "state": "Haryana",
+    "location": "Panipat, Haryana, India"
+  },
+  {
+    "city": "Darbhanga",
+    "state": "Bihar",
+    "location": "Darbhanga, Bihar, India"
+  },
+  {
+    "city": "Bally",
+    "state": "West Bengal",
+    "location": "Bally, West Bengal, India"
+  },
+  {
+    "city": "Aizawl",
+    "state": "Mizoram",
+    "location": "Aizawl, Mizoram, India"
+  },
+  {
+    "city": "Dewas",
+    "state": "Madhya Pradesh",
+    "location": "Dewas, Madhya Pradesh, India"
+  },
+  {
+    "city": "Ichalkaranji",
+    "state": "Maharashtra",
+    "location": "Ichalkaranji, Maharashtra, India"
+  },
+  {
+    "city": "Karnal",
+    "state": "Haryana",
+    "location": "Karnal, Haryana, India"
+  },
+  {
+    "city": "Bathinda",
+    "state": "Punjab",
+    "location": "Bathinda, Punjab, India"
+  },
+  {
+    "city": "Jalna",
+    "state": "Maharashtra",
+    "location": "Jalna, Maharashtra, India"
+  },
+  {
+    "city": "Eluru",
+    "state": "Andhra Pradesh",
+    "location": "Eluru, Andhra Pradesh, India"
+  },
+  {
+    "city": "Kirari Suleman Nagar",
+    "state": "Delhi",
+    "location": "Kirari Suleman Nagar, Delhi, India"
+  },
+  {
+    "city": "Barabanki",
+    "state": "Uttar Pradesh",
+    "location": "Barabanki, Uttar Pradesh, India"
+  },
+  {
+    "city": "Purnia",
+    "state": "Bihar",
+    "location": "Purnia, Bihar, India"
+  },
+  {
+    "city": "Satna",
+    "state": "Madhya Pradesh",
+    "location": "Satna, Madhya Pradesh, India"
+  },
+  {
+    "city": "Mau",
+    "state": "Uttar Pradesh",
+    "location": "Mau, Uttar Pradesh, India"
+  },
+  {
+    "city": "Sonipat",
+    "state": "Haryana",
+    "location": "Sonipat, Haryana, India"
+  },
+  {
+    "city": "Farrukhabad",
+    "state": "Uttar Pradesh",
+    "location": "Farrukhabad, Uttar Pradesh, India"
+  },
+  {
+    "city": "Sagar",
+    "state": "Madhya Pradesh",
+    "location": "Sagar, Madhya Pradesh, India"
+  },
+  {
+    "city": "Rourkela",
+    "state": "Odisha",
+    "location": "Rourkela, Odisha, India"
+  },
+  {
+    "city": "Durg",
+    "state": "Chhattisgarh",
+    "location": "Durg, Chhattisgarh, India"
+  },
+  {
+    "city": "Imphal",
+    "state": "Manipur",
+    "location": "Imphal, Manipur, India"
+  },
+  {
+    "city": "Ratlam",
+    "state": "Madhya Pradesh",
+    "location": "Ratlam, Madhya Pradesh, India"
+  },
+  {
+    "city": "Hapur",
+    "state": "Uttar Pradesh",
+    "location": "Hapur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Arrah",
+    "state": "Bihar",
+    "location": "Arrah, Bihar, India"
+  },
+  {
+    "city": "Karimnagar",
+    "state": "Telangana",
+    "location": "Karimnagar, Telangana, India"
+  },
+  {
+    "city": "Anantapur",
+    "state": "Andhra Pradesh",
+    "location": "Anantapur, Andhra Pradesh, India"
+  },
+  {
+    "city": "Etawah",
+    "state": "Uttar Pradesh",
+    "location": "Etawah, Uttar Pradesh, India"
+  },
+  {
+    "city": "Ambernath",
+    "state": "Maharashtra",
+    "location": "Ambernath, Maharashtra, India"
+  },
+  {
+    "city": "North Dumdum",
+    "state": "West Bengal",
+    "location": "North Dumdum, West Bengal, India"
+  },
+  {
+    "city": "Bharatpur",
+    "state": "Rajasthan",
+    "location": "Bharatpur, Rajasthan, India"
+  },
+  {
+    "city": "Begusarai",
+    "state": "Bihar",
+    "location": "Begusarai, Bihar, India"
+  },
+  {
+    "city": "New Delhi",
+    "state": "Delhi",
+    "location": "New Delhi, Delhi, India"
+  },
+  {
+    "city": "Gandhidham",
+    "state": "Gujarat",
+    "location": "Gandhidham, Gujarat, India"
+  },
+  {
+    "city": "Baranagar",
+    "state": "West Bengal",
+    "location": "Baranagar, West Bengal, India"
+  },
+  {
+    "city": "Tiruvottiyur",
+    "state": "Tamil Nadu",
+    "location": "Tiruvottiyur, Tamil Nadu, India"
+  },
+  {
+    "city": "Puducherry",
+    "state": "Puducherry",
+    "location": "Puducherry, Puducherry, India"
+  },
+  {
+    "city": "Sikar",
+    "state": "Rajasthan",
+    "location": "Sikar, Rajasthan, India"
+  },
+  {
+    "city": "Thoothukudi",
+    "state": "Tamil Nadu",
+    "location": "Thoothukudi, Tamil Nadu, India"
+  },
+  {
+    "city": "Rewa",
+    "state": "Madhya Pradesh",
+    "location": "Rewa, Madhya Pradesh, India"
+  },
+  {
+    "city": "Mirzapur",
+    "state": "Uttar Pradesh",
+    "location": "Mirzapur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Raichur",
+    "state": "Karnataka",
+    "location": "Raichur, Karnataka, India"
+  },
+  {
+    "city": "Pali",
+    "state": "Rajasthan",
+    "location": "Pali, Rajasthan, India"
+  },
+  {
+    "city": "Ramagundam",
+    "state": "Telangana",
+    "location": "Ramagundam, Telangana, India"
+  },
+  {
+    "city": "Haridwar",
+    "state": "Uttarakhand",
+    "location": "Haridwar, Uttarakhand, India"
+  },
+  {
+    "city": "Vijayanagaram",
+    "state": "Andhra Pradesh",
+    "location": "Vijayanagaram, Andhra Pradesh, India"
+  },
+  {
+    "city": "Katihar",
+    "state": "Bihar",
+    "location": "Katihar, Bihar, India"
+  },
+  {
+    "city": "Nagarcoil",
+    "state": "Tamil Nadu",
+    "location": "Nagarcoil, Tamil Nadu, India"
+  },
+  {
+    "city": "Sri Ganganagar",
+    "state": "Rajasthan",
+    "location": "Sri Ganganagar, Rajasthan, India"
+  },
+  {
+    "city": "Karawal Nagar",
+    "state": "Delhi",
+    "location": "Karawal Nagar, Delhi, India"
+  },
+  {
+    "city": "Mango",
+    "state": "Jharkhand",
+    "location": "Mango, Jharkhand, India"
+  },
+  {
+    "city": "Thanjavur",
+    "state": "Tamil Nadu",
+    "location": "Thanjavur, Tamil Nadu, India"
+  },
+  {
+    "city": "Bulandshahr",
+    "state": "Uttar Pradesh",
+    "location": "Bulandshahr, Uttar Pradesh, India"
+  },
+  {
+    "city": "Uluberia",
+    "state": "West Bengal",
+    "location": "Uluberia, West Bengal, India"
+  },
+  {
+    "city": "Murwara",
+    "state": "Madhya Pradesh",
+    "location": "Murwara, Madhya Pradesh, India"
+  },
+  {
+    "city": "Sambhal",
+    "state": "Uttar Pradesh",
+    "location": "Sambhal, Uttar Pradesh, India"
+  },
+  {
+    "city": "Singrauli",
+    "state": "Madhya Pradesh",
+    "location": "Singrauli, Madhya Pradesh, India"
+  },
+  {
+    "city": "Jaunpur",
+    "state": "Uttar Pradesh",
+    "location": "Jaunpur, Uttar Pradesh, India"
+  },
+  {
+    "city": "Kumbakonam",
+    "state": "Tamil Nadu",
+    "location": "Kumbakonam, Tamil Nadu, India"
+  },
+  {
+    "city": "Bellary",
+    "state": "Karnataka",
+    "location": "Bellary, Karnataka, India"
+  },
+  {
+    "city": "Parbhani",
+    "state": "Maharashtra",
+    "location": "Parbhani, Maharashtra, India"
+  },
+  {
+    "city": "Sirsa",
+    "state": "Haryana",
+    "location": "Sirsa, Haryana, India"
+  },
+  {
+    "city": "Korba",
+    "state": "Chhattisgarh",
+    "location": "Korba, Chhattisgarh, India"
+  },
+  {
+    "city": "Mahbubnagar",
+    "state": "Telangana",
+    "location": "Mahbubnagar, Telangana, India"
+  },
+  {
+    "city": "Raiganj",
+    "state": "West Bengal",
+    "location": "Raiganj, West Bengal, India"
+  },
+  {
+    "city": "Hazaribag",
+    "state": "Jharkhand",
+    "location": "Hazaribag, Jharkhand, India"
+  }
+]

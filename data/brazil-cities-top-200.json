@@ -1,0 +1,1042 @@
+[
+  {
+    "city": "São Paulo",
+    "state": "São Paulo",
+    "location": "São Paulo, São Paulo, Brazil"
+  },
+  {
+    "city": "Rio de Janeiro",
+    "state": "Rio de Janeiro",
+    "location": "Rio de Janeiro, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Brasília",
+    "state": "Distrito Federal",
+    "location": "Brasília, Distrito Federal, Brazil"
+  },
+  {
+    "city": "Salvador",
+    "state": "Bahia",
+    "location": "Salvador, Bahia, Brazil"
+  },
+  {
+    "city": "Fortaleza",
+    "state": "Ceará",
+    "location": "Fortaleza, Ceará, Brazil"
+  },
+  {
+    "city": "Belo Horizonte",
+    "state": "Minas Gerais",
+    "location": "Belo Horizonte, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Manaus",
+    "state": "Amazonas",
+    "location": "Manaus, Amazonas, Brazil"
+  },
+  {
+    "city": "Curitiba",
+    "state": "Paraná",
+    "location": "Curitiba, Paraná, Brazil"
+  },
+  {
+    "city": "Recife",
+    "state": "Pernambuco",
+    "location": "Recife, Pernambuco, Brazil"
+  },
+  {
+    "city": "Goiânia",
+    "state": "Goiás",
+    "location": "Goiânia, Goiás, Brazil"
+  },
+  {
+    "city": "Belém",
+    "state": "Pará",
+    "location": "Belém, Pará, Brazil"
+  },
+  {
+    "city": "Porto Alegre",
+    "state": "Rio Grande do Sul",
+    "location": "Porto Alegre, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Guarulhos",
+    "state": "São Paulo",
+    "location": "Guarulhos, São Paulo, Brazil"
+  },
+  {
+    "city": "Campinas",
+    "state": "São Paulo",
+    "location": "Campinas, São Paulo, Brazil"
+  },
+  {
+    "city": "São Luís",
+    "state": "Maranhão",
+    "location": "São Luís, Maranhão, Brazil"
+  },
+  {
+    "city": "São Gonçalo",
+    "state": "Rio de Janeiro",
+    "location": "São Gonçalo, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Maceió",
+    "state": "Alagoas",
+    "location": "Maceió, Alagoas, Brazil"
+  },
+  {
+    "city": "Duque de Caxias",
+    "state": "Rio de Janeiro",
+    "location": "Duque de Caxias, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Natal",
+    "state": "Rio Grande do Norte",
+    "location": "Natal, Rio Grande do Norte, Brazil"
+  },
+  {
+    "city": "Teresina",
+    "state": "Piauí",
+    "location": "Teresina, Piauí, Brazil"
+  },
+  {
+    "city": "Campo Grande",
+    "state": "Mato Grosso do Sul",
+    "location": "Campo Grande, Mato Grosso do Sul, Brazil"
+  },
+  {
+    "city": "Nova Iguaçu",
+    "state": "Rio de Janeiro",
+    "location": "Nova Iguaçu, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "São Bernardo do Campo",
+    "state": "São Paulo",
+    "location": "São Bernardo do Campo, São Paulo, Brazil"
+  },
+  {
+    "city": "João Pessoa",
+    "state": "Paraíba",
+    "location": "João Pessoa, Paraíba, Brazil"
+  },
+  {
+    "city": "Santo André",
+    "state": "São Paulo",
+    "location": "Santo André, São Paulo, Brazil"
+  },
+  {
+    "city": "Osasco",
+    "state": "São Paulo",
+    "location": "Osasco, São Paulo, Brazil"
+  },
+  {
+    "city": "Jaboatão dos Guararapes",
+    "state": "Pernambuco",
+    "location": "Jaboatão dos Guararapes, Pernambuco, Brazil"
+  },
+  {
+    "city": "Contagem",
+    "state": "Minas Gerais",
+    "location": "Contagem, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Aracaju",
+    "state": "Sergipe",
+    "location": "Aracaju, Sergipe, Brazil"
+  },
+  {
+    "city": "Cuiabá",
+    "state": "Mato Grosso",
+    "location": "Cuiabá, Mato Grosso, Brazil"
+  },
+  {
+    "city": "Sorocaba",
+    "state": "São Paulo",
+    "location": "Sorocaba, São Paulo, Brazil"
+  },
+  {
+    "city": "Feira de Santana",
+    "state": "Bahia",
+    "location": "Feira de Santana, Bahia, Brazil"
+  },
+  {
+    "city": "Joinville",
+    "state": "Santa Catarina",
+    "location": "Joinville, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Ribeirão Preto",
+    "state": "São Paulo",
+    "location": "Ribeirão Preto, São Paulo, Brazil"
+  },
+  {
+    "city": "Uberlândia",
+    "state": "Minas Gerais",
+    "location": "Uberlândia, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Londrina",
+    "state": "Paraná",
+    "location": "Londrina, Paraná, Brazil"
+  },
+  {
+    "city": "Juiz de Fora",
+    "state": "Minas Gerais",
+    "location": "Juiz de Fora, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Aparecida de Goiânia",
+    "state": "Goiás",
+    "location": "Aparecida de Goiânia, Goiás, Brazil"
+  },
+  {
+    "city": "Niterói",
+    "state": "Rio de Janeiro",
+    "location": "Niterói, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Caxias do Sul",
+    "state": "Rio Grande do Sul",
+    "location": "Caxias do Sul, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Campos dos Goytacazes",
+    "state": "Rio de Janeiro",
+    "location": "Campos dos Goytacazes, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Macapá",
+    "state": "Amapá",
+    "location": "Macapá, Amapá, Brazil"
+  },
+  {
+    "city": "Florianópolis",
+    "state": "Santa Catarina",
+    "location": "Florianópolis, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Vila Velha",
+    "state": "Espírito Santo",
+    "location": "Vila Velha, Espírito Santo, Brazil"
+  },
+  {
+    "city": "São José dos Campos",
+    "state": "São Paulo",
+    "location": "São José dos Campos, São Paulo, Brazil"
+  },
+  {
+    "city": "Maringá",
+    "state": "Paraná",
+    "location": "Maringá, Paraná, Brazil"
+  },
+  {
+    "city": "Mauá",
+    "state": "São Paulo",
+    "location": "Mauá, São Paulo, Brazil"
+  },
+  {
+    "city": "Betim",
+    "state": "Minas Gerais",
+    "location": "Betim, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Carapicuíba",
+    "state": "São Paulo",
+    "location": "Carapicuíba, São Paulo, Brazil"
+  },
+  {
+    "city": "Olinda",
+    "state": "Pernambuco",
+    "location": "Olinda, Pernambuco, Brazil"
+  },
+  {
+    "city": "Campina Grande",
+    "state": "Paraíba",
+    "location": "Campina Grande, Paraíba, Brazil"
+  },
+  {
+    "city": "São José do Rio Preto",
+    "state": "São Paulo",
+    "location": "São José do Rio Preto, São Paulo, Brazil"
+  },
+  {
+    "city": "Petrópolis",
+    "state": "Rio de Janeiro",
+    "location": "Petrópolis, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Serra",
+    "state": "Espírito Santo",
+    "location": "Serra, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Diadema",
+    "state": "São Paulo",
+    "location": "Diadema, São Paulo, Brazil"
+  },
+  {
+    "city": "Cariacica",
+    "state": "Espírito Santo",
+    "location": "Cariacica, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Piracicaba",
+    "state": "São Paulo",
+    "location": "Piracicaba, São Paulo, Brazil"
+  },
+  {
+    "city": "Caruaru",
+    "state": "Pernambuco",
+    "location": "Caruaru, Pernambuco, Brazil"
+  },
+  {
+    "city": "Montes Claros",
+    "state": "Minas Gerais",
+    "location": "Montes Claros, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Vitória",
+    "state": "Espírito Santo",
+    "location": "Vitória, Espírito Santo, Brazil"
+  },
+  {
+    "city": "São Vicente",
+    "state": "São Paulo",
+    "location": "São Vicente, São Paulo, Brazil"
+  },
+  {
+    "city": "Franca",
+    "state": "São Paulo",
+    "location": "Franca, São Paulo, Brazil"
+  },
+  {
+    "city": "Pelotas",
+    "state": "Rio Grande do Sul",
+    "location": "Pelotas, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Canoas",
+    "state": "Rio Grande do Sul",
+    "location": "Canoas, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Vitória da Conquista",
+    "state": "Bahia",
+    "location": "Vitória da Conquista, Bahia, Brazil"
+  },
+  {
+    "city": "Uberaba",
+    "state": "Minas Gerais",
+    "location": "Uberaba, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Paulista",
+    "state": "Pernambuco",
+    "location": "Paulista, Pernambuco, Brazil"
+  },
+  {
+    "city": "Limeira",
+    "state": "São Paulo",
+    "location": "Limeira, São Paulo, Brazil"
+  },
+  {
+    "city": "Blumenau",
+    "state": "Santa Catarina",
+    "location": "Blumenau, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Camaçari",
+    "state": "Bahia",
+    "location": "Camaçari, Bahia, Brazil"
+  },
+  {
+    "city": "Suzano",
+    "state": "São Paulo",
+    "location": "Suzano, São Paulo, Brazil"
+  },
+  {
+    "city": "Taboão da Serra",
+    "state": "São Paulo",
+    "location": "Taboão da Serra, São Paulo, Brazil"
+  },
+  {
+    "city": "Sumaré",
+    "state": "São Paulo",
+    "location": "Sumaré, São Paulo, Brazil"
+  },
+  {
+    "city": "Bauru",
+    "state": "São Paulo",
+    "location": "Bauru, São Paulo, Brazil"
+  },
+  {
+    "city": "São José",
+    "state": "Santa Catarina",
+    "location": "São José, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Embu das Artes",
+    "state": "São Paulo",
+    "location": "Embu das Artes, São Paulo, Brazil"
+  },
+  {
+    "city": "Gravataí",
+    "state": "Rio Grande do Sul",
+    "location": "Gravataí, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Viamão",
+    "state": "Rio Grande do Sul",
+    "location": "Viamão, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Várzea Grande",
+    "state": "Mato Grosso",
+    "location": "Várzea Grande, Mato Grosso, Brazil"
+  },
+  {
+    "city": "Petrolina",
+    "state": "Pernambuco",
+    "location": "Petrolina, Pernambuco, Brazil"
+  },
+  {
+    "city": "Praia Grande",
+    "state": "São Paulo",
+    "location": "Praia Grande, São Paulo, Brazil"
+  },
+  {
+    "city": "Santa Maria",
+    "state": "Rio Grande do Sul",
+    "location": "Santa Maria, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Ipatinga",
+    "state": "Minas Gerais",
+    "location": "Ipatinga, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Ponta Grossa",
+    "state": "Paraná",
+    "location": "Ponta Grossa, Paraná, Brazil"
+  },
+  {
+    "city": "Marília",
+    "state": "São Paulo",
+    "location": "Marília, São Paulo, Brazil"
+  },
+  {
+    "city": "Presidente Prudente",
+    "state": "São Paulo",
+    "location": "Presidente Prudente, São Paulo, Brazil"
+  },
+  {
+    "city": "Sete Lagoas",
+    "state": "Minas Gerais",
+    "location": "Sete Lagoas, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Cascavel",
+    "state": "Paraná",
+    "location": "Cascavel, Paraná, Brazil"
+  },
+  {
+    "city": "Guarujá",
+    "state": "São Paulo",
+    "location": "Guarujá, São Paulo, Brazil"
+  },
+  {
+    "city": "Ribeirão das Neves",
+    "state": "Minas Gerais",
+    "location": "Ribeirão das Neves, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Mossoró",
+    "state": "Rio Grande do Norte",
+    "location": "Mossoró, Rio Grande do Norte, Brazil"
+  },
+  {
+    "city": "Jundiaí",
+    "state": "São Paulo",
+    "location": "Jundiaí, São Paulo, Brazil"
+  },
+  {
+    "city": "São Carlos",
+    "state": "São Paulo",
+    "location": "São Carlos, São Paulo, Brazil"
+  },
+  {
+    "city": "Ananindeua",
+    "state": "Pará",
+    "location": "Ananindeua, Pará, Brazil"
+  },
+  {
+    "city": "Juazeiro do Norte",
+    "state": "Ceará",
+    "location": "Juazeiro do Norte, Ceará, Brazil"
+  },
+  {
+    "city": "Volta Redonda",
+    "state": "Rio de Janeiro",
+    "location": "Volta Redonda, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Colombo",
+    "state": "Paraná",
+    "location": "Colombo, Paraná, Brazil"
+  },
+  {
+    "city": "Jacareí",
+    "state": "São Paulo",
+    "location": "Jacareí, São Paulo, Brazil"
+  },
+  {
+    "city": "Indaiatuba",
+    "state": "São Paulo",
+    "location": "Indaiatuba, São Paulo, Brazil"
+  },
+  {
+    "city": "Cotia",
+    "state": "São Paulo",
+    "location": "Cotia, São Paulo, Brazil"
+  },
+  {
+    "city": "Americana",
+    "state": "São Paulo",
+    "location": "Americana, São Paulo, Brazil"
+  },
+  {
+    "city": "Araraquara",
+    "state": "São Paulo",
+    "location": "Araraquara, São Paulo, Brazil"
+  },
+  {
+    "city": "Itaquaquecetuba",
+    "state": "São Paulo",
+    "location": "Itaquaquecetuba, São Paulo, Brazil"
+  },
+  {
+    "city": "Veiga de Almeida",
+    "state": "Rio de Janeiro",
+    "location": "Veiga de Almeida, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Magé",
+    "state": "Rio de Janeiro",
+    "location": "Magé, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Chapecó",
+    "state": "Santa Catarina",
+    "location": "Chapecó, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Rio Branco",
+    "state": "Acre",
+    "location": "Rio Branco, Acre, Brazil"
+  },
+  {
+    "city": "Marabá",
+    "state": "Pará",
+    "location": "Marabá, Pará, Brazil"
+  },
+  {
+    "city": "Rondonópolis",
+    "state": "Mato Grosso",
+    "location": "Rondonópolis, Mato Grosso, Brazil"
+  },
+  {
+    "city": "Dourados",
+    "state": "Mato Grosso do Sul",
+    "location": "Dourados, Mato Grosso do Sul, Brazil"
+  },
+  {
+    "city": "Santarém",
+    "state": "Pará",
+    "location": "Santarém, Pará, Brazil"
+  },
+  {
+    "city": "Governador Valadares",
+    "state": "Minas Gerais",
+    "location": "Governador Valadares, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Taubaté",
+    "state": "São Paulo",
+    "location": "Taubaté, São Paulo, Brazil"
+  },
+  {
+    "city": "Volta Redonda",
+    "state": "Rio de Janeiro",
+    "location": "Volta Redonda, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Imperatriz",
+    "state": "Maranhão",
+    "location": "Imperatriz, Maranhão, Brazil"
+  },
+  {
+    "city": "Foz do Iguaçu",
+    "state": "Paraná",
+    "location": "Foz do Iguaçu, Paraná, Brazil"
+  },
+  {
+    "city": "Itabuna",
+    "state": "Bahia",
+    "location": "Itabuna, Bahia, Brazil"
+  },
+  {
+    "city": "São José dos Pinhais",
+    "state": "Paraná",
+    "location": "São José dos Pinhais, Paraná, Brazil"
+  },
+  {
+    "city": "Palmas",
+    "state": "Tocantins",
+    "location": "Palmas, Tocantins, Brazil"
+  },
+  {
+    "city": "Shoppings",
+    "state": "São Paulo",
+    "location": "Shoppings, São Paulo, Brazil"
+  },
+  {
+    "city": "Caucaia",
+    "state": "Ceará",
+    "location": "Caucaia, Ceará, Brazil"
+  },
+  {
+    "city": "Santa Luzia",
+    "state": "Minas Gerais",
+    "location": "Santa Luzia, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Guarapuava",
+    "state": "Paraná",
+    "location": "Guarapuava, Paraná, Brazil"
+  },
+  {
+    "city": "Ferraz de Vasconcelos",
+    "state": "São Paulo",
+    "location": "Ferraz de Vasconcelos, São Paulo, Brazil"
+  },
+  {
+    "city": "São Leopoldo",
+    "state": "Rio Grande do Sul",
+    "location": "São Leopoldo, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Lages",
+    "state": "Santa Catarina",
+    "location": "Lages, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Sobral",
+    "state": "Ceará",
+    "location": "Sobral, Ceará, Brazil"
+  },
+  {
+    "city": "Jacareí",
+    "state": "São Paulo",
+    "location": "Jacareí, São Paulo, Brazil"
+  },
+  {
+    "city": "Parauapebas",
+    "state": "Pará",
+    "location": "Parauapebas, Pará, Brazil"
+  },
+  {
+    "city": "Novo Hamburgo",
+    "state": "Rio Grande do Sul",
+    "location": "Novo Hamburgo, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Paranaguá",
+    "state": "Paraná",
+    "location": "Paranaguá, Paraná, Brazil"
+  },
+  {
+    "city": "Rio Grande",
+    "state": "Rio Grande do Sul",
+    "location": "Rio Grande, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Alvorada",
+    "state": "Rio Grande do Sul",
+    "location": "Alvorada, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Luziânia",
+    "state": "Goiás",
+    "location": "Luziânia, Goiás, Brazil"
+  },
+  {
+    "city": "Macaé",
+    "state": "Rio de Janeiro",
+    "location": "Macaé, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Teófilo Otoni",
+    "state": "Minas Gerais",
+    "location": "Teófilo Otoni, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Mogi das Cruzes",
+    "state": "São Paulo",
+    "location": "Mogi das Cruzes, São Paulo, Brazil"
+  },
+  {
+    "city": "Suzano",
+    "state": "São Paulo",
+    "location": "Suzano, São Paulo, Brazil"
+  },
+  {
+    "city": "Bragança Paulista",
+    "state": "São Paulo",
+    "location": "Bragança Paulista, São Paulo, Brazil"
+  },
+  {
+    "city": "Passo Fundo",
+    "state": "Rio Grande do Sul",
+    "location": "Passo Fundo, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Itajaí",
+    "state": "Santa Catarina",
+    "location": "Itajaí, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Hortolândia",
+    "state": "São Paulo",
+    "location": "Hortolândia, São Paulo, Brazil"
+  },
+  {
+    "city": "Itu",
+    "state": "São Paulo",
+    "location": "Itu, São Paulo, Brazil"
+  },
+  {
+    "city": "São Caetano do Sul",
+    "state": "São Paulo",
+    "location": "São Caetano do Sul, São Paulo, Brazil"
+  },
+  {
+    "city": "Poços de Caldas",
+    "state": "Minas Gerais",
+    "location": "Poços de Caldas, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Guarapari",
+    "state": "Espírito Santo",
+    "location": "Guarapari, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Barbacena",
+    "state": "Minas Gerais",
+    "location": "Barbacena, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Arapiraca",
+    "state": "Alagoas",
+    "location": "Arapiraca, Alagoas, Brazil"
+  },
+  {
+    "city": "Vinhedo",
+    "state": "São Paulo",
+    "location": "Vinhedo, São Paulo, Brazil"
+  },
+  {
+    "city": "Lauro de Freitas",
+    "state": "Bahia",
+    "location": "Lauro de Freitas, Bahia, Brazil"
+  },
+  {
+    "city": "Franco da Rocha",
+    "state": "São Paulo",
+    "location": "Franco da Rocha, São Paulo, Brazil"
+  },
+  {
+    "city": "Santa Bárbara d'Oeste",
+    "state": "São Paulo",
+    "location": "Santa Bárbara d'Oeste, São Paulo, Brazil"
+  },
+  {
+    "city": "Criciúma",
+    "state": "Santa Catarina",
+    "location": "Criciúma, Santa Catarina, Brazil"
+  },
+  {
+    "city": "Araçatuba",
+    "state": "São Paulo",
+    "location": "Araçatuba, São Paulo, Brazil"
+  },
+  {
+    "city": "Cachoeiro de Itapemirim",
+    "state": "Espírito Santo",
+    "location": "Cachoeiro de Itapemirim, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Cabo Frio",
+    "state": "Rio de Janeiro",
+    "location": "Cabo Frio, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Braga",
+    "state": "São Paulo",
+    "location": "Braga, São Paulo, Brazil"
+  },
+  {
+    "city": "Araras",
+    "state": "São Paulo",
+    "location": "Araras, São Paulo, Brazil"
+  },
+  {
+    "city": "Resende",
+    "state": "Rio de Janeiro",
+    "location": "Resende, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Atibaia",
+    "state": "São Paulo",
+    "location": "Atibaia, São Paulo, Brazil"
+  },
+  {
+    "city": "Pouso Alegre",
+    "state": "Minas Gerais",
+    "location": "Pouso Alegre, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Toledo",
+    "state": "Paraná",
+    "location": "Toledo, Paraná, Brazil"
+  },
+  {
+    "city": "Caxias",
+    "state": "Maranhão",
+    "location": "Caxias, Maranhão, Brazil"
+  },
+  {
+    "city": "Sertãozinho",
+    "state": "São Paulo",
+    "location": "Sertãozinho, São Paulo, Brazil"
+  },
+  {
+    "city": "Colatina",
+    "state": "Espírito Santo",
+    "location": "Colatina, Espírito Santo, Brazil"
+  },
+  {
+    "city": "São João de Meriti",
+    "state": "Rio de Janeiro",
+    "location": "São João de Meriti, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Timon",
+    "state": "Maranhão",
+    "location": "Timon, Maranhão, Brazil"
+  },
+  {
+    "city": "Parnamirim",
+    "state": "Rio Grande do Norte",
+    "location": "Parnamirim, Rio Grande do Norte, Brazil"
+  },
+  {
+    "city": "Ubá",
+    "state": "Minas Gerais",
+    "location": "Ubá, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Catanduva",
+    "state": "São Paulo",
+    "location": "Catanduva, São Paulo, Brazil"
+  },
+  {
+    "city": "Sobradinho",
+    "state": "Distrito Federal",
+    "location": "Sobradinho, Distrito Federal, Brazil"
+  },
+  {
+    "city": "Rio Claro",
+    "state": "São Paulo",
+    "location": "Rio Claro, São Paulo, Brazil"
+  },
+  {
+    "city": "Jequié",
+    "state": "Bahia",
+    "location": "Jequié, Bahia, Brazil"
+  },
+  {
+    "city": "Arapongas",
+    "state": "Paraná",
+    "location": "Arapongas, Paraná, Brazil"
+  },
+  {
+    "city": "Cachoeirinha",
+    "state": "Rio Grande do Sul",
+    "location": "Cachoeirinha, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Itapevi",
+    "state": "São Paulo",
+    "location": "Itapevi, São Paulo, Brazil"
+  },
+  {
+    "city": "Itapetininga",
+    "state": "São Paulo",
+    "location": "Itapetininga, São Paulo, Brazil"
+  },
+  {
+    "city": "Linhares",
+    "state": "Espírito Santo",
+    "location": "Linhares, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Várzea Paulista",
+    "state": "São Paulo",
+    "location": "Várzea Paulista, São Paulo, Brazil"
+  },
+  {
+    "city": "Nova Friburgo",
+    "state": "Rio de Janeiro",
+    "location": "Nova Friburgo, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Maracanaú",
+    "state": "Ceará",
+    "location": "Maracanaú, Ceará, Brazil"
+  },
+  {
+    "city": "Francisco Morato",
+    "state": "São Paulo",
+    "location": "Francisco Morato, São Paulo, Brazil"
+  },
+  {
+    "city": "Barra Mansa",
+    "state": "Rio de Janeiro",
+    "location": "Barra Mansa, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Itaboraí",
+    "state": "Rio de Janeiro",
+    "location": "Itaboraí, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Maranguape",
+    "state": "Ceará",
+    "location": "Maranguape, Ceará, Brazil"
+  },
+  {
+    "city": "Ibirité",
+    "state": "Minas Gerais",
+    "location": "Ibirité, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Nilópolis",
+    "state": "Rio de Janeiro",
+    "location": "Nilópolis, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Conselheiro Lafaiete",
+    "state": "Minas Gerais",
+    "location": "Conselheiro Lafaiete, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Eunápolis",
+    "state": "Bahia",
+    "location": "Eunápolis, Bahia, Brazil"
+  },
+  {
+    "city": "Sapucaia do Sul",
+    "state": "Rio Grande do Sul",
+    "location": "Sapucaia do Sul, Rio Grande do Sul, Brazil"
+  },
+  {
+    "city": "Queimados",
+    "state": "Rio de Janeiro",
+    "location": "Queimados, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Angra dos Reis",
+    "state": "Rio de Janeiro",
+    "location": "Angra dos Reis, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Santana de Parnaíba",
+    "state": "São Paulo",
+    "location": "Santana de Parnaíba, São Paulo, Brazil"
+  },
+  {
+    "city": "São Mateus",
+    "state": "Espírito Santo",
+    "location": "São Mateus, Espírito Santo, Brazil"
+  },
+  {
+    "city": "Juazeiro",
+    "state": "Bahia",
+    "location": "Juazeiro, Bahia, Brazil"
+  },
+  {
+    "city": "Embu-Guaçu",
+    "state": "São Paulo",
+    "location": "Embu-Guaçu, São Paulo, Brazil"
+  },
+  {
+    "city": "Mesquita",
+    "state": "Rio de Janeiro",
+    "location": "Mesquita, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Parnaíba",
+    "state": "Piauí",
+    "location": "Parnaíba, Piauí, Brazil"
+  },
+  {
+    "city": "Barueri",
+    "state": "São Paulo",
+    "location": "Barueri, São Paulo, Brazil"
+  },
+  {
+    "city": "Coronel Fabriciano",
+    "state": "Minas Gerais",
+    "location": "Coronel Fabriciano, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Guaratinguetá",
+    "state": "São Paulo",
+    "location": "Guaratinguetá, São Paulo, Brazil"
+  },
+  {
+    "city": "Varginha",
+    "state": "Minas Gerais",
+    "location": "Varginha, Minas Gerais, Brazil"
+  },
+  {
+    "city": "Itaperuna",
+    "state": "Rio de Janeiro",
+    "location": "Itaperuna, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "São Fidélis",
+    "state": "Rio de Janeiro",
+    "location": "São Fidélis, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Cametá",
+    "state": "Pará",
+    "location": "Cametá, Pará, Brazil"
+  },
+  {
+    "city": "Itaguaí",
+    "state": "Rio de Janeiro",
+    "location": "Itaguaí, Rio de Janeiro, Brazil"
+  },
+  {
+    "city": "Pindamonhangaba",
+    "state": "São Paulo",
+    "location": "Pindamonhangaba, São Paulo, Brazil"
+  },
+  {
+    "city": "Itanhaém",
+    "state": "São Paulo",
+    "location": "Itanhaém, São Paulo, Brazil"
+  }
+]

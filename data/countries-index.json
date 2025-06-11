@@ -1,0 +1,130 @@
+{
+  "description": "Index of city data files for top 20 countries by population",
+  "countries": [
+    {
+      "country": "China",
+      "population": 1439323776,
+      "file": "china-cities-top-200.json",
+      "status": "completed"
+    },
+    {
+      "country": "India", 
+      "population": 1380004385,
+      "file": "india-cities-top-200.json",
+      "status": "completed"
+    },
+    {
+      "country": "United States",
+      "population": 331002651,
+      "file": "us-cities-top-200.json",
+      "status": "completed"
+    },
+    {
+      "country": "Indonesia",
+      "population": 273523615,
+      "file": "indonesia-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Pakistan",
+      "population": 220892340,
+      "file": "pakistan-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Brazil",
+      "population": 212559417,
+      "file": "brazil-cities-top-200.json",
+      "status": "completed"
+    },
+    {
+      "country": "Nigeria",
+      "population": 206139589,
+      "file": "nigeria-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Bangladesh",
+      "population": 164689383,
+      "file": "bangladesh-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Russia",
+      "population": 145934462,
+      "file": "russia-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Mexico",
+      "population": 128932753,
+      "file": "mexico-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Japan",
+      "population": 126476461,
+      "file": "japan-cities-top-200.json",
+      "status": "completed"
+    },
+    {
+      "country": "Ethiopia",
+      "population": 114963588,
+      "file": "ethiopia-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Philippines",
+      "population": 109581078,
+      "file": "philippines-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Egypt",
+      "population": 102334404,
+      "file": "egypt-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Vietnam",
+      "population": 97338579,
+      "file": "vietnam-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Turkey",
+      "population": 84339067,
+      "file": "turkey-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Iran",
+      "population": 83992949,
+      "file": "iran-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Germany",
+      "population": 83783942,
+      "file": "germany-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "Thailand",
+      "population": 69799978,
+      "file": "thailand-cities-top-200.json",
+      "status": "pending"
+    },
+    {
+      "country": "United Kingdom",
+      "population": 67886011,
+      "file": "uk-cities-top-200.json",
+      "status": "pending"
+    }
+  ],
+  "notes": {
+    "data_structure": "Each file contains an array of objects with 'city' and 'state' properties",
+    "population_data": "Population figures are approximate as of 2021",
+    "usage": "These files are used by the venue generation system to fetch nightclub data for major cities worldwide"
+  }
+}

@@ -1,0 +1,1047 @@
+[
+  {
+    "city": "Tokyo",
+    "state": "Tokyo",
+    "location": "Tokyo, Tokyo, Japan"
+  },
+  {
+    "city": "Yokohama",
+    "state": "Kanagawa",
+    "location": "Yokohama, Kanagawa, Japan"
+  },
+  {
+    "city": "Osaka",
+    "state": "Osaka",
+    "location": "Osaka, Osaka, Japan"
+  },
+  {
+    "city": "Nagoya",
+    "state": "Aichi",
+    "location": "Nagoya, Aichi, Japan"
+  },
+  {
+    "city": "Sapporo",
+    "state": "Hokkaido",
+    "location": "Sapporo, Hokkaido, Japan"
+  },
+  {
+    "city": "Fukuoka",
+    "state": "Fukuoka",
+    "location": "Fukuoka, Fukuoka, Japan"
+  },
+  {
+    "city": "Kobe",
+    "state": "Hyogo",
+    "location": "Kobe, Hyogo, Japan"
+  },
+  {
+    "city": "Kawasaki",
+    "state": "Kanagawa",
+    "location": "Kawasaki, Kanagawa, Japan"
+  },
+  {
+    "city": "Kyoto",
+    "state": "Kyoto",
+    "location": "Kyoto, Kyoto, Japan"
+  },
+  {
+    "city": "Saitama",
+    "state": "Saitama",
+    "location": "Saitama, Saitama, Japan"
+  },
+  {
+    "city": "Hiroshima",
+    "state": "Hiroshima",
+    "location": "Hiroshima, Hiroshima, Japan"
+  },
+  {
+    "city": "Sendai",
+    "state": "Miyagi",
+    "location": "Sendai, Miyagi, Japan"
+  },
+  {
+    "city": "Kitakyushu",
+    "state": "Fukuoka",
+    "location": "Kitakyushu, Fukuoka, Japan"
+  },
+  {
+    "city": "Chiba",
+    "state": "Chiba",
+    "location": "Chiba, Chiba, Japan"
+  },
+  {
+    "city": "Sakai",
+    "state": "Osaka",
+    "location": "Sakai, Osaka, Japan"
+  },
+  {
+    "city": "Niigata",
+    "state": "Niigata",
+    "location": "Niigata, Niigata, Japan"
+  },
+  {
+    "city": "Hamamatsu",
+    "state": "Shizuoka",
+    "location": "Hamamatsu, Shizuoka, Japan"
+  },
+  {
+    "city": "Okayama",
+    "state": "Okayama",
+    "location": "Okayama, Okayama, Japan"
+  },
+  {
+    "city": "Sagamihara",
+    "state": "Kanagawa",
+    "location": "Sagamihara, Kanagawa, Japan"
+  },
+  {
+    "city": "Kumamoto",
+    "state": "Kumamoto",
+    "location": "Kumamoto, Kumamoto, Japan"
+  },
+  {
+    "city": "Shizuoka",
+    "state": "Shizuoka",
+    "location": "Shizuoka, Shizuoka, Japan"
+  },
+  {
+    "city": "Kagoshima",
+    "state": "Kagoshima",
+    "location": "Kagoshima, Kagoshima, Japan"
+  },
+  {
+    "city": "Matsuyama",
+    "state": "Ehime",
+    "location": "Matsuyama, Ehime, Japan"
+  },
+  {
+    "city": "Kanazawa",
+    "state": "Ishikawa",
+    "location": "Kanazawa, Ishikawa, Japan"
+  },
+  {
+    "city": "Utsunomiya",
+    "state": "Tochigi",
+    "location": "Utsunomiya, Tochigi, Japan"
+  },
+  {
+    "city": "Matsudo",
+    "state": "Chiba",
+    "location": "Matsudo, Chiba, Japan"
+  },
+  {
+    "city": "Kawaguchi",
+    "state": "Saitama",
+    "location": "Kawaguchi, Saitama, Japan"
+  },
+  {
+    "city": "Takatsuki",
+    "state": "Osaka",
+    "location": "Takatsuki, Osaka, Japan"
+  },
+  {
+    "city": "Kawagoe",
+    "state": "Saitama",
+    "location": "Kawagoe, Saitama, Japan"
+  },
+  {
+    "city": "Kochi",
+    "state": "Kochi",
+    "location": "Kochi, Kochi, Japan"
+  },
+  {
+    "city": "Toyama",
+    "state": "Toyama",
+    "location": "Toyama, Toyama, Japan"
+  },
+  {
+    "city": "Toyota",
+    "state": "Aichi",
+    "location": "Toyota, Aichi, Japan"
+  },
+  {
+    "city": "Takamatsu",
+    "state": "Kagawa",
+    "location": "Takamatsu, Kagawa, Japan"
+  },
+  {
+    "city": "Machida",
+    "state": "Tokyo",
+    "location": "Machida, Tokyo, Japan"
+  },
+  {
+    "city": "Gifu",
+    "state": "Gifu",
+    "location": "Gifu, Gifu, Japan"
+  },
+  {
+    "city": "Fujisawa",
+    "state": "Kanagawa",
+    "location": "Fujisawa, Kanagawa, Japan"
+  },
+  {
+    "city": "Kashiwa",
+    "state": "Chiba",
+    "location": "Kashiwa, Chiba, Japan"
+  },
+  {
+    "city": "Toyohashi",
+    "state": "Aichi",
+    "location": "Toyohashi, Aichi, Japan"
+  },
+  {
+    "city": "Yokosuka",
+    "state": "Kanagawa",
+    "location": "Yokosuka, Kanagawa, Japan"
+  },
+  {
+    "city": "Nagasaki",
+    "state": "Nagasaki",
+    "location": "Nagasaki, Nagasaki, Japan"
+  },
+  {
+    "city": "Ichikawa",
+    "state": "Chiba",
+    "location": "Ichikawa, Chiba, Japan"
+  },
+  {
+    "city": "Okazaki",
+    "state": "Aichi",
+    "location": "Okazaki, Aichi, Japan"
+  },
+  {
+    "city": "Nara",
+    "state": "Nara",
+    "location": "Nara, Nara, Japan"
+  },
+  {
+    "city": "Suita",
+    "state": "Osaka",
+    "location": "Suita, Osaka, Japan"
+  },
+  {
+    "city": "Wakayama",
+    "state": "Wakayama",
+    "location": "Wakayama, Wakayama, Japan"
+  },
+  {
+    "city": "Morioka",
+    "state": "Iwate",
+    "location": "Morioka, Iwate, Japan"
+  },
+  {
+    "city": "Naha",
+    "state": "Okinawa",
+    "location": "Naha, Okinawa, Japan"
+  },
+  {
+    "city": "Takasaki",
+    "state": "Gunma",
+    "location": "Takasaki, Gunma, Japan"
+  },
+  {
+    "city": "Koshigaya",
+    "state": "Saitama",
+    "location": "Koshigaya, Saitama, Japan"
+  },
+  {
+    "city": "Asahikawa",
+    "state": "Hokkaido",
+    "location": "Asahikawa, Hokkaido, Japan"
+  },
+  {
+    "city": "Iwaki",
+    "state": "Fukushima",
+    "location": "Iwaki, Fukushima, Japan"
+  },
+  {
+    "city": "Toyonaka",
+    "state": "Osaka",
+    "location": "Toyonaka, Osaka, Japan"
+  },
+  {
+    "city": "Nagano",
+    "state": "Nagano",
+    "location": "Nagano, Nagano, Japan"
+  },
+  {
+    "city": "Kurashiki",
+    "state": "Okayama",
+    "location": "Kurashiki, Okayama, Japan"
+  },
+  {
+    "city": "Amagasaki",
+    "state": "Hyogo",
+    "location": "Amagasaki, Hyogo, Japan"
+  },
+  {
+    "city": "Miyazaki",
+    "state": "Miyazaki",
+    "location": "Miyazaki, Miyazaki, Japan"
+  },
+  {
+    "city": "Nishitokyo",
+    "state": "Tokyo",
+    "location": "Nishitokyo, Tokyo, Japan"
+  },
+  {
+    "city": "Fukuyama",
+    "state": "Hiroshima",
+    "location": "Fukuyama, Hiroshima, Japan"
+  },
+  {
+    "city": "Minato",
+    "state": "Tokyo",
+    "location": "Minato, Tokyo, Japan"
+  },
+  {
+    "city": "Ibaraki",
+    "state": "Osaka",
+    "location": "Ibaraki, Osaka, Japan"
+  },
+  {
+    "city": "Shimonoseki",
+    "state": "Yamaguchi",
+    "location": "Shimonoseki, Yamaguchi, Japan"
+  },
+  {
+    "city": "Koriyama",
+    "state": "Fukushima",
+    "location": "Koriyama, Fukushima, Japan"
+  },
+  {
+    "city": "Akita",
+    "state": "Akita",
+    "location": "Akita, Akita, Japan"
+  },
+  {
+    "city": "Katsushika",
+    "state": "Tokyo",
+    "location": "Katsushika, Tokyo, Japan"
+  },
+  {
+    "city": "Hachioji",
+    "state": "Tokyo",
+    "location": "Hachioji, Tokyo, Japan"
+  },
+  {
+    "city": "Fukushima",
+    "state": "Fukushima",
+    "location": "Fukushima, Fukushima, Japan"
+  },
+  {
+    "city": "Maebashi",
+    "state": "Gunma",
+    "location": "Maebashi, Gunma, Japan"
+  },
+  {
+    "city": "Kashihara",
+    "state": "Nara",
+    "location": "Kashihara, Nara, Japan"
+  },
+  {
+    "city": "Tokorozawa",
+    "state": "Saitama",
+    "location": "Tokorozawa, Saitama, Japan"
+  },
+  {
+    "city": "Yamagata",
+    "state": "Yamagata",
+    "location": "Yamagata, Yamagata, Japan"
+  },
+  {
+    "city": "Ichihara",
+    "state": "Chiba",
+    "location": "Ichihara, Chiba, Japan"
+  },
+  {
+    "city": "Yao",
+    "state": "Osaka",
+    "location": "Yao, Osaka, Japan"
+  },
+  {
+    "city": "Aomori",
+    "state": "Aomori",
+    "location": "Aomori, Aomori, Japan"
+  },
+  {
+    "city": "Akashi",
+    "state": "Hyogo",
+    "location": "Akashi, Hyogo, Japan"
+  },
+  {
+    "city": "Hirakata",
+    "state": "Osaka",
+    "location": "Hirakata, Osaka, Japan"
+  },
+  {
+    "city": "Fujimi",
+    "state": "Saitama",
+    "location": "Fujimi, Saitama, Japan"
+  },
+  {
+    "city": "Kasugai",
+    "state": "Aichi",
+    "location": "Kasugai, Aichi, Japan"
+  },
+  {
+    "city": "Kurume",
+    "state": "Fukuoka",
+    "location": "Kurume, Fukuoka, Japan"
+  },
+  {
+    "city": "Obihiro",
+    "state": "Hokkaido",
+    "location": "Obihiro, Hokkaido, Japan"
+  },
+  {
+    "city": "Mito",
+    "state": "Ibaraki",
+    "location": "Mito, Ibaraki, Japan"
+  },
+  {
+    "city": "Tsu",
+    "state": "Mie",
+    "location": "Tsu, Mie, Japan"
+  },
+  {
+    "city": "Numazu",
+    "state": "Shizuoka",
+    "location": "Numazu, Shizuoka, Japan"
+  },
+  {
+    "city": "Isesaki",
+    "state": "Gunma",
+    "location": "Isesaki, Gunma, Japan"
+  },
+  {
+    "city": "Odawara",
+    "state": "Kanagawa",
+    "location": "Odawara, Kanagawa, Japan"
+  },
+  {
+    "city": "Suzuka",
+    "state": "Mie",
+    "location": "Suzuka, Mie, Japan"
+  },
+  {
+    "city": "Fuchu",
+    "state": "Tokyo",
+    "location": "Fuchu, Tokyo, Japan"
+  },
+  {
+    "city": "Matsumoto",
+    "state": "Nagano",
+    "location": "Matsumoto, Nagano, Japan"
+  },
+  {
+    "city": "Yamato",
+    "state": "Kanagawa",
+    "location": "Yamato, Kanagawa, Japan"
+  },
+  {
+    "city": "Ageo",
+    "state": "Saitama",
+    "location": "Ageo, Saitama, Japan"
+  },
+  {
+    "city": "Tsukuba",
+    "state": "Ibaraki",
+    "location": "Tsukuba, Ibaraki, Japan"
+  },
+  {
+    "city": "Imabari",
+    "state": "Ehime",
+    "location": "Imabari, Ehime, Japan"
+  },
+  {
+    "city": "Oita",
+    "state": "Oita",
+    "location": "Oita, Oita, Japan"
+  },
+  {
+    "city": "Neyagawa",
+    "state": "Osaka",
+    "location": "Neyagawa, Osaka, Japan"
+  },
+  {
+    "city": "Nagaoka",
+    "state": "Niigata",
+    "location": "Nagaoka, Niigata, Japan"
+  },
+  {
+    "city": "Kakogawa",
+    "state": "Hyogo",
+    "location": "Kakogawa, Hyogo, Japan"
+  },
+  {
+    "city": "Hakodate",
+    "state": "Hokkaido",
+    "location": "Hakodate, Hokkaido, Japan"
+  },
+  {
+    "city": "Sasebo",
+    "state": "Nagasaki",
+    "location": "Sasebo, Nagasaki, Japan"
+  },
+  {
+    "city": "Hino",
+    "state": "Tokyo",
+    "location": "Hino, Tokyo, Japan"
+  },
+  {
+    "city": "Higashiosaka",
+    "state": "Osaka",
+    "location": "Higashiosaka, Osaka, Japan"
+  },
+  {
+    "city": "Hitachi",
+    "state": "Ibaraki",
+    "location": "Hitachi, Ibaraki, Japan"
+  },
+  {
+    "city": "Kofu",
+    "state": "Yamanashi",
+    "location": "Kofu, Yamanashi, Japan"
+  },
+  {
+    "city": "Kusatsu",
+    "state": "Shiga",
+    "location": "Kusatsu, Shiga, Japan"
+  },
+  {
+    "city": "Chofu",
+    "state": "Tokyo",
+    "location": "Chofu, Tokyo, Japan"
+  },
+  {
+    "city": "Atsugi",
+    "state": "Kanagawa",
+    "location": "Atsugi, Kanagawa, Japan"
+  },
+  {
+    "city": "Yamada",
+    "state": "Osaka",
+    "location": "Yamada, Osaka, Japan"
+  },
+  {
+    "city": "Kodaira",
+    "state": "Tokyo",
+    "location": "Kodaira, Tokyo, Japan"
+  },
+  {
+    "city": "Tachikawa",
+    "state": "Tokyo",
+    "location": "Tachikawa, Tokyo, Japan"
+  },
+  {
+    "city": "Nishinomiya",
+    "state": "Hyogo",
+    "location": "Nishinomiya, Hyogo, Japan"
+  },
+  {
+    "city": "Yamaguchi",
+    "state": "Yamaguchi",
+    "location": "Yamaguchi, Yamaguchi, Japan"
+  },
+  {
+    "city": "Ube",
+    "state": "Yamaguchi",
+    "location": "Ube, Yamaguchi, Japan"
+  },
+  {
+    "city": "Tokushima",
+    "state": "Tokushima",
+    "location": "Tokushima, Tokushima, Japan"
+  },
+  {
+    "city": "Uji",
+    "state": "Kyoto",
+    "location": "Uji, Kyoto, Japan"
+  },
+  {
+    "city": "Watari",
+    "state": "Miyagi",
+    "location": "Watari, Miyagi, Japan"
+  },
+  {
+    "city": "Otsu",
+    "state": "Shiga",
+    "location": "Otsu, Shiga, Japan"
+  },
+  {
+    "city": "Tsukubamirai",
+    "state": "Ibaraki",
+    "location": "Tsukubamirai, Ibaraki, Japan"
+  },
+  {
+    "city": "Hiratsuka",
+    "state": "Kanagawa",
+    "location": "Hiratsuka, Kanagawa, Japan"
+  },
+  {
+    "city": "Kure",
+    "state": "Hiroshima",
+    "location": "Kure, Hiroshima, Japan"
+  },
+  {
+    "city": "Anjo",
+    "state": "Aichi",
+    "location": "Anjo, Aichi, Japan"
+  },
+  {
+    "city": "Ota",
+    "state": "Tokyo",
+    "location": "Ota, Tokyo, Japan"
+  },
+  {
+    "city": "Shibuya",
+    "state": "Tokyo",
+    "location": "Shibuya, Tokyo, Japan"
+  },
+  {
+    "city": "Fukui",
+    "state": "Fukui",
+    "location": "Fukui, Fukui, Japan"
+  },
+  {
+    "city": "Zama",
+    "state": "Kanagawa",
+    "location": "Zama, Kanagawa, Japan"
+  },
+  {
+    "city": "Musashino",
+    "state": "Tokyo",
+    "location": "Musashino, Tokyo, Japan"
+  },
+  {
+    "city": "Beppu",
+    "state": "Oita",
+    "location": "Beppu, Oita, Japan"
+  },
+  {
+    "city": "Ikoma",
+    "state": "Nara",
+    "location": "Ikoma, Nara, Japan"
+  },
+  {
+    "city": "Kasukabe",
+    "state": "Saitama",
+    "location": "Kasukabe, Saitama, Japan"
+  },
+  {
+    "city": "Mitaka",
+    "state": "Tokyo",
+    "location": "Mitaka, Tokyo, Japan"
+  },
+  {
+    "city": "Kishiwada",
+    "state": "Osaka",
+    "location": "Kishiwada, Osaka, Japan"
+  },
+  {
+    "city": "Isehara",
+    "state": "Kanagawa",
+    "location": "Isehara, Kanagawa, Japan"
+  },
+  {
+    "city": "Koganei",
+    "state": "Tokyo",
+    "location": "Koganei, Tokyo, Japan"
+  },
+  {
+    "city": "Yachiyo",
+    "state": "Chiba",
+    "location": "Yachiyo, Chiba, Japan"
+  },
+  {
+    "city": "Oyama",
+    "state": "Tochigi",
+    "location": "Oyama, Tochigi, Japan"
+  },
+  {
+    "city": "Soka",
+    "state": "Saitama",
+    "location": "Soka, Saitama, Japan"
+  },
+  {
+    "city": "Nobeoka",
+    "state": "Miyazaki",
+    "location": "Nobeoka, Miyazaki, Japan"
+  },
+  {
+    "city": "Takatsuki",
+    "state": "Osaka",
+    "location": "Takatsuki, Osaka, Japan"
+  },
+  {
+    "city": "Kurashiki",
+    "state": "Okayama",
+    "location": "Kurashiki, Okayama, Japan"
+  },
+  {
+    "city": "Komaki",
+    "state": "Aichi",
+    "location": "Komaki, Aichi, Japan"
+  },
+  {
+    "city": "Ebina",
+    "state": "Kanagawa",
+    "location": "Ebina, Kanagawa, Japan"
+  },
+  {
+    "city": "Asaka",
+    "state": "Saitama",
+    "location": "Asaka, Saitama, Japan"
+  },
+  {
+    "city": "Itami",
+    "state": "Hyogo",
+    "location": "Itami, Hyogo, Japan"
+  },
+  {
+    "city": "Kakamigahara",
+    "state": "Gifu",
+    "location": "Kakamigahara, Gifu, Japan"
+  },
+  {
+    "city": "Fujieda",
+    "state": "Shizuoka",
+    "location": "Fujieda, Shizuoka, Japan"
+  },
+  {
+    "city": "Kiryu",
+    "state": "Gunma",
+    "location": "Kiryu, Gunma, Japan"
+  },
+  {
+    "city": "Sumida",
+    "state": "Tokyo",
+    "location": "Sumida, Tokyo, Japan"
+  },
+  {
+    "city": "Chigasaki",
+    "state": "Kanagawa",
+    "location": "Chigasaki, Kanagawa, Japan"
+  },
+  {
+    "city": "Sayama",
+    "state": "Saitama",
+    "location": "Sayama, Saitama, Japan"
+  },
+  {
+    "city": "Nagareyama",
+    "state": "Chiba",
+    "location": "Nagareyama, Chiba, Japan"
+  },
+  {
+    "city": "Noda",
+    "state": "Chiba",
+    "location": "Noda, Chiba, Japan"
+  },
+  {
+    "city": "Tottori",
+    "state": "Tottori",
+    "location": "Tottori, Tottori, Japan"
+  },
+  {
+    "city": "Ome",
+    "state": "Tokyo",
+    "location": "Ome, Tokyo, Japan"
+  },
+  {
+    "city": "Dazaifu",
+    "state": "Fukuoka",
+    "location": "Dazaifu, Fukuoka, Japan"
+  },
+  {
+    "city": "Kariya",
+    "state": "Aichi",
+    "location": "Kariya, Aichi, Japan"
+  },
+  {
+    "city": "Tsuyama",
+    "state": "Okayama",
+    "location": "Tsuyama, Okayama, Japan"
+  },
+  {
+    "city": "Joetsu",
+    "state": "Niigata",
+    "location": "Joetsu, Niigata, Japan"
+  },
+  {
+    "city": "Chikusei",
+    "state": "Ibaraki",
+    "location": "Chikusei, Ibaraki, Japan"
+  },
+  {
+    "city": "Mishima",
+    "state": "Shizuoka",
+    "location": "Mishima, Shizuoka, Japan"
+  },
+  {
+    "city": "Fujinomiya",
+    "state": "Shizuoka",
+    "location": "Fujinomiya, Shizuoka, Japan"
+  },
+  {
+    "city": "Koganei",
+    "state": "Tokyo",
+    "location": "Koganei, Tokyo, Japan"
+  },
+  {
+    "city": "Higashimatsuyama",
+    "state": "Saitama",
+    "location": "Higashimatsuyama, Saitama, Japan"
+  },
+  {
+    "city": "Kokubunji",
+    "state": "Tokyo",
+    "location": "Kokubunji, Tokyo, Japan"
+  },
+  {
+    "city": "Higashimurayama",
+    "state": "Tokyo",
+    "location": "Higashimurayama, Tokyo, Japan"
+  },
+  {
+    "city": "Konosu",
+    "state": "Saitama",
+    "location": "Konosu, Saitama, Japan"
+  },
+  {
+    "city": "Kitamoto",
+    "state": "Saitama",
+    "location": "Kitamoto, Saitama, Japan"
+  },
+  {
+    "city": "Akishima",
+    "state": "Tokyo",
+    "location": "Akishima, Tokyo, Japan"
+  },
+  {
+    "city": "Warabi",
+    "state": "Saitama",
+    "location": "Warabi, Saitama, Japan"
+  },
+  {
+    "city": "Kameoka",
+    "state": "Kyoto",
+    "location": "Kameoka, Kyoto, Japan"
+  },
+  {
+    "city": "Niiza",
+    "state": "Saitama",
+    "location": "Niiza, Saitama, Japan"
+  },
+  {
+    "city": "Toda",
+    "state": "Saitama",
+    "location": "Toda, Saitama, Japan"
+  },
+  {
+    "city": "Okegawa",
+    "state": "Saitama",
+    "location": "Okegawa, Saitama, Japan"
+  },
+  {
+    "city": "Higashikurume",
+    "state": "Tokyo",
+    "location": "Higashikurume, Tokyo, Japan"
+  },
+  {
+    "city": "Kiyose",
+    "state": "Tokyo",
+    "location": "Kiyose, Tokyo, Japan"
+  },
+  {
+    "city": "Higashiyamato",
+    "state": "Tokyo",
+    "location": "Higashiyamato, Tokyo, Japan"
+  },
+  {
+    "city": "Musashimurayama",
+    "state": "Tokyo",
+    "location": "Musashimurayama, Tokyo, Japan"
+  },
+  {
+    "city": "Tama",
+    "state": "Tokyo",
+    "location": "Tama, Tokyo, Japan"
+  },
+  {
+    "city": "Inagi",
+    "state": "Tokyo",
+    "location": "Inagi, Tokyo, Japan"
+  },
+  {
+    "city": "Hamura",
+    "state": "Tokyo",
+    "location": "Hamura, Tokyo, Japan"
+  },
+  {
+    "city": "Akiruno",
+    "state": "Tokyo",
+    "location": "Akiruno, Tokyo, Japan"
+  },
+  {
+    "city": "Nishitokyo",
+    "state": "Tokyo",
+    "location": "Nishitokyo, Tokyo, Japan"
+  },
+  {
+    "city": "Mizuho",
+    "state": "Tokyo",
+    "location": "Mizuho, Tokyo, Japan"
+  },
+  {
+    "city": "Hinode",
+    "state": "Tokyo",
+    "location": "Hinode, Tokyo, Japan"
+  },
+  {
+    "city": "Hinohara",
+    "state": "Tokyo",
+    "location": "Hinohara, Tokyo, Japan"
+  },
+  {
+    "city": "Okutama",
+    "state": "Tokyo",
+    "location": "Okutama, Tokyo, Japan"
+  },
+  {
+    "city": "Oshima",
+    "state": "Tokyo",
+    "location": "Oshima, Tokyo, Japan"
+  },
+  {
+    "city": "Toshima",
+    "state": "Tokyo",
+    "location": "Toshima, Tokyo, Japan"
+  },
+  {
+    "city": "Niijima",
+    "state": "Tokyo",
+    "location": "Niijima, Tokyo, Japan"
+  },
+  {
+    "city": "Shikinejima",
+    "state": "Tokyo",
+    "location": "Shikinejima, Tokyo, Japan"
+  },
+  {
+    "city": "Kozushima",
+    "state": "Tokyo",
+    "location": "Kozushima, Tokyo, Japan"
+  },
+  {
+    "city": "Miyakejima",
+    "state": "Tokyo",
+    "location": "Miyakejima, Tokyo, Japan"
+  },
+  {
+    "city": "Mikurajima",
+    "state": "Tokyo",
+    "location": "Mikurajima, Tokyo, Japan"
+  },
+  {
+    "city": "Hachijojima",
+    "state": "Tokyo",
+    "location": "Hachijojima, Tokyo, Japan"
+  },
+  {
+    "city": "Aogashima",
+    "state": "Tokyo",
+    "location": "Aogashima, Tokyo, Japan"
+  },
+  {
+    "city": "Ogasawara",
+    "state": "Tokyo",
+    "location": "Ogasawara, Tokyo, Japan"
+  },
+  {
+    "city": "Chiyoda",
+    "state": "Tokyo",
+    "location": "Chiyoda, Tokyo, Japan"
+  },
+  {
+    "city": "Chuo",
+    "state": "Tokyo",
+    "location": "Chuo, Tokyo, Japan"
+  },
+  {
+    "city": "Shinjuku",
+    "state": "Tokyo",
+    "location": "Shinjuku, Tokyo, Japan"
+  },
+  {
+    "city": "Bunkyo",
+    "state": "Tokyo",
+    "location": "Bunkyo, Tokyo, Japan"
+  },
+  {
+    "city": "Taito",
+    "state": "Tokyo",
+    "location": "Taito, Tokyo, Japan"
+  },
+  {
+    "city": "Koto",
+    "state": "Tokyo",
+    "location": "Koto, Tokyo, Japan"
+  },
+  {
+    "city": "Shinagawa",
+    "state": "Tokyo",
+    "location": "Shinagawa, Tokyo, Japan"
+  },
+  {
+    "city": "Meguro",
+    "state": "Tokyo",
+    "location": "Meguro, Tokyo, Japan"
+  },
+  {
+    "city": "Setagaya",
+    "state": "Tokyo",
+    "location": "Setagaya, Tokyo, Japan"
+  },
+  {
+    "city": "Nakano",
+    "state": "Tokyo",
+    "location": "Nakano, Tokyo, Japan"
+  },
+  {
+    "city": "Suginami",
+    "state": "Tokyo",
+    "location": "Suginami, Tokyo, Japan"
+  },
+  {
+    "city": "Kita",
+    "state": "Tokyo",
+    "location": "Kita, Tokyo, Japan"
+  },
+  {
+    "city": "Arakawa",
+    "state": "Tokyo",
+    "location": "Arakawa, Tokyo, Japan"
+  },
+  {
+    "city": "Itabashi",
+    "state": "Tokyo",
+    "location": "Itabashi, Tokyo, Japan"
+  },
+  {
+    "city": "Nerima",
+    "state": "Tokyo",
+    "location": "Nerima, Tokyo, Japan"
+  },
+  {
+    "city": "Adachi",
+    "state": "Tokyo",
+    "location": "Adachi, Tokyo, Japan"
+  },
+  {
+    "city": "Edogawa",
+    "state": "Tokyo",
+    "location": "Edogawa, Tokyo, Japan"
+  }
+]
