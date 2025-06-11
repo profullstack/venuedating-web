@@ -323,7 +323,9 @@ run_migrations() {
   
   if [ $PULL_EXIT_CODE -ne 0 ]; then
     echo -e "${YELLOW}Migration history sync failed. Analyzing output for repair commands...${NC}"
+    echo -e "${RED}Error output:${NC}"
     echo "$PULL_OUTPUT"
+    echo ""
     
     # Extract repair commands from the output
     REPAIR_COMMANDS=$(echo "$PULL_OUTPUT" | grep "supabase migration repair" | sed 's/^[[:space:]]*//')
