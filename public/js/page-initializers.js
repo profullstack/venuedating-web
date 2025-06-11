@@ -1096,7 +1096,7 @@ export async function initManageSubscriptionPage() {
 /**
  * Initialize the test-fix-2 page
  */
-export function initTestFix-2Page() {
+export function initTestFix2Page() {
   console.log('Initializing test-fix-2 page');
   
   // Get the form element
