@@ -13,6 +13,7 @@ import {
   initResetPasswordPage,
   initManageSubscriptionPage,
   initTestFeaturePage,
+  initFaqsPage,
   initFeedPage
 } from './page-initializers.js';
 
@@ -474,6 +475,10 @@ export function defineRoutes(router) {
           console.error('Error loading simple-counter component:', error);
         });
       }
+    },
+    '/faqs': {
+      viewPath: '/views/faqs.html',
+      afterRender: initFaqsPage
     },
     '/feed': {
       viewPath: '/views/feed.html',

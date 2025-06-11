@@ -813,22 +813,8 @@ function createViewFile(filePath, featureName, kebabCase) {
     i18nPrefix
   });
 
-  // Create the full HTML document
-  const fullHtmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${featureName}</title>
-  <link rel="stylesheet" href="/css/main.css">
-</head>
-<body>
-${htmlContent}
-</body>
-</html>`;
-
-  // Write the file
-  fs.writeFileSync(filePath, fullHtmlContent);
+  // Write the file with just the template content (no full HTML wrapper)
+  fs.writeFileSync(filePath, htmlContent);
   
   // Create the JS view file
   const jsViewsDir = path.join(projectRoot, 'public', 'js', 'views');
@@ -950,14 +936,30 @@ function addRouteToRouter(filePath, routePath, kebabCase, initializerName, requi
     throw new Error(`Route ${routePath} already exists in ${filePath}`);
   }
   
-  // Find the last route in the object
-  const lastRouteIndex = content.lastIndexOf(',', routesEndIndex);
-  if (lastRouteIndex === -1) {
-    throw new Error(`Could not find the last route in ${filePath}`);
+  // Find the proper insertion point by looking for the last complete route definition
+  // Extract the routes section content
+  const routesContent = content.substring(createRoutesIndex, routesEndIndex);
+  
+  // Find all route definitions using a regex that matches the pattern
+  // '/route-path': { ... } or '/route-path': '/views/...'
+  const routePattern = /^\s*['"`]([^'"`]+)['"`]\s*:\s*(?:\{[\s\S]*?\}|['"`][^'"`]*['"`])\s*,?\s*$/gm;
+  let lastRouteMatch = null;
+  let match;
+  
+  while ((match = routePattern.exec(routesContent)) !== null) {
+    lastRouteMatch = match;
   }
   
+  if (!lastRouteMatch) {
+    throw new Error(`Could not find any route definitions in ${filePath}`);
+  }
+  
+  // Find the end position of the last route in the original content
+  const lastRouteEnd = createRoutesIndex + lastRouteMatch.index + lastRouteMatch[0].length;
+  const insertionPoint = lastRouteEnd;
+  
   // Create the route definition
-  let routeDefinition = `\n  '${routePath}': {
+  let routeDefinition = `,\n  '${routePath}': {
     viewPath: '/views/${kebabCase}.html',
     afterRender: ${initializerName}`;
   
@@ -971,8 +973,8 @@ function addRouteToRouter(filePath, routePath, kebabCase, initializerName, requi
   
   routeDefinition += '\n  }';
   
-  // Insert the route definition after the last route
-  const newContent = content.slice(0, lastRouteIndex + 1) + routeDefinition + content.slice(lastRouteIndex + 1);
+  // Insert the route definition at the proper location
+  const newContent = content.slice(0, insertionPoint) + routeDefinition + content.slice(insertionPoint);
   
   // Write the updated content back to the file
   fs.writeFileSync(filePath, newContent);
