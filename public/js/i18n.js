@@ -18,7 +18,7 @@ const i18nStore = createStore('i18n', {
 });
 
 // Store available languages
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar'];
+const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar', 'pt', 'id', 'es', 'tr', 'th', 'vi', 'ur', 'fa'];
 const DEFAULT_LANGUAGE = 'en';
 
 /**
@@ -276,7 +276,16 @@ function getLanguageName(langCode) {
     ru: 'Русский',
     pl: 'Polski',
     zh: '中文',
-    ja: '日本語'
+    ja: '日本語',
+    ar: 'العربية',
+    pt: 'Português',
+    id: 'Bahasa Indonesia',
+    es: 'Español',
+    tr: 'Türkçe',
+    th: 'ไทย',
+    vi: 'Tiếng Việt',
+    ur: 'اردو',
+    fa: 'فارسی'
   };
   
   return names[langCode] || langCode;

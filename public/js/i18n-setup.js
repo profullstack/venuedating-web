@@ -6,7 +6,7 @@
 import { localizer } from './deps.js';
 
 // Available languages
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar'];
+const AVAILABLE_LANGUAGES = ['en', 'fr', 'de', 'uk', 'ru', 'pl', 'zh', 'ja', 'ar', 'pt', 'id', 'es', 'tr', 'th', 'vi', 'ur', 'fa'];
 
 /**
  * Initialize i18n for the application

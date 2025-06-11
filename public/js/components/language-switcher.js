@@ -283,7 +283,15 @@ class LanguageSwitcher extends HTMLElement {
       pl: 'Polski',
       zh: '中文',
       ja: '日本語',
-      ar: 'العربية'
+      ar: 'العربية',
+      pt: 'Português',
+      id: 'Bahasa Indonesia',
+      es: 'Español',
+      tr: 'Türkçe',
+      th: 'ไทย',
+      vi: 'Tiếng Việt',
+      ur: 'اردو',
+      fa: 'فارسی'
     };
     
     return names[langCode] || langCode;
