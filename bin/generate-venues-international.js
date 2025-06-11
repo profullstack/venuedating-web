@@ -351,23 +351,18 @@ async function loadCitiesForCountry(countryCode) {
 }
 
 /**
- * Create fallback location string for cities without location field
+ * Create location string for API call - enhanced cities get precise targeting,
+ * basic cities get non-geo-specific searches
  */
 function createLocationString(city, countryConfig) {
+  // If city has enhanced location data, use it for precise targeting
   if (city.location) {
     return city.location;
   }
   
-  // Fallback: construct location from city, state, country
-  const cityName = city.city || city;
-  const stateName = city.state || '';
-  const countryName = countryConfig.name;
-  
-  if (stateName) {
-    return `${cityName}, ${stateName}, ${countryName}`;
-  } else {
-    return `${cityName}, ${countryName}`;
-  }
+  // For basic city data, return null to skip geo-targeting
+  // This lets Google's algorithm handle location naturally
+  return null;
 }
 
 /**
@@ -375,11 +370,17 @@ function createLocationString(city, countryConfig) {
  */
 async function fetchVenuesForCityPage(city, countryConfig, page = 1) {
   const url = new URL(VALUESERP_BASE_URL);
+  const locationString = createLocationString(city, countryConfig);
   
   url.searchParams.set('api_key', VALUESERP_API_KEY);
   url.searchParams.set('search_type', 'places');
   url.searchParams.set('q', countryConfig.search_query);
-  url.searchParams.set('location', createLocationString(city, countryConfig));
+  
+  // Only set location parameter if we have enhanced location data
+  if (locationString) {
+    url.searchParams.set('location', locationString);
+  }
+  
   url.searchParams.set('google_domain', countryConfig.google_domain);
   url.searchParams.set('gl', countryConfig.gl);
   url.searchParams.set('hl', countryConfig.hl);
@@ -392,7 +393,8 @@ async function fetchVenuesForCityPage(city, countryConfig, page = 1) {
   const pageInfo = page > 1 ? ` (page ${page})` : '';
   const cityName = city.city || city;
   const stateName = city.state || '';
-  console.log(`🔍 Fetching venues for ${cityName}, ${stateName}${pageInfo}...`);
+  const geoType = locationString ? '📍 geo-targeted' : '🌐 non-geo';
+  console.log(`🔍 Fetching venues for ${cityName}, ${stateName} (${geoType})${pageInfo}...`);
   
   if (options.dryRun) {
     console.log(`   Would call: ${url.toString()}`);
