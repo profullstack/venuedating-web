@@ -34,17 +34,12 @@ Apply the places table migration using one of these methods:
 ./bin/supabase-db.sh migrate
 ```
 
-**Option 2: Using the migration wrapper**
-```bash
-node bin/apply-migration.js
-```
-
-**Option 3: Deploy with migrations**
+**Option 2: Deploy with migrations**
 ```bash
 ./bin/deploy-with-migrations.sh
 ```
 
-**Option 4: Manual application**
+**Option 3: Manual application**
 Run the SQL from [`supabase/migrations/20250611060828_create_places_table_with_postgis.sql`](supabase/migrations/20250611060828_create_places_table_with_postgis.sql) in your Supabase dashboard SQL Editor.
 
 This creates a `places` table with the following schema:
