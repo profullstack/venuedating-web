@@ -379,16 +379,69 @@ run_migrations() {
   
   # Use the Supabase CLI to push migrations with --include-all flag
   echo -e "${YELLOW}Running: supabase db push --include-all${NC}"
-  supabase db push --include-all
   
-  if [ $? -eq 0 ]; then
-    echo -e "${GREEN}Migration successful!${NC}"
+  # Create a temporary file to capture push output
+  PUSH_TEMP_OUTPUT=$(mktemp)
+  
+  # Run the command and capture both stdout and stderr, while also showing output
+  supabase db push --include-all 2>&1 | tee "$PUSH_TEMP_OUTPUT"
+  PUSH_EXIT_CODE=$?
+  
+  if [ $PUSH_EXIT_CODE -ne 0 ]; then
+    echo -e "${YELLOW}Migration push failed (exit code: $PUSH_EXIT_CODE). Analyzing output for repair commands...${NC}"
+    
+    # Read the captured output
+    PUSH_OUTPUT=$(cat "$PUSH_TEMP_OUTPUT")
+    
+    # Extract repair commands from the output
+    PUSH_REPAIR_COMMANDS=$(echo "$PUSH_OUTPUT" | grep "supabase migration repair" | sed 's/^[[:space:]]*//')
+    
+    if [ -n "$PUSH_REPAIR_COMMANDS" ]; then
+      echo -e "${YELLOW}Found repair commands in push output. Executing them...${NC}"
+      
+      # Execute each repair command
+      echo "$PUSH_REPAIR_COMMANDS" | while IFS= read -r repair_cmd; do
+        if [ -n "$repair_cmd" ]; then
+          echo -e "${YELLOW}Running: $repair_cmd${NC}"
+          eval "$repair_cmd"
+          
+          if [ $? -eq 0 ]; then
+            echo -e "${GREEN}Repair command executed successfully${NC}"
+          else
+            echo -e "${RED}Repair command failed: $repair_cmd${NC}"
+          fi
+        fi
+      done
+      
+      # Check if we need to pull after repairs (common suggestion)
+      if echo "$PUSH_OUTPUT" | grep -q "supabase db pull"; then
+        echo -e "${YELLOW}Running suggested db pull after repairs...${NC}"
+        supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions
+      fi
+      
+      # Try pushing again after repairs
+      echo -e "${YELLOW}Retrying push after repairs...${NC}"
+      supabase db push --include-all
+      
+      if [ $? -eq 0 ]; then
+        echo -e "${GREEN}Migration successful after repairs!${NC}"
+      else
+        echo -e "${RED}Migration still failed after repairs.${NC}"
+        echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+        exit 1
+      fi
+    else
+      echo -e "${RED}Migration failed.${NC}"
+      echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
+      echo -e "${YELLOW}Make sure your SUPABASE_DB_PASSWORD is correct and your IP is allowed to access the database.${NC}"
+      exit 1
+    fi
   else
-    echo -e "${RED}Migration failed.${NC}"
-    echo -e "${RED}Please check your Supabase configuration and try again.${NC}"
-    echo -e "${YELLOW}Make sure your SUPABASE_DB_PASSWORD is correct and your IP is allowed to access the database.${NC}"
-    exit 1
+    echo -e "${GREEN}Migration successful!${NC}"
   fi
+  
+  # Clean up temporary file
+  rm -f "$PUSH_TEMP_OUTPUT"
   
   echo -e "${GREEN}Migrations applied successfully!${NC}"
 }
