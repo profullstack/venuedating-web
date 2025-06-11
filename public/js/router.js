@@ -13,7 +13,8 @@ import {
   initResetPasswordPage,
   initManageSubscriptionPage,
   initTestFeaturePage,
-  initFaqsPage
+  initFaqsPage,
+  initChartsPage
 } from './page-initializers.js';
 
 // Create a DOM fragment with the default layout
@@ -444,6 +445,10 @@ export function defineRoutes(router) {
     
     // Demo routes
     '/state-demo': '/views/state-demo.html',
+    '/charts': {
+      viewPath: '/views/charts.html',
+      afterRender: initChartsPage
+    },
     '/simple-state-demo': {
       viewPath: '/views/simple-state-demo.html',
       afterRender: () => {

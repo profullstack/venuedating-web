@@ -30,6 +30,7 @@
     "@profullstack/spa-router": "^1.11.1",
     "@supabase/supabase-js": "^2.49.4",
     "chalk": "^5.3.0",
+    "charts.css": "^1.1.0",
     "commander": "^12.0.0",
     "docx": "^9.5.0",
     "dotenv": "^16.5.0",

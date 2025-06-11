@@ -1013,7 +1013,9 @@ export function initTestFixPage() {
       submitButton.disabled = false;
     }
   });
-}/**
+}
+
+/**
  * Initialize manage subscription page
  */
 export async function initManageSubscriptionPage() {
@@ -1093,6 +1095,23 @@ export function initTestFix2Page() {
     }
   });
 }
+
+/**
+ * Initialize the charts page
+ */
+export async function initChartsPage() {
+  console.log('Initializing charts page');
+  
+  try {
+    // Import and initialize the charts page functionality
+    const { initChartsInteractivity } = await import('./views/charts.js');
+    initChartsInteractivity();
+    console.log('Charts page initialized successfully');
+  } catch (error) {
+    console.error('Error initializing charts page:', error);
+  }
+}
+
 /**
  * Initialize reset password page
  */
