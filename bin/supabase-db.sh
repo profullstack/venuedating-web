@@ -317,15 +317,21 @@ run_migrations() {
   echo -e "${YELLOW}Step 1: Syncing local migration history with remote database...${NC}"
   echo -e "${YELLOW}Running: supabase db pull${NC}"
   
-  # Capture the output from supabase db pull to parse repair commands
-  PULL_OUTPUT=$(supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1)
-  PULL_EXIT_CODE=$?
+  # Try to capture output, but also show it in real-time
+  echo -e "${YELLOW}Attempting to sync migration history...${NC}"
+  
+  # Create a temporary file to capture output
+  TEMP_OUTPUT=$(mktemp)
+  
+  # Run the command and capture both stdout and stderr, while also showing output
+  supabase db pull --schema public,auth,storage,graphql_public,supabase_functions,extensions 2>&1 | tee "$TEMP_OUTPUT"
+  PULL_EXIT_CODE=${PIPESTATUS[0]}
   
   if [ $PULL_EXIT_CODE -ne 0 ]; then
-    echo -e "${YELLOW}Migration history sync failed. Analyzing output for repair commands...${NC}"
-    echo -e "${RED}Error output:${NC}"
-    echo "$PULL_OUTPUT"
-    echo ""
+    echo -e "${YELLOW}Migration history sync failed (exit code: $PULL_EXIT_CODE). Analyzing output for repair commands...${NC}"
+    
+    # Read the captured output
+    PULL_OUTPUT=$(cat "$TEMP_OUTPUT")
     
     # Extract repair commands from the output
     REPAIR_COMMANDS=$(echo "$PULL_OUTPUT" | grep "supabase migration repair" | sed 's/^[[:space:]]*//')
@@ -357,11 +363,19 @@ run_migrations() {
         echo -e "${YELLOW}Warning: Sync still failed after repairs. Continuing with migration application...${NC}"
       fi
     else
-      echo -e "${YELLOW}No repair commands found in output. Continuing with migration application...${NC}"
+      echo -e "${YELLOW}No repair commands found in output. This might be a different type of error.${NC}"
+      echo -e "${YELLOW}Common issues:${NC}"
+      echo -e "${YELLOW}  - Network connectivity problems${NC}"
+      echo -e "${YELLOW}  - Authentication issues${NC}"
+      echo -e "${YELLOW}  - Database connection problems${NC}"
+      echo -e "${YELLOW}Continuing with migration application...${NC}"
     fi
   else
     echo -e "${GREEN}Migration history synced successfully!${NC}"
   fi
+  
+  # Clean up temporary file
+  rm -f "$TEMP_OUTPUT"
   
   # Step 2: Apply any pending migrations
   echo -e "${YELLOW}Step 2: Applying pending migrations to database...${NC}"
