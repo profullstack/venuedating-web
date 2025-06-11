@@ -48,7 +48,8 @@ This creates a `places` table with the following schema:
 - `title` - Venue name
 - `address` - Street address
 - `city`, `state`, `country` - Location information
-- `coordinates` - PostGIS geography point (longitude, latitude)
+- `location` - PostGIS geography point (longitude, latitude)
+- `latitude`, `longitude` - Separate numeric columns for fallback compatibility
 - `rating`, `reviews` - Rating and review count
 - `category` - Venue category (e.g., "Night club")
 - `phone` - Phone number
@@ -123,7 +124,9 @@ Each venue record includes:
   "city": "New York",
   "state": "New York",
   "country": "United States",
-  "coordinates": "POINT(-74.0060 40.7128)",
+  "location": "POINT(-74.0060 40.7128)",
+  "latitude": 40.7128,
+  "longitude": -74.0060,
   "rating": 4.2,
   "reviews": 150,
   "category": "Night club",
@@ -147,38 +150,42 @@ SELECT
   id,
   title,
   address,
-  ST_AsText(coordinates) AS coords,
-  ST_Distance(coordinates, ST_MakePoint(-122.4194, 37.7749)::geography) AS distance_meters
+  ST_AsText(location) AS coords,
+  ST_Distance(location, ST_MakePoint(-122.4194, 37.7749)::geography) AS distance_meters
 FROM
   places
 WHERE
   ST_DWithin(
-    coordinates,
+    location,
     ST_MakePoint(-122.4194, 37.7749)::geography,
     48280 -- 30 miles in meters (1 mile ≈ 1609.34 meters)
   )
 ORDER BY distance_meters ASC;
 
 -- Find venues within 5 miles of New York City
-SELECT title, address, ST_AsText(coordinates) as location
+SELECT title, address, ST_AsText(location) as coords
 FROM places
 WHERE ST_DWithin(
-  coordinates,
+  location,
   ST_MakePoint(-74.0060, 40.7128)::geography,
   8047  -- 5 miles in meters
 );
 
 -- Find nearest 10 venues to a point (fast with spatial index)
 SELECT title, address,
-       ST_Distance(coordinates, ST_MakePoint(-74.0060, 40.7128)::geography) as distance_meters
+       ST_Distance(location, ST_MakePoint(-74.0060, 40.7128)::geography) as distance_meters
 FROM places
-ORDER BY coordinates <-> ST_MakePoint(-74.0060, 40.7128)::geography
+ORDER BY location <-> ST_MakePoint(-74.0060, 40.7128)::geography
 LIMIT 10;
 
--- Get coordinates as latitude/longitude
+-- Get coordinates as latitude/longitude (from PostGIS location column)
 SELECT title,
-       ST_Y(coordinates::geometry) as latitude,
-       ST_X(coordinates::geometry) as longitude
+       ST_Y(location::geometry) as latitude,
+       ST_X(location::geometry) as longitude
+FROM places;
+
+-- Or use the separate latitude/longitude columns directly
+SELECT title, latitude, longitude
 FROM places;
 
 -- Common distance conversions for reference:
