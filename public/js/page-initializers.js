@@ -613,6 +613,361 @@ export function initRegisterPage() {
   });
 }
 
+
+/**
+ * Initialize authentication system
+ */
+export async function initAuthPage() {
+  const { signInWithPhone, verifyPhoneOtp, signInWithGoogle } = await import('./auth.js');
+
+  // Helper to show status messages
+  function showStatus(msg, isError = false) {
+    let el = document.getElementById('auth-status-message');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'auth-status-message';
+      el.style.marginTop = '14px';
+      el.style.fontSize = '15px';
+      el.style.textAlign = 'center';
+      el.style.color = '#fff';
+      el.style.background = isError ? '#F44B74' : '#4BB543';
+      el.style.borderRadius = '8px';
+      el.style.padding = '8px 16px';
+      el.style.maxWidth = '340px';
+      el.style.marginLeft = 'auto';
+      el.style.marginRight = 'auto';
+      document.querySelector('.auth-container').appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.background = isError ? '#F44B74' : '#4BB543';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+  }
+
+  // Phone login modal logic with slide-up animation and country flag
+  function showPhoneModal() {
+    let modal = document.getElementById('phone-modal');
+    if (!modal) {
+      // Create modal with slide-up animation
+      modal = document.createElement('div');
+      modal.id = 'phone-modal';
+      modal.className = 'phone-modal';
+      modal.innerHTML = `
+        <style>
+          .phone-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+          }
+          
+          .phone-modal-container {
+            background-color: white;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 100%;
+            padding: 24px;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            font-family: 'Roboto', sans-serif;
+          }
+          
+          .phone-modal.visible .phone-modal-container {
+            transform: translateY(0);
+          }
+          
+          .handle-bar {
+            width: 40px;
+            height: 4px;
+            background-color: #ddd;
+            border-radius: 2px;
+            margin-bottom: 16px;
+          }
+          
+          .phone-input-container {
+            display: flex;
+            width: 90%;
+            margin-bottom: 16px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          
+          .country-flag {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            background: #f9f9f9;
+            border-right: 1px solid #eee;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+          }
+          
+          .country-code {
+            margin-left: 5px;
+          }
+          
+          #phone-input {
+            flex: 1;
+            border: none;
+            padding: 10px 12px;
+            font-size: 16px;
+            outline: none;
+            font-family: 'Roboto', sans-serif;
+          }
+        </style>
+        <div class="phone-modal-container">
+          <div class="handle-bar"></div>
+          <button id="close-modal-btn" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:22px;cursor:pointer;font-family:'Roboto',sans-serif;">&times;</button>
+          <h2 style="margin-bottom:18px;font-size:22px;color:#F44B74;font-family:'Roboto',sans-serif;">Login with Phone</h2>
+          
+          <div class="phone-input-container">
+            <div class="country-flag">
+              <span>🇺🇸</span>
+              <span class="country-code">+1</span>
+            </div>
+            <input id="phone-input" type="tel" placeholder="(555) 123-4567" />
+          </div>
+          
+          <button id="send-otp-btn" style="width:90%;padding:10px 0;background:#F44B74;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:'Roboto',sans-serif;">Send OTP</button>
+          
+          <div id="otp-section" style="display:none;margin-top:18px;width:90%;">
+            <input id="otp-input" type="text" maxlength="6" placeholder="Enter OTP" style="width:100%;padding:10px 12px;font-size:16px;border-radius:8px;border:1px solid #eee;margin-bottom:12px;font-family:'Roboto',sans-serif;" />
+            <button id="verify-otp-btn" style="width:100%;padding:10px 0;background:#4BB543;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:'Roboto',sans-serif;">Verify OTP</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Close button handler
+      modal.querySelector('#close-modal-btn').onclick = () => {
+        modal.classList.remove('visible');
+        setTimeout(() => {
+          modal.style.display = 'none';
+        }, 300); // Match the transition duration
+      };
+    }
+    
+    // Show with animation
+    modal.style.display = 'flex';
+    // Trigger animation after a small delay
+    setTimeout(() => {
+      modal.classList.add('visible');
+    }, 10);
+
+    let phoneInput = modal.querySelector('#phone-input');
+    let countryCode = modal.querySelector('.country-code');
+    let sendOtpBtn = modal.querySelector('#send-otp-btn');
+    let otpSection = modal.querySelector('#otp-section');
+    let otpInput = modal.querySelector('#otp-input');
+    let verifyOtpBtn = modal.querySelector('#verify-otp-btn');
+    
+    // Add validation UI elements
+    const phoneValidationMsg = document.createElement('div');
+    phoneValidationMsg.style.cssText = 'color:#F44B74;font-size:12px;margin-top:4px;margin-bottom:8px;text-align:left;width:90%;display:none;font-family:"Roboto",sans-serif;';
+    phoneInput.parentNode.parentNode.insertBefore(phoneValidationMsg, sendOtpBtn.parentNode);
+    
+    // Validate and format phone number as user types
+    phoneInput.addEventListener('input', function(e) {
+      // Remove all non-digit characters
+      let digits = this.value.replace(/\D/g, '');
+      
+      // Format the phone number as (XXX) XXX-XXXX
+      if (digits.length <= 3) {
+        // Do nothing, just show digits
+      } else if (digits.length <= 6) {
+        digits = `(${digits.substring(0, 3)}) ${digits.substring(3)}`;
+      } else {
+        digits = `(${digits.substring(0, 3)}) ${digits.substring(3, 6)}-${digits.substring(6, 10)}`;
+      }
+      
+      // Update the input value
+      this.value = digits;
+      
+      // Validate phone number
+      validatePhoneNumber(digits);
+    });
+    
+    // Phone number validation function
+    function validatePhoneNumber(phoneValue) {
+      const digits = phoneValue.replace(/\D/g, '');
+      
+      if (digits.length === 0) {
+        phoneValidationMsg.style.display = 'none';
+        sendOtpBtn.disabled = true;
+        return false;
+      } else if (digits.length < 10) {
+        phoneValidationMsg.textContent = 'Please enter a complete 10-digit phone number';
+        phoneValidationMsg.style.display = 'block';
+        sendOtpBtn.disabled = true;
+        return false;
+      } else if (digits.length > 10) {
+        phoneValidationMsg.textContent = 'Phone number should be 10 digits';
+        phoneValidationMsg.style.display = 'block';
+        sendOtpBtn.disabled = true;
+        return false;
+      } else {
+        // Check if the area code is valid (not starting with 0 or 1)
+        const areaCode = digits.substring(0, 3);
+        if (areaCode.startsWith('0') || areaCode.startsWith('1')) {
+          phoneValidationMsg.textContent = 'Invalid area code (should not start with 0 or 1)';
+          phoneValidationMsg.style.display = 'block';
+          sendOtpBtn.disabled = true;
+          return false;
+        } else {
+          phoneValidationMsg.style.display = 'none';
+          sendOtpBtn.disabled = false;
+          return true;
+        }
+      }
+    }
+
+    // Add OTP validation UI elements
+    const otpValidationMsg = document.createElement('div');
+    otpValidationMsg.style.cssText = 'color:#F44B74;font-size:12px;margin-top:4px;margin-bottom:8px;text-align:left;width:100%;display:none;font-family:"Roboto",sans-serif;';
+    otpInput.parentNode.insertBefore(otpValidationMsg, verifyOtpBtn);
+    
+    // Validate OTP as user types
+    otpInput.addEventListener('input', function(e) {
+      // Allow only digits
+      this.value = this.value.replace(/\D/g, '');
+      
+      // Validate OTP
+      validateOtp(this.value);
+    });
+    
+    // OTP validation function
+    function validateOtp(otpValue) {
+      if (otpValue.length === 0) {
+        otpValidationMsg.style.display = 'none';
+        verifyOtpBtn.disabled = true;
+        return false;
+      } else if (otpValue.length < 6) {
+        otpValidationMsg.textContent = 'OTP must be 6 digits';
+        otpValidationMsg.style.display = 'block';
+        verifyOtpBtn.disabled = true;
+        return false;
+      } else {
+        otpValidationMsg.style.display = 'none';
+        verifyOtpBtn.disabled = false;
+        return true;
+      }
+    }
+    
+    sendOtpBtn.onclick = async () => {
+      const phoneDigits = phoneInput.value.replace(/\D/g, '');
+      
+      // Use our validation function
+      if (!validatePhoneNumber(phoneDigits)) {
+        return showStatus('Please enter a valid phone number', true);
+      }
+      
+      // Combine country code with phone number in international format
+      // Supabase requires E.164 format: +[country code][number]
+      const countryCodeValue = countryCode.textContent.trim();
+      // Make sure we have a clean phone number without any formatting
+      const fullPhone = `${countryCodeValue}${phoneDigits}`;
+      
+      sendOtpBtn.disabled = true;
+      sendOtpBtn.textContent = 'Sending...';
+      
+      try {
+        console.log('Sending OTP to:', fullPhone);
+        const result = await signInWithPhone(fullPhone);
+        console.log('OTP send result:', result);
+        showStatus('OTP sent! Check your phone.');
+        otpSection.style.display = 'block';
+      } catch (err) {
+        console.error('OTP send error:', err);
+        showStatus(err.message || 'Failed to send OTP', true);
+      }
+      
+      sendOtpBtn.disabled = false;
+      sendOtpBtn.textContent = 'Send OTP';
+    };
+
+    verifyOtpBtn.onclick = async () => {
+      // Validate phone number
+      const phoneDigits = phoneInput.value.replace(/\D/g, '');
+      if (!validatePhoneNumber(phoneDigits)) {
+        return showStatus('Please fix the phone number before verifying OTP', true);
+      }
+      
+      // Validate OTP
+      const otp = otpInput.value.trim();
+      if (!validateOtp(otp)) {
+        return showStatus('Please enter a valid 6-digit OTP', true);
+      }
+      
+      const countryCodeValue = countryCode.textContent.trim();
+      // Ensure consistent E.164 format for verification
+      const fullPhone = `${countryCodeValue}${phoneDigits}`;
+      
+      verifyOtpBtn.disabled = true;
+      verifyOtpBtn.textContent = 'Verifying...';
+      
+      try {
+        console.log('Verifying OTP for phone:', fullPhone, 'OTP:', otp);
+        const authData = await verifyPhoneOtp(fullPhone, otp);
+        console.log('Verification successful, auth data:', authData);
+        
+        // Show success message
+        showStatus('Login successful!');
+        
+        // Store auth session in localStorage if needed
+        if (authData && authData.session) {
+          localStorage.setItem('supabase.auth.token', JSON.stringify(authData.session));
+        }
+        
+        // Animate modal close and redirect
+        setTimeout(() => {
+          modal.classList.remove('visible');
+          setTimeout(() => {
+            modal.style.display = 'none';
+            window.location.href = '/feed';
+          }, 300);
+        }, 1000);
+      } catch (err) {
+        console.error('OTP verification error:', err);
+        showStatus(err.message || 'OTP verification failed', true);
+        verifyOtpBtn.disabled = false;
+        verifyOtpBtn.textContent = 'Verify OTP';
+      }
+    };
+  }
+
+  // Attach events after DOM is loaded
+  const phoneBtn = document.getElementById('phone-login-btn');
+  const googleBtn = document.getElementById('google-login-btn');
+
+  if (phoneBtn) {
+    phoneBtn.addEventListener('click', showPhoneModal);
+  }
+  if (googleBtn) {
+    googleBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        await signInWithGoogle();
+      } catch (err) {
+        showStatus(err.message || 'Google login failed', true);
+      }
+    });
+  }
+}
+
+
+
 /**
  * Initialize API keys page
  */
