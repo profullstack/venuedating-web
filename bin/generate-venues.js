@@ -16,6 +16,7 @@
  *   --pages <number>     Number of pages to fetch per city (default: 3, max: 3)
  *   --delay <number>     Delay between API calls in milliseconds (default: 1500)
  *   --mvp               Use MVP cities list (6 cities) instead of full list (200 cities)
+ *   --custom            Use custom venues list from /data/us-custom.json
  *   --dry-run           Show what would be done without making API calls
  *   --help              Show this help message
  */
@@ -46,6 +47,7 @@ const options = {
   pages: 3,
   delay: 1500,
   mvp: false,
+  custom: false,
   dryRun: false,
   help: false
 };
@@ -67,6 +69,9 @@ for (let i = 0; i < args.length; i++) {
       break;
     case '--mvp':
       options.mvp = true;
+      break;
+    case '--custom':
+      options.custom = true;
       break;
     case '--dry-run':
       options.dryRun = true;
@@ -95,6 +100,8 @@ Options:
   --start <number>     Start from a specific city index (default: 0)
   --pages <number>     Number of pages to fetch per city (default: 3, max: 3)
   --delay <number>     Delay between API calls in milliseconds (default: 1500)
+  --mvp               Use MVP cities list (6 cities) instead of full list (200 cities)
+  --custom            Use custom venues list from /data/us-custom.json
   --dry-run           Show what would be done without making API calls
   --help              Show this help message
 
@@ -102,6 +109,7 @@ Examples:
   node bin/generate-venues.js                    # Process all cities
   node bin/generate-venues.js --limit 10         # Process first 10 cities
   node bin/generate-venues.js --start 50 --limit 25  # Process cities 50-74
+  node bin/generate-venues.js --custom           # Process custom venues from us-custom.json
   node bin/generate-venues.js --dry-run          # Show what would be done
   `);
   process.exit(0);
@@ -126,13 +134,24 @@ function validateEnvironment() {
  */
 async function loadCities() {
   try {
-    const citiesFileName = options.mvp ? 'us-cities-mvp.json' : 'us-cities-top-200.json';
+    let citiesFileName, cityType;
+    
+    if (options.custom) {
+      citiesFileName = 'us-custom.json';
+      cityType = 'custom venues';
+    } else if (options.mvp) {
+      citiesFileName = 'us-cities-mvp.json';
+      cityType = 'MVP';
+    } else {
+      citiesFileName = 'us-cities-top-200.json';
+      cityType = 'full';
+    }
+    
     const citiesPath = path.join(rootDir, 'data', citiesFileName);
     const citiesData = await fs.readFile(citiesPath, 'utf-8');
     const cities = JSON.parse(citiesData);
     
-    const cityType = options.mvp ? 'MVP' : 'full';
-    console.log(`✅ Loaded ${cities.length} cities from ${cityType} data file (${citiesFileName})`);
+    console.log(`✅ Loaded ${cities.length} ${options.custom ? 'custom venues' : 'cities'} from ${cityType} data file (${citiesFileName})`);
     return cities;
   } catch (error) {
     console.error('❌ Error loading cities data:', error.message);
@@ -150,7 +169,10 @@ async function fetchVenuesForCityPage(city, page = 1) {
   
   url.searchParams.set('api_key', VALUESERP_API_KEY);
   url.searchParams.set('search_type', 'places');
-  url.searchParams.set('q', SEARCH_QUERY);
+  
+  // For custom venues, use the specific venue name as the search query
+  const searchQuery = options.custom ? city.name : SEARCH_QUERY;
+  url.searchParams.set('q', searchQuery);
   url.searchParams.set('location', location);
   url.searchParams.set('google_domain', 'google.com');
   url.searchParams.set('gl', 'us');
@@ -162,9 +184,8 @@ async function fetchVenuesForCityPage(city, page = 1) {
   }
   
   const pageInfo = page > 1 ? ` (page ${page})` : '';
-  const cityName = city.city || city;
-  const stateName = city.state || '';
-  console.log(`🔍 Fetching venues for ${cityName}, ${stateName}${pageInfo}...`);
+  const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
+  console.log(`🔍 Fetching venues for ${displayName}${pageInfo}...`);
   
   if (options.dryRun) {
     console.log(`   Would call: ${url.toString()}`);
@@ -195,9 +216,8 @@ async function fetchVenuesForCityPage(city, page = 1) {
     
     return data;
   } catch (error) {
-    const cityName = city.city || city;
-    const stateName = city.state || '';
-    console.error(`❌ Error fetching venues for ${cityName}, ${stateName}${pageInfo}:`, error.message);
+    const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
+    console.error(`❌ Error fetching venues for ${displayName}${pageInfo}:`, error.message);
     return null;
   }
 }
@@ -242,8 +262,20 @@ async function fetchAllPagesForCity(city, maxPages) {
  * Transform ValueSERP place data to our database schema
  */
 function transformPlaceData(place, city) {
-  const cityName = city.city || city;
-  const stateName = city.state || '';
+  // For custom venues, extract city/state from location string
+  let cityName, stateName;
+  
+  if (options.custom) {
+    // Parse location like "Lakewood, OH, United States" or "Cleveland, OH, United States"
+    const locationParts = city.location.split(',').map(part => part.trim());
+    cityName = locationParts[0] || '';
+    stateName = locationParts[1] || '';
+  } else {
+    cityName = city.city || city;
+    stateName = city.state || '';
+  }
+  
+  const searchQuery = options.custom ? city.name : SEARCH_QUERY;
   
   return {
     p_title: place.title,
@@ -265,7 +297,7 @@ function transformPlaceData(place, city) {
     p_price_parsed: place.price_parsed,
     p_price_description: place.price_description,
     p_position: place.position,
-    p_search_query: SEARCH_QUERY,
+    p_search_query: searchQuery,
     p_source: 'valueserp'
   };
 }
@@ -274,15 +306,15 @@ function transformPlaceData(place, city) {
  * Save places to Supabase
  */
 async function savePlacesToDatabase(places, city) {
-  const cityName = city.city || city;
-  const stateName = city.state || '';
+  const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
+  
   if (options.dryRun) {
     console.log(`   Would save ${places.length} places to database`);
     return { success: true, count: places.length };
   }
   
   if (places.length === 0) {
-    console.log(`   No places to save for ${cityName}, ${stateName}`);
+    console.log(`   No places to save for ${displayName}`);
     return { success: true, count: 0 };
   }
   
@@ -341,7 +373,8 @@ async function savePlacesToDatabase(places, city) {
     
     return { success: true, count: savedCount };
   } catch (error) {
-    console.error(`❌ Error saving places for ${cityName}, ${stateName}:`, error.message);
+    const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
+    console.error(`❌ Error saving places for ${displayName}:`, error.message);
     return { success: false, error: error.message };
   }
 }
@@ -375,9 +408,18 @@ async function main() {
   
   const citiesToProcess = allCities.slice(startIndex, endIndex);
   
-  const cityType = options.mvp ? 'MVP' : 'full';
-  console.log(`📍 Processing ${citiesToProcess.length} cities (${startIndex + 1}-${endIndex} of ${allCities.length}) from ${cityType} list`);
-  console.log(`📄 Pages per city: ${options.pages}`);
+  let cityType;
+  if (options.custom) {
+    cityType = 'custom venues';
+  } else if (options.mvp) {
+    cityType = 'MVP';
+  } else {
+    cityType = 'full';
+  }
+  
+  const itemType = options.custom ? 'venues' : 'cities';
+  console.log(`📍 Processing ${citiesToProcess.length} ${itemType} (${startIndex + 1}-${endIndex} of ${allCities.length}) from ${cityType} list`);
+  console.log(`📄 Pages per ${options.custom ? 'venue' : 'city'}: ${options.pages}`);
   console.log(`⏱️  Delay between requests: ${options.delay}ms`);
   console.log(`🔄 Dry run mode: ${options.dryRun ? 'ON' : 'OFF'}\n`);
   
@@ -394,10 +436,9 @@ async function main() {
   for (let i = 0; i < citiesToProcess.length; i++) {
     const city = citiesToProcess[i];
     const cityIndex = startIndex + i + 1;
-    const cityName = city.city || city;
-    const stateName = city.state || '';
+    const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
     
-    console.log(`[${cityIndex}/${allCities.length}] Processing ${cityName}, ${stateName}`);
+    console.log(`[${cityIndex}/${allCities.length}] Processing ${displayName}`);
     
     try {
       // Fetch venues from all pages
@@ -412,11 +453,11 @@ async function main() {
           stats.totalPlaces += saveResult.count;
         } else {
           stats.failed++;
-          stats.errors.push(`${cityName}, ${stateName}: ${saveResult.error}`);
+          stats.errors.push(`${displayName}: ${saveResult.error}`);
         }
       } else {
         stats.failed++;
-        stats.errors.push(`${cityName}, ${stateName}: No data returned from API`);
+        stats.errors.push(`${displayName}: No data returned from API`);
       }
       
       stats.processed++;
@@ -427,9 +468,9 @@ async function main() {
       }
       
     } catch (error) {
-      console.error(`❌ Unexpected error processing ${cityName}, ${stateName}:`, error.message);
+      console.error(`❌ Unexpected error processing ${displayName}:`, error.message);
       stats.failed++;
-      stats.errors.push(`${cityName}, ${stateName}: ${error.message}`);
+      stats.errors.push(`${displayName}: ${error.message}`);
     }
     
     console.log(''); // Empty line for readability
