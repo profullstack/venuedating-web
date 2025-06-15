@@ -618,7 +618,7 @@ export function initRegisterPage() {
  * Initialize authentication system
  */
 export async function initAuthPage() {
-  const { signInWithPhone, verifyPhoneOtp, signInWithGoogle } = await import('./auth.js');
+  const { signInWithPhone, verifyPhoneOtp, signInWithGoogle, saveCompleteProfileToSupabase } = await import('./auth.js');
 
   // Helper to show status messages
   function showStatus(msg, isError = false) {
@@ -922,8 +922,12 @@ export async function initAuthPage() {
         const authData = await verifyPhoneOtp(fullPhone, otp);
         console.log('Verification successful, auth data:', authData);
         
+        // Save all collected profile data to Supabase
+        const saveResult = await saveCompleteProfileToSupabase();
+        console.log('Profile save result:', saveResult);
+        
         // Show success message
-        showStatus('Login successful!');
+        showStatus(saveResult.success ? 'Login successful! Profile data saved.' : 'Login successful!');
         
         // Store auth session in localStorage if needed
         if (authData && authData.session) {

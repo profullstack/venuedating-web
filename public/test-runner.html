@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BarCrush Profile Flow Test Runner</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #F44B74;
+      margin-top: 0;
+    }
+    .test-controls {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      background-color: #F44B74;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #E43964;
+    }
+    .test-output {
+      background-color: #f8f8f8;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+    .test-output p {
+      margin: 5px 0;
+    }
+    .success {
+      color: #4CAF50;
+    }
+    .error {
+      color: #F44336;
+    }
+    .info {
+      color: #2196F3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BarCrush Profile Flow Test Runner</h1>
+    <p>This page runs tests for the profile setup flow with Supabase integration.</p>
+    
+    <div class="test-controls">
+      <button id="run-all-tests-btn">Run All Tests</button>
+      <button id="run-flow-tests-btn">Run Flow Tests</button>
+      <button id="run-interests-tests-btn">Run Interests Tests</button>
+      <button id="clear-output-btn">Clear Output</button>
+    </div>
+    
+    <div class="test-output" id="test-output">
+      <p>Test output will appear here...</p>
+    </div>
+  </div>
+
+  <script type="module">
+    // Override console methods to capture output
+    const testOutput = document.getElementById('test-output');
+    const originalConsole = {
+      log: console.log,
+      error: console.error,
+      warn: console.warn,
+      assert: console.assert
+    };
+
+    // Clear initial content
+    testOutput.innerHTML = '';
+
+    // Override console methods to display in the test output div
+    console.log = function(...args) {
+      const message = args.join(' ');
+      const p = document.createElement('p');
+      p.textContent = `[LOG] ${message}`;
+      p.classList.add('info');
+      testOutput.appendChild(p);
+      testOutput.scrollTop = testOutput.scrollHeight;
+      originalConsole.log(...args);
+    };
+
+    console.error = function(...args) {
+      const message = args.join(' ');
+      const p = document.createElement('p');
+      p.textContent = `[ERROR] ${message}`;
+      p.classList.add('error');
+      testOutput.appendChild(p);
+      testOutput.scrollTop = testOutput.scrollHeight;
+      originalConsole.error(...args);
+    };
+
+    console.warn = function(...args) {
+      const message = args.join(' ');
+      const p = document.createElement('p');
+      p.textContent = `[WARN] ${message}`;
+      testOutput.appendChild(p);
+      testOutput.scrollTop = testOutput.scrollHeight;
+      originalConsole.warn(...args);
+    };
+
+    console.assert = function(condition, ...args) {
+      if (!condition) {
+        const message = args.join(' ') || 'Assertion failed';
+        const p = document.createElement('p');
+        p.textContent = `[ASSERT] ${message}`;
+        p.classList.add('error');
+        testOutput.appendChild(p);
+        testOutput.scrollTop = testOutput.scrollHeight;
+      }
+      originalConsole.assert(condition, ...args);
+    };
+
+    // Import test modules
+    let flowTestModule, interestsTestModule;
+    try {
+      flowTestModule = await import('./js/tests/profile-flow-test.js');
+      interestsTestModule = await import('./js/tests/profile-interests-test.js');
+      console.log('Test modules loaded successfully');
+    } catch (error) {
+      console.error('Failed to load test modules:', error.message);
+    }
+
+    // Add event listeners to buttons
+    document.getElementById('run-all-tests-btn').addEventListener('click', async () => {
+      testOutput.innerHTML = '<p>Running all tests...</p>';
+      try {
+        // Run flow tests
+        if (flowTestModule && flowTestModule.runTests) {
+          await flowTestModule.runTests();
+        }
+        
+        // Run interests tests
+        if (interestsTestModule && interestsTestModule.runTests) {
+          await interestsTestModule.runTests();
+        }
+        
+        const successMessage = document.createElement('p');
+        successMessage.textContent = '✅ All tests completed';
+        successMessage.classList.add('success');
+        testOutput.appendChild(successMessage);
+      } catch (error) {
+        console.error('Error running tests:', error);
+      }
+    });
+    
+    document.getElementById('run-flow-tests-btn').addEventListener('click', async () => {
+      testOutput.innerHTML = '<p>Running flow tests...</p>';
+      try {
+        if (flowTestModule && flowTestModule.runTests) {
+          await flowTestModule.runTests();
+          const successMessage = document.createElement('p');
+          successMessage.textContent = '✅ Flow tests completed';
+          successMessage.classList.add('success');
+          testOutput.appendChild(successMessage);
+        } else {
+          console.error('Flow test module or runTests function not found');
+        }
+      } catch (error) {
+        console.error('Error running flow tests:', error);
+      }
+    });
+    
+    document.getElementById('run-interests-tests-btn').addEventListener('click', async () => {
+      testOutput.innerHTML = '<p>Running interests tests...</p>';
+      try {
+        if (interestsTestModule && interestsTestModule.runTests) {
+          await interestsTestModule.runTests();
+          const successMessage = document.createElement('p');
+          successMessage.textContent = '✅ Interests tests completed';
+          successMessage.classList.add('success');
+          testOutput.appendChild(successMessage);
+        } else {
+          console.error('Interests test module or runTests function not found');
+        }
+      } catch (error) {
+        console.error('Error running interests tests:', error);
+      }
+    });
+
+    document.getElementById('clear-output-btn').addEventListener('click', () => {
+      testOutput.innerHTML = '';
+    });
+  </script>
+</body>
+</html>
