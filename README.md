@@ -1,5 +1,7 @@
 # vibe-stack.dev
 
+[![Crypto Payment](https://paybadge.profullstack.com/badge.svg)](https://paybadge.profullstack.com/?tickers=btc%2Ceth%2Csol%2Cusdc)
+
 vibe-stack.dev is a modern, AI-first framework built for rapid development of Progressive Web Apps (PWAs). Designed for versatility and speed, it provides an optimized boilerplate for creating, testing, and deploying full-stack applications across Windows, macOS, Linux, iOS, Android, desktop, and WebXR environments. With seamless integration to backend tools like Supabase, vibe-stack.dev empowers developers to prototype quickly and scale effortlessly, ensuring a smooth, consistent experience on any platform or device.
 
 ## Automatic Deployment with GitHub Actions
