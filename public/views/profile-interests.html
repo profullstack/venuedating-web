@@ -1,4 +1,5 @@
 <div class="interests-container">
+  
   <div class="interests-header">
     <a href="/profile-gender" class="back-btn">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -14,51 +15,51 @@
   </div>
 
   <div class="interests-options">
-    <button class="interest-option" data-interest="Photography" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Photography">
       <span><img src="/images/cam.svg" alt="Photography" data-unselected="/images/cam.svg" data-selected="/images/cam-white.svg" /> Photography</span>
     </button>
-    <button class="interest-option" data-interest="Shopping" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Shopping">
       <span><img src="/images/shopping.svg" alt="Shopping" data-unselected="/images/shopping.svg" data-selected="/images/shopping.white.svg" /> Shopping</span>
     </button>
-    <button class="interest-option" data-interest="Karaoke" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Karaoke">
       <span><img src="/images/karaoke.svg" alt="Karaoke" data-unselected="/images/karaoke.svg" data-selected="/images/karaoke.white.svg" /> Karaoke</span>
     </button>
-    <button class="interest-option" data-interest="Yoga" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Yoga">
       <span><img src="/images/yoga.svg" alt="Yoga" data-unselected="/images/yoga.svg" data-selected="/images/yoga.white.svg" /> Yoga</span>
     </button>
-    <button class="interest-option" data-interest="Cooking" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Cooking">
       <span><img src="/images/cooking.svg" alt="Cooking" data-unselected="/images/cooking.svg" data-selected="/images/cooking.white.svg" /> Cooking</span>
     </button>
-    <button class="interest-option" data-interest="Tennis" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Tennis">
       <span><img src="/images/tennis.svg" alt="Tennis" data-unselected="/images/tennis.svg" data-selected="/images/tennis.white.svg" /> Tennis</span>
     </button>
-    <button class="interest-option" data-interest="Run" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Run">
       <span><img src="/images/run.svg" alt="Run" data-unselected="/images/run.svg" data-selected="/images/run.white.svg" /> Run</span>
     </button>
-    <button class="interest-option" data-interest="Swimming" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Swimming">
       <span><img src="/images/swimming.svg" alt="Swimming" data-unselected="/images/swimming.svg" data-selected="/images/swimming.white.svg" /> Swimming</span>
     </button>
-    <button class="interest-option" data-interest="Art" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Art">
       <span><img src="/images/art.svg" alt="Art" data-unselected="/images/art.svg" data-selected="/images/art.white.svg" /> Art</span>
     </button>
-    <button class="interest-option" data-interest="Traveling" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Traveling">
       <span><img src="/images/traveling.svg" alt="Traveling" data-unselected="/images/traveling.svg" data-selected="/images/traveling.white.svg" /> Traveling</span>
     </button>
-    <button class="interest-option" data-interest="Extreme" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Extreme">
       <span><img src="/images/extreme.svg" alt="Extreme" data-unselected="/images/extreme.svg" data-selected="/images/extreme.white.svg" /> Extreme</span>
     </button>
-    <button class="interest-option" data-interest="Music" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Music">
       <span><img src="/images/music.svg" alt="Music" data-unselected="/images/music.svg" data-selected="/images/music.white.svg" /> Music</span>
     </button>
-    <button class="interest-option" data-interest="Drink" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Drink">
       <span><img src="/images/drink.svg" alt="Drink" data-unselected="/images/drink.svg" data-selected="/images/drink.white.svg" /> Drink</span>
     </button>
-    <button class="interest-option" data-interest="Video games" onclick="toggleInterest(this)">
+    <button class="interest-option" data-interest="Video games">
       <span><img src="/images/video-games.svg" alt="Video games" data-unselected="/images/video-games.svg" data-selected="/images/video-games.white.svg" /> Video games</span>
     </button>
   </div>
 
-  <button class="continue-btn" onclick="onContinue()">Continue</button>
+  <button class="continue-btn" id="continue-btn">Continue</button>
 </div>
 
 <style>
@@ -143,61 +144,3 @@
     background-color: #F44B74;
   }
 </style>
-
-<script>
-  // Track selected interests
-  let selectedInterests = [];
-
-  // Toggle interest selection
-  function toggleInterest(btn) {
-    const interest = btn.getAttribute('data-interest');
-    btn.classList.toggle('selected');
-    const img = btn.querySelector('img');
-    if (btn.classList.contains('selected')) {
-      if (!selectedInterests.includes(interest)) {
-        selectedInterests.push(interest);
-      }
-      if (img) img.src = img.getAttribute('data-selected');
-    } else {
-      selectedInterests = selectedInterests.filter(i => i !== interest);
-      if (img) img.src = img.getAttribute('data-unselected');
-    }
-    // Save to localStorage
-    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
-    userData.interests = selectedInterests;
-    localStorage.setItem('userProfile', JSON.stringify(userData));
-  }
-
-  // Restore previous selection if any
-  document.addEventListener('DOMContentLoaded', function() {
-    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
-    if (userData.interests && Array.isArray(userData.interests)) {
-      selectedInterests = userData.interests;
-      document.querySelectorAll('.interest-option').forEach(btn => {
-        const interest = btn.getAttribute('data-interest');
-        const img = btn.querySelector('img');
-        if (selectedInterests.includes(interest)) {
-          btn.classList.add('selected');
-          if (img) img.src = img.getAttribute('data-selected');
-        } else {
-          btn.classList.remove('selected');
-          if (img) img.src = img.getAttribute('data-unselected');
-        }
-      });
-    }
-    // Skip button handler
-    document.querySelector('.skip-btn').addEventListener('click', function(e) {
-      e.preventDefault();
-      window.location.href = '/feed';
-    });
-  });
-
-  // Continue button handler
-  function onContinue() {
-    // Save again just in case
-    const userData = JSON.parse(localStorage.getItem('userProfile')) || {};
-    userData.interests = selectedInterests;
-    localStorage.setItem('userProfile', JSON.stringify(userData));
-    window.location.href = '/feed';
-  }
-</script>

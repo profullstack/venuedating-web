@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Phone - BarCrush</title>
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/fonts.css">
+  <link rel="stylesheet" href="/css/typography.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="module">
+    import { initProfileVerifyPage } from '/js/profile-verify.js';
+    document.addEventListener('DOMContentLoaded', initProfileVerifyPage);
+  </script>
+</head>
+<body>
+<div class="verify-container">
+  
+  <div class="profile-container">
+    <div class="profile-header">
+      <a href="/profile" class="back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <h1 class="profile-title">Verify Your Phone</h1>
+      <p class="profile-subtitle">We've sent a verification code to your phone number.</p>
+    </div>
+    
+    <div class="phone-verification-container">
+      <div class="phone-display-container">
+        <div class="country-display">
+          <span class="country-flag">🇺🇸</span>
+          <span id="country-code">+1</span>
+        </div>
+        <div class="phone-number-display" id="phone-number-display">555-123-4567</div>
+        <button id="change-number-btn" class="text-btn">Change</button>
+      </div>
+      
+      <div id="verification-section" class="verification-section">
+        <label for="verification-code" class="verification-label">Enter the 6-digit verification code</label>
+        <div class="verification-input-container">
+          <input type="text" id="verification-code" class="verification-code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric">
+        </div>
+        <div id="verification-error" class="error-message hidden"></div>
+        <button id="verify-btn" class="action-btn" disabled>Verify & Complete Profile</button>
+        <div class="resend-container">
+          <span>Didn't receive the code?</span>
+          <button id="resend-code-btn" class="text-btn">Resend Code</button>
+          <span id="resend-timer" class="timer hidden">Resend in 30s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="status-container" class="status-container hidden"></div>
+</div>
+
+<style>
+  body {
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .verify-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .profile-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    width: 100%;
+  }
+  
+  .profile-header {
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+  }
+  
+  .back-btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: #F44B74;
+    text-decoration: none;
+  }
+  
+  .profile-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .profile-subtitle {
+    color: #666;
+    font-size: 16px;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  
+  .phone-verification-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .phone-display-container {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .country-display {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    padding-right: 10px;
+    border-right: 1px solid #eee;
+  }
+  
+  .country-flag {
+    margin-right: 5px;
+    font-size: 16px;
+  }
+  
+  .phone-number-display {
+    flex-grow: 1;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .text-btn {
+    background: none;
+    border: none;
+    color: #F44B74;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0;
+  }
+  
+  .text-btn:hover {
+    text-decoration: underline;
+  }
+  
+  .text-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+  
+  .verification-section {
+    padding-top: 10px;
+  }
+  
+  .verification-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .verification-input-container {
+    position: relative;
+    margin-bottom: 10px;
+  }
+  
+  .verification-code-input {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 12px;
+    width: 100%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .verification-code-input:focus {
+    outline: none;
+    border-color: #F44B74;
+    box-shadow: 0 0 0 3px rgba(244, 75, 116, 0.1);
+  }
+  
+  .verification-code-input::placeholder {
+    letter-spacing: 6px;
+    font-weight: normal;
+    color: #ccc;
+  }
+  
+  .action-btn {
+    background: #F44B74;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+    margin: 15px 0;
+    box-shadow: 0 2px 8px rgba(244, 75, 116, 0.3);
+  }
+  
+  .action-btn:hover {
+    background: #E63C65;
+  }
+  
+  .action-btn:disabled {
+    background: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  
+  .button-loading {
+    position: relative;
+    color: transparent !important;
+  }
+  
+  .button-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: button-loading-spinner 0.8s linear infinite;
+  }
+  
+  @keyframes button-loading-spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .error-message {
+    color: #F44B74;
+    font-size: 14px;
+    margin: 5px 0;
+    text-align: center;
+  }
+  
+  .status-container {
+    margin: 20px auto 0;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    max-width: 500px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .resend-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .timer {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .error-shake {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+  }
+  
+  @media (max-width: 480px) {
+    .profile-container {
+      padding: 15px;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    
+    .verify-container {
+      padding: 0;
+    }
+    
+    .verification-code-input {
+      font-size: 20px;
+      letter-spacing: 8px;
+    }
+  }
+</style>
+</body>
+</html>

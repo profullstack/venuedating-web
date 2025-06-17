@@ -18,6 +18,13 @@ import {
   initAuthPage
 } from './page-initializers.js';
 
+// Import profile page functionality
+import { initProfilePage } from './profile-page.js';
+import { initProfileGenderPage } from './profile-gender.js';
+import { initProfileInterestsPage } from './profile-interests.js';
+import { initProfileVerifyPage } from './profile-verify.js';
+import { initProfileCompletePage } from './profile-complete.js';
+
 // Create a DOM fragment with the default layout
 function createLayoutFragment(content, pageUrl) {
   // Create a document fragment
@@ -30,6 +37,7 @@ function createLayoutFragment(content, pageUrl) {
     pageUrl === '/views/profile.html' || pageUrl === '/profile' ||
     pageUrl === '/views/profile-gender.html' || pageUrl === '/profile-gender' ||
     pageUrl === '/views/profile-interests.html' || pageUrl === '/profile-interests' ||
+    pageUrl === '/views/profile-verify.html' || pageUrl === '/profile-verify' ||
     pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete' ||
     pageUrl === '/views/feed.html' || pageUrl === '/feed'
   );
@@ -449,11 +457,30 @@ export function defineRoutes(router) {
       afterRender: initAuthPage
     },
 
-    '/profile': '/views/profile.html',
+    '/profile': {
+      viewPath: '/views/profile.html',
+      afterRender: initProfilePage
+    },
 
-    '/profile-gender': '/views/profile-gender.html',
+    '/profile-gender': {
+      viewPath: '/views/profile-gender.html',
+      afterRender: initProfileGenderPage
+    },
     
-    '/profile-interests': '/views/profile-interests.html',
+    '/profile-interests': {
+      viewPath: '/views/profile-interests.html',
+      afterRender: initProfileInterestsPage
+    },
+    
+    '/profile-verify': {
+      viewPath: '/views/profile-verify.html',
+      afterRender: initProfileVerifyPage
+    },
+    
+    '/profile-complete': {
+      viewPath: '/views/profile-complete.html',
+      afterRender: initProfileCompletePage
+    },
     
     // Authentication routes
     '/login': {

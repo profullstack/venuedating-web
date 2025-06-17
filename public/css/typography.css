@@ -5,7 +5,7 @@
 
 /* Font variables */
 :root {
-  --font-primary: 'SpaceMono', monospace;
+  --font-primary: 'Roboto', sans-serif;
   --font-mono: 'SpaceMono', monospace;
   
   /* Font sizes */

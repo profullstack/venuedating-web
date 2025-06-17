@@ -1,4 +1,5 @@
 <div class="profile-container">
+
   <div class="profile-header">
     <h1>Profile info</h1>
     <a href="#" class="skip-btn">Skip</a>
@@ -30,7 +31,21 @@
 
     <div class="input-group">
       <label for="phone-number">Phone number</label>
-      <input type="tel" id="phone-number" placeholder="123-456-7890">
+      <div class="phone-input-container">
+        <div class="country-select" id="country-select">
+          <div class="selected-country">
+            <div class="country-flag">🇺🇸</div>
+            <div class="country-code">+1</div>
+            <div class="dropdown-arrow">▼</div>
+          </div>
+          <div class="country-dropdown" id="country-dropdown">
+            <!-- Country options will be populated dynamically -->
+          </div>
+        </div>
+        <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input">
+        <input type="hidden" id="country-code" value="+1">
+        <input type="hidden" id="full-phone" value="">
+      </div>
     </div>
     
     <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
@@ -43,7 +58,7 @@
       <span>Choose birthday date</span>
     </button>
     
-    <button class="option-btn location-btn">
+    <button class="option-btn location-btn" id="location-btn" type="button">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -51,7 +66,7 @@
       <span>Choose your location</span>
     </button>
     
-    <button class="confirm-btn" id="confirm-btn" onclick="window.location.href = '/profile-gender'; return false;">Confirm</button>
+    <button class="confirm-btn" id="confirm-btn">Confirm</button>
   </div>
 </div>
 <style>
@@ -173,6 +188,8 @@
     color: #333;
     background-color: #fff;
   }
+  
+  /* Phone input styles moved to country-dropdown.css */
   
   .option-btn {
     display: flex;
@@ -1114,5 +1131,83 @@
       // Navigate to gender selection page
       window.location.href = '#/profile-gender';
     });
+    
+    // Initialize country dropdown manually
+    const countrySelect = document.getElementById('country-select');
+    const countryDropdown = document.getElementById('country-dropdown');
+    const countryCodeInput = document.getElementById('country-code');
+    const phoneInput = document.getElementById('phone-number');
+    const fullPhoneInput = document.getElementById('full-phone');
+    
+    if (countrySelect && countryDropdown) {
+      console.log('Initializing country dropdown from inline script');
+      
+      // Toggle dropdown
+      countrySelect.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Country select clicked from inline script');
+        countryDropdown.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!countrySelect.contains(e.target) && !countryDropdown.contains(e.target)) {
+          countryDropdown.classList.remove('show');
+        }
+      });
+      
+      // Handle country selection
+      const countryOptions = document.querySelectorAll('.country-option');
+      countryOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Country option clicked:', this.getAttribute('data-country'));
+          
+          const countryCode = this.getAttribute('data-code');
+          const countryFlag = this.getAttribute('data-flag');
+          
+          // Update the selected country display
+          const selectedFlag = countrySelect.querySelector('.country-flag');
+          const selectedCode = countrySelect.querySelector('.country-code');
+          
+          if (selectedFlag && selectedCode) {
+            selectedFlag.textContent = countryFlag;
+            selectedCode.textContent = countryCode;
+            
+            // Update hidden input
+            if (countryCodeInput) {
+              countryCodeInput.value = countryCode;
+              
+              // Update full phone number
+              updateFullPhoneNumber();
+            }
+          }
+          
+          // Hide dropdown
+          countryDropdown.classList.remove('show');
+        });
+      });
+      
+      // Function to update the full phone number with country code
+      function updateFullPhoneNumber() {
+        if (phoneInput && fullPhoneInput && countryCodeInput) {
+          const countryCode = countryCodeInput.value;
+          const phoneNumber = phoneInput.value.replace(/\D/g, ''); // Remove non-digits
+          
+          if (phoneNumber) {
+            fullPhoneInput.value = `${countryCode}${phoneNumber}`;
+          } else {
+            fullPhoneInput.value = '';
+          }
+        }
+      }
+      
+      // Update full phone when phone input changes
+      if (phoneInput) {
+        phoneInput.addEventListener('input', updateFullPhoneNumber);
+      }
+    }
   });
 </script>
