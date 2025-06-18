@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>BarCrush Debug Mode</title>
+  <script>
+    // Add timestamp to all page loads to bust cache
+    window.addEventListener('DOMContentLoaded', () => {
+      // Unregister service worker completely in debug mode
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (let registration of registrations) {
+            registration.unregister();
+            console.log('Service worker unregistered');
+          }
+        });
+      }
+      
+      // Redirect with cache busting
+      const timestamp = new Date().getTime();
+      const path = window.location.pathname;
+      const redirectTo = path.includes('/views/') 
+        ? path + '?t=' + timestamp 
+        : '/views/auth.html?t=' + timestamp;
+        
+      console.log('Debug mode: Redirecting to', redirectTo);
+      window.location.href = redirectTo;
+    });
+  </script>
+</head>
+<body>
+  <h1>Debug Mode - Loading...</h1>
+</body>
+</html>

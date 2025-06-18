@@ -33,9 +33,11 @@ import {
   resetPasswordRoute,
   resetPasswordConfirmRoute
 } from './auth.js';
+import { phoneAuthRoutes } from './phone-auth.js';
 import { authStatusRoute } from './auth-status.js';
 import { supabaseConfigRoute } from './config.js';
 import { websocketRoute } from './websocket.js';
+import { twilioVerifyRoutes } from './twilio-verify.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 
 // Routes that require authentication
@@ -76,9 +78,11 @@ const publicRoutes = [
   registerRoute,
   resetPasswordRoute,
   resetPasswordConfirmRoute,
+  ...phoneAuthRoutes,
   authStatusRoute,
   supabaseConfigRoute,
   websocketRoute,
+  ...twilioVerifyRoutes,
   // Subscription management routes
   {
     method: 'GET',

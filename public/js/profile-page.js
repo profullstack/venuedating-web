@@ -88,11 +88,11 @@ export async function initProfilePage() {
       e.preventDefault();
       e.stopPropagation();
       console.log('Country select clicked');
-      countryDropdown.classList.toggle('show');
+      countryDropdown.style.display = countryDropdown.style.display === 'none' ? 'block' : 'none';
       
       // If opening the dropdown, focus the search input
-      if (countryDropdown.classList.contains('show')) {
-        const searchInput = countryDropdown.querySelector('.country-search');
+      if (countryDropdown.style.display === 'block') {
+        const searchInput = document.getElementById('country-search-input');
         if (searchInput) {
           // Small delay to ensure the dropdown is visible
           setTimeout(() => {
@@ -188,10 +188,8 @@ export async function initProfilePage() {
             }
           }
           
-          // Hide dropdown after a short delay to prevent immediate reopening
-          setTimeout(() => {
-            countryDropdown.classList.remove('show');
-          }, 50);
+          // Hide dropdown immediately
+          countryDropdown.style.display = 'none';
         });
         
         countryDropdown.appendChild(option);
