@@ -38,6 +38,14 @@ export async function initProfileVerifyPage() {
   const verificationError = document.getElementById('verification-error');
   const statusContainer = document.getElementById('status-container');
   
+  // Country selector elements
+  const countrySelectorTrigger = document.getElementById('country-selector-trigger');
+  const countrySelectorModal = document.getElementById('country-selector-modal');
+  const closeCountrySelector = document.getElementById('close-country-selector');
+  const countrySelectorOverlay = document.querySelector('.country-selector-overlay');
+  const countrySearch = document.getElementById('country-search');
+  const countryList = document.getElementById('country-list');
+  
   // Update subtitle to indicate code needs to be sent
   const profileSubtitle = document.querySelector('.profile-subtitle');
   if (profileSubtitle) {
@@ -72,6 +80,9 @@ export async function initProfileVerifyPage() {
       
       // Update the UI with the phone number
       updatePhoneDisplay();
+      
+      // Initialize country selector
+      initializeCountrySelector();
     } catch (parseErr) {
       console.error('Error parsing stored profile data:', parseErr);
       showStatus('Error loading profile data', 'error');
@@ -89,6 +100,132 @@ export async function initProfileVerifyPage() {
     }
   } catch (err) {
     console.log('No authenticated user found', err);
+  }
+  
+  // Set up the country selector modal
+  function initializeCountrySelector() {
+    // Load countries data
+    import('./data/countries.js').then(module => {
+      const { countries } = module;
+      
+      // Populate country list
+      populateCountryList(countries);
+      
+      // Set up event listeners
+      setupCountrySelectorEvents(countries);
+      
+    }).catch(err => {
+      console.error('Error loading countries data:', err);
+      showStatus('Failed to load country data', 'error');
+    });
+  }
+  
+  // Populate the country list in the modal
+  function populateCountryList(countries) {
+    countryList.innerHTML = '';
+    
+    countries.forEach(country => {
+      const li = document.createElement('li');
+      li.dataset.code = country.code;
+      li.dataset.dialCode = country.dialCode;
+      
+      // Mark the selected country
+      if (country.dialCode === profileData.countryCode) {
+        li.classList.add('selected');
+      }
+      
+      li.innerHTML = `
+        <span class="country-flag-item">${country.flag}</span>
+        <span class="country-name">${country.name}</span>
+        <span class="country-dial-code">${country.dialCode}</span>
+      `;
+      
+      // Add click event to select country
+      li.addEventListener('click', () => {
+        selectCountry(country);
+        closeModal();
+      });
+      
+      countryList.appendChild(li);
+    });
+  }
+  
+  // Set up events for the country selector
+  function setupCountrySelectorEvents(countries) {
+    // Open modal on click
+    if (countrySelectorTrigger) {
+      countrySelectorTrigger.addEventListener('click', openModal);
+    }
+    
+    // Close modal events
+    if (closeCountrySelector) {
+      closeCountrySelector.addEventListener('click', closeModal);
+    }
+    
+    if (countrySelectorOverlay) {
+      countrySelectorOverlay.addEventListener('click', closeModal);
+    }
+    
+    // Search functionality
+    if (countrySearch) {
+      countrySearch.addEventListener('input', () => {
+        const searchTerm = countrySearch.value.toLowerCase();
+        filterCountries(countries, searchTerm);
+      });
+    }
+  }
+  
+  // Filter countries based on search term
+  function filterCountries(countries, searchTerm) {
+    const filteredCountries = countries.filter(country => {
+      return country.name.toLowerCase().includes(searchTerm) || 
+             country.dialCode.toLowerCase().includes(searchTerm);
+    });
+    
+    populateCountryList(filteredCountries);
+  }
+  
+  // Open the country selector modal
+  function openModal() {
+    countrySelectorModal.classList.add('active');
+    setTimeout(() => {
+      countrySearch.focus();
+    }, 300);
+    
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+  }
+  
+  // Close the country selector modal
+  function closeModal() {
+    countrySelectorModal.classList.remove('active');
+    
+    // Re-enable body scrolling
+    document.body.style.overflow = '';
+    
+    // Clear search
+    if (countrySearch) {
+      countrySearch.value = '';
+      
+      // Reset country list if was filtered
+      import('./data/countries.js').then(module => {
+        const { countries } = module;
+        populateCountryList(countries);
+      });
+    }
+  }
+  
+  // Select a country and update the UI
+  function selectCountry(country) {
+    // Update profile data
+    profileData.countryCode = country.dialCode;
+    localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+    
+    // Update UI
+    countryCodeElement.textContent = country.dialCode;
+    countryFlagElement.textContent = country.flag;
+    
+    console.log('Selected country:', country.name, country.dialCode);
   }
   
   // Update phone display with data from profile
@@ -168,9 +305,23 @@ export async function initProfileVerifyPage() {
       sendCodeBtn.classList.add('button-loading');
       
       try {
-        // In a real app, you would send the verification code
-        // For this demo, we'll simulate the process
-        await simulateResendCode();
+        // Send verification code via backend API
+        const response = await fetch('/api/verify/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: profileData.phoneNumber,
+            countryCode: profileData.countryCode
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Failed to send verification code');
+        }
         
         // Show success message
         showStatus('Verification code sent!', 'success');
@@ -192,7 +343,7 @@ export async function initProfileVerifyPage() {
         }
       } catch (err) {
         console.error('Error sending code:', err);
-        showStatus('Failed to send code. Please try again.', 'error');
+        showStatus(err.message || 'Failed to send code. Please try again.', 'error');
         
         // Reset button state
         sendCodeBtn.disabled = false;
@@ -218,9 +369,24 @@ export async function initProfileVerifyPage() {
       verifyBtn.classList.add('button-loading');
       
       try {
-        // In a real app, you would verify the code with your backend or SMS provider
-        // For this demo, we'll simulate a verification process
-        await simulateVerification(code);
+        // Send verification code to backend API for validation
+        const response = await fetch('/api/verify/check-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: profileData.phoneNumber,
+            countryCode: profileData.countryCode,
+            code: code
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Invalid verification code');
+        }
         
         // Mark phone as verified in profile data
         profileData.phoneVerified = true;
@@ -290,9 +456,23 @@ export async function initProfileVerifyPage() {
       }, 1000);
       
       try {
-        // In a real app, you would resend the verification code
-        // For this demo, we'll simulate the process
-        await simulateResendCode();
+        // Resend verification code via backend API
+        const response = await fetch('/api/verify/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phoneNumber: profileData.phoneNumber,
+            countryCode: profileData.countryCode
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Failed to resend verification code');
+        }
         
         // Focus on verification code input
         if (verificationCodeInput) {
@@ -302,7 +482,7 @@ export async function initProfileVerifyPage() {
         showStatus('Verification code resent!', 'success');
       } catch (err) {
         console.error('Error resending code:', err);
-        showStatus('Failed to resend code. Please try again.', 'error');
+        showStatus(err.message || 'Failed to resend code. Please try again.', 'error');
         
         // Reset resend button
         clearInterval(resendTimerInterval);
@@ -366,26 +546,7 @@ export async function initProfileVerifyPage() {
     }
   }
   
-  // Simulate verification process (for demo purposes)
-  async function simulateVerification(code) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // For demo purposes, accept any code except "000000"
-        if (code === '000000') {
-          reject(new Error('Invalid verification code'));
-        } else {
-          resolve();
-        }
-      }, 1500);
-    });
-  }
-  
-  // Simulate resend code process (for demo purposes)
-  async function simulateResendCode() {
-    return new Promise((resolve) => {
-      setTimeout(resolve, 1000);
-    });
-  }
+  // Note: Simulation functions have been removed and replaced with actual API calls to Twilio
   
   // Update profile in Supabase
   async function updateProfileInSupabase() {

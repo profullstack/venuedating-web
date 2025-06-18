@@ -34,12 +34,14 @@ function createLayoutFragment(content, pageUrl) {
   const isNoHeaderFooter = (
     pageUrl === '/views/home.html' || pageUrl === '/home.html' || pageUrl === '/' ||
     pageUrl === '/views/auth.html' || pageUrl === '/auth.html' || pageUrl === '/auth' ||
+    pageUrl === '/views/phone-login.html' || pageUrl === '/phone-login' ||
     pageUrl === '/views/profile.html' || pageUrl === '/profile' ||
     pageUrl === '/views/profile-gender.html' || pageUrl === '/profile-gender' ||
     pageUrl === '/views/profile-interests.html' || pageUrl === '/profile-interests' ||
     pageUrl === '/views/profile-verify.html' || pageUrl === '/profile-verify' ||
     pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete' ||
-    pageUrl === '/views/feed.html' || pageUrl === '/feed'
+    pageUrl === '/views/feed.html' || pageUrl === '/feed' ||
+    pageUrl === '/views/phone-reset.html' || pageUrl === '/phone-reset'
   );
 
   if (!isNoHeaderFooter) {
@@ -455,6 +457,40 @@ export function defineRoutes(router) {
     '/auth': {
       viewPath: '/views/auth.html',
       afterRender: initAuthPage
+    },
+    
+    '/phone-login': {
+      viewPath: '/views/phone-login.html',
+      afterRender: () => {
+        console.log('Phone login page initialized');
+        
+        // Wait for the page to fully initialize
+        setTimeout(() => {
+          // Initialize country dropdown if the function is available
+          if (typeof window.populateCountries === 'function') {
+            window.populateCountries();
+          } else {
+            console.warn('populateCountries function not found in window scope');
+          }
+        }, 100);
+      }
+    },
+    
+    '/phone-reset': {
+      viewPath: '/views/phone-reset.html',
+      afterRender: () => {
+        console.log('Phone reset page initialized');
+        
+        // Wait for the page to fully initialize
+        setTimeout(() => {
+          // Initialize country dropdown if the function is available
+          if (typeof window.populateCountries === 'function') {
+            window.populateCountries();
+          } else {
+            console.warn('populateCountries function not found in window scope');
+          }
+        }, 100);
+      }
     },
 
     '/profile': {
