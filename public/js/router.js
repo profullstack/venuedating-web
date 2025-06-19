@@ -24,6 +24,7 @@ import { initProfileGenderPage } from './profile-gender.js';
 import { initProfileInterestsPage } from './profile-interests.js';
 import { initProfileVerifyPage } from './profile-verify.js';
 import { initProfileCompletePage } from './profile-complete.js';
+import { initDiscoverPage } from './discover.js';
 
 // Create a DOM fragment with the default layout
 function createLayoutFragment(content, pageUrl) {
@@ -41,7 +42,9 @@ function createLayoutFragment(content, pageUrl) {
     pageUrl === '/views/profile-verify.html' || pageUrl === '/profile-verify' ||
     pageUrl === '/views/profile-complete.html' || pageUrl === '/profile-complete' ||
     pageUrl === '/views/feed.html' || pageUrl === '/feed' ||
-    pageUrl === '/views/phone-reset.html' || pageUrl === '/phone-reset'
+    pageUrl === '/views/phone-reset.html' || pageUrl === '/phone-reset' ||
+    pageUrl === '/views/discover.html' || pageUrl === '/discover' ||
+    pageUrl === '/views/matching.html' || pageUrl === '/matching'
   );
 
   if (!isNoHeaderFooter) {
@@ -453,6 +456,35 @@ export function defineRoutes(router) {
   const routes = createRoutes({
     // Public routes
     '/': '/views/home.html',
+    
+    '/discover': {
+      viewPath: '/views/discover.html',
+      afterRender: initDiscoverPage,
+      noheaderfooter: true
+    },
+    
+    '/matching': {
+      viewPath: '/views/matching.html',
+      noheaderfooter: true,
+      afterRender: () => {
+        console.log('Matching page initialized');
+        // Initialize any matching page specific code if needed
+        if (typeof window.initMatchingPage === 'function') {
+          window.initMatchingPage();
+        }
+      }
+    },
+    
+    '/chat': {
+      viewPath: '/views/chat.html',
+      afterRender: () => {
+        console.log('Chat page initialized');
+        // Initialize chat page specific code if needed
+        if (typeof window.initChatPage === 'function') {
+          window.initChatPage();
+        }
+      }
+    },
 
     '/auth': {
       viewPath: '/views/auth.html',
