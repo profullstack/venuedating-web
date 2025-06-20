@@ -236,6 +236,30 @@
         filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
       }
       
+      /* View Profile Button */
+      .view-profile-button {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #F44B74;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 20;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: all 0.2s ease;
+      }
+      
+      .view-profile-button:hover, .view-profile-button:active {
+        background-color: #d33b64;
+        transform: translateX(-50%) scale(1.05);
+      }
+      
       /* Action buttons */
       .action-buttons {
         display: flex;

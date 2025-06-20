@@ -347,21 +347,24 @@ function setupCardDragging(card) {
   card.style.position = 'absolute';
   card.style.cursor = 'grab';
   
-  // Set up direct click handler - this should work even if drag doesn't
+  // Add click handler to open profile detail
   card.addEventListener('click', function(e) {
-    console.log('Card clicked');
-    if (card === getTopCard()) {
-      // Simple click handler - left side = dislike, right side = like
-      const rect = card.getBoundingClientRect();
-      const cardCenterX = rect.left + rect.width / 2;
-      const direction = e.clientX >= cardCenterX ? 'right' : 'left';
-      swipeCard(card, direction);
-    }
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Card clicked, opening profile detail');
+    
+    // Get user ID from card's data attribute or index
+    const userId = card.getAttribute('data-id') || 1;
+    window.location.href = `/views/profile-detail.html?id=${userId}`;
   });
   
-  // Add mouse event listeners
+  // Add mouse/touch events for right swipe only
   card.addEventListener('mousedown', startDrag);
   card.addEventListener('touchstart', startDrag, {passive: false});
+  
+  // Variable to track if we're just tapping vs dragging
+  let isTap = true;
+  let startTime = 0;
   
   // Start dragging
   function startDrag(e) {
@@ -381,6 +384,8 @@ function setupCardDragging(card) {
     card.style.cursor = 'grabbing';
     
     isDragging = true;
+    isTap = true; // Assume it's a tap until proven otherwise
+    startTime = new Date().getTime();
     const touch = e.type === 'touchstart' ? e.touches[0] : e;
     startX = touch.clientX;
     startY = touch.clientY;
@@ -407,18 +412,23 @@ function setupCardDragging(card) {
     const deltaX = currentX - startX;
     const deltaY = currentY - startY;
     
-    console.log(`Dragging: deltaX=${deltaX}`);
+    // If moved more than a few pixels, it's not a tap
+    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+      isTap = false;
+    }
     
+    // Allow both left and right swipes
     // Move the card
     card.style.transition = 'none';
     card.style.transform = `translateX(${deltaX}px) translateY(${deltaY}px) rotate(${deltaX * 0.1}deg)`;
     
-    // Update the badge opacities based on swipe direction
+    // Update the badge opacity based on swipe direction
     const likeBadge = card.querySelector('.like-badge');
     const dislikeBadge = card.querySelector('.dislike-badge');
     
     if (deltaX > 0) {
-      // Swiping right - show like badge
+      // Right swipe - show like badge
+      console.log(`Right dragging: deltaX=${deltaX}`);
       if (likeBadge) {
         const opacity = Math.min(1, deltaX / 80);
         likeBadge.style.opacity = opacity.toString();
@@ -428,7 +438,8 @@ function setupCardDragging(card) {
         dislikeBadge.style.opacity = '0';
       }
     } else if (deltaX < 0) {
-      // Swiping left - show dislike badge
+      // Left swipe - show dislike badge
+      console.log(`Left dragging: deltaX=${deltaX}`);
       if (dislikeBadge) {
         const opacity = Math.min(1, Math.abs(deltaX) / 80);
         dislikeBadge.style.opacity = opacity.toString();
@@ -438,7 +449,7 @@ function setupCardDragging(card) {
         likeBadge.style.opacity = '0';
       }
     } else {
-      // No horizontal movement - hide both badges
+      // No horizontal movement
       if (likeBadge) likeBadge.style.opacity = '0';
       if (dislikeBadge) dislikeBadge.style.opacity = '0';
     }
@@ -449,34 +460,52 @@ function setupCardDragging(card) {
     if (!isDragging) return;
     
     console.log('End drag');
-    e.preventDefault();
-    e.stopPropagation();
+    
+    const endTime = new Date().getTime();
+    const timeElapsed = endTime - startTime;
     
     isDragging = false;
     
-    // Reset cursor
+    // Restore cursor
     card.style.cursor = 'grab';
     
-    // Clean up event listeners
+    // Remove event listeners
     document.removeEventListener('mousemove', onDrag);
     document.removeEventListener('touchmove', onDrag);
     document.removeEventListener('mouseup', endDrag);
     document.removeEventListener('touchend', endDrag);
     
-    // Ultra-low threshold for swipe - very easy to trigger
-    const deltaX = currentX - startX;
-    console.log(`Swipe delta: ${deltaX}px`);
-    
-    // Almost any movement counts as a swipe for demo purposes
-    if (Math.abs(deltaX) > 10) {
-      console.log('Swipe detected');
-      const direction = deltaX > 0 ? 'right' : 'left';
-      swipeCard(card, direction);
-    } else {
-      // Reset position
-      console.log('Returning to center');
+    // If it was a tap (minimal movement and short duration), navigate to profile
+    if (isTap && timeElapsed < 300) {
+      console.log('Tap detected, opening profile');
+      
+      // Reset card position
       card.style.transition = 'transform 0.3s ease';
-      card.style.transform = 'none';
+      card.style.transform = 'translateZ(10px) rotate(0deg)';
+      
+      // Get user ID from card's data attribute or index
+      const userId = card.getAttribute('data-id') || 1;
+      window.location.href = `/views/profile-detail.html?id=${userId}`;
+      return;
+    }
+    
+    // Check if the card has been swiped far enough to trigger an action
+    const deltaX = currentX - startX;
+    const threshold = 50; // Minimum swipe distance to trigger action
+    
+    // Process both left and right swipes
+    if (deltaX > threshold) {
+      // Right swipe (like)
+      console.log('Right swipe detected');
+      swipeCard(card, 'right');
+    } else if (deltaX < -threshold) {
+      // Left swipe (dislike)
+      console.log('Left swipe detected');
+      swipeCard(card, 'left');
+    } else {
+      // Not swiped far enough - return to center
+      card.style.transition = 'transform 0.3s ease';
+      card.style.transform = 'translateZ(10px) rotate(0deg)';
       
       // Hide both badges
       const likeBadge = card.querySelector('.like-badge');

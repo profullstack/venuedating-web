@@ -25,6 +25,7 @@ import { initProfileInterestsPage } from './profile-interests.js';
 import { initProfileVerifyPage } from './profile-verify.js';
 import { initProfileCompletePage } from './profile-complete.js';
 import { initDiscoverPage } from './discover.js';
+import { initProfileDetail } from './profile-detail.js';
 
 // Create a DOM fragment with the default layout
 function createLayoutFragment(content, pageUrl) {
@@ -44,7 +45,8 @@ function createLayoutFragment(content, pageUrl) {
     pageUrl === '/views/feed.html' || pageUrl === '/feed' ||
     pageUrl === '/views/phone-reset.html' || pageUrl === '/phone-reset' ||
     pageUrl === '/views/discover.html' || pageUrl === '/discover' ||
-    pageUrl === '/views/matching.html' || pageUrl === '/matching'
+    pageUrl === '/views/matching.html' || pageUrl === '/matching' ||
+    pageUrl === '/views/profile-detail.html' || pageUrl === '/profile-detail'
   );
 
   if (!isNoHeaderFooter) {
