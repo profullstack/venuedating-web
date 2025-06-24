@@ -1,286 +1,278 @@
-<div class="profile-detail-page">
-  <div class="profile-header">
-    <div class="back-button">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 12H5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 19L5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </div>
-    <div class="distance-badge">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-        <circle cx="12" cy="10" r="3"></circle>
-      </svg>
-      <span>2.5 m</span>
-    </div>
-  </div>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <div class="profile-image-container">
-    <div class="profile-info">
-      <h1>Camila Snow, 23</h1>
-      <p>DALLAS, UNITED STATES</p>
-    </div>
-  </div>
-
-  <div class="profile-progress">
-    <div class="progress-indicator"></div>
-  </div>
-
-  <div class="profile-content">
-    <div class="profile-section">
-      <h2>About</h2>
-      <p>A good listener. I love having a good talk to know each other's side 😊.</p>
-    </div>
-
-    <div class="profile-section">
-      <h2>Interest</h2>
-      <div class="interest-tags">
-        <div class="interest-tag">
-          <span class="interest-icon">🌿</span>
-          <span class="interest-text">Nature</span>
-        </div>
-        <div class="interest-tag">
-          <span class="interest-icon">🌎</span>
-          <span class="interest-text">Travel</span>
-        </div>
-        <div class="interest-tag">
-          <span class="interest-icon">✍️</span>
-          <span class="interest-text">Writing</span>
-        </div>
-        <div class="interest-tag">
-          <span class="interest-icon">👥</span>
-          <span class="interest-text">People</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="action-buttons">
-    <button class="action-button dislike">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-        <line x1="6" y1="6" x2="18" y2="18"></line>
+<!-- Full-bleed Profile Image with Overlay, Back Button, and Distance Badge -->
+<div class="profile-header">
+  <img class="profile-bg-img" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80" alt="Profile">
+  <div class="profile-gradient"></div>
+  <a href="/matching">
+    <button class="back-btn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="12" fill="rgba(30,30,30,0.5)"/>
+        <polyline points="14 8 10 12 14 16" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       </svg>
     </button>
-    <button class="action-button like">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-      </svg>
-    </button>
+  </a>
+  <div class="distance-pill">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21s-6-5.686-6-10A6 6 0 0 1 18 11c0 4.314-6 10-6 10z" stroke="#fff" stroke-width="2"/><circle cx="12" cy="11" r="2" fill="#fff"/></svg>
+    <span>2.5 m</span>
+  </div>
+  <div class="profile-header-text">
+    <div class="profile-header-name">Camila Snow, 23</div>
+    <div class="profile-header-location">DALLAS, UNITED STATES</div>
+    <br/>
+  </div>
+</div>
+
+<!-- Curved Purple Content Area -->
+<div class="profile-content">
+  <div class="drag-indicator"></div>
+  <div class="section">
+    <div class="section-title">About</div>
+    <div class="section-body">A good listener. I love having a good talk to know each other's side 😍.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Interest</div>
+    <div class="interest-tags">
+      <span class="tag"><span class="emoji">🌿</span> Nature</span>
+      <span class="tag"><span class="emoji">🌎</span> Travel</span>
+      <span class="tag"><span class="emoji">✍️</span> Writing</span>
+      <span class="tag"><span class="emoji">😊</span> People</span>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Action Buttons -->
+<div class="action-pill">
+  <button class="btn btn-dislike">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="12" fill="#fff"/>
+      <line x1="16" y1="8" x2="8" y2="16" stroke="#F44B74" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="8" y1="8" x2="16" y2="16" stroke="#F44B74" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <button class="btn btn-like">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="20" fill="#fff"/>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="#F44B74" stroke="#F44B74" stroke-width="1.5"/>
+    </svg>
+  </button>
+</div>
+
+          
+    
+    
+
   </div>
 </div>
 
 <style>
-  .profile-detail-page {
-    height: 100vh;
-    width: 100%;
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    background: #fff;
+    font-family: 'Roboto', sans-serif;
+    color: #222;
+    min-height: 100vh;
     position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Profile Header (full-bleed image, overlay, controls, name/location) */
+  .profile-header {
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    height: 54vh;
+    min-height: 340px;
+    max-height: 510px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #000;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    justify-content: flex-end;
+    align-items: center;
   }
-
-  .profile-header {
+  .profile-bg-img {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 10;
+    top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    z-index: 1;
   }
-
-  .back-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .distance-badge {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .distance-badge svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .profile-image-container {
-    height: 60vh;
-    width: 100%;
-    background-image: url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop');
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    /* Blue and red lighting effect overlay */
-    box-shadow: inset 150px -30px 250px rgba(22, 119, 255, 0.4), 
-                inset -150px 30px 250px rgba(255, 31, 91, 0.4);
-  }
-
-  .profile-info {
+  .profile-gradient {
     position: absolute;
-    bottom: 20px;
+    left: 0; right: 0; bottom: 0; height: 70%;
+    background: linear-gradient(to top, rgba(255,255,255,0.96) 40%, rgba(255,255,255,0.01) 100%);
+    z-index: 2;
+  }
+  .back-btn {
+    position: absolute;
+    top: 32px;
     left: 20px;
+    z-index: 10;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+  }
+  .distance-pill {
+    position: absolute;
+    top: 32px;
     right: 20px;
-    color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
-  }
-
-  .profile-info h1 {
-    font-size: 32px;
-    margin: 0;
-    font-weight: 700;
-  }
-
-  .profile-info p {
-    font-size: 14px;
-    margin: 8px 0 0;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    opacity: 0.9;
-  }
-
-  .profile-progress {
-    height: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #511453;
-  }
-
-  .progress-indicator {
-    width: 40px;
-    height: 4px;
-    background-color: white;
-    border-radius: 2px;
-  }
-
-  .profile-content {
-    flex: 1;
-    background-color: #511453;
-    padding: 16px 20px;
-    overflow-y: auto;
-  }
-
-  .profile-section {
-    margin-bottom: 24px;
-  }
-
-  .profile-section h2 {
-    font-size: 16px;
+    background: rgba(40,35,70,0.75);
     color: #fff;
-    opacity: 0.7;
-    margin: 0 0 8px;
+    border-radius: 20px;
+    padding: 4px 14px 4px 7px;
+    font-size: 15px;
     font-weight: 500;
-  }
-
-  .profile-section p {
-    font-size: 16px;
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .interest-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 12px;
-  }
-
-  .interest-tag {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-radius: 50px;
-    padding: 8px 16px;
     display: flex;
     align-items: center;
     gap: 6px;
+    z-index: 10;
   }
-
-  .interest-icon {
-    font-size: 16px;
+  .distance-pill svg {
+    display: block;
   }
-
-  .interest-text {
-    font-size: 14px;
+  .profile-header-text {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 0 24px;
+  }
+  .profile-header-name {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: 0.01em;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    text-shadow: none;
+  }
+  .profile-header-location {
+    font-size: 1rem;
+    letter-spacing: 0.18em;
+    color: #888;
+    opacity: 1;
     font-weight: 500;
+    text-transform: uppercase;
+    text-shadow: none;
   }
 
-  .action-buttons {
+  /* Curved Purple Content Area */
+  .profile-content {
+    background: #fff;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    min-height: 46vh;
+    margin-top: -38px;
+    padding: 32px 20px 120px 20px;
+    box-shadow: 0 -2px 24px 0 rgba(244,75,116,0.07);
+    position: relative;
+    z-index: 5;
+    max-width: 430px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .drag-indicator {
+    width: 56px;
+    height: 5px;
+    border-radius: 3px;
+    background: #E8E8E8;
+    opacity: 1;
+    margin: 0 auto 22px auto;
+  }
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 1.04rem;
+    color: #F44B74;
+    font-weight: 600;
+    margin-bottom: 7px;
+    letter-spacing: 0.02em;
+  }
+  .section-body {
+    font-size: 1.1rem;
+    color: #222;
+    font-weight: 400;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .interest-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 8px;
+    margin-top: 2px;
+  }
+  .tag {
+    font-size: 1rem;
+    background: #FFF0F3;
+    border: 1.5px solid #F44B74;
+    color: #F44B74;
+    border-radius: 22px;
+    padding: 6px 18px 6px 13px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 500;
+    gap: 7px;
+    line-height: 1;
+  }
+  .emoji {
+    font-size: 1.09em;
+    margin-right: 2px;
+  }
+
+  /* Floating Action Buttons (pill) */
+  .action-pill {
     position: fixed;
-    bottom: 24px;
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
+    bottom: 32px;
+    margin: 0 auto;
+    z-index: 20;
     display: flex;
     justify-content: center;
-    gap: 20px;
-    padding: 0 20px;
+    pointer-events: none;
   }
-
-  .action-button {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
+  .action-pill .btn {
+    pointer-events: all;
     border: none;
+    background: none;
+    margin: 0 0.5rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
+  }
+  .action-pill {
+    width: 172px;
+    height: 72px;
+    background: #fff;
+    border-radius: 40px;
+    box-shadow: 0 4px 24px 0 rgba(244,75,116,0.06);
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    gap: 16px;
   }
-
-  .action-button.dislike {
-    background-color: white;
+  .btn-dislike svg {
+    display: block;
   }
-
-  .action-button.like {
-    background-color: #F44B74;
+  .btn-like svg {
+    display: block;
+  }
+  .btn-like svg circle,
+  .btn-dislike svg circle {
+    fill: #fff;
+  }
+  .btn-like svg path {
+    fill: #F44B74;
+    stroke: #F44B74;
+  }
+  .btn-dislike svg line {
+    stroke: #F44B74;
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Back button functionality
-    const backButton = document.querySelector('.back-button');
-    if (backButton) {
-      backButton.addEventListener('click', function() {
-        history.back();
-      });
-    }
-    
-    // Action button functionality
-    const likeButton = document.querySelector('.like');
-    const dislikeButton = document.querySelector('.dislike');
-    
-    if (likeButton) {
-      likeButton.addEventListener('click', function() {
-        console.log('Profile liked');
-        // Add like animation here
-        setTimeout(() => history.back(), 500);
-      });
-    }
-    
-    if (dislikeButton) {
-      dislikeButton.addEventListener('click', function() {
-        console.log('Profile disliked');
-        // Add dislike animation here
-        setTimeout(() => history.back(), 500);
-      });
-    }
-  });
-</script>
