@@ -22,7 +22,7 @@ export function initProfileCompletePage() {
   
   // Redirect to home page after 5 seconds
   setTimeout(() => {
-    window.location.href = '/';
+    window.location.href = '/discover';
   }, 5000);
 }
 
