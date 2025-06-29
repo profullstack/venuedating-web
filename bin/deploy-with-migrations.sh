@@ -46,18 +46,53 @@ fi
 # Run Supabase setup and migrations on the remote server
 echo -e "${YELLOW}Running Supabase setup and migrations on remote server...${NC}"
 
-# Run the Supabase setup
-echo -e "${YELLOW}Running Supabase setup on remote server...${NC}"
+# Run the Supabase setup to ensure proper database association
+echo -e "${YELLOW}Running Supabase setup to link with correct database...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && chmod +x ./bin/supabase-db.sh && ./bin/supabase-db.sh setup"
 
 if [ $? -ne 0 ]; then
   echo -e "${RED}Supabase setup failed. Aborting deployment.${NC}"
+  echo -e "${YELLOW}This usually means the project could not be linked to the correct database.${NC}"
+  echo -e "${YELLOW}Please check your SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD in the .env file.${NC}"
   exit 1
 fi
 
+# Verify the project is properly linked before running migrations
+echo -e "${YELLOW}Verifying Supabase project is properly linked...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh setup"
+
+if [ $? -ne 0 ]; then
+  echo -e "${RED}Supabase project linking verification failed. Aborting deployment.${NC}"
+  echo -e "${YELLOW}The local config may differ from the linked project.${NC}"
+  echo -e "${YELLOW}Try updating supabase/config.toml or re-linking the project.${NC}"
+  exit 1
+fi
+
+# Check migration status before applying
+echo -e "${YELLOW}=== MIGRATION STATUS BEFORE APPLYING ===${NC}"
+echo -e "${YELLOW}Checking which migration files exist and their current status...${NC}"
+
+# List all migration files and their status
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && echo -e '${YELLOW}Migration files found:${NC}' && ls -la supabase/migrations/*.sql 2>/dev/null | while read -r line; do echo -e '${GREEN}📄 \$line${NC}'; done || echo -e '${RED}No migration files found${NC}'"
+
+# Check detailed migration status
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh status"
+
+echo -e "${YELLOW}=== APPLYING MIGRATIONS ===${NC}"
 # Run the Supabase migrations
 echo -e "${YELLOW}Running Supabase migrations on remote server...${NC}"
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh migrate"
+
+echo -e "${YELLOW}=== MIGRATION STATUS AFTER APPLYING ===${NC}"
+echo -e "${YELLOW}Verifying migration status after application...${NC}"
+
+# Check migration status after applying
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh status"
+
+# Also check for specific tables that should exist
+echo -e "${YELLOW}=== VERIFYING SPECIFIC TABLES ===${NC}"
+echo -e "${YELLOW}Checking if campaigns table exists in database...${NC}"
+ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && echo 'Checking for campaigns table...' && supabase db pull --schema public 2>/dev/null | grep -i 'campaigns' || echo -e '${RED}❌ campaigns table not found${NC}'"
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Migrations successful!${NC}"

@@ -110,7 +110,8 @@ const publicRoutes = [
 export const routes = [
   ...protectedRoutes,
   ...publicRoutes,
-  ...apiKeyRoutes
+  ...apiKeyRoutes,
+  ...exchangeRateRoutes
 ];
 
 /**

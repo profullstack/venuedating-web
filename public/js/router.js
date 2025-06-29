@@ -16,6 +16,7 @@ import {
   initFaqsPage,
   initFeedPage,
   initAuthPage
+  initFaqsPage,
 } from './page-initializers.js';
 
 // Import profile page functionality
@@ -569,6 +570,10 @@ export function defineRoutes(router) {
     
     // Demo routes
     '/state-demo': '/views/state-demo.html',
+    '/charts': {
+      viewPath: '/views/charts.html',
+      afterRender: initChartsPage
+    },
     '/simple-state-demo': {
       viewPath: '/views/simple-state-demo.html',
       afterRender: () => {

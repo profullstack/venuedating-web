@@ -21,6 +21,7 @@ usage() {
   echo "  setup    - Install Supabase CLI and link to your cloud project"
   echo "  migrate  - Sync with remote DB and run migrations"
   echo "  sync     - Sync local migration history with remote database"
+  echo "  status   - Check migration status and show which migrations are applied"
   echo "  new NAME - Create a new migration file"
   echo "  update   - Check for Supabase CLI updates and upgrade if available"
   echo ""
@@ -28,6 +29,7 @@ usage() {
   echo "  $0 setup"
   echo "  $0 migrate"
   echo "  $0 sync"
+  echo "  $0 status"
   echo "  $0 new add_user_preferences"
   echo "  $0 update"
   exit 1
@@ -284,6 +286,11 @@ run_migrations() {
     setup_project
   fi
   
+  # Show migration status before running migrations
+  echo -e "${YELLOW}Checking current migration status before applying changes...${NC}"
+  check_migration_status
+  echo ""
+  
   # Make sure we have all environment variables
   if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
     if [ -f .env ]; then
@@ -515,6 +522,116 @@ sync_with_remote() {
   fi
 }
 
+# Function to check migration status
+check_migration_status() {
+  echo -e "${YELLOW}=== MIGRATION STATUS CHECK ===${NC}"
+  
+  # Check if Supabase CLI is installed
+  if ! command -v supabase &> /dev/null; then
+    install_cli
+    export PATH="$HOME/.local/bin:$PATH"
+  fi
+  
+  # Check if Supabase project is initialized
+  if [ ! -d "supabase" ]; then
+    echo -e "${YELLOW}Supabase project not initialized. Setting up...${NC}"
+    setup_project
+  fi
+  
+  # Make sure we have all environment variables
+  if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ] || [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+    if [ -f .env ]; then
+      echo -e "${YELLOW}Reloading environment variables from .env file...${NC}"
+      source .env
+    fi
+  fi
+  
+  # Set environment variables for Supabase CLI
+  export SUPABASE_DB_PASSWORD="$SUPABASE_DB_PASSWORD"
+  export SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN"
+  
+  # Count and list migration files
+  if [ -d "supabase/migrations" ]; then
+    MIGRATION_COUNT=$(ls supabase/migrations/*.sql 2>/dev/null | wc -l)
+    echo -e "${GREEN}Found $MIGRATION_COUNT migration files:${NC}"
+    
+    # List each migration file with a brief description
+    for migration_file in supabase/migrations/*.sql; do
+      if [ -f "$migration_file" ]; then
+        filename=$(basename "$migration_file")
+        echo -e "${GREEN}📄 $filename${NC}"
+        
+        # Show first comment line that describes what the migration does
+        first_comment=$(head -5 "$migration_file" | grep -E "^--" | head -1 | sed 's/^-- *//')
+        if [ -n "$first_comment" ]; then
+          echo -e "${YELLOW}   → $first_comment${NC}"
+        fi
+      fi
+    done
+    echo ""
+  else
+    echo -e "${RED}❌ No migrations directory found.${NC}"
+    return 1
+  fi
+  
+  # Get migration status from database
+  echo -e "${YELLOW}Checking which migrations have been applied to database...${NC}"
+  
+  # Create a temporary file to capture the migration list output
+  MIGRATION_LIST_OUTPUT=$(mktemp)
+  
+  # Try to get the migration list using supabase migration list
+  supabase migration list 2>&1 | tee "$MIGRATION_LIST_OUTPUT"
+  LIST_EXIT_CODE=$?
+  
+  echo ""
+  echo -e "${YELLOW}=== MIGRATION APPLICATION STATUS ===${NC}"
+  
+  if [ $LIST_EXIT_CODE -eq 0 ]; then
+    # Parse the output and show status for each local migration
+    APPLIED_COUNT=0
+    NOT_APPLIED_COUNT=0
+    
+    for migration_file in supabase/migrations/*.sql; do
+      if [ -f "$migration_file" ]; then
+        filename=$(basename "$migration_file" .sql)
+        
+        # Check if this migration appears in the applied list
+        if grep -q "$filename" "$MIGRATION_LIST_OUTPUT"; then
+          echo -e "${GREEN}✅ $filename - APPLIED${NC}"
+          APPLIED_COUNT=$((APPLIED_COUNT + 1))
+        else
+          echo -e "${RED}❌ $filename - NOT APPLIED${NC}"
+          NOT_APPLIED_COUNT=$((NOT_APPLIED_COUNT + 1))
+        fi
+      fi
+    done
+    
+    echo ""
+    echo -e "${YELLOW}Summary: ${GREEN}$APPLIED_COUNT applied${NC}, ${RED}$NOT_APPLIED_COUNT not applied${NC}"
+    
+    if [ $NOT_APPLIED_COUNT -gt 0 ]; then
+      echo -e "${YELLOW}⚠️  Some migrations have not been applied to the database!${NC}"
+    fi
+  else
+    echo -e "${RED}❌ Could not retrieve migration status from database${NC}"
+    echo -e "${YELLOW}This might indicate a connection or authentication issue${NC}"
+    
+    # Still list the files but mark status as unknown
+    for migration_file in supabase/migrations/*.sql; do
+      if [ -f "$migration_file" ]; then
+        filename=$(basename "$migration_file" .sql)
+        echo -e "${YELLOW}❓ $filename - STATUS UNKNOWN${NC}"
+      fi
+    done
+  fi
+  
+  # Clean up temporary file
+  rm -f "$MIGRATION_LIST_OUTPUT"
+  
+  echo -e "${YELLOW}=== END MIGRATION STATUS CHECK ===${NC}"
+}
+
 # Function to check for updates and upgrade if needed
 check_for_updates() {
   echo -e "${YELLOW}Checking for Supabase CLI updates...${NC}"
@@ -557,6 +674,9 @@ case "$1" in
     ;;
   sync)
     sync_with_remote
+    ;;
+  status)
+    check_migration_status
     ;;
   new)
     if [ $# -lt 2 ]; then
