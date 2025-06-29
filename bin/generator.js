@@ -568,7 +568,12 @@ function generateServerMigration(args) {
     // Suggest next steps
     console.log('\nNext steps:');
     console.log('1. Edit the migration file to add your SQL commands');
-    console.log('2. Apply the migration using Supabase CLI or your deployment process');
+    console.log('2. For local development:');
+    console.log('   - Link project: supabase link --project-ref <your-project-ref>');
+    console.log('   - Apply migration: supabase db push');
+    console.log('3. For CI/CD deployment:');
+    console.log('   - Ensure SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD are set');
+    console.log('   - Use: supabase db push --linked in GitHub Actions');
     console.log('   Note: Supabase only supports forward migrations (no DOWN methods)');
   } catch (error) {
     throw error;
@@ -591,6 +596,11 @@ Usage:
 Options:
   --name           Migration name (required, e.g., "add_user_fields" or "AddUserFields")
   --help           Show this help information
+
+Important Setup Notes:
+  - For local development: Ensure project is linked with 'supabase link --project-ref <ref>'
+  - For CI/CD deployments: Set SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD in secrets
+  - If you see "Local config differs from linked project", update supabase/config.toml
   `);
 }
 
