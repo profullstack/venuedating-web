@@ -15,8 +15,8 @@ import {
   initTestFeaturePage,
   initFaqsPage,
   initFeedPage,
-  initAuthPage
-  initFaqsPage,
+  initAuthPage,
+  initFaqsPage
 } from './page-initializers.js';
 
 // Import profile page functionality
