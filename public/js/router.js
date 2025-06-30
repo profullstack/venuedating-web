@@ -14,9 +14,10 @@ import {
   initManageSubscriptionPage,
   initTestFeaturePage,
   initFaqsPage,
-  initFeedPage,
   initAuthPage
 } from './page-initializers.js';
+
+import { initFeedPage } from './feed.js';
 
 // Import profile page functionality
 import { initProfilePage } from './profile-page.js';
