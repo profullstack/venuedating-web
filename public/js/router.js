@@ -17,7 +17,7 @@ import {
   initAuthPage
 } from './page-initializers.js';
 
-import { initFeedPage } from './feed.js';
+import { initFeedPage } from './views/feed.js';
 
 // Import profile page functionality
 import { initProfilePage } from './profile-page.js';
