@@ -15,7 +15,8 @@ import {
   initTestFeaturePage,
   initFaqsPage,
   initAuthPage,
-  initFeedPage
+  initFeedPage,
+  initChartsPage
 } from './page-initializers.js';
 
 
