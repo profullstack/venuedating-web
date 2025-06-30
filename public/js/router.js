@@ -17,7 +17,6 @@ import {
   initAuthPage
 } from './page-initializers.js';
 
-import { initFeedPage } from './views/feed.js';
 
 // Import profile page functionality
 import { initProfilePage } from './profile-page.js';
@@ -585,11 +584,6 @@ export function defineRoutes(router) {
     '/faqs': {
       viewPath: '/views/faqs.html',
       afterRender: initFaqsPage
-    },
-    '/feed': {
-      viewPath: '/views/feed.html',
-      afterRender: initFeedPage,
-      requireAuth: false
     },
     '/test-feature': {
       viewPath: '/views/test-feature.html',
