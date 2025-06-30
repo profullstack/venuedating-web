@@ -14,7 +14,8 @@ import {
   initManageSubscriptionPage,
   initTestFeaturePage,
   initFaqsPage,
-  initAuthPage
+  initAuthPage,
+  initFeedPage
 } from './page-initializers.js';
 
 
@@ -584,6 +585,11 @@ export function defineRoutes(router) {
     '/faqs': {
       viewPath: '/views/faqs.html',
       afterRender: initFaqsPage
+    },
+    '/feed': {
+      viewPath: '/views/feed.html',
+      afterRender: initFeedPage,
+      requireAuth: false
     },
     '/test-feature': {
       viewPath: '/views/test-feature.html',
