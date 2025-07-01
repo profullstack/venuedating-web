@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation - BarCrush</title>
+</head>
+<body>
+    <div class="conversation-page">
+        <!-- Header with back button and contact info -->
+        <div class="conversation-header">
+            <div class="header-content">
+                <div class="back-button">
+                    <a href="/chat">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-avatar">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330" alt="Emelie">
+                    </div>
+                    <div class="contact-details">
+                        <h2 class="contact-name">Emelie</h2>
+                        <p class="contact-status">Online</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="action-button">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container">
+            <!-- Date Divider -->
+            <div class="date-divider">
+                <span>Today</span>
+            </div>
+
+            <!-- Message from the other person -->
+            <div class="message received">
+                <div class="message-content">
+                    <p>Hey there! How are you doing? I saw you at the bar last night but didn't get a chance to say hello.</p>
+                </div>
+                <div class="message-time">09:15 AM</div>
+            </div>
+
+            <!-- Message from you -->
+            <div class="message sent">
+                <div class="message-content">
+                    <p>Hi Emelie! I'm doing great, thanks for asking. Yeah, I was there with some friends. Sorry I missed you!</p>
+                </div>
+                <div class="message-time">09:18 AM</div>
+            </div>
+
+            <!-- Message from the other person -->
+            <div class="message received">
+                <div class="message-content">
+                    <p>No worries at all! Maybe we can meet up sometime this week?</p>
+                </div>
+                <div class="message-time">09:20 AM</div>
+            </div>
+
+            <!-- Message from you -->
+            <div class="message sent">
+                <div class="message-content">
+                    <p>That sounds great! I'm free on Thursday evening. How about you?</p>
+                </div>
+                <div class="message-time">09:22 AM</div>
+            </div>
+
+            <!-- Message from the other person -->
+            <div class="message received">
+                <div class="message-content">
+                    <p>Thursday works for me! Same place?</p>
+                </div>
+                <div class="message-time">09:25 AM</div>
+            </div>
+
+            <!-- Message from the other person with image -->
+            <div class="message received">
+                <div class="message-content with-image">
+                    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" alt="Bar">
+                    <p>Looking forward to it!</p>
+                </div>
+                <div class="message-time">09:26 AM</div>
+            </div>
+
+            <!-- Message from you -->
+            <div class="message sent">
+                <div class="message-content">
+                    <p>Perfect! I'll see you there at 8pm 🍻</p>
+                </div>
+                <div class="message-time">09:30 AM</div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div class="typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <!-- Message Input Area -->
+        <div class="message-input-area">
+            <button class="attachment-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59723 21.9983 8.005 21.9983C6.41277 21.9983 4.88584 21.3658 3.76 20.24C2.63416 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63416 12.8758 3.76 11.75L12.33 3.18C13.0806 2.42943 14.0991 2.00153 15.165 2.00153C16.2309 2.00153 17.2494 2.42943 18 3.18C18.7506 3.93057 19.1785 4.94907 19.1785 6.015C19.1785 7.08093 18.7506 8.09943 18 8.85L9.41 17.44C9.03472 17.8153 8.52573 18.0242 8 18.0242C7.47427 18.0242 6.96528 17.8153 6.59 17.44C6.21472 17.0647 6.00583 16.5558 6.00583 16.03C6.00583 15.5042 6.21472 14.9953 6.59 14.62L14.07 7.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <div class="message-input-wrapper">
+                <input style="background-color: #f5f5f5; border: none;" type="text" class="message-input" placeholder="Type a message...">
+            </div>
+            <button class="send-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 2L11 13" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        body {
+            background-color: #fff;
+            color: #000;
+            overflow-x: hidden;
+        }
+        
+        .conversation-page {
+            min-height: 100vh;
+            padding-bottom: 80px;
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .conversation-header {
+            padding: 12px 16px;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .contact-info {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 10px;
+            border: 1px solid #F44B74;
+        }
+
+        .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .contact-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .contact-status {
+            font-size: 12px;
+            color: #4CAF50;
+        }
+
+        .header-actions {
+            display: flex;
+        }
+
+        .action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #fff;
+        }
+
+        /* Date Divider */
+        .date-divider {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .date-divider span {
+            background-color: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Message Styles */
+        .message {
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message-content p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            align-self: flex-end;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+        }
+
+        .message.received .message-content {
+            background-color: #f5f5f5;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent .message-content {
+            background-color: #FFE0E8;
+            color: #333;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Image in messages */
+        .message-content.with-image img {
+            width: 100%;
+            max-width: 240px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            align-self: flex-start;
+            background-color: #f5f5f5;
+            border-radius: 18px;
+            padding: 12px 16px;
+            max-width: 80px;
+            gap: 4px;
+        }
+
+        .typing-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #aaa;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+
+        .typing-indicator .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .typing-indicator .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Message Input Area */
+        .message-input-area {
+            position: fixed;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background-color: #fff;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .attachment-button, .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .attachment-button {
+            background-color: transparent;
+            color: #666;
+        }
+
+        .send-button {
+            background-color: #fff;
+            color: #F44B74;
+        }
+
+        .message-input-wrapper {
+            flex-grow: 1;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            padding: 0 16px;
+        }
+
+        .message-input {
+            width: 100%;
+            height: 40px;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            font-size: 15px;
+        }
+
+        /* Bottom Navigation Styles */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            border-radius: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .bottom-nav-style1 {
+            width: 300px;
+            padding: 10px 20px;
+        }
+        
+        .nav-item {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .nav-item.active {
+            transform: scale(1.1);
+        }
+
+            .message.received .message-content {
+                background-color: #f5f5f5;
+                border-bottom-left-radius: 4px;
+            }
+
+            .message.sent .message-content {
+                background-color: #FFE0E8;
+                color: #333;
+                border-bottom-right-radius: 4px;
+            }
+
+            /* Image in messages */
+            .message-content.with-image img {
+                width: 100%;
+                max-width: 240px;
+                border-radius: 12px;
+                margin-bottom: 8px;
+                object-fit: cover;
+            }
+
+            /* Typing indicator */
+            .typing-indicator {
+                display: flex;
+                align-items: center;
+                align-self: flex-start;
+                background-color: #f5f5f5;
+                border-radius: 18px;
+                padding: 12px 16px;
+                max-width: 80px;
+                gap: 4px;
+            }
+
+            .typing-indicator .dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #aaa;
+                animation: typing 1.5s infinite ease-in-out;
+            }
+
+            .typing-indicator .dot:nth-child(1) {
+                animation-delay: 0s;
+            }
+
+            .typing-indicator .dot:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .typing-indicator .dot:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+            @keyframes typing {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                }
+                30% {
+                    transform: translateY(-5px);
+                }
+            }
+
+            /* Message Input Area */
+            .message-input-area {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 16px;
+                background-color: #fff;
+                border-top: 1px solid #f0f0f0;
+                z-index: 10;
+            }
+
+            .attachment-button, .send-button {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+
+            .attachment-button {
+                background-color: transparent;
+                color: #666;
+            }
+
+            .send-button {
+                background-color: #fff;
+                color: #F44B74;
+            }
+
+            .message-input-wrapper {
+                flex-grow: 1;
+                background-color: #f5f5f5;
+                border-radius: 20px;
+                padding: 0 16px;
+            }
+
+            .message-input {
+                width: 100%;
+                height: 40px;
+                border: none;
+                background-color: transparent;
+                outline: none;
+                font-size: 15px;
+            }
+
+            /* Bottom Navigation Styles */
+            .bottom-nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: white;
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 100;
+                border-radius: 40px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            }
+            
+            .bottom-nav-style1 {
+                width: 300px;
+                padding: 10px 20px;
+            }
+            
+            .nav-item {
+                padding: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: transform 0.2s ease;
+                text-decoration: none;
+            }
+            
+            .nav-item.active {
+                transform: scale(1.1);
+            }
+        </style>
+
+        <script src="/components/bottom-nav.js" type="module"></script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load contact information from sessionStorage
+            const contactName = sessionStorage.getItem('contactName');
+            const contactAvatar = sessionStorage.getItem('contactAvatar');
+            
+            // Update header with contact info if available
+            if (contactName) {
+                document.querySelector('.contact-name').textContent = contactName;
+            }
+            
+            if (contactAvatar) {
+                const avatarImg = document.querySelector('.contact-avatar img');
+                avatarImg.src = contactAvatar;
+                avatarImg.alt = contactName || 'Contact';
+            }
+            
+            // Add back button functionality
+            const backButton = document.querySelector('.back-button a');
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/public/views/chat.html';
+            });
+            
+            // Setup message functionality
+            const messageInput = document.querySelector('.message-input');
+            const sendButton = document.querySelector('.send-button');
+            const messagesContainer = document.querySelector('.messages-container');
+            
+            function sendMessage() {
+                const messageText = messageInput.value.trim();
+                if (messageText) {
+                    // Create new message element
+                    const messageTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const messageHTML = `
+                        <div class="message sent">
+                            <div class="message-content">
+                                <p>${messageText}</p>
+                            </div>
+                            <div class="message-time">${messageTime}</div>
+                        </div>
+                    `;
+                    
+                    // Add message to container
+                    messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
+                    
+                    // Clear input
+                    messageInput.value = '';
+                    
+                    // Scroll to bottom
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    
+                    // Simulate reply after delay
+                    setTimeout(() => {
+                        // Add typing indicator
+                        const typingHTML = `
+                            <div class="typing-indicator">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        `;
+                        messagesContainer.insertAdjacentHTML('beforeend', typingHTML);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        
+                        // Remove indicator and add reply after 2 seconds
+                        setTimeout(() => {
+                            const typingIndicator = document.querySelector('.typing-indicator');
+                            if (typingIndicator) {
+                                typingIndicator.remove();
+                            }
+                            
+                            const replyHTML = `
+                                <div class="message received">
+                                    <div class="message-content">
+                                        <p>That sounds great! Can't wait to see you there!</p>
+                                    </div>
+                                    <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                </div>
+                            `;
+                            messagesContainer.insertAdjacentHTML('beforeend', replyHTML);
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        }, 2000);
+                    }, 1000);
+                }
+            }
+            
+            // Send message on button click
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Send message on Enter key
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // Scroll to bottom on page load
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>

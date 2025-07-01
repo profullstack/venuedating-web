@@ -1,0 +1,804 @@
+<div class="chat-page">
+    <div class="chat-header">
+        <div class="header-content" style="border: none; box-shadow: none;">
+            <h1 class="page-title">Messages</h1>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-bar">
+            <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 21L16.65 16.65" stroke="#777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <input type="text" style="background-color: #fff; border: none;" placeholder="Search" class="search-input">
+        </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="messages-section">
+        <div class="messages-list">
+            <!-- Message 1 -->
+            <a href="/conversation" class="message-item-link">
+                <div class="message-item">
+                <div class="message-avatar">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330" alt="Emelie">
+                </div>
+                <div class="message-content">
+                    <div class="message-top">
+                        <span class="contact-name">Emelie</span>
+                        <span class="message-time">23 min</span>
+                    </div>
+                    <div class="message-preview">Sticker 😍</div>
+                </div>
+                <div class="unread-badge">1</div>
+            </div>
+
+            <!-- Message 2 -->
+            <a href="/conversation" class="message-item-link">
+                <div class="message-item">
+                <div class="message-avatar">
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80" alt="Abigail">
+                </div>
+                <div class="message-content">
+                    <div class="message-top">
+                        <span class="contact-name">Abigail</span>
+                        <span class="message-time">27 min</span>
+                    </div>
+                    <div class="message-preview typing">Typing..</div>
+                </div>
+                <div class="unread-badge">2</div>
+            </div>
+
+            <!-- Message 3 -->
+            <a href="/conversation" class="message-item-link">
+                <div class="message-item">
+                <div class="message-avatar">
+                    <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04" alt="Elizabeth">
+                </div>
+                <div class="message-content">
+                    <div class="message-top">
+                        <span class="contact-name">Elizabeth</span>
+                        <span class="message-time">33 min</span>
+                    </div>
+                    <div class="message-preview">Ok, see you then.</div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Message 4 -->
+            <a href="/conversation" class="message-item-link">
+                <div class="message-item">
+                <div class="message-avatar">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2" alt="Penelope">
+                </div>
+                <div class="message-content">
+                    <div class="message-top">
+                        <span class="contact-name">Penelope</span>
+                        <span class="message-time">50 min</span>
+                    </div>
+                    <div class="message-preview"><span class="you-text">You:</span> Hey! What's up, long time..</div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Message 5 -->
+            <a href="/conversation" class="message-item-link">
+                <div class="message-item">
+                <div class="message-avatar">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d" alt="Chloe">
+                </div>
+                <div class="message-content">
+                    <div class="message-top">
+                        <span class="contact-name">Chloe</span>
+                        <span class="message-time">55 min</span>
+                    </div>
+                    <div class="message-preview"><span class="you-text">You:</span> Hello how are you?</div>
+                </div>
+            </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Component -->
+    <bottom-navigation current-page="chat"></bottom-navigation>
+    
+    <!-- Conversation Modal -->
+    <div class="conversation-modal" style="display: none;">
+        <div class="conversation-container">
+            <!-- Header with back button and contact info -->
+            <div class="conversation-header">
+                <div class="header-content">
+                    <div class="back-button">
+                        <button class="close-conversation">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="contact-info">
+                        <div class="contact-avatar">
+                            <img src="" alt="Contact">
+                        </div>
+                        <div class="contact-details">
+                            <h2 class="contact-name">Contact</h2>
+                            <p class="contact-status">Online</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="action-button">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 13C12.5523 13 13 12.5523 13 12C13 11.4477 12.5523 11 12 11C11.4477 11 11 11.4477 11 12C11 12.5523 11.4477 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Messages Container -->
+            <div class="messages-container">
+                <!-- Date Divider -->
+                <div class="date-divider">
+                    <span>Today</span>
+                </div>
+
+                <!-- Message from the other person -->
+                <div class="message received">
+                    <div class="message-content">
+                        <p>Hey there! How are you doing? I saw you at the bar last night but didn't get a chance to say hello.</p>
+                    </div>
+                    <div class="message-time">09:15 AM</div>
+                </div>
+
+                <!-- Message from you -->
+                <div class="message sent">
+                    <div class="message-content">
+                        <p>Hi! I'm doing great, thanks for asking. Yeah, I was there with some friends. Sorry I missed you!</p>
+                    </div>
+                    <div class="message-time">09:18 AM</div>
+                </div>
+
+                <!-- Message from the other person -->
+                <div class="message received">
+                    <div class="message-content">
+                        <p>No worries at all! Maybe we can meet up sometime this week?</p>
+                    </div>
+                    <div class="message-time">09:20 AM</div>
+                </div>
+
+                <!-- Message from you -->
+                <div class="message sent">
+                    <div class="message-content">
+                        <p>That sounds great! I'm free on Thursday evening. How about you?</p>
+                    </div>
+                    <div class="message-time">09:22 AM</div>
+                </div>
+
+                <!-- Message from the other person -->
+                <div class="message received">
+                    <div class="message-content">
+                        <p>Thursday works for me! Same place?</p>
+                    </div>
+                    <div class="message-time">09:25 AM</div>
+                </div>
+
+                <!-- Message from the other person with image -->
+                <div class="message received">
+                    <div class="message-content with-image">
+                        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80" alt="Bar">
+                        <p>Looking forward to it!</p>
+                    </div>
+                    <div class="message-time">09:26 AM</div>
+                </div>
+
+                <!-- Message from you -->
+                <div class="message sent">
+                    <div class="message-content">
+                        <p>Perfect! I'll see you there at 8pm 🍻</p>
+                    </div>
+                    <div class="message-time">09:30 AM</div>
+                </div>
+            </div>
+            </a>
+
+            <!-- Message Input Area -->
+            <div class="message-input-area">
+                <button class="attachment-button">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.44 11.05L12.25 20.24C11.1242 21.3658 9.59723 21.9983 8.005 21.9983C6.41277 21.9983 4.88584 21.3658 3.76 20.24C2.63416 19.1142 2.00166 17.5872 2.00166 15.995C2.00166 14.4028 2.63416 12.8758 3.76 11.75L12.33 3.18C13.0806 2.42943 14.0991 2.00153 15.165 2.00153C16.2309 2.00153 17.2494 2.42943 18 3.18C18.7506 3.93057 19.1785 4.94907 19.1785 6.015C19.1785 7.08093 18.7506 8.09943 18 8.85L9.41 17.44C9.03472 17.8153 8.52573 18.0242 8 18.0242C7.47427 18.0242 6.96528 17.8153 6.59 17.44C6.21472 17.0647 6.00583 16.5558 6.00583 16.03C6.00583 15.5042 6.21472 14.9953 6.59 14.62L14.07 7.14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="message-input-wrapper">
+                    <input type="text" class="message-input" placeholder="Type a message...">
+                </div>
+                <button class="send-button">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M22 2L11 13" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/components/bottom-nav.js" type="module"></script>
+    <script src="/js/chat.js" type="module"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        body {
+            background-color: #fff;
+            color: #000;
+            overflow-x: hidden;
+        }
+        
+        .chat-page {
+            min-height: 100vh;
+            padding-bottom: 80px;
+            background-color: #fff;
+        }
+
+        /* Header Styles */
+        .chat-header {
+            padding: 16px 20px;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: none
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #000;
+            margin: 0;
+        }
+
+        /* Search Bar */
+        .search-container {
+            padding: 10px 16px 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 50px;
+            padding: 10px 18px;
+            position: relative;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+        }
+        
+        .search-bar:focus-within {
+            border-color: #F44B74;
+            box-shadow: 0 3px 12px rgba(244, 75, 116, 0.08);
+        }
+
+        .search-icon {
+            margin-right: 12px;
+            min-width: 24px;
+        }
+        
+        .search-icon path {
+            transition: stroke 0.2s ease;
+        }
+        
+        .search-bar:focus-within .search-icon path {
+            stroke: #F44B74;
+        }
+
+        .search-input {
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            width: 100%;
+            padding: 8px 0;
+            outline: none;
+            color: #333;
+            font-weight: 400;
+        }
+        
+        .search-input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        /* Recent Contacts Section */
+        .recent-section {
+            padding: 0 16px 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #000;
+        }
+
+        .recent-contacts {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        .recent-contacts::-webkit-scrollbar {
+            display: none;
+        }
+
+        .contact-story {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .story-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #F44B74;
+            padding: 2px;
+        }
+
+        .story-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .story-name {
+            font-size: 12px;
+            color: #333;
+            max-width: 70px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Messages Section */
+        .messages-section {
+            padding: 0 16px;
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .message-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 12px;
+            border: 1px solid #F44B74;
+        }
+
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .message-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .message-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .contact-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .message-time {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #888;
+        }
+
+        .message-preview {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .typing {
+            color: #F44B74;
+            font-style: italic;
+        }
+
+        .you-text {
+            color: #888;
+            font-weight: 500;
+        }
+
+        .unread-badge {
+            background-color: #F44B74;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            position: absolute;
+            right: 10px;
+            top: 60%;
+            transform: translateY(-50%);
+        }
+
+        /* Bottom Navigation Styles */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            border-radius: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .bottom-nav-style1 {
+            width: 300px;
+            padding: 10px 20px;
+        }
+        
+        .nav-item {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+            text-decoration: none;
+        }
+        
+        .nav-item.active {
+            transform: scale(1.1);
+        }
+        
+        /* Conversation Modal Styles */
+        .conversation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .conversation-modal.visible {
+            opacity: 1;
+        }
+        
+        .conversation-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .conversation-header {
+            padding: 12px 16px;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .conversation-header .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .back-button {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-conversation {
+            background: transparent;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-conversation:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .contact-info {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        
+        .conversation-header .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 10px;
+            border: 1px solid #F44B74;
+        }
+        
+        .conversation-header .contact-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .conversation-header .contact-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+        
+        .contact-status {
+            font-size: 12px;
+            color: #4CAF50;
+        }
+        
+        .header-actions {
+            display: flex;
+        }
+        
+        .action-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .action-button:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Messages Container */
+        .messages-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #fff;
+        }
+        
+        /* Date Divider */
+        .date-divider {
+            text-align: center;
+            margin: 16px 0;
+            position: relative;
+        }
+        
+        .date-divider span {
+            background-color: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Message Styles */
+        .message {
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .messages-container .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+        
+        .messages-container .message-content p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+        
+        .messages-container .message-time {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            align-self: flex-end;
+        }
+        
+        .message.received {
+            align-self: flex-start;
+        }
+        
+        .message.sent {
+            align-self: flex-end;
+        }
+        
+        .message.received .message-content {
+            background-color: #f5f5f5;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.sent .message-content {
+            background-color: #FFE0E8;
+            color: #333;
+            border-bottom-right-radius: 4px;
+        }
+        
+        /* Image in messages */
+        .message-content.with-image img {
+            width: 100%;
+            max-width: 240px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            object-fit: cover;
+        }
+        
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            align-self: flex-start;
+            background-color: #f5f5f5;
+            border-radius: 18px;
+            padding: 12px 16px;
+            max-width: 80px;
+            gap: 4px;
+        }
+        
+        .typing-indicator .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #aaa;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+        
+        .typing-indicator .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* Message Input Area */
+        .message-input-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background-color: #fff;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .attachment-button, .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .attachment-button {
+            background-color: transparent;
+            color: #666;
+        }
+        
+        .send-button {
+            background-color: #fff;
+            color: #F44B74;
+        }
+        
+        .message-input-wrapper {
+            flex-grow: 1;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            padding: 0 16px;
+        }
+        
+        .message-input {
+            width: 100%;
+            height: 40px;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            font-size: 15px;
+        }
+    </style>
+</div>

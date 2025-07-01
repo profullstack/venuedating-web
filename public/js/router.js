@@ -48,6 +48,8 @@ function createLayoutFragment(content, pageUrl) {
     pageUrl === '/views/phone-reset.html' || pageUrl === '/phone-reset' ||
     pageUrl === '/views/discover.html' || pageUrl === '/discover' ||
     pageUrl === '/views/matching.html' || pageUrl === '/matching' ||
+    pageUrl === '/views/chat.html' || pageUrl === '/chat' ||
+    pageUrl === '/views/conversation.html' || pageUrl === '/conversation' ||
     pageUrl === '/views/profile-detail.html' || pageUrl === '/profile-detail'
   );
 
@@ -486,6 +488,17 @@ export function defineRoutes(router) {
         // Initialize chat page specific code if needed
         if (typeof window.initChatPage === 'function') {
           window.initChatPage();
+        }
+      }
+    },
+
+    '/conversation': {
+      viewPath: '/views/conversation.html',
+      afterRender: () => {
+        console.log('Conversation page initialized');
+        // Initialize conversation page specific code if needed
+        if (typeof window.initConversationPage === 'function') {
+          window.initConversationPage();
         }
       }
     },

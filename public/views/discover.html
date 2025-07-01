@@ -1,448 +1,482 @@
 <div class="discover-page">
-    <header class="discover-header">
-      <div class="container">
-        <div class="discover-header-content">
-          <h1 class="discover-title">Discover</h1>
-          <div class="discover-actions">
-            <button class="icon-button search-btn">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="icon-button filter-btn">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 21V14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M4 10V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 21V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 8V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20 21V16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M20 12V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M1 14H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M17 16H23" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button class="icon-button notification-btn">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M13.73 21C13.5542 21.3031 13.3018 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="18" cy="8" r="4" fill="#F44B74"/>
-              </svg>
-            </button>
+  <header class="discover-header">
+    <div class="container">
+      <div class="discover-header-content">
+        <side-menu user-name="David Paterson" user-avatar="/images/avatar.jpg"></side-menu>
+        <h1 class="discover-title">Discover</h1>
+        <div class="discover-actions">
+          <button class="icon-button search-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button class="icon-button filter-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 21V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M4 10V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M12 21V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M12 8V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M20 21V16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M20 12V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M1 14H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M9 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M17 16H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button class="icon-button notification-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path
+                d="M13.73 21C13.5542 21.3031 13.3018 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="18" cy="8" r="4" fill="#F44B74" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="venues-container">
+    <div class="venue-card">
+      <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&auto=format&fit=crop" alt="Venue 1"
+        class="venue-image">
+      <div class="people-badge">12 people</div>
+      <div class="venue-details">
+        <div class="distance-badge">12 km away</div>
+      </div>
+    </div>
+
+    <div class="venue-card">
+      <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=800&auto=format&fit=crop" alt="Venue 2"
+        class="venue-image">
+      <div class="people-badge">20 people</div>
+      <div class="venue-details">
+        <div class="distance-badge">14 km away</div>
+      </div>
+    </div>
+
+    <div class="venue-card">
+      <img src="https://images.unsplash.com/photo-1485872299829-c673f5194813?w=800&auto=format&fit=crop" alt="Venue 3"
+        class="venue-image">
+      <div class="people-badge">15 people</div>
+      <div class="venue-details">
+        <div class="distance-badge">16 km away</div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<div class="around-me-section">
+  <h2 class="section-title">Around me</h2>
+
+  <div class="map-container">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <div id="map" class="map"></div>
+
+    <!-- Template for SVG markers (not displayed directly) -->
+    <template id="venue-marker-template">
+      <svg width="40" height="54" viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M20 0C8.954 0 0 8.954 0 20C0 30.292 17.9 50.382 18.662 51.259C19.173 51.86 20.827 51.86 21.338 51.259C22.1 50.382 40 30.292 40 20C40 8.954 31.046 0 20 0Z"
+          fill="#F44B74" />
+        <circle cx="20" cy="20" r="16" fill="white" />
+        <foreignObject x="4" y="4" width="32" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <img src="" alt="Venue" style="width: 100%; height: 100%; object-fit: cover;" />
           </div>
-        </div>
-      </div>
-    </header>
+        </foreignObject>
+      </svg>
+    </template>
 
-    <div class="venues-container">
-      <div class="venue-card">
-        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&auto=format&fit=crop" alt="Venue 1" class="venue-image">
-        <div class="people-badge">12 people</div>
-        <div class="venue-details">
-          <div class="distance-badge">12 km away</div>
-        </div>
-      </div>
-      
-      <div class="venue-card">
-        <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=800&auto=format&fit=crop" alt="Venue 2" class="venue-image">
-        <div class="people-badge">20 people</div>
-        <div class="venue-details">
-          <div class="distance-badge">14 km away</div>
-        </div>
-      </div>
-      
-      <div class="venue-card">
-        <img src="https://images.unsplash.com/photo-1485872299829-c673f5194813?w=800&auto=format&fit=crop" alt="Venue 3" class="venue-image">
-        <div class="people-badge">15 people</div>
-        <div class="venue-details">
-          <div class="distance-badge">16 km away</div>
-        </div>
-      </div>
-    </div>
-    
+    <template id="user-marker-template">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="20" fill="white" />
+        <circle cx="20" cy="20" r="18" fill="#FFE0F0" />
+        <foreignObject x="4" y="4" width="32" height="32">
+          <div xmlns="http://www.w3.org/1999/xhtml"
+            style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
+            <img src="" alt="User" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+        </foreignObject>
+      </svg>
+    </template>
 
-  </div>
-  
-  <div class="around-me-section">
-    <h2 class="section-title">Around me</h2>
-    
-    <div class="map-container">
-      <!-- Leaflet CSS -->
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-         crossorigin=""/>
-      
-      <div id="map" class="map"></div>
-      
-      <!-- Template for SVG markers (not displayed directly) -->
-      <template id="venue-marker-template">
-        <svg width="40" height="54" viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 0C8.954 0 0 8.954 0 20C0 30.292 17.9 50.382 18.662 51.259C19.173 51.86 20.827 51.86 21.338 51.259C22.1 50.382 40 30.292 40 20C40 8.954 31.046 0 20 0Z" fill="#F44B74"/>
-          <circle cx="20" cy="20" r="16" fill="white"/>
-          <foreignObject x="4" y="4" width="32" height="32">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-              <img src="" alt="Venue" style="width: 100%; height: 100%; object-fit: cover;"/>
-            </div>
-          </foreignObject>
+    <button class="connect-btn" style="display: none;">
+      Connect with <span class="people-count"></span> people at this venue
+    </button>
+
+    <div class="zoom-controls">
+      <button class="zoom-in-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+            stroke="#F44B74" stroke-width="2" />
+          <path d="M12 8V16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
+          <path d="M8 12H16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
         </svg>
-      </template>
-      
-      <template id="user-marker-template">
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="20" r="20" fill="white"/>
-          <circle cx="20" cy="20" r="18" fill="#FFE0F0"/>
-          <foreignObject x="4" y="4" width="32" height="32">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
-              <img src="" alt="User" style="width: 100%; height: 100%; object-fit: cover;"/>
-            </div>
-          </foreignObject>
-        </svg>
-      </template>
-      
-      <button class="connect-btn" style="display: none;">
-        Connect with <span class="people-count"></span> people at this venue
       </button>
-      
-      <div class="zoom-controls">
-        <button class="zoom-in-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#F44B74" stroke-width="2" />
-            <path d="M12 8V16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
-            <path d="M8 12H16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-        <button class="zoom-out-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#F44B74" stroke-width="2" />
-            <path d="M8 12H16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-      
-      <!-- Leaflet JavaScript -->
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-         crossorigin=""></script>
+      <button class="zoom-out-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+            stroke="#F44B74" stroke-width="2" />
+          <path d="M8 12H16" stroke="#F44B74" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </button>
     </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   </div>
-  
-    <!-- Bottom Navigation Component -->
-    <bottom-navigation current-page="discover"></bottom-navigation>
+</div>
 
-  <script src="/components/bottom-nav.js" type="module"></script>
-  <script src="/js/discover.js" type="module"></script>
+<!-- Bottom Navigation Component -->
+<bottom-navigation current-page="discover"></bottom-navigation>
 
-  <style>
-    .discover-page {
-      min-height: 10vh;
-      background-color: var(--color-background);
+<script src="/components/bottom-nav.js" type="module"></script>
+<script src="/components/side-menu.js" type="module"></script>
+<script src="/js/discover.js" type="module"></script>
+
+<style>
+  .discover-page {
+    min-height: 10vh;
+    background-color: var(--color-background);
+  }
+
+  .discover-header {
+    background-color: #fff;
+    padding: 1px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: none;
+    border-bottom: none;
+  }
+
+  .discover-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .discover-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #000;
+    margin: 0;
+  }
+
+  .discover-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+    position: relative;
+  }
+
+  .notification-btn circle {
+    /* The red notification dot */
+    fill: #F44B74;
+  }
+
+  .discover-content {
+    padding: 20px 0;
+  }
+
+  .content-placeholder {
+    text-align: center;
+    padding: 40px 0;
+    color: var(--color-text);
+  }
+
+  /* Venues Container and Cards */
+  .venues-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    padding: 12px;
+    background-color: #fff;
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none;
+    /* Hide scrollbar for IE and Edge */
+  }
+
+  .venues-container::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar for Chrome, Safari, and Opera */
+  }
+
+  .venue-card {
+    flex: 0 0 auto;
+    width: calc(50vw - 24px);
+    max-width: 250px;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    aspect-ratio: 1 / 1.3;
+  }
+
+  .venue-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .people-badge {
+    position: absolute;
+    top: 10px;
+    left: 50px;
+    background-color: #F44B74;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .venue-details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .distance-badge {
+    display: inline-block;
+    background-color: rgba(10, 21, 41, 0.256);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .venue-name {
+    color: white;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Around me section */
+  .around-me-section {
+    padding: 20px 0;
+    background-color: #fff;
+  }
+
+  .section-title {
+    color: #000;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 0 16px 20px;
+  }
+
+  .map-container {
+    position: relative;
+    margin: 0 16px;
+    height: 400px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  /* Custom marker styles */
+  .venue-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .venue-marker-icon {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #F44B74;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .venue-marker-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .venue-marker-text {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #F44B74;
+    margin-top: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-marker-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    overflow: hidden;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    background-color: #ffd0e0;
+  }
+
+  .user-marker-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Beat animation for user marker */
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
     }
-    
-    .discover-header {
-      background-color: #fff;
-      padding: 1px 0;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: none;
-      border-bottom: none;
-    }
-    
-    .discover-header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .discover-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #000;
-      margin: 0;
-    }
-    
-    .discover-actions {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    
-    .icon-button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 1px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--color-text);
-      position: relative;
-    }
-    
-    .notification-btn circle {
-      /* The red notification dot */
-      fill: #F44B74;
-    }
-    
-    .discover-content {
-      padding: 20px 0;
-    }
-    
-    .content-placeholder {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--color-text);
-    }
-    
-    /* Venues Container and Cards */
-    .venues-container {
-      display: flex;
-      overflow-x: auto;
-      gap: 12px;
-      padding: 12px;
-      background-color: #fff;
-      scrollbar-width: none; /* Hide scrollbar for Firefox */
-      -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
-    }
-    
-    .venues-container::-webkit-scrollbar {
-      display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
-    }
-    
-    .venue-card {
-      flex: 0 0 auto;
-      width: calc(50vw - 24px);
-      max-width: 250px;
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      aspect-ratio: 1 / 1.3;
-    }
-    
-    .venue-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    
-    .people-badge {
-      position: absolute;
-      top: 10px;
-      left: 50px;
-      background-color: #F44B74;
-      color: white;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 500;
-      text-align: center;
-    }
-    
-    .venue-details {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      padding: 12px;
-      text-align: center;
-    }
-    
-    .distance-badge {
-      display: inline-block;
-      background-color: rgba(10, 21, 41, 0.256);
-      color: white;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-    }
-    
-    .venue-name {
-      color: white;
-      margin: 0;
-      font-size: 14px;
-      font-weight: 600;
-      text-align: center;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* Around me section */
-    .around-me-section {
-      padding: 20px 0;
-      background-color: #fff;
-    }
-    
-    .section-title {
-      color: #000;
-      font-size: 24px;
-      font-weight: bold;
-      margin: 0 0 16px 20px;
-    }
-    
-    .map-container {
-      position: relative;
-      margin: 0 16px;
-      height: 400px;
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    
-    .map {
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-    }
-    
-    /* Custom marker styles */
-    .venue-marker {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .venue-marker-icon {
-      width: 60px;
-      height: 60px;
-      border: 3px solid #F44B74;
-      border-radius: 50%;
-      overflow: hidden;
-      background-color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    }
-    
-    .venue-marker-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    .venue-marker-text {
-      background-color: rgba(255, 255, 255, 0.9);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #F44B74;
-      margin-top: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    
-    .user-marker-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: 3px solid #fff;
-      overflow: hidden;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-      background-color: #ffd0e0;
-    }
-    
-    .user-marker-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    
-    /* Beat animation for user marker */
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
-    }
-    
-    .pulsing {
-      animation: pulse 1.5s infinite;
-    }
-    
-    /* Pill-shaped Bottom Navigation */
-    .bottom-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: white;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      border-radius: 40px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-    
-    .bottom-nav-style1 {
-      width: 300px;
-      padding: 10px 20px;
-    }
-    
-    .nav-item {
-      padding: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s ease;
-      text-decoration: none;
-    }
-    
-    .nav-item.active {
+
+    50% {
       transform: scale(1.1);
     }
-    
-    .connect-btn {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #F44B74;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      padding: 12px 24px;
-      font-size: 16px;
-      font-weight: 500;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      cursor: pointer;
-      z-index: 500;
+
+    100% {
+      transform: scale(1);
     }
-    
-    .zoom-controls {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 500;
-    }
-    
-    .zoom-in-btn,
-    .zoom-out-btn {
-      width: 40px;
-      height: 40px;
-      background-color: white;
-      border: none;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      cursor: pointer;
-    }
-    
-    /* Fix Leaflet attribution to match design */
-    .leaflet-control-attribution {
-      font-size: 8px;
-      background-color: rgba(255,255,255,0.7) !important;
-    }
-    
-    /* Bottom navigation styles are defined above */
-  </style>
+  }
+
+  .pulsing {
+    animation: pulse 1.5s infinite;
+  }
+
+  /* Pill-shaped Bottom Navigation */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    border-radius: 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .bottom-nav-style1 {
+    width: 300px;
+    padding: 10px 20px;
+  }
+
+  .nav-item {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    text-decoration: none;
+  }
+
+  .nav-item.active {
+    transform: scale(1.1);
+  }
+
+  .connect-btn {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #F44B74;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 500;
+  }
+
+  .zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 500;
+  }
+
+  .zoom-in-btn,
+  .zoom-out-btn {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+  }
+
+  /* Fix Leaflet attribution to match design */
+  .leaflet-control-attribution {
+    font-size: 8px;
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Bottom navigation styles are defined above */
+</style>
 </div>

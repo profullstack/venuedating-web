@@ -6,26 +6,67 @@
     </div>
 
     <div class="matching-content">
+      <!-- Card stack for regular matching UI -->
       <div id="card-stack" class="card-stack">
         <!-- Cards will be dynamically generated from matching.js -->
       </div>
-      </div>
       
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button id="reject-button" class="action-button reject">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-        <button id="like-button" class="action-button like">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        </button>
+      <!-- Match screen - hidden by default, shown when match occurs -->
+      <div id="match-screen" class="match-screen">
+        <!-- Profile images with hearts -->
+        <div class="match-profiles">
+          <div class="profile-container left-profile">
+            <div class="profile-image">
+              <img src="/images/avatar.jpg" alt="Your profile">
+            </div>
+            <div class="heart-icon bottom-heart">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF4B77" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </div>
+          </div>
+          
+          <div class="profile-container right-profile">
+            <div class="profile-image">
+              <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" alt="Match profile">
+            </div>
+            <div class="heart-icon top-heart">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF4B77" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Match text -->
+        <div class="match-text">
+          <h1 class="match-title">It's a match, Jake!</h1>
+          <p class="match-subtitle">Want to meet on dance floor?</p>
+        </div>
+        
+        <!-- Match action buttons -->
+        <div class="match-actions">
+          <button class="match-button primary-button" id="say-hello-button">Say hello</button>
+          <button class="match-button secondary-button" id="keep-swiping-button">Keep swiping</button>
+        </div>
       </div>
     </div>
+      
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="reject-button" class="action-button reject">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <button id="like-button" class="action-button like">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
     
     <!-- Bottom Navigation Component -->
     <bottom-navigation current-page="matching"></bottom-navigation>
@@ -51,13 +92,13 @@
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        background-color: white; /* Changed from purple to white */
+        background-color: #fff; 
         overflow: hidden;
       }
 
-      .matching-header {
+      .matching-header {  
         padding: 16px;
-        background-color: white; /* Changed from purple to white */
+        background-color: white; 
         position: relative;
         z-index: 10;
       }
@@ -387,9 +428,184 @@
         stroke: white;
         fill: white;
       }
+      
+      /* Match screen styles */
+      .match-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fff; /* Deep purple background */
+        z-index: 1000;
+        padding: 20px;
+        color: #000;
+      }
+      
+      /* Initially hide the match screen */
+      #match-screen {
+        display: none;
+      }
+      
+      /* Match profiles with overlapping circles */
+      .match-profiles {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        margin-bottom: 40px;
+      }
+      
+      .profile-container {
+        position: absolute;
+        width: 180px;
+        height: 180px;
+      }
+      
+      .left-profile {
+        left: calc(50% - 170px);
+        top: 40px;
+        z-index: 1;
+      }
+      
+      .right-profile {
+        right: calc(50% - 170px);
+        top: 0px;
+        z-index: 2;
+      }
+      
+      .profile-image {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+      
+      .profile-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      /* Heart icons */
+      .heart-icon {
+        position: absolute;
+        background-color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+      
+      .bottom-heart {
+        bottom: -20px;
+        right: -15px;
+      }
+      
+      .top-heart {
+        top: -15px;
+        left: -15px;
+      }
+      
+      /* Match text */
+      .match-text {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      
+      .match-title {
+        font-size: 36px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #FF4B77;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+      
+      .match-subtitle {
+        font-size: 18px;
+        color: #000;
+      }
+      
+      /* Match action buttons */
+      .match-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        max-width: 320px;
+      }
+      
+      .match-button {
+        border: none;
+        border-radius: 100px;
+        padding: 16px 0;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        transition: transform 0.2s ease, background-color 0.2s ease;
+      }
+      
+      .match-button:active {
+        transform: scale(0.98);
+      }
+      
+      .primary-button {
+        background-color: #FF4B77;
+        color: white;
+      }
+      
+      .secondary-button {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #FF4B77;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 75, 119, 0.3);
+      }
     </style>
     
     <!-- Load scripts -->
     <script type="module" src="/components/bottom-nav.js"></script>
     <script src="/js/matching.js"></script>
+    
+    <!-- Script for toggling match screen (for demo) -->
+    <script>
+      // Demo functions to toggle match screen visibility
+      function showMatchScreen() {
+        document.getElementById('match-screen').style.display = 'flex';
+        document.getElementById('card-stack').style.display = 'none';
+        document.querySelector('.action-buttons').style.display = 'none';
+      }
+      
+      function hideMatchScreen() {
+        document.getElementById('match-screen').style.display = 'none';
+        document.getElementById('card-stack').style.display = 'block';
+        document.querySelector('.action-buttons').style.display = 'flex';
+      }
+      
+      // Set up button handlers for match screen
+      document.getElementById('say-hello-button').addEventListener('click', function() {
+        // This would navigate to chat/messaging in a real app
+        alert('Navigating to chat with Jake');
+        hideMatchScreen();
+      });
+      
+      document.getElementById('keep-swiping-button').addEventListener('click', function() {
+        hideMatchScreen();
+      });
+      
+      // For demonstration, you can trigger the match screen with a like button click
+      document.getElementById('like-button').addEventListener('click', function() {
+        // In a real app, this would only happen when there's a mutual like
+        // For demo, let's simulate a match after a short delay
+        setTimeout(showMatchScreen, 500);
+      });
+    </script>
 </div>
