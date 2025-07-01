@@ -98,14 +98,14 @@
   --accent-color: #d34bc1;         /* Accent magenta */
   
   /* Neutral colors - Dark theme */
-  --background-color: #fff;     /* Dark background */
-  --surface-color: #1f2937;        /* Dark surface */
-  --surface-variant: #374151;      /* Slightly lighter surface */
+  --background-color: #35113F;     /* Dark background */
+  --surface-color: #35113F;        /* Dark surface */
+  --surface-variant: #35113F;      /* Slightly lighter surface */
   --border-color: #4b5563;         /* Dark border */
   --divider-color: #6b7280;        /* Divider color */
   
   /* Text colors - Dark theme */
-  --text-primary: #000;         /* Near white for primary text */
+  --text-primary: #F5F5F5;         /* Near white for primary text */
   --text-secondary: #e5e7eb;       /* Light gray for secondary text */
   --text-tertiary: #d1d5db;        /* Medium light gray for tertiary text */
   --text-disabled: #9ca3af;        /* Gray for disabled text */

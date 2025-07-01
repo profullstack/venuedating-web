@@ -18,6 +18,9 @@ class SideMenu extends HTMLElement {
     
     this.render(userName, userAvatar);
     this.setupEventListeners();
+    
+    // Initialize toggle state based on current theme
+    setTimeout(() => this.initializeToggleState(), 100);
   }
   
   render(userName, userAvatar) {
@@ -36,7 +39,7 @@ class SideMenu extends HTMLElement {
           align-items: center;
           justify-content: center;
           margin-right: 8px;
-          color: #000;
+          color: var(--text-primary, #000);
         }
         
         .close-button {
@@ -437,7 +440,7 @@ class SideMenu extends HTMLElement {
           </svg>
           <span>Dark Mode</span>
           <label class="toggle-switch">
-            <input type="checkbox" checked>
+            <input type="checkbox">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -476,6 +479,9 @@ class SideMenu extends HTMLElement {
       });
       this.dispatchEvent(event);
     });
+    
+    // Initialize toggle state on load
+    this.initializeToggleState();
     
     // Prevent clicks inside the menu from closing it
     sideMenu.addEventListener('click', (event) => {
@@ -543,6 +549,25 @@ class SideMenu extends HTMLElement {
   
   static get observedAttributes() {
     return ['user-name', 'user-avatar'];
+  }
+  
+  // Initialize dark mode toggle based on current theme
+  initializeToggleState() {
+    try {
+      const toggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
+      if (toggle) {
+        // Get current theme from data attribute or local storage
+        const darkModeEnabled = 
+          document.documentElement.getAttribute('data-theme') === 'dark' ||
+          localStorage.getItem('darkMode') === 'enabled';
+          
+        // Update toggle state without triggering the event
+        toggle.checked = darkModeEnabled;
+        console.log('Dark mode toggle initialized:', darkModeEnabled);
+      }
+    } catch (error) {
+      console.error('Error initializing dark mode toggle:', error);
+    }
   }
 }
 
