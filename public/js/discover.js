@@ -113,11 +113,49 @@ function setupMapElements() {
     zoomControl: false // We'll use custom zoom controls
   });
   
-  // Add OpenStreetMap tile layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  // Determine if dark mode is active
+  const isDarkMode = document.documentElement.classList.contains('dark-theme');
+  
+  // Select appropriate tile layer based on theme
+  let tileLayer;
+  if (isDarkMode) {
+    // Dark mode map tiles (Stadia Maps Dark)
+    tileLayer = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    });
+  } else {
+    // Light mode map tiles (OpenStreetMap)
+    tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+  }
+  
+  // Add the selected tile layer to the map
+  tileLayer.addTo(map);
+  
+  // Listen for theme changes to update the map
+  document.addEventListener('themeChanged', function(e) {
+    const isDarkMode = e.detail.theme === 'dark';
+    map.eachLayer(layer => {
+      if (layer instanceof L.TileLayer) {
+        map.removeLayer(layer);
+      }
+    });
+    
+    if (isDarkMode) {
+      L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+      }).addTo(map);
+    } else {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+    }
+  });
   
   // Get SVG templates
   const venueMarkerTemplate = document.getElementById('venue-marker-template');

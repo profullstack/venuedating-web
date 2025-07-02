@@ -39,7 +39,7 @@ class SideMenu extends HTMLElement {
           align-items: center;
           justify-content: center;
           margin-right: 8px;
-          color: var(--text-primary, #000);
+          color: var(--text-primary);
         }
         
         .close-button {
@@ -53,7 +53,7 @@ class SideMenu extends HTMLElement {
           position: absolute;
           top: 10px;
           right: 10px;
-          color: #fff;
+          color: var(--text-on-surface);
         }
         
         .overlay {
@@ -361,24 +361,7 @@ class SideMenu extends HTMLElement {
             </svg>
             Payments
           </a>
-          
-          <a href="#" class="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            Taxes
-          </a>
-          
-          <a href="#" class="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="1" y="3" width="15" height="13"></rect>
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-              <circle cx="5.5" cy="18.5" r="2.5"></circle>
-              <circle cx="18.5" cy="18.5" r="2.5"></circle>
-            </svg>
-            Transactions
-          </a>
+    
         </div>
         
         <div class="menu-section">
@@ -391,23 +374,8 @@ class SideMenu extends HTMLElement {
             </svg>
             Password
           </a>
-          
-          <a href="#" class="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
-            </svg>
-            Access
-          </a>
-          
-          <a href="#" class="menu-item">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-            Sessions
-          </a>
+   
         </div>
-        
-        <div class="menu-divider"></div>
         
         <button class="delete-account">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -425,8 +393,7 @@ class SideMenu extends HTMLElement {
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
           </div>
-          Help Center
-          <span>Answers here</span>
+          Help Center 
           <div class="arrow">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
@@ -556,10 +523,8 @@ class SideMenu extends HTMLElement {
     try {
       const toggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
       if (toggle) {
-        // Get current theme from data attribute or local storage
-        const darkModeEnabled = 
-          document.documentElement.getAttribute('data-theme') === 'dark' ||
-          localStorage.getItem('darkMode') === 'enabled';
+        // Get current theme from data attribute (most reliable source)
+        const darkModeEnabled = document.documentElement.getAttribute('data-theme') === 'dark';
           
         // Update toggle state without triggering the event
         toggle.checked = darkModeEnabled;

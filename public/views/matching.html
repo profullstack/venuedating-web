@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matching - BarCrush</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/dark-mode.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dark mode
+      initDarkMode();
+    });
+  </script>
+</head>
+<body>
 <div class="matching-page">
     <div class="matching-header">
       <div class="header-content">
@@ -531,7 +547,7 @@
       
       .match-subtitle {
         font-size: 18px;
-        color: #000;
+        color: var(--text-primary);
       }
       
       /* Match action buttons */

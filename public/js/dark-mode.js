@@ -8,7 +8,10 @@
  * - Dispatches theme change events
  */
 
-// Initialize dark mode when document is loaded
+// Initialize dark mode immediately
+initDarkMode();
+
+// Also initialize when document is loaded (for components that load later)
 document.addEventListener('DOMContentLoaded', initDarkMode);
 
 // Listen for dark mode toggle events from components
@@ -25,12 +28,15 @@ function initDarkMode() {
   if (darkModeEnabled) {
     document.documentElement.setAttribute('data-theme', 'dark');
     updateToggleState(true);
+    console.log('Dark mode enabled from localStorage');
   } else {
     document.documentElement.setAttribute('data-theme', 'light');
     updateToggleState(false);
+    console.log('Light mode enabled from localStorage or default');
   }
   
-  console.log('Dark mode initialized:', darkModeEnabled ? 'dark' : 'light');
+  // Ensure localStorage is set either way
+  localStorage.setItem('darkMode', darkModeEnabled ? 'enabled' : 'disabled');
 }
 
 /**

@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages - BarCrush</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/dark-mode.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dark mode
+      initDarkMode();
+    });
+  </script>
+</head>
+<body>
 <div class="chat-page">
     <div class="chat-header">
         <div class="header-content" style="border: none; box-shadow: none;">
@@ -308,7 +324,7 @@
         }
         
         .search-bar:focus-within .search-icon path {
-            stroke: #F44B74;
+            stroke: var(--primary-color);
         }
 
         .search-input {
@@ -318,12 +334,12 @@
             width: 100%;
             padding: 8px 0;
             outline: none;
-            color: #333;
+            color: var(--text-primary);
             font-weight: 400;
         }
         
         .search-input::placeholder {
-            color: #aaa;
+            color: var(--text-disabled);
             font-weight: 400;
         }
 
@@ -336,7 +352,7 @@
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 16px;
-            color: #000;
+            color: var(--text-primary);
         }
 
         .recent-contacts {
@@ -397,7 +413,7 @@
         .message-item {
             display: flex;
             padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid var(--border-color);
             position: relative;
             cursor: pointer;
         }
@@ -434,18 +450,18 @@
         .contact-name {
             font-size: 16px;
             font-weight: 600;
-            color: #000;
+            color: var(--text-primary);
         }
 
         .message-time {
             font-size: 14px;
             margin-bottom: 6px;
-            color: #888;
+            color: var(--text-tertiary);
         }
 
         .message-preview {
             font-size: 14px;
-            color: #666;
+            color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;

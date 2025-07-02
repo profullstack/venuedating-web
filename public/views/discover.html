@@ -1,3 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover - BarCrush</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/dark-mode.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize dark mode
+      initDarkMode();
+    });
+  </script>
+</head>
+<body>
 <div class="discover-page">
   <header class="discover-header">
     <div class="container">
@@ -5,15 +21,7 @@
         <side-menu user-name="David Paterson" user-avatar="/images/avatar.jpg"></side-menu>
         <h1 class="discover-title">Discover</h1>
         <div class="discover-actions">
-          <button class="icon-button search-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round" />
-            </svg>
-          </button>
+          
           <button class="icon-button filter-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4 21V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -89,14 +97,15 @@
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
     <div id="map" class="map"></div>
+    <br/><br/>
 
     <!-- Template for SVG markers (not displayed directly) -->
     <template id="venue-marker-template">
       <svg width="40" height="54" viewBox="0 0 40 54" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M20 0C8.954 0 0 8.954 0 20C0 30.292 17.9 50.382 18.662 51.259C19.173 51.86 20.827 51.86 21.338 51.259C22.1 50.382 40 30.292 40 20C40 8.954 31.046 0 20 0Z"
-          fill="#F44B74" />
-        <circle cx="20" cy="20" r="16" fill="white" />
+          fill="var(--primary-color)" />
+        <circle cx="20" cy="20" r="16" fill="var(--surface-color)" />
         <foreignObject x="4" y="4" width="32" height="32">
           <div xmlns="http://www.w3.org/1999/xhtml"
             style="width: 100%; height: 100%; border-radius: 50%; overflow: hidden; display: flex; justify-content: center; align-items: center;">
@@ -302,6 +311,7 @@
   .around-me-section {
     padding: 20px 0;
     background-color: var(--background-color);
+    height: 100vh;
   }
 
   .section-title {

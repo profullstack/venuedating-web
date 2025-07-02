@@ -28,14 +28,14 @@ class BottomNavigation extends HTMLElement {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background-color: white;
+          background-color: var(--surface-color);
           position: fixed;
           bottom: 20px;
           left: 50%;
           transform: translateX(-50%);
           z-index: 100;
           border-radius: 40px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 20px var(--shadow-color);
           width: 182px;
           padding: 12px 24px;
         }

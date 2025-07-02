@@ -1,4 +1,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/theme.css">
+<script src="/js/dark-mode.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dark mode
+    initDarkMode();
+  });
+</script>
 
 <!-- Full-bleed Profile Image with Overlay, Back Button, and Distance Badge -->
 <div class="profile-header">
@@ -7,17 +15,17 @@
   <a href="/matching">
     <button class="back-btn">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="12" fill="rgba(30,30,30,0.5)"/>
-        <polyline points="14 8 10 12 14 16" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="12" cy="12" r="12" fill="var(--overlay-color)"/>
+        <polyline points="14 8 10 12 14 16" stroke="var(--text-on-primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       </svg>
     </button>
   </a>
   <div class="distance-pill">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21s-6-5.686-6-10A6 6 0 0 1 18 11c0 4.314-6 10-6 10z" stroke="#fff" stroke-width="2"/><circle cx="12" cy="11" r="2" fill="#fff"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21s-6-5.686-6-10A6 6 0 0 1 18 11c0 4.314-6 10-6 10z" stroke="var(--text-on-primary)" stroke-width="2"/><circle cx="12" cy="11" r="2" fill="var(--text-on-primary)"/></svg>
     <span>2.5 m</span>
   </div>
   <div class="profile-header-text">
-    <div class="profile-header-name">Camila Snow, 23</div>
+    <div class="profile-header-name">Camilga Snow, 23</div>
     <div class="profile-header-location">DALLAS, UNITED STATES</div>
     <br/>
   </div>
@@ -45,15 +53,15 @@
 <div class="action-pill">
   <button class="btn btn-dislike">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="12" fill="#fff"/>
-      <line x1="16" y1="8" x2="8" y2="16" stroke="#F44B74" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="8" y1="8" x2="16" y2="16" stroke="#F44B74" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="12" fill="var(--surface-color)"/>
+      <line x1="16" y1="8" x2="8" y2="16" stroke="var(--primary-color)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="8" y1="8" x2="16" y2="16" stroke="var(--primary-color)" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
   </button>
   <button class="btn btn-like">
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="20" fill="#fff"/>
-      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="#F44B74" stroke="#F44B74" stroke-width="1.5"/>
+      <circle cx="12" cy="12" r="20" fill="var(--surface-color)"/>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="var(--primary-color)" stroke="var(--primary-color)" stroke-width="1.5"/>
     </svg>
   </button>
 </div>
@@ -72,9 +80,9 @@
     box-sizing: border-box;
   }
   body {
-    background: #fff;
+    background: var(--background-color);
     font-family: 'Roboto', sans-serif;
-    color: #222;
+    color: var(--text-primary);
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
@@ -102,7 +110,7 @@
   .profile-gradient {
     position: absolute;
     left: 0; right: 0; bottom: 0; height: 70%;
-    background: linear-gradient(to top, rgba(255,255,255,0.96) 40%, rgba(255,255,255,0.01) 100%);
+    background: linear-gradient(to top, var(--background-color) 40%, rgba(0,0,0,0.01) 100%);
     z-index: 2;
   }
   .back-btn {
@@ -120,8 +128,8 @@
     position: absolute;
     top: 32px;
     right: 20px;
-    background: rgba(40,35,70,0.75);
-    color: #fff;
+    background: var(--overlay-color);
+    color: var(--text-on-primary);
     border-radius: 20px;
     padding: 4px 14px 4px 7px;
     font-size: 15px;
@@ -145,7 +153,7 @@
   .profile-header-name {
     font-size: 2.1rem;
     font-weight: 700;
-    color: #222;
+    color: var(--text-primary);
     letter-spacing: 0.01em;
     line-height: 1.1;
     margin-bottom: 6px;
@@ -154,7 +162,7 @@
   .profile-header-location {
     font-size: 1rem;
     letter-spacing: 0.18em;
-    color: #888;
+    color: var(--text-tertiary);
     opacity: 1;
     font-weight: 500;
     text-transform: uppercase;
@@ -163,13 +171,13 @@
 
   /* Curved Purple Content Area */
   .profile-content {
-    background: #fff;
+    background: var(--surface-color);
     border-top-left-radius: 32px;
     border-top-right-radius: 32px;
     min-height: 46vh;
     margin-top: -38px;
     padding: 32px 20px 120px 20px;
-    box-shadow: 0 -2px 24px 0 rgba(244,75,116,0.07);
+    box-shadow: 0 -2px 24px 0 var(--shadow-color);
     position: relative;
     z-index: 5;
     max-width: 430px;
@@ -180,7 +188,7 @@
     width: 56px;
     height: 5px;
     border-radius: 3px;
-    background: #E8E8E8;
+    background: var(--border-color);
     opacity: 1;
     margin: 0 auto 22px auto;
   }
@@ -189,17 +197,17 @@
   }
   .section-title {
     font-size: 1.04rem;
-    color: #F44B74;
+    color: var(--primary-color);
     font-weight: 600;
     margin-bottom: 7px;
     letter-spacing: 0.02em;
   }
   .section-body {
     font-size: 1.1rem;
-    color: #222;
+    color: var(--text-primary);
     font-weight: 400;
-    line-height: 1.6;
-    margin-bottom: 8px;
+    line-height: 1.45;
+    margin-left: 3px;
   }
   .interest-tags {
     display: flex;
@@ -209,9 +217,9 @@
   }
   .tag {
     font-size: 1rem;
-    background: #FFF0F3;
-    border: 1.5px solid #F44B74;
-    color: #F44B74;
+    background: var(--surface-variant);
+    border: 1.5px solid var(--primary-color);
+    color: var(--primary-color);
     border-radius: 22px;
     padding: 6px 18px 6px 13px;
     display: inline-flex;
@@ -250,9 +258,9 @@
   .action-pill {
     width: 172px;
     height: 72px;
-    background: #fff;
+    background: var(--surface-color);
     border-radius: 40px;
-    box-shadow: 0 4px 24px 0 rgba(244,75,116,0.06);
+    box-shadow: 0 4px 24px 0 var(--shadow-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -266,7 +274,7 @@
   }
   .btn-like svg circle,
   .btn-dislike svg circle {
-    fill: #fff;
+    fill: var(--surface-color);
   }
   .btn-like svg path {
     fill: #F44B74;
