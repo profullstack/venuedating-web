@@ -3,13 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Matching - BarCrush</title>
   <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/dark-mode.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
+  <script type="module" src="/js/auth-middleware.js"></script>
+  <script type="module" src="/js/matching-controller.js"></script>
+  <script type="module">
+    // Check authentication and redirect if not logged in
+    import authMiddleware from '/js/auth-middleware.js';
+    
+    // Immediately check authentication before DOM is loaded
+    (async function() {
+      try {
+        console.log('Checking authentication immediately...');
+        const isAuth = await authMiddleware.requireAuth(true);
+        if (!isAuth) {
+          console.log('Not authenticated, redirecting to login...');
+          window.location.href = '/auth';
+          return;
+        }
+        console.log('Authentication check passed');
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        window.location.href = '/auth';
+        return;
+      }
+    })();
+    
+    document.addEventListener('DOMContentLoaded', async function() {
       // Initialize dark mode
       initDarkMode();
+      
+      // Double-check authentication on DOM content loaded
+      await authMiddleware.requireAuth(true);
     });
   </script>
 </head>
@@ -589,39 +618,6 @@
     
     <!-- Load scripts -->
     <script type="module" src="/components/bottom-nav.js"></script>
-    <script src="/js/matching.js"></script>
-    
-    <!-- Script for toggling match screen (for demo) -->
-    <script>
-      // Demo functions to toggle match screen visibility
-      function showMatchScreen() {
-        document.getElementById('match-screen').style.display = 'flex';
-        document.getElementById('card-stack').style.display = 'none';
-        document.querySelector('.action-buttons').style.display = 'none';
-      }
-      
-      function hideMatchScreen() {
-        document.getElementById('match-screen').style.display = 'none';
-        document.getElementById('card-stack').style.display = 'block';
-        document.querySelector('.action-buttons').style.display = 'flex';
-      }
-      
-      // Set up button handlers for match screen
-      document.getElementById('say-hello-button').addEventListener('click', function() {
-        // This would navigate to chat/messaging in a real app
-        alert('Navigating to chat with Jake');
-        hideMatchScreen();
-      });
-      
-      document.getElementById('keep-swiping-button').addEventListener('click', function() {
-        hideMatchScreen();
-      });
-      
-      // For demonstration, you can trigger the match screen with a like button click
-      document.getElementById('like-button').addEventListener('click', function() {
-        // In a real app, this would only happen when there's a mutual like
-        // For demo, let's simulate a match after a short delay
-        setTimeout(showMatchScreen, 500);
-      });
-    </script>
+    <!-- matching.js replaced with matching-controller.js module loaded in head -->
+
 </div>

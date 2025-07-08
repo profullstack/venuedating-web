@@ -1,8 +1,14 @@
+import authMiddleware from '../js/auth-middleware.js';
+
 /**
  * Side Menu component
  * Usage: 
  * 1. Import this file: <script src="/components/side-menu.js" type="module"></script>
- * 2. Add the component where needed: <side-menu user-name="David Paterson" user-avatar="/path/to/avatar.jpg"></side-menu>
+ * 2. Add the component where needed: <side-menu></side-menu>
+ * 
+ * The component will automatically display the logged-in user's information
+ * from the auth middleware. You can also manually set user-name and user-avatar
+ * attributes if needed.
  */
 
 class SideMenu extends HTMLElement {
@@ -13,14 +19,24 @@ class SideMenu extends HTMLElement {
   }
   
   connectedCallback() {
-    const userName = this.getAttribute('user-name') || 'User Name';
-    const userAvatar = this.getAttribute('user-avatar') || '/images/default-avatar.jpg';
+    // Get user info from auth middleware if available, otherwise use attributes
+    let userName = this.getAttribute('user-name') || 'User Name';
+    let userAvatar = this.getAttribute('user-avatar') || '/images/avatar.jpg';
+    
+    const user = authMiddleware.getUser();
+    if (user) {
+      userName = user.name || user.full_name || userName;
+      userAvatar = user.avatar_url || userAvatar;
+    }
     
     this.render(userName, userAvatar);
     this.setupEventListeners();
     
     // Initialize toggle state based on current theme
     setTimeout(() => this.initializeToggleState(), 100);
+    
+    // Listen for auth state changes
+    document.addEventListener('auth:stateChanged', this.handleAuthStateChange.bind(this));
   }
   
   render(userName, userAvatar) {
@@ -374,7 +390,15 @@ class SideMenu extends HTMLElement {
             </svg>
             Password
           </a>
-   
+          
+          <button class="menu-item logout-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+          </button>
         </div>
         
         <button class="delete-account">
@@ -420,6 +444,8 @@ class SideMenu extends HTMLElement {
     const closeButton = this.shadowRoot.querySelector('.close-button');
     const overlay = this.shadowRoot.querySelector('.overlay');
     const sideMenu = this.shadowRoot.querySelector('.side-menu');
+    const logoutButton = this.shadowRoot.querySelector('.logout-button');
+    const darkModeToggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
     
     // Toggle menu on button click
     menuButton.addEventListener('click', () => {
@@ -436,16 +462,24 @@ class SideMenu extends HTMLElement {
       this.closeMenu();
     });
     
-    // Dark mode toggle functionality
-    const darkModeToggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
-    darkModeToggle.addEventListener('change', () => {
-      const event = new CustomEvent('darkModeToggle', {
-        detail: { darkMode: darkModeToggle.checked },
-        bubbles: true,
-        composed: true
+    // Add logout button event listener
+    if (logoutButton) {
+      logoutButton.addEventListener('click', async () => {
+        await authMiddleware.logout();
       });
-      this.dispatchEvent(event);
-    });
+    }
+    
+    // Dark mode toggle functionality
+    if (darkModeToggle) {
+      darkModeToggle.addEventListener('change', () => {
+        const event = new CustomEvent('darkModeToggle', {
+          detail: { darkMode: darkModeToggle.checked },
+          bubbles: true,
+          composed: true
+        });
+        this.dispatchEvent(event);
+      });
+    }
     
     // Initialize toggle state on load
     this.initializeToggleState();
@@ -532,6 +566,27 @@ class SideMenu extends HTMLElement {
       }
     } catch (error) {
       console.error('Error initializing dark mode toggle:', error);
+    }
+  }
+  
+  /**
+   * Handle authentication state changes
+   * @param {CustomEvent} event - Auth state change event
+   */
+  handleAuthStateChange() {
+    // Get updated user info from auth middleware
+    const user = authMiddleware.getUser();
+    
+    // Update user name and avatar in the side menu
+    const userNameElement = this.shadowRoot.querySelector('.user-info .user-name');
+    const userAvatarElement = this.shadowRoot.querySelector('.user-avatar img');
+    
+    if (userNameElement) {
+      userNameElement.textContent = user ? (user.name || user.full_name || 'User') : 'Guest';
+    }
+    
+    if (userAvatarElement) {
+      userAvatarElement.src = user ? (user.avatar_url || '/images/avatar.jpg') : '/images/avatar.jpg';
     }
   }
 }
