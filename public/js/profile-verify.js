@@ -305,6 +305,18 @@ export async function initProfileVerifyPage() {
       sendCodeBtn.classList.add('button-loading');
       
       try {
+        // Validate phone number and country code
+        if (!profileData.phoneNumber || !profileData.countryCode) {
+          console.error('Missing phone data:', profileData);
+          throw new Error('Phone number and country code are required. Please go back and complete your profile.');
+        }
+        
+        // Check if this is a demo account (e.g., +15555555555)
+        const isDemoAccount = profileData.phoneNumber === '5555555555' || 
+                             profileData.phoneNumber === '555-555-5555';
+        
+        console.log('Sending verification code to:', profileData.countryCode + profileData.phoneNumber);
+        
         // Send verification code via backend API
         const response = await fetch('/api/verify/send-code', {
           method: 'POST',
@@ -323,7 +335,26 @@ export async function initProfileVerifyPage() {
           throw new Error(result.error || 'Failed to send verification code');
         }
         
-        // Show success message
+        // For demo account, skip verification and proceed directly
+        if (isDemoAccount || result.demo) {
+          console.log('[DEMO ACCOUNT] Skipping verification for demo account');
+          
+          // Mark phone as verified in profile data
+          profileData.phoneVerified = true;
+          localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+          
+          // Show success message
+          showStatus('Demo account: Verification bypassed!', 'success');
+          
+          // Redirect to next page after a short delay
+          setTimeout(() => {
+            window.location.href = '/profile-complete';
+          }, 1500);
+          
+          return;
+        }
+        
+        // For regular accounts, show verification section
         showStatus('Verification code sent!', 'success');
         
         // Hide send button and show verification section

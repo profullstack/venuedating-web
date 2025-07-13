@@ -44,6 +44,10 @@
       <a href="/phone-reset">Forgot your password?</a>
     </div>
     
+    <div class="demo-account">
+      <p>Demo Account: <span>+15555555555</span></p>
+    </div>
+    
     <div id="status-message" class="status-message"></div>
   </div>
 </div>
@@ -64,6 +68,16 @@
 
   // Store the full phone number for verification
   let storedFullPhone = '';
+  
+  // For demo/testing purposes - auto-fill the test account phone number
+  const demoAccountEl = document.querySelector('.demo-account span');
+  if (demoAccountEl) {
+    demoAccountEl.addEventListener('click', () => {
+      phoneInput.value = '5555555555';
+      document.querySelector('.country-code').textContent = '+1';
+      document.getElementById('country-code-input').value = '+1';
+    });
+  }
 
   // Show status message
   function showStatus(message, isError = false) {
@@ -349,9 +363,9 @@
         await verifyPhoneOtp(storedFullPhone, otp);
         showStatus('Login successful!');
         
-        // Redirect to feed page after successful login
+        // Redirect to discover page after successful login
         setTimeout(() => {
-          window.location.href = '/feed';
+          window.location.href = '/discover';
         }, 1500);
       } catch (err) {
         console.error('Error verifying code:', err);
@@ -381,10 +395,83 @@
     
     storedFullPhone = fullPhone; // Store for verification
     
+    // Check if this is a demo account (e.g., +15555555555) or real test account (+15555555556)
+    const isDemoAccount = phone === '5555555555' || phone === '555-555-5555';
+    const isRealTestAccount = phone === '5555555556' || phone === '555-555-5556';
+    const isTestAccount = isDemoAccount || isRealTestAccount;
+    
     sendOtpBtn.disabled = true;
-    sendOtpBtn.textContent = 'Checking...';
+    sendOtpBtn.textContent = isTestAccount ? 'Logging in...' : 'Checking...';
     
     try {
+      // Check if this is a test account (demo or real test)
+      const isDemoAccount = phone === '5555555555' || phone === '555-555-5555';
+      const isRealTestAccount = phone === '5555555556' || phone === '555-555-5556';
+      const isTestAccount = isDemoAccount || isRealTestAccount;
+      
+      if (isTestAccount) {
+        // For test accounts, bypass OTP and log in directly
+        const accountType = isDemoAccount ? 'demo' : 'real test';
+        console.log(`[TEST ACCOUNT] Bypassing OTP for ${accountType} account:`, fullPhone);
+        showStatus(`${accountType.charAt(0).toUpperCase() + accountType.slice(1)} account: Auto-login in progress...`);
+        
+        if (isDemoAccount) {
+          // For demo account, we'll use a simpler approach with a flag in localStorage
+          // that our auth-middleware will check for
+          
+          // Set the demo account flag that auth-middleware will check
+          localStorage.setItem('demo_account', 'true');
+          
+          // Store basic demo user info
+          localStorage.setItem('demo_user', JSON.stringify({
+            id: 'demo-user-id',
+            name: 'Demo User',
+            full_name: 'Demo User',
+            avatar_url: '/images/avatar.jpg',
+            phone_number: fullPhone,
+            phone_verified: true
+          }));
+          
+          console.log('[DEMO] Demo account flag set in localStorage');
+          
+          // Clear any existing Supabase tokens to avoid conflicts
+          // This ensures we're using our demo account system only
+          const storageKeys = Object.keys(localStorage);
+          storageKeys.forEach(key => {
+            if (key.startsWith('sb-') && key.includes('-auth-token')) {
+              localStorage.removeItem(key);
+            }
+          });
+        } else if (isRealTestAccount) {
+          // For real test account, use Supabase auth but bypass OTP verification
+          console.log('[REAL TEST] Setting up real test account session');
+          
+          try {
+            // Create a session for the real test user
+            // We'll use the verifyPhoneOtp function but with a special bypass token
+            const bypassToken = 'test-bypass-token';
+            await verifyPhoneOtp(fullPhone, bypassToken);
+            console.log('[REAL TEST] Successfully created session for real test account');
+          } catch (err) {
+            console.error('[REAL TEST] Error creating session:', err);
+            // If there's an error, fall back to the regular OTP flow
+            showStatus('Error setting up test account. Proceeding with regular login...');
+            sendOtpBtn.disabled = false;
+            sendOtpBtn.textContent = 'Send Verification Code';
+            return;
+          }
+        }
+        
+        // Show success and redirect
+        showStatus(`${accountType.charAt(0).toUpperCase() + accountType.slice(1)} account: Login successful!`);
+        setTimeout(() => {
+          window.location.href = '/discover';
+        }, 1500);
+        
+        return;
+      }
+      
+      // For regular accounts, proceed with normal OTP flow
       // We're now bypassing the phone existence check due to Supabase limitations
       // The checkPhoneExists function will always return true
       await checkPhoneExists(fullPhone);

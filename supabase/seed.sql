@@ -8,6 +8,43 @@ DELETE FROM public.matches WHERE true;
 DELETE FROM public.venues WHERE true;
 DELETE FROM public.profiles WHERE id NOT IN (SELECT id FROM auth.users);
 
+-- Create a default test account for local development
+-- Note: This should be run manually in the Supabase SQL editor to create the auth user
+
+/*
+-- Run this in Supabase SQL Editor to create the test user with phone authentication:
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  phone,
+  phone_confirmed_at,
+  last_sign_in_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at
+) VALUES (
+  '00000000-0000-0000-0000-000000000test',
+  '00000000-0000-0000-0000-000000000000',
+  '+15555555555',
+  NOW(),
+  NOW(),
+  '{"provider":"phone","providers":["phone"]}',
+  '{"full_name":"Test User"}',
+  NOW(),
+  NOW()
+);
+*/
+
+-- Insert the test user profile
+INSERT INTO public.profiles (id, full_name, phone_number, phone_verified, created_at, updated_at)
+VALUES ('00000000-0000-0000-0000-000000000test', 'Test User', '+15555555555', true, NOW(), NOW())
+ON CONFLICT (id) DO UPDATE
+SET full_name = EXCLUDED.full_name,
+    phone_number = EXCLUDED.phone_number,
+    phone_verified = EXCLUDED.phone_verified,
+    updated_at = NOW();
+
 -- Insert test user profiles
 -- Note: These profiles will be linked to auth.users that already exist
 -- For testing, you should create some test users through the Supabase authentication UI first

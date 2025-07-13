@@ -18,6 +18,25 @@ class AuthMiddleware {
     if (this.isInitialized) return;
     
     try {
+      // Check for demo account first
+      const isDemoAccount = this.checkForDemoAccount();
+      if (isDemoAccount) {
+        console.log('[DEMO] Using demo account during initialization');
+        // Load demo user data
+        const demoUserJson = localStorage.getItem('demo_user');
+        if (demoUserJson) {
+          try {
+            this.currentUser = JSON.parse(demoUserJson);
+            this.updateUI();
+            this.isInitialized = true;
+            return;
+          } catch (e) {
+            console.error('[DEMO] Error parsing demo user data:', e);
+          }
+        }
+      }
+      
+      // If not a demo account or demo data is invalid, proceed with normal Supabase auth
       const supabase = await supabaseClientPromise;
       
       // Get initial auth state
@@ -33,6 +52,9 @@ class AuthMiddleware {
       supabase.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event);
         if (event === 'SIGNED_IN' && session) {
+          // Clear demo account flag if a real user signs in
+          localStorage.removeItem('demo_account');
+          localStorage.removeItem('demo_user');
           await this.fetchUserProfile(session.user.id);
         } else if (event === 'SIGNED_OUT') {
           this.currentUser = null;
@@ -105,11 +127,38 @@ class AuthMiddleware {
    */
   async isAuthenticated() {
     try {
+      // Check for demo account first
+      const isDemoAccount = this.checkForDemoAccount();
+      if (isDemoAccount) {
+        console.log('[DEMO] Using demo account authentication');
+        return true;
+      }
+      
+      // Otherwise check with Supabase
       const supabase = await supabaseClientPromise;
       const { data } = await supabase.auth.getSession();
       return !!data?.session;
     } catch (error) {
       console.error('Error checking authentication:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Check if the current session is for the demo account
+   * @returns {boolean} - True if demo account is being used
+   */
+  checkForDemoAccount() {
+    try {
+      // Check for demo account flag in localStorage
+      const demoFlag = localStorage.getItem('demo_account');
+      if (demoFlag === 'true') {
+        console.log('[DEMO] Demo account flag found in localStorage');
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking for demo account:', error);
       return false;
     }
   }
@@ -134,6 +183,27 @@ class AuthMiddleware {
     }
     
     try {
+      // Check for demo account first
+      const isDemoAccount = this.checkForDemoAccount();
+      if (isDemoAccount) {
+        console.log('[DEMO] Demo account detected, bypassing auth check');
+        
+        // If we don't have demo user data yet, create it
+        if (!this.currentUser) {
+          this.currentUser = {
+            id: 'demo-user-id',
+            name: 'Demo User',
+            full_name: 'Demo User',
+            avatar_url: '/images/avatar.jpg',
+            phone_number: '+15555555555',
+            phone_verified: true
+          };
+          this.updateUI();
+        }
+        
+        return true;
+      }
+      
       // Force a fresh session check directly from Supabase
       const supabase = await supabaseClientPromise;
       const { data, error } = await supabase.auth.getSession();
@@ -171,6 +241,20 @@ class AuthMiddleware {
    */
   async logout() {
     try {
+      // Check if this is a demo account logout
+      const isDemoAccount = this.checkForDemoAccount();
+      if (isDemoAccount) {
+        console.log('[DEMO] Logging out demo account');
+        // Clear demo account flags
+        localStorage.removeItem('demo_account');
+        localStorage.removeItem('demo_user');
+        this.currentUser = null;
+        this.updateUI();
+        window.location.href = '/auth';
+        return;
+      }
+      
+      // Regular Supabase logout
       const supabase = await supabaseClientPromise;
       await supabase.auth.signOut();
       this.currentUser = null;

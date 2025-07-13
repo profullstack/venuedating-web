@@ -32,6 +32,9 @@ class SideMenu extends HTMLElement {
     this.render(userName, userAvatar);
     this.setupEventListeners();
     
+    // Explicitly call setupLanguageSelector
+    setTimeout(() => this.setupLanguageSelector(), 100);
+    
     // Initialize toggle state based on current theme
     setTimeout(() => this.initializeToggleState(), 100);
     
@@ -174,10 +177,10 @@ class SideMenu extends HTMLElement {
         }
         
         .menu-section-title {
-          color: #F44B74;
-          font-size: 12px;
+          font-size: 14px;
+          color: #999;
           margin: 20px 0 10px;
-          text-transform: uppercase;
+          padding: 0 20px;
         }
         
         .menu-item {
@@ -197,6 +200,75 @@ class SideMenu extends HTMLElement {
           height: 1px;
           background-color: rgba(255, 255, 255, 0.1);
           margin: 15px 0;
+        }
+        
+        /* Language selector styles */
+        .language-selector {
+          position: relative;
+          cursor: pointer;
+        }
+        
+        .language-selector-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        
+        .dropdown-arrow {
+          margin-left: auto;
+          transition: transform 0.2s;
+        }
+        
+        .language-selector.open .dropdown-arrow {
+          transform: rotate(180deg);
+        }
+        
+        .language-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 100%;
+          background-color: #2D1139;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          max-height: 0;
+          overflow: hidden;
+          transition: all 0.3s ease-out;
+          z-index: 100;
+          opacity: 0;
+          visibility: hidden;
+        }
+        
+        .language-selector.open .language-dropdown {
+          max-height: 300px;
+          opacity: 1;
+          visibility: visible;
+          padding: 8px 0;
+          margin-top: 5px;
+        }
+        
+        .language-option {
+          padding: 10px 20px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+          color: #fff;
+        }
+        
+        .language-option:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .language-option.active {
+          background-color: rgba(244, 75, 116, 0.2);
+          font-weight: 500;
+        }
+        
+        .language-flag {
+          font-size: 16px;
+          margin-right: 5px;
         }
         
         .delete-account {
@@ -350,14 +422,22 @@ class SideMenu extends HTMLElement {
           </button>
         </div>
         
-        <a href="#" class="menu-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
-          Language : English
-        </a>
+        <div class="language-selector menu-item" id="language-selector">
+          <div class="language-selector-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>Language: <span id="current-language">English</span></span>
+            <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="language-dropdown" id="language-dropdown">
+            <!-- Languages will be populated here -->
+          </div>
+        </div>
         
         <a href="#" class="menu-item">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -488,6 +568,29 @@ class SideMenu extends HTMLElement {
     sideMenu.addEventListener('click', (event) => {
       event.stopPropagation();
     });
+    
+    // Setup language selector functionality
+    // Direct language selector click handling here instead of in setupLanguageSelector
+    const languageSelector = this.shadowRoot.querySelector('#language-selector');
+    if (languageSelector) {
+      console.log('Adding click event listener to language selector in setupEventListeners');
+      languageSelector.addEventListener('click', (e) => {
+        console.log('Language selector clicked from setupEventListeners!');
+        languageSelector.classList.toggle('open');
+        console.log('Toggled open class:', languageSelector.classList.contains('open'));
+        e.stopPropagation();
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', () => {
+        languageSelector.classList.remove('open');
+      });
+      
+      // Call setupLanguageSelector to populate the dropdown and set up language switching
+      this.setupLanguageSelector();
+    } else {
+      console.error('Language selector not found in setupEventListeners');
+    }
   }
   
   toggleMenu() {
@@ -557,12 +660,9 @@ class SideMenu extends HTMLElement {
     try {
       const toggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
       if (toggle) {
-        // Get current theme from data attribute (most reliable source)
-        const darkModeEnabled = document.documentElement.getAttribute('data-theme') === 'dark';
-          
-        // Update toggle state without triggering the event
-        toggle.checked = darkModeEnabled;
-        console.log('Dark mode toggle initialized:', darkModeEnabled);
+        const isDarkMode = localStorage.getItem('dark-mode') === 'enabled';
+        toggle.checked = isDarkMode;
+        document.documentElement.classList.toggle('dark-mode', isDarkMode);
       }
     } catch (error) {
       console.error('Error initializing dark mode toggle:', error);
@@ -587,6 +687,113 @@ class SideMenu extends HTMLElement {
     
     if (userAvatarElement) {
       userAvatarElement.src = user ? (user.avatar_url || '/images/avatar.jpg') : '/images/avatar.jpg';
+    }
+  }
+  
+  setupLanguageSelector() {
+    console.log('Setting up language selector...');
+    const languageSelector = this.shadowRoot.querySelector('#language-selector');
+    const languageDropdown = this.shadowRoot.querySelector('#language-dropdown');
+    const currentLanguageEl = this.shadowRoot.querySelector('#current-language');
+    
+    console.log('Elements found:', { 
+      languageSelector: !!languageSelector, 
+      languageDropdown: !!languageDropdown, 
+      currentLanguageEl: !!currentLanguageEl 
+    });
+    
+    if (!languageSelector || !languageDropdown || !currentLanguageEl) {
+      console.error('Language selector elements not found');
+      return;
+    }
+    
+    // Available languages with their display names and flags
+    const languages = [
+      { code: 'en', name: 'English', flag: '🇬🇧' },
+      { code: 'fr', name: 'Français', flag: '🇫🇷' },
+      { code: 'es', name: 'Español', flag: '🇪🇸' },
+      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+      { code: 'pt', name: 'Português', flag: '🇵🇹' },
+      { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+      { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+      { code: 'zh', name: '中文', flag: '🇨🇳' },
+      { code: 'ja', name: '日本語', flag: '🇯🇵' },
+      { code: 'ar', name: 'العربية', flag: '🇸🇦' }
+    ];
+    
+    // Populate language dropdown
+    languageDropdown.innerHTML = languages.map(lang => `
+      <div class="language-option" data-lang="${lang.code}">
+        <span class="language-flag">${lang.flag}</span>
+        <span>${lang.name}</span>
+      </div>
+    `).join('');
+    
+    // Get current language
+    let currentLang = 'en';
+    if (window.app && window.app.localizer) {
+      currentLang = window.app.localizer.getCurrentLanguage();
+    } else {
+      currentLang = localStorage.getItem('convert2doc-language') || 'en';
+    }
+    
+    // Update current language display
+    this.updateCurrentLanguageDisplay(currentLang, languages, currentLanguageEl);
+    
+    // Handle language selection
+    languageDropdown.addEventListener('click', (e) => {
+      console.log('Language option clicked!');
+      const option = e.target.closest('.language-option');
+      if (!option) return;
+      
+      const langCode = option.getAttribute('data-lang');
+      if (!langCode) return;
+      
+      console.log('Language selected:', langCode);
+      // Change language
+      this.changeLanguage(langCode, languages, currentLanguageEl);
+      
+      // Close dropdown after selection
+      languageSelector.classList.remove('open');
+    });
+    
+    // Listen for language changes from other components
+    window.addEventListener('language-changed', (event) => {
+      const { language } = event.detail;
+      this.updateCurrentLanguageDisplay(language, languages, currentLanguageEl);
+    });
+  }
+  
+  updateCurrentLanguageDisplay(langCode, languages, currentLanguageEl) {
+    const language = languages.find(lang => lang.code === langCode) || languages[0];
+    currentLanguageEl.textContent = `${language.flag} ${language.name}`;
+    
+    // Mark active language in dropdown
+    const options = this.shadowRoot.querySelectorAll('.language-option');
+    options.forEach(option => {
+      const isActive = option.getAttribute('data-lang') === langCode;
+      option.classList.toggle('active', isActive);
+    });
+  }
+  
+  changeLanguage(langCode, languages, currentLanguageEl) {
+    // Update UI
+    this.updateCurrentLanguageDisplay(langCode, languages, currentLanguageEl);
+    
+    // Change language in the system
+    if (window.app && window.app.localizer) {
+      window.app.localizer.setLanguage(langCode);
+    } else {
+      // Fallback if localizer is not available
+      localStorage.setItem('convert2doc-language', langCode);
+      window.dispatchEvent(new CustomEvent('language-changed', {
+        detail: { language: langCode }
+      }));
+      
+      // Reload page to apply changes if needed
+      if (document.documentElement.getAttribute('lang') !== langCode) {
+        window.location.reload();
+      }
     }
   }
 }

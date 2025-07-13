@@ -1270,6 +1270,9 @@
     // Initialize dropdown state
     countryDropdown.classList.remove('show');
     
+    // Update full phone number when phone input changes
+    document.getElementById('phone-number').addEventListener('input', updateFullPhoneNumber);
+    
     // Toggle country dropdown
     countrySelect.addEventListener('click', function(e) {
       e.preventDefault();
@@ -1322,3 +1325,9 @@
     });
   });
 </script>
+
+<!-- Load profile modules -->
+<script type="module" src="/js/profile-controller.js"></script>
+
+</body>
+</html>
