@@ -262,18 +262,22 @@ async function fetchAllPagesForCity(city, maxPages) {
 /**
  * Fetch place photos using ScaleSerp place_photos API
  */
-async function fetchPlacePhotos(dataId) {
+async function fetchPlacePhotos(place) {
+  // Try to get data_id from different possible fields
+  let dataId = place.data_id || place.data_cid || place.place_id;
+  
   if (!dataId) {
+    console.log(`   ⚠️  No data_id found for place: ${place.title || 'Unknown'}`);
     return [];
   }
 
   const url = new URL(SCALESERP_BASE_URL);
   url.searchParams.set('api_key', SCALESERP_API_KEY);
   url.searchParams.set('search_type', 'place_photos');
-  url.searchParams.set('data_id', dataId);
+  url.searchParams.set('data_id', dataId.toString());
   url.searchParams.set('hl', 'en');
 
-  console.log(`   🖼️  Fetching photos for data_id: ${dataId}...`);
+  console.log(`   🖼️  Fetching photos for ${place.title || 'Unknown'} (data_id: ${dataId})...`);
 
   if (options.dryRun) {
     console.log(`   Would call: ${url.toString()}`);
@@ -284,6 +288,9 @@ async function fetchPlacePhotos(dataId) {
     const response = await fetch(url.toString());
 
     if (!response.ok) {
+      // Log the response body for debugging
+      const responseText = await response.text();
+      console.log(`   Debug: Response body: ${responseText.substring(0, 200)}...`);
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -312,7 +319,7 @@ async function fetchPlacePhotos(dataId) {
     }));
 
   } catch (error) {
-    console.error(`❌ Error fetching photos for data_id ${dataId}:`, error.message);
+    console.error(`❌ Error fetching photos for ${place.title || 'Unknown'} (data_id: ${dataId}):`, error.message);
     return [];
   }
 }
@@ -384,15 +391,13 @@ async function savePlacesToDatabase(places, city) {
     for (const place of places) {
       const transformed = transformPlaceData(place, city);
       
-      // Fetch photos for this place if it has a data_cid
+      // Fetch photos for this place if it has identifying data
       let photos = [];
-      if (transformed.p_data_cid) {
-        photos = await fetchPlacePhotos(transformed.p_data_cid);
+      if (place.data_id || place.data_cid || place.place_id) {
+        photos = await fetchPlacePhotos(place);
         
         // Add a small delay between photo requests to be respectful to the API
-        if (photos.length > 0) {
-          await delay(500);
-        }
+        await delay(500);
       }
       
       // Convert from function parameters to table columns
