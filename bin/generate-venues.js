@@ -3,9 +3,10 @@
 /**
  * Venue Generation Script
  * 
- * This script fetches nightclub data from ValueSERP API for the top 200 US cities
- * and stores the results in the Supabase places table. Now supports multiple pages
- * and uses Google geographical location queries for enhanced accuracy.
+ * This script fetches nightclub data from ScaleSerp API for the top 200 US cities
+ * and stores the results in the Supabase places table. Now supports multiple pages,
+ * uses Google geographical location queries for enhanced accuracy, and fetches
+ * place photos using ScaleSerp's place_photos API.
  *
  * Usage:
  *   node bin/generate-venues.js [options]
@@ -33,8 +34,8 @@ const rootDir = path.resolve(__dirname, '..');
 dotenvFlow.config({ path: rootDir });
 
 // Configuration
-const VALUESERP_API_KEY = process.env.VALUESERP_API_KEY;
-const VALUESERP_BASE_URL = 'https://api.valueserp.com/search';
+const SCALESERP_API_KEY = process.env.SCALESERP_API_KEY;
+const SCALESERP_BASE_URL = 'https://api.scaleserp.com/search';
 const SEARCH_QUERY = 'night clubs';
 const RESULTS_PER_PAGE = 20;
 const MAX_PAGES = 3;
@@ -89,7 +90,7 @@ if (options.help) {
   console.log(`
 Venue Generation Script
 
-This script fetches nightclub data from ValueSERP API for the top 200 US cities
+This script fetches nightclub data from ScaleSerp API for the top 200 US cities
 and stores the results in the Supabase places table.
 
 Usage:
@@ -119,14 +120,14 @@ Examples:
  * Validate environment variables
  */
 function validateEnvironment() {
-  if (!VALUESERP_API_KEY) {
-    console.error('❌ Error: VALUESERP_API_KEY environment variable is required');
-    console.error('Please add VALUESERP_API_KEY to your .env file');
+  if (!SCALESERP_API_KEY) {
+    console.error('❌ Error: SCALESERP_API_KEY environment variable is required');
+    console.error('Please add SCALESERP_API_KEY to your .env file');
     process.exit(1);
   }
   
   console.log('✅ Environment variables validated');
-  console.log(`ValueSERP API Key: ${VALUESERP_API_KEY.substring(0, 8)}...`);
+  console.log(`ScaleSerp API Key: ${SCALESERP_API_KEY.substring(0, 8)}...`);
 }
 
 /**
@@ -160,14 +161,14 @@ async function loadCities() {
 }
 
 /**
- * Make API call to ValueSERP for a specific page
+ * Make API call to ScaleSerp for a specific page
  */
 async function fetchVenuesForCityPage(city, page = 1) {
   // Use the enhanced location field if available, fallback to constructed location
   const location = city.location || `${city.city},${city.state},United States`;
-  const url = new URL(VALUESERP_BASE_URL);
+  const url = new URL(SCALESERP_BASE_URL);
   
-  url.searchParams.set('api_key', VALUESERP_API_KEY);
+  url.searchParams.set('api_key', SCALESERP_API_KEY);
   url.searchParams.set('search_type', 'places');
   
   // For custom venues, use the specific venue name as the search query
@@ -259,7 +260,65 @@ async function fetchAllPagesForCity(city, maxPages) {
 }
 
 /**
- * Transform ValueSERP place data to our database schema
+ * Fetch place photos using ScaleSerp place_photos API
+ */
+async function fetchPlacePhotos(dataId) {
+  if (!dataId) {
+    return [];
+  }
+
+  const url = new URL(SCALESERP_BASE_URL);
+  url.searchParams.set('api_key', SCALESERP_API_KEY);
+  url.searchParams.set('search_type', 'place_photos');
+  url.searchParams.set('data_id', dataId);
+  url.searchParams.set('hl', 'en');
+
+  console.log(`   🖼️  Fetching photos for data_id: ${dataId}...`);
+
+  if (options.dryRun) {
+    console.log(`   Would call: ${url.toString()}`);
+    return [];
+  }
+
+  try {
+    const response = await fetch(url.toString());
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.request_info && !data.request_info.success) {
+      throw new Error(`API Error: ${JSON.stringify(data.request_info)}`);
+    }
+
+    const photos = data.place_photos || [];
+    console.log(`   Found ${photos.length} photos`);
+
+    // Log API credits usage if available
+    if (data.request_info && data.request_info.credits_used_this_request) {
+      console.log(`   Credits used: ${data.request_info.credits_used_this_request}`);
+      console.log(`   Credits remaining: ${data.request_info.topup_credits_remaining || 'N/A'}`);
+    }
+
+    // Transform photos to our desired format
+    return photos.map(photo => ({
+      url: photo.image,
+      thumbnail: photo.thumbnail,
+      width: photo.width,
+      height: photo.height,
+      source: 'scaleserp'
+    }));
+
+  } catch (error) {
+    console.error(`❌ Error fetching photos for data_id ${dataId}:`, error.message);
+    return [];
+  }
+}
+
+/**
+ * Transform ScaleSerp place data to our database schema
  */
 function transformPlaceData(place, city) {
   // For custom venues, extract city/state from location string
@@ -298,12 +357,12 @@ function transformPlaceData(place, city) {
     p_price_description: place.price_description,
     p_position: place.position,
     p_search_query: searchQuery,
-    p_source: 'valueserp'
+    p_source: 'scaleserp'
   };
 }
 
 /**
- * Save places to Supabase
+ * Save places to Supabase with photos
  */
 async function savePlacesToDatabase(places, city) {
   const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
@@ -320,10 +379,24 @@ async function savePlacesToDatabase(places, city) {
   
   try {
     // Transform the places data for direct insertion
-    const transformedPlaces = places.map(place => {
+    const transformedPlaces = [];
+    
+    for (const place of places) {
       const transformed = transformPlaceData(place, city);
+      
+      // Fetch photos for this place if it has a data_cid
+      let photos = [];
+      if (transformed.p_data_cid) {
+        photos = await fetchPlacePhotos(transformed.p_data_cid);
+        
+        // Add a small delay between photo requests to be respectful to the API
+        if (photos.length > 0) {
+          await delay(500);
+        }
+      }
+      
       // Convert from function parameters to table columns
-      return {
+      transformedPlaces.push({
         title: transformed.p_title,
         data_cid: transformed.p_data_cid,
         knowledge_graph_id: transformed.p_knowledge_graph_id,
@@ -344,9 +417,10 @@ async function savePlacesToDatabase(places, city) {
         price_description: transformed.p_price_description,
         position: transformed.p_position,
         search_query: transformed.p_search_query,
-        source: transformed.p_source
-      };
-    });
+        source: transformed.p_source,
+        photos: photos
+      });
+    }
     
     // Use direct table insertion (the trigger will handle PostGIS coordinates)
     const savedPlaces = [];
@@ -369,7 +443,8 @@ async function savePlacesToDatabase(places, city) {
     }
     
     const savedCount = savedPlaces.length;
-    console.log(`   ✅ Saved ${savedCount} places to database`);
+    const totalPhotos = transformedPlaces.reduce((sum, place) => sum + (place.photos?.length || 0), 0);
+    console.log(`   ✅ Saved ${savedCount} places with ${totalPhotos} total photos to database`);
     
     return { success: true, count: savedCount };
   } catch (error) {
