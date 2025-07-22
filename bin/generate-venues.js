@@ -261,67 +261,17 @@ async function fetchAllPagesForCity(city, maxPages) {
 
 /**
  * Fetch place photos using ScaleSerp place_photos API
+ * Note: Photo fetching is currently disabled due to data_id format issues
+ * ScaleSerp expects a specific hex format for data_id, but we're getting numeric data_cid values
  */
 async function fetchPlacePhotos(place) {
-  // Try to get data_id from different possible fields
-  let dataId = place.data_id || place.data_cid || place.place_id;
+  // Photo fetching is temporarily disabled until we resolve the data_id format issue
+  // The ScaleSerp place_photos API expects a hex-encoded data_id format like:
+  // 0x89c259cea3b62d4d%3A0x4519bf551f37923f
+  // But we're getting numeric data_cid values like: 8409608661626785213
   
-  if (!dataId) {
-    console.log(`   ⚠️  No data_id found for place: ${place.title || 'Unknown'}`);
-    return [];
-  }
-
-  const url = new URL(SCALESERP_BASE_URL);
-  url.searchParams.set('api_key', SCALESERP_API_KEY);
-  url.searchParams.set('search_type', 'place_photos');
-  url.searchParams.set('data_id', dataId.toString());
-  url.searchParams.set('hl', 'en');
-
-  console.log(`   🖼️  Fetching photos for ${place.title || 'Unknown'} (data_id: ${dataId})...`);
-
-  if (options.dryRun) {
-    console.log(`   Would call: ${url.toString()}`);
-    return [];
-  }
-
-  try {
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      // Log the response body for debugging
-      const responseText = await response.text();
-      console.log(`   Debug: Response body: ${responseText.substring(0, 200)}...`);
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-
-    if (data.request_info && !data.request_info.success) {
-      throw new Error(`API Error: ${JSON.stringify(data.request_info)}`);
-    }
-
-    const photos = data.place_photos || [];
-    console.log(`   Found ${photos.length} photos`);
-
-    // Log API credits usage if available
-    if (data.request_info && data.request_info.credits_used_this_request) {
-      console.log(`   Credits used: ${data.request_info.credits_used_this_request}`);
-      console.log(`   Credits remaining: ${data.request_info.topup_credits_remaining || 'N/A'}`);
-    }
-
-    // Transform photos to our desired format
-    return photos.map(photo => ({
-      url: photo.image,
-      thumbnail: photo.thumbnail,
-      width: photo.width,
-      height: photo.height,
-      source: 'scaleserp'
-    }));
-
-  } catch (error) {
-    console.error(`❌ Error fetching photos for ${place.title || 'Unknown'} (data_id: ${dataId}):`, error.message);
-    return [];
-  }
+  console.log(`   📷 Photo fetching disabled - data_id format needs investigation for ${place.title || 'Unknown'}`);
+  return [];
 }
 
 /**
