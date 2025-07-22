@@ -89,11 +89,6 @@ echo -e "${YELLOW}Verifying migration status after application...${NC}"
 # Check migration status after applying
 ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && ./bin/supabase-db.sh status"
 
-# Also check for specific tables that should exist
-echo -e "${YELLOW}=== VERIFYING SPECIFIC TABLES ===${NC}"
-echo -e "${YELLOW}Checking if campaigns table exists in database...${NC}"
-ssh $SSH_OPTS $REMOTE_USER@$REMOTE_HOST "cd $REMOTE_DIR && echo 'Checking for campaigns table...' && supabase db pull --schema public 2>/dev/null | grep -i 'campaigns' || echo -e '${RED}❌ campaigns table not found${NC}'"
-
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}Migrations successful!${NC}"
 else
