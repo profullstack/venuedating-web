@@ -1,8 +1,8 @@
 <div class="profile-container">
 
   <div class="profile-header">
-    <h1>Profile info</h1>
-    <a href="#" class="skip-btn">Skip</a>
+    <h1 data-i18n="profile.info">Profile info</h1>
+    <a href="#" class="skip-btn" data-i18n="profile.skip">Skip</a>
   </div>
   
   <div class="profile-photo-container">
@@ -15,22 +15,22 @@
         </svg>
       </button>
     </div>
-    <div class="profile-photo-text">Profile Photo</div>
+    <div class="profile-photo-text" data-i18n="profile.photo">Profile Photo</div>
   </div>
   
   <div class="profile-form">
     <div class="input-group">
-      <label for="first-name">First name</label>
-      <input type="text" id="first-name" placeholder="Jane">
+      <label for="first-name" data-i18n="profile.first_name">First name</label>
+      <input type="text" id="first-name" placeholder="Jane" data-i18n-placeholder="profile.first_name_placeholder">
     </div>
     
     <div class="input-group">
-      <label for="last-name">Last name</label>
-      <input type="text" id="last-name" placeholder="Doe">
+      <label for="last-name" data-i18n="profile.last_name">Last name</label>
+      <input type="text" id="last-name" placeholder="Doe" data-i18n-placeholder="profile.last_name_placeholder">
     </div>
 
     <div class="input-group">
-      <label for="phone-number">Phone number</label>
+      <label for="phone-number" data-i18n="profile.phone_number">Phone number</label>
       <div class="phone-input-container">
         <div class="country-select" id="country-select">
           <div class="selected-country">
@@ -40,14 +40,14 @@
           </div>
           <div class="country-dropdown" id="country-dropdown" style="display: none;">
             <div class="country-search-container">
-              <input type="text" id="country-search-input" placeholder="Search country" class="country-search">
+              <input type="text" id="country-search-input" placeholder="Search country" class="country-search" data-i18n-placeholder="profile.search_country">
             </div>
             <div class="country-list-container">
               <!-- Country options will be populated dynamically from countries.js -->
             </div>
           </div>
         </div>
-        <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input">
+        <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input" data-i18n-placeholder="profile.phone_placeholder">
         <input type="hidden" id="country-code-input" value="+1">
         <input type="hidden" id="full-phone" value="">
       </div>
@@ -1328,6 +1328,7 @@
 
 <!-- Load profile modules -->
 <script type="module" src="/js/profile-controller.js"></script>
+<script type="module" src="/js/test-language-switch.js"></script>
 
 </body>
 </html>

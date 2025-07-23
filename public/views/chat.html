@@ -6,11 +6,12 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Messages - BarCrush</title>
+  <title data-i18n="chat.page_title">Messages - BarCrush</title>
   <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/dark-mode.js"></script>
   <script type="module" src="/js/auth-middleware.js"></script>
   <script type="module" src="/js/chat-controller.js"></script>
+  <script type="module" src="/js/test-language-switch.js"></script>
   <script type="module">
     // Check authentication and redirect if not logged in
     import authMiddleware from '/js/auth-middleware.js';
@@ -46,7 +47,7 @@
 <div class="chat-page">
     <div class="chat-header">
         <div class="header-content" style="border: none; box-shadow: none;">
-            <h1 class="page-title">Messages</h1>
+            <h1 class="page-title" data-i18n="chat.messages">Messages</h1>
         </div>
     </div>
 
@@ -112,7 +113,7 @@
             <div class="messages-container">
                 <!-- Date Divider -->
                 <div class="date-divider">
-                    <span>Today</span>
+                    <span data-i18n="chat.today">Today</span>
                 </div>
 
                 <!-- Message from the other person -->

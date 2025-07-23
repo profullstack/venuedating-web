@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direct Venues API Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    button {
+      padding: 10px 15px;
+      background: #f44b74;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    .venue-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #error {
+      color: red;
+      font-weight: bold;
+    }
+    #loading {
+      color: blue;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>Direct Venues API Test</h1>
+  
+  <div>
+    <h2>Test Parameters</h2>
+    <div>
+      <label for="lat">Latitude:</label>
+      <input type="number" id="lat" value="37.7749" step="0.0001">
+    </div>
+    <div>
+      <label for="lng">Longitude:</label>
+      <input type="number" id="lng" value="-122.4194" step="0.0001">
+    </div>
+    <div>
+      <label for="radius">Radius (km):</label>
+      <input type="number" id="radius" value="10" min="1" max="50">
+    </div>
+    <button id="test-api">Test Venues API</button>
+  </div>
+  
+  <div id="loading" style="display: none;">Loading venues data...</div>
+  <div id="error"></div>
+  
+  <h2>API Response</h2>
+  <pre id="api-response">Click "Test Venues API" to see results</pre>
+  
+  <h2>Venues Display</h2>
+  <div id="venues-container"></div>
+  
+  <script>
+    document.getElementById('test-api').addEventListener('click', async () => {
+      const lat = parseFloat(document.getElementById('lat').value);
+      const lng = parseFloat(document.getElementById('lng').value);
+      const radius = parseFloat(document.getElementById('radius').value);
+      
+      const loadingEl = document.getElementById('loading');
+      const errorEl = document.getElementById('error');
+      const responseEl = document.getElementById('api-response');
+      const venuesContainer = document.getElementById('venues-container');
+      
+      // Reset UI
+      loadingEl.style.display = 'block';
+      errorEl.textContent = '';
+      responseEl.textContent = 'Fetching data...';
+      venuesContainer.innerHTML = '';
+      
+      try {
+        // Get Supabase credentials from localStorage or use defaults
+        const supabaseUrl = localStorage.getItem('supabaseUrl') || 'https://xyzcompany.supabase.co';
+        const supabaseKey = localStorage.getItem('supabaseKey') || 'public-anon-key';
+        
+        // Initialize Supabase client
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        console.log('Supabase client initialized with URL:', supabaseUrl);
+        
+        // Try different RPC function names
+        const functionNames = [
+          'get_venues_within_radius',
+          'get_nearby_venues',
+          'venues_within_radius'
+        ];
+        
+        let venues = null;
+        let error = null;
+        let successfulFunction = null;
+        
+        // Try each function name until one works
+        for (const funcName of functionNames) {
+          try {
+            console.log(`Trying RPC function: ${funcName}`);
+            
+            // Try different parameter formats
+            const paramFormats = [
+              // Format 1: center_lat, center_lng
+              {
+                center_lat: lat,
+                center_lng: lng,
+                radius_km: radius
+              },
+              // Format 2: user_lat, user_lng
+              {
+                user_lat: lat,
+                user_lng: lng,
+                radius_km: radius
+              },
+              // Format 3: lat, lng
+              {
+                lat: lat,
+                lng: lng,
+                radius_km: radius
+              }
+            ];
+            
+            for (const params of paramFormats) {
+              try {
+                console.log(`Trying ${funcName} with params:`, params);
+                const { data, error: rpcError } = await supabase.rpc(funcName, params);
+                
+                if (!rpcError && data) {
+                  venues = data;
+                  successfulFunction = `${funcName} with params ${JSON.stringify(params)}`;
+                  break;
+                }
+              } catch (paramError) {
+                console.log(`Error with ${funcName} and params ${JSON.stringify(params)}:`, paramError);
+              }
+            }
+            
+            if (venues) break;
+          } catch (funcError) {
+            console.log(`Error with function ${funcName}:`, funcError);
+            error = funcError;
+          }
+        }
+        
+        // If we found venues with any method
+        if (venues && venues.length > 0) {
+          responseEl.textContent = `SUCCESS with ${successfulFunction}:\n` + JSON.stringify(venues, null, 2);
+          
+          // Display venues
+          venues.forEach(venue => {
+            const venueCard = document.createElement('div');
+            venueCard.className = 'venue-card';
+            
+            venueCard.innerHTML = `
+              <h3>${venue.name || 'Unnamed Venue'}</h3>
+              <p>${venue.address || 'No address available'}</p>
+              <p><strong>ID:</strong> ${venue.id || 'N/A'}</p>
+              <p><strong>Coordinates:</strong> ${venue.lat || 'N/A'}, ${venue.lng || 'N/A'}</p>
+              <p><strong>Distance:</strong> ${venue.distance ? venue.distance.toFixed(2) + ' km' : 'N/A'}</p>
+            `;
+            
+            venuesContainer.appendChild(venueCard);
+          });
+        } else {
+          // If all methods failed
+          responseEl.textContent = 'No venues found with any method. Last error: ' + 
+            (error ? JSON.stringify(error, null, 2) : 'Unknown error');
+          venuesContainer.innerHTML = '<p>No venues found</p>';
+          
+          // Try a direct query as fallback
+          try {
+            console.log('Trying direct query to venues table as fallback');
+            const { data: directData, error: directError } = await supabase
+              .from('venues')
+              .select('*')
+              .limit(10);
+              
+            if (!directError && directData && directData.length > 0) {
+              responseEl.textContent += '\n\nDirect query succeeded:\n' + JSON.stringify(directData, null, 2);
+              
+              // Display direct query venues
+              const directHeader = document.createElement('h2');
+              directHeader.textContent = 'Direct Query Results:';
+              venuesContainer.appendChild(directHeader);
+              
+              directData.forEach(venue => {
+                const venueCard = document.createElement('div');
+                venueCard.className = 'venue-card';
+                
+                venueCard.innerHTML = `
+                  <h3>${venue.name || 'Unnamed Venue'}</h3>
+                  <p>${venue.address || 'No address available'}</p>
+                  <p><strong>ID:</strong> ${venue.id || 'N/A'}</p>
+                  <p><strong>Coordinates:</strong> ${venue.lat || 'N/A'}, ${venue.lng || 'N/A'}</p>
+                `;
+                
+                venuesContainer.appendChild(venueCard);
+              });
+            } else {
+              responseEl.textContent += '\n\nDirect query failed: ' + 
+                (directError ? JSON.stringify(directError, null, 2) : 'No data returned');
+            }
+          } catch (directQueryError) {
+            responseEl.textContent += '\n\nDirect query error: ' + directQueryError.message;
+          }
+        }
+      } catch (error) {
+        console.error('Error testing venues API:', error);
+        errorEl.textContent = `Error: ${error.message || 'Unknown error'}`;
+        responseEl.textContent = `Failed to fetch venues data: ${error.message || 'Unknown error'}`;
+      } finally {
+        loadingEl.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

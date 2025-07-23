@@ -14,6 +14,11 @@ import { pptxToMarkdownRoute } from './pptx-to-markdown.js';
 import { xlsxToMarkdownRoute } from './xlsx-to-markdown.js';
 import { documentHistoryRoute } from './document-history.js';
 import { downloadDocumentRoute } from './download-document.js';
+import { userRoutes } from './users.js';
+import { notificationRoutes } from './notifications.js';
+import { venueRoutes } from './venues.js';
+import { matchRoutes } from './matches.js';
+import { conversationRoutes } from './conversations.js';
 import {
   subscriptionRoute,
   subscriptionStatusRoute
@@ -83,6 +88,11 @@ const publicRoutes = [
   supabaseConfigRoute,
   websocketRoute,
   ...twilioVerifyRoutes,
+  ...userRoutes,
+  ...notificationRoutes,
+  ...venueRoutes,
+  ...matchRoutes,
+  ...conversationRoutes,
   // Subscription management routes
   {
     method: 'GET',

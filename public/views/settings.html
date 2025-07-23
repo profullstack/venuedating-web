@@ -1,53 +1,53 @@
 
   <div class="settings-container container">
     <div class="settings-container">
-      <h1 class="page-title">Account Settings</h1>
+      <h1 class="page-title" data-i18n="settings.account_settings">Account Settings</h1>
       
       <div class="card">
-        <h2 class="card-title">Profile Information</h2>
+        <h2 class="card-title" data-i18n="settings.profile_information">Profile Information</h2>
         <form id="profile-form">
           <div class="form-group">
-            <label for="display-name">Display Name</label>
+            <label for="display-name" data-i18n="settings.display_name">Display Name</label>
             <input type="text" id="display-name" name="display-name" class="form-control">
           </div>
           
           <div class="form-group">
-            <label for="email">Email</label>
+            <label for="email" data-i18n="settings.email">Email</label>
             <input type="email" id="email" name="email" class="form-control" readonly>
           </div>
           
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="submit" class="btn btn-primary" data-i18n="settings.save_changes">Save Changes</button>
         </form>
       </div>
       
       <div class="card">
-        <h2 class="card-title">Change Password</h2>
+        <h2 class="card-title" data-i18n="settings.change_password">Change Password</h2>
         <form id="password-form">
           <div class="form-group">
-            <label for="current-password">Current Password</label>
+            <label for="current-password" data-i18n="settings.current_password">Current Password</label>
             <input type="password" id="current-password" name="current-password" class="form-control" required>
           </div>
           
           <div class="form-group">
-            <label for="new-password">New Password</label>
+            <label for="new-password" data-i18n="settings.new_password">New Password</label>
             <input type="password" id="new-password" name="new-password" class="form-control" required>
           </div>
           
           <div class="form-group">
-            <label for="confirm-password">Confirm New Password</label>
+            <label for="confirm-password" data-i18n="settings.confirm_password">Confirm New Password</label>
             <input type="password" id="confirm-password" name="confirm-password" class="form-control" required>
           </div>
           
-          <button type="submit" class="btn btn-primary">Change Password</button>
+          <button type="submit" class="btn btn-primary" data-i18n="settings.change_password_button">Change Password</button>
         </form>
       </div>
       
       <div class="card">
-        <h2 class="card-title">Subscription</h2>
+        <h2 class="card-title" data-i18n="settings.subscription">Subscription</h2>
         <div class="subscription-info">
-          <p><strong>Current Plan:</strong> <span id="current-plan">Monthly ($5/month)</span></p>
-          <p><strong>Next Billing Date:</strong> <span id="next-billing">May 18, 2025</span></p>
-          <p><strong>Payment Method:</strong> <span id="payment-method">Bitcoin</span></p>
+          <p><strong data-i18n="settings.current_plan">Current Plan:</strong> <span id="current-plan">Monthly ($5/month)</span></p>
+          <p><strong data-i18n="settings.next_billing">Next Billing Date:</strong> <span id="next-billing">May 18, 2025</span></p>
+          <p><strong data-i18n="settings.payment_method">Payment Method:</strong> <span id="payment-method">Bitcoin</span></p>
         </div>
         
         <a href="/subscription" class="btn btn-primary">Manage Subscription</a>
@@ -61,5 +61,8 @@
     </div>
   </div>
 </div>
-  
+        
+<script src="/js/dark-mode.js"></script>
+<script type="module" src="/js/auth-middleware.js"></script>
 <script type="module" src="/js/views/settings.js"></script>
+<script type="module" src="/js/test-language-switch.js"></script>

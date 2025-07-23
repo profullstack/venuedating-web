@@ -33,6 +33,15 @@
     "invalid_reset_token_request_new": "Invalid or expired password reset token. Please request a new password reset link."
   },
   "auth": {
+    "welcome_message": "New place, new faces.\nSee who's here with\nyou tonight",
+    "login_with_phone": "Login with Phone",
+    "sign_up": "Sign Up",
+    "phone_login": "Phone Login",
+    "phone_number": "Phone number",
+    "phone_placeholder": "123-456-7890",
+    "verification_code": "Verification Code",
+    "verification_code_placeholder": "Enter 6-digit code",
+    "send_verification_code": "Send Verification Code",
     "email": "Email",
     "password": "Password",
     "confirm_password": "Confirm Password",
@@ -124,8 +133,131 @@
     "company_name": "BarCrush, Inc.",
     "all_rights_reserved": "All rights reserved."
   },
+  "profile": {
+    "info": "Profile info",
+    "skip": "Skip",
+    "photo": "Profile Photo",
+    "first_name": "First name",
+    "first_name_placeholder": "Jane",
+    "last_name": "Last name",
+    "last_name_placeholder": "Doe",
+    "phone_number": "Phone number",
+    "search_country": "Search country",
+    "phone_placeholder": "123-456-7890",
+    "verify_phone_title": "Verify Your Phone - BarCrush",
+    "verify_phone": "Verify Your Phone",
+    "verification_sent": "We've sent a verification code to your phone number.",
+    "change": "Change",
+    "enter_verification_code": "Enter the 6-digit verification code",
+    "verification_code_placeholder": "000000",
+    "verify_complete": "Verify & Complete Profile",
+    "didnt_receive_code": "Didn't receive the code?",
+    "resend_code": "Resend Code",
+    "edit_info": "Edit Profile",
+    "cancel": "Cancel",
+    "choose_birthday": "Choose birthday date",
+    "choose_location": "Choose your location",
+    "save_changes": "Save Changes",
+    "select_birthday": "Select Birthday",
+    "save": "Save",
+    "update_success": "Profile updated successfully!",
+    "update_error": "Error updating profile. Please try again."
+  },
+  "discover": {
+    "page_title": "Discover - BarCrush",
+    "title": "Discover",
+    "loading_venues": "Loading venues..."
+  },
+  "chat": {
+    "page_title": "Messages - BarCrush",
+    "messages": "Messages",
+    "today": "Today"
+  },
+  "nav": {
+    "discover": "Discover",
+    "matching": "Matching",
+    "chat": "Chat"
+  },
+  "matching": {
+    "page_title": "Matching - BarCrush",
+    "title": "Matching"
+  },
+  "settings": {
+    "account_settings": "Account Settings",
+    "profile_information": "Profile Information",
+    "display_name": "Display Name",
+    "email": "Email",
+    "save_changes": "Save Changes",
+    "change_password": "Change Password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password",
+    "change_password_button": "Change Password",
+    "subscription": "Subscription",
+    "current_plan": "Current Plan:",
+    "next_billing": "Next Billing Date:",
+    "payment_method": "Payment Method:"
+  },
   "charts": {
     "title": "Charts Demo",
-    "description": "Interactive data visualization using Charts.css library"
+    "description": "Interactive data visualization using the Charts.css library"
+  },
+  "home": {
+    "logo_alt": "BarCrush Logo"
+  },
+  "side_menu": {
+    "profile": "Profile",
+    "edit_profile": "Edit Profile",
+    "notifications": "Notifications",
+    "payments": "Payments",
+    "bank": "Bank",
+    "settings": "Settings",
+    "help": "Help & Support",
+    "logout": "Logout",
+    "security": "Security",
+    "password": "Password",
+    "delete_account": "Delete account",
+    "help_center": "Help Center",
+    "dark_mode": "Dark Mode",
+    "confirm_logout": "Are you sure you want to log out?",
+    "logging_out": "Logging out...",
+    "language": "Language"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "All",
+    "unread": "Unread",
+    "no_notifications": "No notifications yet",
+    "check_back": "Check back later for updates",
+    "loading": "Loading...",
+    "error": "Error loading notifications",
+    "mark_all_read": "Mark all as read",
+    "time_just_now": "Just now",
+    "time_minutes_ago": "{0}m ago",
+    "time_hours_ago": "{0}h ago",
+    "time_yesterday": "Yesterday",
+    "time_days_ago": "{0}d ago",
+    "mock_match_title": "New Match!",
+    "mock_match_message": "You matched with Sarah at Moonlight Bar",
+    "mock_like_title": "Someone likes you!",
+    "mock_like_message": "Alex liked your profile at Skyline Lounge",
+    "mock_message_title": "New message",
+    "mock_message_content": "Mike: Hey, how's it going?",
+    "mock_system_title": "Welcome to BarCrush!",
+    "mock_system_message": "Complete your profile to start matching with people at your favorite venues.",
+    "error_mark_read": "Failed to mark notification as read",
+    "error_mark_all_read": "Failed to mark all notifications as read"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "description": "Have questions about BarCrush? We're here to help! Fill out the form and our team will get back to you as soon as possible.",
+    "email": "support@barcrush.app",
+    "location": "San Francisco, CA",
+    "hours": "Mon-Fri: 9am - 5pm PT",
+    "name_label": "Name",
+    "email_label": "Email",
+    "subject_label": "Subject",
+    "message_label": "Message",
+    "submit_button": "Send Message"
   }
 }

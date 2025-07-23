@@ -6,11 +6,12 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Matching - BarCrush</title>
+  <title data-i18n="matching.page_title">Matching - BarCrush</title>
   <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/dark-mode.js"></script>
   <script type="module" src="/js/auth-middleware.js"></script>
   <script type="module" src="/js/matching-controller.js"></script>
+  <script type="module" src="/js/test-language-switch.js"></script>
   <script type="module">
     // Check authentication and redirect if not logged in
     import authMiddleware from '/js/auth-middleware.js';
@@ -46,7 +47,7 @@
 <div class="matching-page">
     <div class="matching-header">
       <div class="header-content">
-        <h1 class="page-title">Matching</h1>
+        <h1 class="page-title" data-i18n="matching.title">Matching</h1>
       </div>
     </div>
 

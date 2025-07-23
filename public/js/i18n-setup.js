@@ -70,6 +70,24 @@ export async function initI18n() {
     window.app._t = localizer.translate.bind(localizer);
     window.app.localizer = localizer;
     
+    // Expose changeLanguage function globally
+    window.app.changeLanguage = (language) => {
+      console.log(`App changing language to: ${language}`);
+      localizer.setLanguage(language);
+      localizer.translateDOM();
+      localizer.applyRTLToDocument();
+      
+      // Dispatch an event to notify that language has changed
+      window.dispatchEvent(new CustomEvent('language-changed', {
+        detail: { 
+          language, 
+          isRTL: ['ar', 'he', 'fa', 'ur'].includes(language) 
+        }
+      }));
+      
+      return true;
+    };
+    
     console.log('i18n initialized successfully');
     
     // Dispatch an event to notify that i18n is ready

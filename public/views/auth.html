@@ -2,9 +2,9 @@
 <div class="auth-container">
   <img src="/images/auth-art.svg" alt="Auth Illustration" class="auth-art" />
   <div class="auth-title">
-    New place, new faces.<br />
+    <span data-i18n="auth.welcome_message">New place, new faces.<br />
     See who's here with<br />
-    you tonight
+    you tonight</span>
   </div>
   <a href="/phone-login" class="auth-btn phone-btn">
     <div class="icon-bg">
@@ -13,15 +13,34 @@
         <path d="M12 18H12.01" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
-    Login with Phone
+    <span data-i18n="auth.login_with_phone">Login with Phone</span>
   </a>
 
   <div class="signup-link">
-    Don't have an account? <a href="/profile" class="signup">Sign Up</a>
+    <span data-i18n="auth.no_account">Don't have an account?</span> <a href="/profile" class="signup" data-i18n="auth.sign_up">Sign Up</a>
   </div>
 
 </div>
 <div id="auth-status-message" style="display:none;"></div>
+
+<script type="module">
+  import { localizer } from '/js/deps.js';
+  import { initI18n } from '/js/i18n-setup.js';
+
+  // Initialize i18n when DOM is loaded
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      console.log('Auth page: Initializing i18n...');
+      await initI18n();
+      console.log('Auth page: i18n initialized, translating page...');
+      localizer.translateDOM();
+      console.log('Auth page: Translation complete');
+    } catch (error) {
+      console.error('Auth page: Error initializing i18n:', error);
+    }
+  });
+</script>
+<script type="module" src="/js/test-language-switch.js"></script>
 
 <script type="module">
 import { signInWithPhone, verifyPhoneOtp, signInWithGoogle } from '../js/auth.js';

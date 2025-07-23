@@ -6,13 +6,14 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <title>Discover - BarCrush</title>
+  <title data-i18n="discover.page_title">Discover - BarCrush</title>
   <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/dark-mode.js"></script>
   <script type="module" src="/js/auth-middleware.js"></script>
   <script type="module" src="/js/discover-controller.js"></script>
+  <script type="module" src="/js/test-language-switch.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/js/api-test.js"></script>
+
   <script type="module">
     // Check authentication and redirect if not logged in
     import authMiddleware from '/js/auth-middleware.js';
@@ -50,7 +51,7 @@
     <div class="container">
       <div class="discover-header-content">
         <side-menu class="user-profile-menu"></side-menu>
-        <h1 class="discover-title">Discover</h1>
+        <h1 class="discover-title" data-i18n="discover.title">Discover</h1>
         <div class="discover-actions">
           
           <button class="icon-button filter-btn">
@@ -87,15 +88,16 @@
     </div>
   </header>
 
-  <div class="venues-list" id="venues-container">
+  <div class="venues-list" id="venues-list-container">
     <!-- Venues will be populated dynamically by the discover-controller.js -->
     <div class="loading-indicator">
       <div class="spinner"></div>
-      <p class="loading-text">Loading venues...</p>
+      <p class="loading-text" data-i18n="discover.loading_venues">Loading venues...</p>
+    </div>
+    <div id="venues-container" class="venues-container">
+      <!-- Venue cards will be added here by JavaScript -->
     </div>
   </div>
-
-
 </div>
 
 <div class="around-me-section">
@@ -174,12 +176,146 @@
   </div>
 </div>
 
+<!-- Filter Modal -->
+<div id="filter-modal" class="filter-modal">
+  <div class="filter-modal-content">
+    <div class="filter-modal-header">
+      <h2>Filter</h2>
+      <button id="close-filter-modal" class="close-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="filter-modal-body">
+      <!-- Gender Filter -->
+      <div class="filter-section">
+        <h3>Gender</h3>
+        <div class="filter-options">
+          <button class="filter-option" data-filter="gender" data-value="male">Male</button>
+          <button class="filter-option" data-filter="gender" data-value="female">Female</button>
+          <button class="filter-option" data-filter="gender" data-value="all">All</button>
+        </div>
+      </div>
+      
+      <!-- Location Filter -->
+      <div class="filter-section">
+        <h3>Location</h3>
+        <div class="location-input">
+          <input type="text" id="location-filter" placeholder="Enter location">
+          <button id="use-current-location">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Distance Filter -->
+      <div class="filter-section">
+        <h3>Distance</h3>
+        <div class="slider-container">
+          <input type="range" id="distance-slider" min="1" max="50" value="10" class="slider">
+          <div class="slider-value"><span id="distance-value">10</span> km</div>
+        </div>
+      </div>
+      
+      <!-- Age Filter -->
+      <div class="filter-section">
+        <h3>Age</h3>
+        <div class="slider-container">
+          <div class="dual-slider">
+            <input type="range" id="min-age-slider" min="18" max="65" value="18" class="slider">
+            <input type="range" id="max-age-slider" min="18" max="65" value="65" class="slider">
+          </div>
+          <div class="slider-range">
+            <span id="min-age-value">18</span> - <span id="max-age-value">65</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="filter-modal-footer">
+      <button id="clear-filters" class="secondary-btn">Clear</button>
+      <button id="apply-filters" class="primary-btn">Continue</button>
+    </div>
+  </div>
+</div>
+
 <!-- Bottom Navigation Component -->
 <bottom-navigation current-page="discover"></bottom-navigation>
 
 <script src="/components/bottom-nav.js" type="module"></script>
 <script src="/components/side-menu.js" type="module"></script>
-<script src="/js/discover.js" type="module"></script>
+
+<!-- Venues API Test Script -->
+<script type="module">
+  import { getNearbyVenues } from '/js/api/venues.js';
+  
+  document.getElementById('test-api')?.addEventListener('click', async () => {
+    const lat = parseFloat(document.getElementById('lat').value);
+    const lng = parseFloat(document.getElementById('lng').value);
+    const radius = parseFloat(document.getElementById('radius').value);
+    
+    const loadingEl = document.getElementById('test-loading');
+    const errorEl = document.getElementById('test-error');
+    const responseEl = document.getElementById('api-response');
+    const venuesContainer = document.getElementById('test-venues-container');
+    
+    // Reset UI
+    loadingEl.style.display = 'block';
+    errorEl.textContent = '';
+    responseEl.textContent = 'Fetching data...';
+    venuesContainer.innerHTML = '';
+    
+    try {
+      console.log('Calling getNearbyVenues with:', { lat, lng, radius });
+      const venues = await getNearbyVenues(lat, lng, radius);
+      
+      // Display raw response
+      responseEl.textContent = JSON.stringify(venues, null, 2);
+      
+      // Display venues cards
+      if (venues && venues.length > 0) {
+        venues.forEach(venue => {
+          const venueCard = document.createElement('div');
+          venueCard.className = 'venue-card test-venue-card';
+          
+          const venueName = document.createElement('div');
+          venueName.className = 'venue-name';
+          venueName.textContent = venue.name || 'Unnamed Venue';
+          
+          const venueAddress = document.createElement('div');
+          venueAddress.className = 'venue-address';
+          venueAddress.textContent = venue.address || 'No address available';
+          
+          const venueDetails = document.createElement('div');
+          venueDetails.innerHTML = `
+            <p><strong>ID:</strong> ${venue.id || 'N/A'}</p>
+            <p><strong>Coordinates:</strong> ${venue.lat || 'N/A'}, ${venue.lng || 'N/A'}</p>
+            <p><strong>Distance:</strong> ${venue.distance ? venue.distance.toFixed(2) + ' km' : 'N/A'}</p>
+          `;
+          
+          venueCard.appendChild(venueName);
+          venueCard.appendChild(venueAddress);
+          venueCard.appendChild(venueDetails);
+          venuesContainer.appendChild(venueCard);
+        });
+      } else {
+        venuesContainer.innerHTML = '<p>No venues found</p>';
+      }
+    } catch (error) {
+      console.error('Error testing venues API:', error);
+      errorEl.textContent = `Error: ${error.message || 'Unknown error'}`;
+      responseEl.textContent = `Failed to fetch venues data: ${error.message || 'Unknown error'}`;
+    } finally {
+      loadingEl.style.display = 'none';
+    }
+  });
+</script>
 
 <style>
   .discover-page {
@@ -247,18 +383,132 @@
   .venues-container {
     display: flex;
     overflow-x: auto;
-    gap: 12px;
-    padding: 12px;
-    background-color: var(--background-color);
-    scrollbar-width: none;
-    /* Hide scrollbar for Firefox */
-    -ms-overflow-style: none;
-    /* Hide scrollbar for IE and Edge */
+    gap: 1rem;
+    padding: 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE and Edge */
   }
-
+  
   .venues-container::-webkit-scrollbar {
     display: none;
     /* Hide scrollbar for Chrome, Safari, and Opera */
+  }
+  
+  /* Loading indicator styles */
+  .loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
+    height: 150px;
+  }
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-text {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  /* No venues message */
+  .no-venues-message, .error-message {
+    width: 100%;
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-secondary);
+    font-size: 16px;
+  }
+  
+  .error-message {
+    color: #F44B74;
+  }
+  
+  /* Venues API Test Styles */
+  .venues-api-test {
+    margin: 20px 16px;
+    padding: 20px;
+    background-color: var(--card-background);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+  }
+  
+  .venues-api-test h3 {
+    margin-top: 0;
+    color: var(--text-primary);
+  }
+  
+  .test-parameters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .test-parameters > div:last-of-type,
+  .test-parameters > button {
+    grid-column: span 2;
+  }
+  
+  .test-parameters label {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  
+  .test-parameters input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-background);
+    color: var(--text-primary);
+  }
+  
+  .api-response {
+    background: var(--code-background, #f4f4f4);
+    padding: 10px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 12px;
+    color: var(--code-text, #333);
+    max-height: 200px;
+    margin-bottom: 20px;
+  }
+  
+  #test-venues-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  
+  .test-venue-card {
+    width: 100%;
+    max-width: none;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--card-background);
   }
 
   .venue-card {
@@ -270,6 +520,14 @@
     overflow: hidden;
     box-shadow: 0 2px 8px var(--shadow-color);
     aspect-ratio: 1 / 1.3;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    background-color: var(--card-background);
+  }
+  
+  .venue-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px var(--shadow-color);
   }
 
   .venue-image {
@@ -299,6 +557,37 @@
     width: 100%;
     padding: 12px;
     text-align: center;
+  }
+  
+  .venue-info {
+    position: absolute;
+    bottom: 40px;
+    left: 0;
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+  }
+  
+  .venue-name {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .venue-description {
+    margin: 0;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    opacity: 0.9;
   }
 
   .distance-badge {
@@ -437,6 +726,25 @@
     height: 100%;
     object-fit: cover;
   }
+  
+  .no-venues-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+  }
+  
+  .no-venues-message p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: var(--color-text);
+  }
 
   /* Beat animation for user marker */
   @keyframes pulse {
@@ -539,5 +847,200 @@
   }
 
   /* Bottom navigation styles are defined above */
+  
+  /* Filter Modal Styles */
+  .filter-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow-y: auto;
+  }
+  
+  .filter-modal-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--surface-color);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .filter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter-modal-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 5px;
+  }
+  
+  .filter-section {
+    margin-bottom: 24px;
+  }
+  
+  .filter-section h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: var(--color-text);
+  }
+  
+  .filter-options {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  
+  .filter-option {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--color-text);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .filter-option.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+  
+  .location-input {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .location-input input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-background);
+    color: var(--color-text);
+  }
+  
+  .location-input button {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--color-text);
+  }
+  
+  .slider-container {
+    padding: 0 10px;
+  }
+  
+  .slider {
+    width: 100%;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+  }
+  
+  .slider-value, .slider-range {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--color-text);
+  }
+  
+  .dual-slider {
+    position: relative;
+    height: 6px;
+  }
+  
+  .dual-slider .slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+  }
+  
+  .dual-slider .slider::-webkit-slider-thumb {
+    pointer-events: auto;
+  }
+  
+  .filter-modal-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .secondary-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+    color: var(--color-text);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .primary-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+  }
 </style>
+
+<!-- Templates for map markers -->
+<template id="venue-marker-template">
+  <div class="venue-marker-icon">
+    <img src="/images/venues/default.jpg" alt="Venue">
+  </div>
+</template>
+
+<template id="user-marker-template">
+  <div class="user-marker-icon">
+    <img src="/images/avatar.png" alt="You">
+  </div>
+</template>
 </div>

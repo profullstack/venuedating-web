@@ -1,11 +1,59 @@
 import { supabaseClientPromise } from './supabase-client.js';
+import { validatePhoneE164, checkPhoneExists } from './utils/phone-utils.js';
 
 // Sign in with phone (OTP)
 export async function signInWithPhone(phone) {
-  const supabase = await supabaseClientPromise;
-  const { data, error } = await supabase.auth.signInWithOtp({ phone });
-  if (error) throw error;
-  return data;
+  // Validate phone number format first
+  if (!validatePhoneE164(phone)) {
+    throw new Error('Invalid phone number format. Please enter a valid phone number with country code.');
+  }
+  
+  try {
+    // Check if phone exists in the system and is valid
+    const phoneCheckResult = await checkPhoneExists(phone);
+    console.log('Phone check result:', phoneCheckResult);
+    
+    // Handle invalid phone numbers
+    if (phoneCheckResult.valid === false) {
+      throw new Error('Invalid phone number. Please enter a valid phone number.');
+    }
+    
+    // Handle provider errors
+    if (phoneCheckResult.providerError) {
+      console.warn('Provider error during phone check:', phoneCheckResult.message);
+      // We can still try to proceed with OTP, but log the warning
+    }
+    
+    // Optional: Prevent OTP for non-existent numbers
+    // Uncomment this block if you want to prevent OTPs for non-existent numbers
+    /*
+    if (!phoneCheckResult.exists) {
+      throw new Error('This phone number is not registered. Please sign up first.');
+    }
+    */
+    
+    // If we get here, the phone is valid and we're allowing the OTP
+    const supabase = await supabaseClientPromise;
+    const { data, error } = await supabase.auth.signInWithOtp({ phone });
+    
+    if (error) {
+      // Handle specific OTP sending errors
+      if (error.message.includes('Invalid') && error.message.includes('phone') && !error.message.includes('From Number')) {
+        throw new Error('Invalid phone number format. Please check and try again.');
+      } else if (error.message.includes('From Number')) {
+        console.error('Twilio From number configuration error:', error.message);
+        throw new Error('SMS service configuration error. Please contact support.');
+      } else if (error.message.includes('Twilio') || error.message.includes('provider')) {
+        throw new Error('SMS provider error. Please try again later.');
+      }
+      throw error;
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error in signInWithPhone:', error);
+    throw error;
+  }
 }
 
 // Verify OTP for phone login

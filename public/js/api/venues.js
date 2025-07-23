@@ -11,22 +11,113 @@ import supabase from './supabase-client.js';
  * @param {number} lat - Latitude
  * @param {number} lng - Longitude
  * @param {number} radiusKm - Radius in kilometers (default: 5)
- * @param {Object} filters - Optional filters
+ * @param {Object} filters - Optional filters (gender, minAge, maxAge)
  * @returns {Promise<Array>} Array of venues within the radius
  */
 export async function getNearbyVenues(lat, lng, radiusKm = 5, filters = {}) {
   try {
-    // Use PostGIS to find venues within radius
-    const { data, error } = await supabase.rpc('get_venues_within_radius', {
-      center_lat: lat,
-      center_lng: lng,
-      radius_km: radiusKm,
-      venue_type: filters.type || null,
-      min_rating: filters.minRating || null
+    // Debug Supabase client initialization
+    console.log('🔍 API DEBUG - Supabase client:', {
+      url: supabase.supabaseUrl ? 'URL exists' : 'URL missing',
+      key: supabase.supabaseKey ? 'Key exists' : 'Key missing',
+      auth: supabase.auth ? 'Auth module exists' : 'Auth module missing',
+      rpc: typeof supabase.rpc === 'function' ? 'RPC function exists' : 'RPC function missing'
     });
+    
+    // Log the actual URL and key (first few chars only for security)
+    if (supabase.supabaseUrl) {
+      console.log('🔗 API DEBUG - Actual URL:', supabase.supabaseUrl);
+    }
+    if (supabase.supabaseKey) {
+      console.log('🔑 API DEBUG - Key prefix:', supabase.supabaseKey.substring(0, 10) + '...');
+    }
+    
+    console.log('📍 API DEBUG - Request params:', { lat, lng, radiusKm, filters });
+    
+    // First try to use the PostGIS RPC function if it exists
+    try {
+      console.log('🚀 API DEBUG - Calling get_nearby_venues RPC with params:', {
+        user_lat: lat,
+        user_lng: lng,
+        radius_km: radiusKm
+      });
+      
+      const { data, error } = await supabase.rpc('get_nearby_venues', {
+        user_lat: lat,
+        user_lng: lng,
+        radius_km: radiusKm
+      });
 
-    if (error) throw error;
-    return data;
+      if (error) {
+        console.warn('RPC function error:', error);
+        throw error; // Will be caught by outer try/catch
+      }
+      
+      console.log('✅ API DEBUG - RPC function success! Venues received:', data ? data.length : 0);
+      console.log('📊 API DEBUG - First venue sample:', data && data.length > 0 ? {
+        id: data[0].id,
+        name: data[0].name,
+        lat: data[0].lat,
+        lng: data[0].lng
+      } : 'No venues');
+      
+      // Apply filters to the venues
+      return applyFiltersToVenues(data, filters);
+    } catch (rpcError) {
+      // If the RPC function fails (likely doesn't exist), fall back to regular query
+      console.warn('⚠️ API DEBUG - RPC function failed:', rpcError);
+      console.warn('⚠️ API DEBUG - RPC error details:', {
+        message: rpcError.message,
+        code: rpcError.code,
+        details: rpcError.details,
+        hint: rpcError.hint
+      });
+      console.warn('🔄 API DEBUG - Falling back to regular query...');
+      
+      // Fallback: Get all venues and filter client-side
+      // This is less efficient but works without the PostGIS function
+      console.log('Attempting fallback query to get all venues...');
+      const { data: allVenues, error: queryError } = await supabase
+        .from('venues')
+        .select('*');
+      
+      console.log('📊 API DEBUG - Fallback query result:', {
+        venuesCount: allVenues ? allVenues.length : 0,
+        error: queryError ? {
+          message: queryError.message,
+          code: queryError.code
+        } : 'No error'
+      });
+      
+      if (allVenues && allVenues.length > 0) {
+        console.log('📍 API DEBUG - First venue from fallback:', {
+          id: allVenues[0].id,
+          name: allVenues[0].name,
+          lat: allVenues[0].lat,
+          lng: allVenues[0].lng
+        });
+      }
+      
+      if (queryError) throw queryError;
+      
+      if (!allVenues || allVenues.length === 0) {
+        console.log('No venues found in database');
+        return [];
+      }
+      
+      console.log(`Retrieved ${allVenues.length} venues from database, filtering client-side...`);
+      
+      // Filter venues by distance
+      const venuesWithinRadius = allVenues.filter(venue => {
+        if (!venue.lat || !venue.lng) return false;
+        
+        const distance = calculateDistance(lat, lng, venue.lat, venue.lng);
+        return distance <= radiusKm;
+      });
+      
+      // Apply additional filters
+      return applyFiltersToVenues(venuesWithinRadius, filters);
+    }
   } catch (error) {
     console.error('Error getting nearby venues:', error);
     
@@ -36,6 +127,75 @@ export async function getNearbyVenues(lat, lng, radiusKm = 5, filters = {}) {
     return [];
   }
 }
+
+/**
+ * Apply filters to venues
+ * @param {Array} venues - Array of venues to filter
+ * @param {Object} filters - Filters to apply (gender, minAge, maxAge)
+ * @returns {Array} Filtered venues
+ */
+function applyFiltersToVenues(venues, filters = {}) {
+  if (!venues || !Array.isArray(venues)) return [];
+  
+  console.log('🔍 API DEBUG - Applying filters to venues:', {
+    venuesCount: venues.length,
+    filters
+  });
+  
+  // If no filters are provided, return all venues
+  if (!filters || Object.keys(filters).length === 0) {
+    return venues;
+  }
+  
+  return venues.filter(venue => {
+    // Gender filter
+    if (filters.gender && filters.gender !== 'all') {
+      // If venue has a target_gender field and it doesn't match the filter, exclude it
+      if (venue.target_gender && venue.target_gender !== filters.gender) {
+        return false;
+      }
+    }
+    
+    // Age filter - this depends on how age data is stored for venues
+    // For example, if venues have min_age and max_age fields:
+    if (filters.minAge && venue.max_age && filters.minAge > venue.max_age) {
+      return false;
+    }
+    if (filters.maxAge && venue.min_age && filters.maxAge < venue.min_age) {
+      return false;
+    }
+    
+    // All filters passed
+    return true;
+  });
+}
+
+/**
+ * Calculate distance between two points using Haversine formula
+ * @param {number} lat1 - First point latitude
+ * @param {number} lng1 - First point longitude
+ * @param {number} lat2 - Second point latitude
+ * @param {number} lng2 - Second point longitude
+ * @returns {number} Distance in kilometers
+ */
+function calculateDistance(lat1, lng1, lat2, lng2) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLng = deg2rad(lng2 - lng1);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // Distance in km
+  return distance;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180);
+}
+
+
 
 /**
  * Get venue details by ID

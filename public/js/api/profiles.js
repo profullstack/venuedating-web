@@ -54,6 +54,9 @@ export async function updateProfile(profileData) {
   }
 }
 
+// Alias for getCurrentProfile to maintain backward compatibility
+export const getUserProfile = getCurrentProfile;
+
 /**
  * Get profile by user ID
  * @param {string} userId - User ID to get profile for

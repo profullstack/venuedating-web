@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Your Phone - BarCrush</title>
+  <title data-i18n="profile.verify_phone_title">Verify Your Phone - BarCrush</title>
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/fonts.css">
   <link rel="stylesheet" href="/css/typography.css">
@@ -12,6 +12,7 @@
     import { initProfileVerifyPage } from '/js/profile-verify.js';
     document.addEventListener('DOMContentLoaded', initProfileVerifyPage);
   </script>
+  <script type="module" src="/js/test-language-switch.js"></script>
 </head>
 <body>
 <div class="verify-container">
@@ -23,8 +24,8 @@
           <path d="M15 18L9 12L15 6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
-      <h1 class="profile-title">Verify Your Phone</h1>
-      <p class="profile-subtitle">We've sent a verification code to your phone number.</p>
+      <h1 class="profile-title" data-i18n="profile.verify_phone">Verify Your Phone</h1>
+      <p class="profile-subtitle" data-i18n="profile.verification_sent">We've sent a verification code to your phone number.</p>
     </div>
     
     <div class="phone-verification-container">
@@ -35,19 +36,19 @@
           <span class="country-selector-arrow">▼</span>
         </div>
         <div class="phone-number-display" id="phone-number-display">555-123-4567</div>
-        <button id="change-number-btn" class="text-btn">Change</button>
+        <button id="change-number-btn" class="text-btn" data-i18n="profile.change">Change</button>
       </div>
       
       <div id="verification-section" class="verification-section">
-        <label for="verification-code" class="verification-label">Enter the 6-digit verification code</label>
+        <label for="verification-code" class="verification-label" data-i18n="profile.enter_verification_code">Enter the 6-digit verification code</label>
         <div class="verification-input-container">
-          <input type="text" id="verification-code" class="verification-code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric">
+          <input type="text" id="verification-code" class="verification-code-input" placeholder="000000" maxlength="6" autocomplete="one-time-code" inputmode="numeric" data-i18n-placeholder="profile.verification_code_placeholder">
         </div>
         <div id="verification-error" class="error-message hidden"></div>
-        <button id="verify-btn" class="action-btn" disabled>Verify & Complete Profile</button>
+        <button id="verify-btn" class="action-btn" disabled data-i18n="profile.verify_complete">Verify & Complete Profile</button>
         <div class="resend-container">
-          <span>Didn't receive the code?</span>
-          <button id="resend-code-btn" class="text-btn">Resend Code</button>
+          <span data-i18n="profile.didnt_receive_code">Didn't receive the code?</span>
+          <button id="resend-code-btn" class="text-btn" data-i18n="profile.resend_code">Resend Code</button>
           <span id="resend-timer" class="timer hidden">Resend in 30s</span>
         </div>
       </div>

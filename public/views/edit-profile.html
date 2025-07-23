@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Profile - BarCrush</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <script src="/js/i18n.js"></script>
+  <script src="/js/auth-middleware.js" type="module"></script>
+  <script src="/js/countries.js"></script>
+  <style>
+    /* Import Roboto font */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    /* Import country dropdown styles */
+    @import url('/css/country-dropdown.css');
+    
+    .profile-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      background-color: #fff;
+      font-family: 'Roboto', sans-serif;
+      padding: 16px;
+      padding-top: 0;
+      box-sizing: border-box;
+    }
+    
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-top: 16px;
+    }
+    
+    .profile-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .cancel-btn {
+      color: #F44B74;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .profile-photo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-photo {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .camera-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #F44B74;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .profile-photo-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .input-group label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    
+    .input-group input {
+      height: 48px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-size: 16px;
+    }
+    
+    .phone-input-container {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .country-select {
+      position: relative;
+      min-width: 90px;
+      border-right: 1px solid #ddd;
+    }
+    
+    .selected-country {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      height: 48px;
+      cursor: pointer;
+    }
+    
+    .country-flag {
+      font-size: 20px;
+      margin-right: 5px;
+    }
+    
+    .country-code {
+      font-size: 14px;
+      margin-right: 5px;
+    }
+    
+    .dropdown-arrow {
+      font-size: 10px;
+      color: #999;
+    }
+    
+    .phone-input {
+      flex: 1;
+      height: 48px;
+      border: none;
+      padding: 0 16px;
+      font-size: 16px;
+    }
+    
+    .option-btn {
+      display: flex;
+      align-items: center;
+      height: 48px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0 16px;
+      background-color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    .option-btn svg {
+      margin-right: 12px;
+    }
+    
+    .confirm-btn {
+      height: 48px;
+      background-color: #F44B74;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    /* Date picker modal styles */
+    .date-picker-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .date-picker-container {
+      width: 90%;
+      max-width: 350px;
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .date-picker-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .date-picker-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    .date-selector {
+      margin-bottom: 20px;
+    }
+    
+    .date-selector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .month-year {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #F44B74;
+      font-size: 20px;
+    }
+    
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+    
+    .calendar-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    
+    .calendar-day:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .calendar-day.selected {
+      background-color: #F44B74;
+      color: #fff;
+    }
+    
+    .calendar-day.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .weekday {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      font-weight: 500;
+      color: #999;
+    }
+    
+    .save-btn {
+      width: 100%;
+      height: 48px;
+      background-color: #F44B74;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1 data-i18n="profile.edit_info">Edit Profile</h1>
+      <a href="/discover" class="cancel-btn" data-i18n="profile.cancel">Cancel</a>
+    </div>
+    
+    <div class="profile-photo-container">
+      <div class="profile-photo">
+        <img src="/images/default-profile.png" alt="Profile Photo" id="profile-image">
+        <button class="camera-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="profile-photo-text" data-i18n="profile.photo">Profile Photo</div>
+    </div>
+    
+    <div class="profile-form">
+      <div class="input-group">
+        <label for="first-name" data-i18n="profile.first_name">First name</label>
+        <input type="text" id="first-name" placeholder="Jane" data-i18n-placeholder="profile.first_name_placeholder">
+      </div>
+      
+      <div class="input-group">
+        <label for="last-name" data-i18n="profile.last_name">Last name</label>
+        <input type="text" id="last-name" placeholder="Doe" data-i18n-placeholder="profile.last_name_placeholder">
+      </div>
+
+      <div class="input-group">
+        <label for="phone-number" data-i18n="profile.phone_number">Phone number</label>
+        <div class="phone-input-container">
+          <div class="country-select" id="country-select">
+            <div class="selected-country">
+              <div class="country-flag" id="selected-flag">🇺🇸</div>
+              <div class="country-code" id="selected-code">+1</div>
+              <div class="dropdown-arrow">▼</div>
+            </div>
+            <div class="country-dropdown" id="country-dropdown" style="display: none;">
+              <div class="country-search-container">
+                <input type="text" id="country-search-input" placeholder="Search country" class="country-search" data-i18n-placeholder="profile.search_country">
+              </div>
+              <div class="country-list-container">
+                <!-- Country options will be populated dynamically from countries.js -->
+              </div>
+            </div>
+          </div>
+          <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input" data-i18n-placeholder="profile.phone_placeholder">
+          <input type="hidden" id="country-code-input" value="+1">
+          <input type="hidden" id="full-phone" value="">
+        </div>
+      </div>
+      
+      <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 10H21" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="birthday-display" data-i18n="profile.choose_birthday">Choose birthday date</span>
+      </button>
+      
+      <button class="option-btn location-btn" id="location-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="location-display" data-i18n="profile.choose_location">Choose your location</span>
+      </button>
+      
+      <button class="confirm-btn" id="save-btn" data-i18n="profile.save_changes">Save Changes</button>
+    </div>
+  </div>
+  <!-- Date Picker Modal -->
+  <div class="date-picker-modal" id="birthday-picker-modal">
+    <div class="date-picker-container">
+      <div class="date-picker-header">
+        <div class="date-picker-title" data-i18n="profile.select_birthday">Select Birthday</div>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="date-selector">
+        <div class="date-selector-header">
+          <button class="nav-btn prev-month" id="prev-month">&lt;</button>
+          <div class="month-year" id="month-year">January 2023</div>
+          <button class="nav-btn next-month" id="next-month">&gt;</button>
+        </div>
+        <div class="calendar" id="calendar">
+          <!-- Calendar days will be populated dynamically -->
+        </div>
+      </div>
+      <button class="save-btn" id="save-date-btn" data-i18n="profile.save">Save</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables for date picker
+    let currentDate = new Date();
+    let selectedDate = null;
+    let userId = null;
+    let userProfileData = null;
+    
+    // Initialize the app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Initialize i18n
+      await window.localizer.init();
+      window.localizer.translatePage();
+      
+      // Get user ID from localStorage
+      userId = localStorage.getItem('barcrush-user-id');
+      if (!userId) {
+        // Redirect to login if no user ID
+        window.location.href = '/views/login.html';
+        return;
+      }
+      
+      // Load user profile data
+      await loadUserProfile();
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      // Initialize date picker
+      initDatePicker();
+    });
+    
+    // Load user profile data from API
+    async function loadUserProfile() {
+      try {
+        const apiUrl = localStorage.getItem('barcrush-api-url') || 'https://api.barcrush.com';
+        const token = localStorage.getItem('barcrush-token');
+        
+        if (!token) {
+          window.location.href = '/views/login.html';
+          return;
+        }
+        
+        const response = await fetch(`${apiUrl}/users/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to load profile data');
+        }
+        
+        userProfileData = await response.json();
+        populateFormWithUserData(userProfileData);
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+        // For development purposes, use mock data if API fails
+        userProfileData = getMockUserData();
+        populateFormWithUserData(userProfileData);
+      }
+    }
+    
+    // Mock user data for development/testing
+    function getMockUserData() {
+      return {
+        firstName: 'Jane',
+        lastName: 'Doe',
+        phoneNumber: '123-456-7890',
+        countryCode: '+1',
+        birthday: '1990-05-15',
+        location: 'New York, NY',
+        profileImage: '/images/default-profile.png'
+      };
+    }
+    
+    // Populate form fields with user data
+    function populateFormWithUserData(userData) {
+      // Set profile image
+      const profileImage = document.getElementById('profile-image');
+      if (userData.profileImage) {
+        profileImage.src = userData.profileImage;
+      }
+      
+      // Set form fields
+      document.getElementById('first-name').value = userData.firstName || '';
+      document.getElementById('last-name').value = userData.lastName || '';
+      
+      // Set phone number
+      if (userData.phoneNumber) {
+        document.getElementById('phone-number').value = userData.phoneNumber;
+      }
+      
+      // Set country code
+      if (userData.countryCode) {
+        document.getElementById('selected-code').textContent = userData.countryCode;
+        document.getElementById('country-code-input').value = userData.countryCode;
+      }
+      
+      // Set birthday
+      if (userData.birthday) {
+        const birthdayDate = new Date(userData.birthday);
+        selectedDate = birthdayDate;
+        currentDate = new Date(birthdayDate);
+        
+        // Update birthday button text
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = birthdayDate.toLocaleDateString(undefined, options);
+        document.getElementById('birthday-display').textContent = formattedDate;
+      }
+      
+      // Set location
+      if (userData.location) {
+        document.getElementById('location-display').textContent = userData.location;
+      }
+    }
+    
+    // Set up event listeners
+    function setupEventListeners() {
+      // Photo upload functionality
+      const cameraBtn = document.querySelector('.camera-btn');
+      const profileImage = document.getElementById('profile-image');
+      
+      cameraBtn.addEventListener('click', function() {
+        // Create a file input element
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        
+        // Trigger click on file input
+        fileInput.click();
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+          if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+              profileImage.src = event.target.result;
+            };
+            
+            reader.readAsDataURL(e.target.files[0]);
+          }
+          
+          // Remove the file input from the DOM
+          document.body.removeChild(fileInput);
+        });
+      });
+      
+      // Country dropdown functionality
+      const countrySelect = document.getElementById('country-select');
+      const countryDropdown = document.getElementById('country-dropdown');
+      const countrySearchInput = document.getElementById('country-search-input');
+      
+      countrySelect.addEventListener('click', function() {
+        countryDropdown.style.display = countryDropdown.style.display === 'none' ? 'block' : 'none';
+      });
+      
+      // Location button functionality
+      const locationBtn = document.getElementById('location-btn');
+      locationBtn.addEventListener('click', function() {
+        // In a real app, this would open a location picker
+        // For now, just simulate with a prompt
+        const location = prompt('Enter your location:', userProfileData?.location || '');
+        if (location) {
+          document.getElementById('location-display').textContent = location;
+        }
+      });
+      
+      // Save button functionality
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.addEventListener('click', saveProfile);
+    }
+    
+    // Save profile data
+    async function saveProfile() {
+      try {
+        const firstName = document.getElementById('first-name').value;
+        const lastName = document.getElementById('last-name').value;
+        const phoneNumber = document.getElementById('phone-number').value;
+        const countryCode = document.getElementById('country-code-input').value;
+        const birthday = selectedDate ? selectedDate.toISOString().split('T')[0] : null;
+        const location = document.getElementById('location-display').textContent;
+        const profileImage = document.getElementById('profile-image').src;
+        
+        // Validate required fields
+        if (!firstName || !lastName) {
+          alert(window.localizer.translate('profile.required_fields'));
+          return;
+        }
+        
+        const updatedProfile = {
+          firstName,
+          lastName,
+          phoneNumber,
+          countryCode,
+          birthday,
+          location,
+          profileImage
+        };
+        
+        // In a real app, send this data to the API
+        const apiUrl = localStorage.getItem('barcrush-api-url') || 'https://api.barcrush.com';
+        const token = localStorage.getItem('barcrush-token');
+        
+        if (!token) {
+          window.location.href = '/views/login.html';
+          return;
+        }
+        
+        const response = await fetch(`${apiUrl}/users/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedProfile)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update profile');
+        }
+        
+        // For development purposes, just log the data and redirect
+        console.log('Profile updated:', updatedProfile);
+        
+        // Redirect to settings page
+        window.location.href = '/views/settings.html';
+      } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Failed to save profile. Please try again.');
+      }
+    }
+    
+    // Initialize date picker
+    function initDatePicker() {
+      const calendar = document.getElementById('calendar');
+      const monthYear = document.getElementById('month-year');
+      const prevMonthBtn = document.getElementById('prev-month');
+      const nextMonthBtn = document.getElementById('next-month');
+      const saveDateBtn = document.getElementById('save-date-btn');
+      
+      // Update calendar display
+      function updateCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Set month and year in header
+        const options = { year: 'numeric', month: 'long' };
+        monthYear.textContent = currentDate.toLocaleDateString(undefined, options);
+        
+        // Clear calendar
+        calendar.innerHTML = '';
+        
+        // Add weekday headers
+        const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        weekdays.forEach(day => {
+          const weekdayEl = document.createElement('div');
+          weekdayEl.className = 'weekday';
+          weekdayEl.textContent = day;
+          calendar.appendChild(weekdayEl);
+        });
+        
+        // Get first day of month and number of days
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Add empty cells for days before first day of month
+        for (let i = 0; i < firstDay; i++) {
+          const emptyDay = document.createElement('div');
+          emptyDay.className = 'calendar-day';
+          calendar.appendChild(emptyDay);
+        }
+        
+        // Add days of month
+        for (let i = 1; i <= daysInMonth; i++) {
+          const dayEl = document.createElement('div');
+          dayEl.className = 'calendar-day';
+          dayEl.textContent = i;
+          
+          // Check if this day is selected
+          if (selectedDate && 
+              selectedDate.getDate() === i && 
+              selectedDate.getMonth() === month && 
+              selectedDate.getFullYear() === year) {
+            dayEl.classList.add('selected');
+          }
+          
+          // Add click event to select date
+          dayEl.addEventListener('click', function() {
+            // Remove selected class from all days
+            document.querySelectorAll('.calendar-day.selected').forEach(el => {
+              el.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked day
+            dayEl.classList.add('selected');
+            
+            // Update selected date
+            selectedDate = new Date(year, month, i);
+          });
+          
+          calendar.appendChild(dayEl);
+        }
+      }
+      
+      // Initialize calendar
+      updateCalendar();
+      
+      // Previous month button
+      prevMonthBtn.addEventListener('click', function() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        updateCalendar();
+      });
+      
+      // Next month button
+      nextMonthBtn.addEventListener('click', function() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateCalendar();
+      });
+      
+      // Save date button
+      saveDateBtn.addEventListener('click', function() {
+        if (selectedDate) {
+          const options = { year: 'numeric', month: 'long', day: 'numeric' };
+          const formattedDate = selectedDate.toLocaleDateString(undefined, options);
+          document.getElementById('birthday-display').textContent = formattedDate;
+        }
+        closeModal();
+      });
+    }
+    
+    // Show date picker modal
+    function showDatePicker() {
+      const modal = document.getElementById('birthday-picker-modal');
+      modal.style.display = 'flex';
+    }
+    
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('birthday-picker-modal');
+      modal.style.display = 'none';
+    }
+    
+    // Populate countries dropdown (simplified version)
+    function populateCountries() {
+      const countryListContainer = document.querySelector('.country-list-container');
+      const countries = [
+        { name: 'United States', code: '+1', flag: '🇺🇸' },
+        { name: 'United Kingdom', code: '+44', flag: '🇬🇧' },
+        { name: 'Canada', code: '+1', flag: '🇨🇦' },
+        { name: 'Australia', code: '+61', flag: '🇦🇺' },
+        { name: 'France', code: '+33', flag: '🇫🇷' },
+        { name: 'Germany', code: '+49', flag: '🇩🇪' },
+        { name: 'Spain', code: '+34', flag: '🇪🇸' },
+        { name: 'Italy', code: '+39', flag: '🇮🇹' },
+        { name: 'Japan', code: '+81', flag: '🇯🇵' },
+        { name: 'China', code: '+86', flag: '🇨🇳' },
+        { name: 'India', code: '+91', flag: '🇮🇳' },
+        { name: 'Brazil', code: '+55', flag: '🇧🇷' },
+        { name: 'Mexico', code: '+52', flag: '🇲🇽' },
+        { name: 'Russia', code: '+7', flag: '🇷🇺' },
+        { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' }
+      ];
+      
+      countries.forEach(country => {
+        const countryOption = document.createElement('div');
+        countryOption.className = 'country-option';
+        countryOption.innerHTML = `
+          <div class="country-flag">${country.flag}</div>
+          <div class="country-name">${country.name}</div>
+          <div class="country-code">${country.code}</div>
+        `;
+        
+        countryOption.addEventListener('click', function() {
+          document.getElementById('selected-flag').textContent = country.flag;
+          document.getElementById('selected-code').textContent = country.code;
+          document.getElementById('country-code-input').value = country.code;
+          document.getElementById('country-dropdown').style.display = 'none';
+        });
+        
+        countryListContainer.appendChild(countryOption);
+      });
+    }
+    
+    // Call populateCountries when the page loads
+    document.addEventListener('DOMContentLoaded', populateCountries);
+  </script>
+</body>
+</html>

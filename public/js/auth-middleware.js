@@ -248,21 +248,62 @@ class AuthMiddleware {
         // Clear demo account flags
         localStorage.removeItem('demo_account');
         localStorage.removeItem('demo_user');
-        this.currentUser = null;
-        this.updateUI();
-        window.location.href = '/auth';
-        return;
       }
       
       // Regular Supabase logout
       const supabase = await supabaseClientPromise;
       await supabase.auth.signOut();
+      
+      // Clear all auth-related local storage items
+      this.clearAuthData();
+      
+      // Update UI and redirect
       this.currentUser = null;
       this.updateUI();
+      
+      // Dispatch event for components to react to logout
+      window.dispatchEvent(new CustomEvent('user-logged-out'));
+      
+      // Redirect to auth page
       window.location.href = '/auth';
     } catch (error) {
       console.error('Error logging out:', error);
+      throw error; // Re-throw to allow UI to handle the error
     }
+  }
+  
+  /**
+   * Clear all authentication-related data from local storage
+   */
+  clearAuthData() {
+    // Clear Barcrush specific items
+    const barcrushItems = [
+      'barcrush-token',
+      'barcrush-user-id',
+      'barcrush-user',
+      'barcrush-profile',
+      'barcrush-last-venue',
+      'barcrush-settings'
+    ];
+    
+    barcrushItems.forEach(item => {
+      if (localStorage.getItem(item)) {
+        localStorage.removeItem(item);
+      }
+    });
+    
+    // Clear any Supabase related items
+    const supabasePrefix = 'sb-';
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(supabasePrefix)) {
+        localStorage.removeItem(key);
+        // Adjust index since we're removing items
+        i--;
+      }
+    }
+    
+    console.log('All auth data cleared from local storage');
   }
 }
 

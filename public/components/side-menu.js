@@ -31,15 +31,24 @@ class SideMenu extends HTMLElement {
     
     this.render(userName, userAvatar);
     this.setupEventListeners();
+    this.initializeToggleState();
     
-    // Explicitly call setupLanguageSelector
-    setTimeout(() => this.setupLanguageSelector(), 100);
-    
-    // Initialize toggle state based on current theme
-    setTimeout(() => this.initializeToggleState(), 100);
+    // Set up language selector
+    this.setupLanguageSelector();
     
     // Listen for auth state changes
-    document.addEventListener('auth:stateChanged', this.handleAuthStateChange.bind(this));
+    window.addEventListener('auth-state-changed', this.handleAuthStateChange.bind(this));
+    
+    // Listen for language changes to update the shadow DOM content
+    window.addEventListener('language-changed', this.translateShadowDOM.bind(this));
+    
+    // Translate shadow DOM content on initial load
+    // Use a small timeout to ensure the app and localizer are fully initialized
+    setTimeout(() => {
+      if (window.app && window.app.localizer) {
+        this.translateShadowDOM();
+      }
+    }, 100);
   }
   
   render(userName, userAvatar) {
@@ -412,13 +421,13 @@ class SideMenu extends HTMLElement {
             <img src="${userAvatar}" alt="${userName}">
           </div>
           <h3 class="user-name">${userName}</h3>
-          <p class="profile">Profile</p>
+          <p class="profile" data-i18n="side_menu.profile">Profile</p>
           <button class="edit-profile-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
-            Edit Profile
+            <span data-i18n="side_menu.edit_profile">Edit Profile</span>
           </button>
         </div>
         
@@ -429,7 +438,7 @@ class SideMenu extends HTMLElement {
               <line x1="2" y1="12" x2="22" y2="12"></line>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
             </svg>
-            <span>Language: <span id="current-language">English</span></span>
+            <span data-i18n="side_menu.language">Language</span>: <span id="current-language">English</span>
             <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
@@ -439,46 +448,46 @@ class SideMenu extends HTMLElement {
           </div>
         </div>
         
-        <a href="#" class="menu-item">
+        <a href="/views/notifications.html" class="menu-item notifications-link">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
           </svg>
-          Notifications
+          <span data-i18n="side_menu.notifications">Notifications</span>
         </a>
         
         <div class="menu-section">
-          <p class="menu-section-title">Bank</p>
+          <p class="menu-section-title" data-i18n="side_menu.bank">Bank</p>
           
           <a href="#" class="menu-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
               <line x1="1" y1="10" x2="23" y2="10"></line>
             </svg>
-            Payments
+            <span data-i18n="side_menu.payments">Payments</span>
           </a>
     
         </div>
         
         <div class="menu-section">
-          <p class="menu-section-title">Security</p>
+          <p class="menu-section-title" data-i18n="side_menu.security">Security</p>
           
           <a href="#" class="menu-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
-            Password
+            <span data-i18n="side_menu.password">Password</span>
           </a>
           
-          <button class="menu-item logout-button">
+          <a class="menu-item logout-button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            Logout
-          </button>
+            <span data-i18n="side_menu.logout">Logout</span>
+          </a>
         </div>
         
         <button class="delete-account">
@@ -486,7 +495,7 @@ class SideMenu extends HTMLElement {
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
           </svg>
-          Delete account
+          <span data-i18n="side_menu.delete_account">Delete account</span>
         </button>
         
         <a href="#" class="help-center">
@@ -497,7 +506,7 @@ class SideMenu extends HTMLElement {
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
             </svg>
           </div>
-          Help Center 
+          <span data-i18n="side_menu.help_center">Help Center</span> 
           <div class="arrow">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"></polyline>
@@ -509,13 +518,12 @@ class SideMenu extends HTMLElement {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
-          <span>Dark Mode</span>
+          <span data-i18n="side_menu.dark_mode">Dark Mode</span>
           <label class="toggle-switch">
-            <input type="checkbox">
+            <input type="checkbox" id="dark-mode-checkbox">
             <span class="toggle-slider"></span>
           </label>
         </div>
-      </div>
     `;
   }
   
@@ -526,6 +534,7 @@ class SideMenu extends HTMLElement {
     const sideMenu = this.shadowRoot.querySelector('.side-menu');
     const logoutButton = this.shadowRoot.querySelector('.logout-button');
     const darkModeToggle = this.shadowRoot.querySelector('.dark-mode-toggle input');
+    const editProfileBtn = this.shadowRoot.querySelector('.edit-profile-btn');
     
     // Toggle menu on button click
     menuButton.addEventListener('click', () => {
@@ -542,10 +551,31 @@ class SideMenu extends HTMLElement {
       this.closeMenu();
     });
     
-    // Add logout button event listener
+    // Add logout button event listener with confirmation
     if (logoutButton) {
       logoutButton.addEventListener('click', async () => {
-        await authMiddleware.logout();
+        // Show confirmation dialog
+        const confirmLogout = confirm(window.app?.localizer?.translate('side_menu.confirm_logout') || 'Are you sure you want to log out?');
+        
+        if (confirmLogout) {
+          // Show loading state
+          const originalText = logoutButton.querySelector('span').textContent;
+          logoutButton.querySelector('span').textContent = window.app?.localizer?.translate('side_menu.logging_out') || 'Logging out...';
+          logoutButton.style.opacity = '0.7';
+          logoutButton.style.pointerEvents = 'none';
+          
+          try {
+            // Perform logout
+            await authMiddleware.logout();
+            // Note: No need to reset button state as page will redirect
+          } catch (error) {
+            // Reset button state if error occurs
+            logoutButton.querySelector('span').textContent = originalText;
+            logoutButton.style.opacity = '1';
+            logoutButton.style.pointerEvents = 'auto';
+            console.error('Logout failed:', error);
+          }
+        }
       });
     }
     
@@ -568,6 +598,13 @@ class SideMenu extends HTMLElement {
     sideMenu.addEventListener('click', (event) => {
       event.stopPropagation();
     });
+    
+    // Add edit profile button event listener
+    if (editProfileBtn) {
+      editProfileBtn.addEventListener('click', () => {
+        window.location.href = '/views/edit-profile.html';
+      });
+    }
     
     // Setup language selector functionality
     // Direct language selector click handling here instead of in setupLanguageSelector
@@ -732,16 +769,20 @@ class SideMenu extends HTMLElement {
     // Get current language
     let currentLang = 'en';
     if (window.app && window.app.localizer) {
-      currentLang = window.app.localizer.getCurrentLanguage();
+      currentLang = window.app.localizer.getLanguage ? window.app.localizer.getLanguage() : 'en';
     } else {
-      currentLang = localStorage.getItem('convert2doc-language') || 'en';
+      currentLang = localStorage.getItem('barcrush-language') || 'en';
     }
     
     // Update current language display
     this.updateCurrentLanguageDisplay(currentLang, languages, currentLanguageEl);
     
-    // Handle language selection
-    languageDropdown.addEventListener('click', (e) => {
+    // Remove any existing event listeners to prevent duplicates
+    const newLanguageDropdown = languageDropdown.cloneNode(true);
+    languageDropdown.parentNode.replaceChild(newLanguageDropdown, languageDropdown);
+    
+    // Handle language selection with the new dropdown
+    newLanguageDropdown.addEventListener('click', (e) => {
       console.log('Language option clicked!');
       const option = e.target.closest('.language-option');
       if (!option) return;
@@ -776,25 +817,101 @@ class SideMenu extends HTMLElement {
     });
   }
   
+  /**
+   * Translate all elements with data-i18n attributes within the shadow DOM
+   */
+  translateShadowDOM() {
+    console.log('Translating side menu shadow DOM content');
+    
+    if (!window.app || !window.app.localizer) {
+      console.warn('Localizer not available for shadow DOM translation');
+      return;
+    }
+    
+    // Get all elements with data-i18n attributes within the shadow DOM
+    const elementsToTranslate = this.shadowRoot.querySelectorAll('[data-i18n]');
+    console.log(`Found ${elementsToTranslate.length} elements to translate in shadow DOM`);
+    
+    // Translate each element
+    elementsToTranslate.forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key && typeof window.app.localizer.translate === 'function') {
+        const translation = window.app.localizer.translate(key);
+        if (translation) {
+          el.textContent = translation;
+          console.log(`Translated ${key} to ${translation}`);
+        } else {
+          console.warn(`No translation found for key: ${key}`);
+        }
+      }
+    });
+    
+    // Handle RTL languages - safely check if getCurrentLanguage exists
+    let currentLang = 'en';
+    if (typeof window.app.localizer.getCurrentLanguage === 'function') {
+      currentLang = window.app.localizer.getCurrentLanguage();
+    } else if (window.app.localizer.currentLanguage) {
+      // Fallback to currentLanguage property if it exists
+      currentLang = window.app.localizer.currentLanguage;
+    }
+    const isRTL = ['ar', 'he', 'fa', 'ur'].includes(currentLang);
+    
+    // Apply RTL class to the side menu if needed
+    const sideMenu = this.shadowRoot.querySelector('.side-menu');
+    if (sideMenu) {
+      if (isRTL) {
+        sideMenu.classList.add('rtl');
+      } else {
+        sideMenu.classList.remove('rtl');
+      }
+    }
+  }
+  
   changeLanguage(langCode, languages, currentLanguageEl) {
     // Update UI
     this.updateCurrentLanguageDisplay(langCode, languages, currentLanguageEl);
     
-    // Change language in the system
-    if (window.app && window.app.localizer) {
-      window.app.localizer.setLanguage(langCode);
-    } else {
-      // Fallback if localizer is not available
-      localStorage.setItem('convert2doc-language', langCode);
+    console.log('Side menu changing language to:', langCode);
+    
+    // Store the language preference in localStorage with the correct key
+    localStorage.setItem('barcrush-language', langCode);
+    
+    // Change language immediately
+    // Change language in the system first
+    if (window.app && typeof window.app.changeLanguage === 'function') {
+      // Use the app's changeLanguage function if available
+      console.log('Using app.changeLanguage');
+      window.app.changeLanguage(langCode);
+      
+      // Translate the shadow DOM content immediately
+      this.translateShadowDOM();
+    } else if (window.app && window.app.localizer) {
+      // Use localizer directly if available
+      console.log('Using app.localizer directly');
+      
+      if (typeof window.app.localizer.setLanguage === 'function') {
+        window.app.localizer.setLanguage(langCode);
+      }
+      
+      // Translate the shadow DOM content immediately
+      this.translateShadowDOM();
+      
+      // Dispatch event for components to update
       window.dispatchEvent(new CustomEvent('language-changed', {
         detail: { language: langCode }
       }));
+    } else {
+      // Fallback if localizer is not available
+      console.log('No localizer available, using fallback');
       
-      // Reload page to apply changes if needed
-      if (document.documentElement.getAttribute('lang') !== langCode) {
-        window.location.reload();
-      }
+      // Dispatch event for any listeners
+      window.dispatchEvent(new CustomEvent('language-changed', {
+        detail: { language: langCode }
+      }));
     }
+    
+    // Always refresh the page to ensure all components are properly translated
+    window.location.reload();
   }
 }
 

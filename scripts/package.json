@@ -1,0 +1,16 @@
+{
+  "name": "barcrush-api-test",
+  "version": "1.0.0",
+  "description": "CLI tool to test BarCrush API endpoints",
+  "type": "module",
+  "main": "test-venues-api.js",
+  "scripts": {
+    "test": "node test-venues-api.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.4",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1"
+  }
+}
