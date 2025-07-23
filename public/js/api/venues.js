@@ -34,45 +34,11 @@ export async function getNearbyVenues(lat, lng, radiusKm = 5, filters = {}) {
     
     console.log('📍 API DEBUG - Request params:', { lat, lng, radiusKm, filters });
     
-    // First try to use the PostGIS RPC function if it exists
+    // RPC function is not returning coordinates, using fallback query directly
+    console.log('🔄 API DEBUG - Using fallback query (RPC function incomplete)...');
+    
+    // Skip RPC and go straight to fallback query that includes all venue data
     try {
-      console.log('🚀 API DEBUG - Calling get_nearby_venues RPC with params:', {
-        user_lat: lat,
-        user_lng: lng,
-        radius_km: radiusKm
-      });
-      
-      const { data, error } = await supabase.rpc('get_nearby_venues', {
-        user_lat: lat,
-        user_lng: lng,
-        radius_km: radiusKm
-      });
-
-      if (error) {
-        console.warn('RPC function error:', error);
-        throw error; // Will be caught by outer try/catch
-      }
-      
-      console.log('✅ API DEBUG - RPC function success! Venues received:', data ? data.length : 0);
-      console.log('📊 API DEBUG - First venue sample:', data && data.length > 0 ? {
-        id: data[0].id,
-        name: data[0].name,
-        lat: data[0].lat,
-        lng: data[0].lng
-      } : 'No venues');
-      
-      // Apply filters to the venues
-      return applyFiltersToVenues(data, filters);
-    } catch (rpcError) {
-      // If the RPC function fails (likely doesn't exist), fall back to regular query
-      console.warn('⚠️ API DEBUG - RPC function failed:', rpcError);
-      console.warn('⚠️ API DEBUG - RPC error details:', {
-        message: rpcError.message,
-        code: rpcError.code,
-        details: rpcError.details,
-        hint: rpcError.hint
-      });
-      console.warn('🔄 API DEBUG - Falling back to regular query...');
       
       // Fallback: Get all venues and filter client-side
       // This is less efficient but works without the PostGIS function
@@ -117,13 +83,16 @@ export async function getNearbyVenues(lat, lng, radiusKm = 5, filters = {}) {
       
       // Apply additional filters
       return applyFiltersToVenues(venuesWithinRadius, filters);
+    } catch (error) {
+      console.error('Error getting nearby venues:', error);
+      
+      // Rather than throwing an error and breaking the UI, return an empty array
+      // This prevents the UI from breaking if the API call fails
+      console.warn('API call failed - returning empty array with NO mock data');
+      return [];
     }
-  } catch (error) {
-    console.error('Error getting nearby venues:', error);
-    
-    // Rather than throwing an error and breaking the UI, return an empty array
-    // This prevents the UI from breaking if the API call fails
-    console.warn('API call failed - returning empty array with NO mock data');
+  } catch (outerError) {
+    console.error('Outer error in getNearbyVenues:', outerError);
     return [];
   }
 }

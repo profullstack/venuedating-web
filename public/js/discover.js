@@ -363,7 +363,7 @@ async function setupMapElements() {
       
       // Create card content
       const distance = venue.distance ? `${(venue.distance / 1000).toFixed(0)} km away` : '';
-      const peopleCount = venue.people_count || Math.floor(Math.random() * 20) + 5; // Random people count for demo
+      const peopleCount = venue.people_count || 0;
       
       // Generate a venue name if none exists
       const venueName = venue.name || `Venue ${venue.id || Math.floor(Math.random() * 1000)}`;
@@ -411,6 +411,10 @@ async function setupMapElements() {
     
     console.log('🍸 Found venues:', venues.length);
     
+    // Filter venues to only include those with valid geolocation data
+    venues = venues.filter(venue => venue.lat && venue.lng);
+    console.log('🗺️ Valid venues with geolocation:', venues.length);
+    
     // Display venues in the UI
     displayVenues(venues);
     
@@ -424,104 +428,114 @@ async function setupMapElements() {
     venues.forEach(venue => {
       try {
         // Check if venue has valid coordinates
-        if (!venue.latitude || !venue.longitude) {
+        if (!venue.lat || !venue.lng) {
           console.warn(`Venue ${venue.name || 'unknown'} has invalid coordinates:`, venue);
           return; // Skip this venue
         }
         
-        // Use latitude/longitude from API response
-        venue.coords = [venue.latitude, venue.longitude];
+        // Use lat/lng from API response
+        venue.coords = [venue.lat, venue.lng];
         
         // Add random people count for demo if not present
-        if (!venue.people_count) {
-          venue.people_count = Math.floor(Math.random() * 20) + 5;
-        }
+        
+        // Create a custom marker for this venue with people count
+        // For now, use random people count since we don't have real-time data
+        const rawPeopleCount = venue.people_count || Math.floor(Math.random() * 15) + 1;
+        const peopleCount = rawPeopleCount || 0;
+        
+        // Create people count text
+        const peopleText = peopleCount === 0 ? 'Be the first at this venue' : `${peopleCount} people here`;
       
-      // Create a custom marker for this venue with people count
-      const peopleCount = venue.people_count || Math.floor(Math.random() * 20) + 5;
+        // For demo purposes, use placeholder images that look like bars/venues if no image
+        const demoImages = [
+          '/images/venue-placeholder.jpg',
+          'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Bar
+          'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Club
+          'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'  // Music venue
+        ];
       
-      // For demo purposes, use placeholder images that look like bars/venues if no image
-      const demoImages = [
-        '/images/venue-placeholder.jpg',
-        'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Bar
-        'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Club
-        'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'  // Music venue
-      ];
-      
-      const imageIndex = venue.id ? (parseInt(venue.id, 16) % demoImages.length) : Math.floor(Math.random() * demoImages.length);
-      const venueImage = venue.image_url || demoImages[imageIndex];
-      
-      // Create a custom HTML marker with connect button and circular image
-      const markerHtml = `
-        <div class="venue-marker-container" style="position: relative; display: flex; flex-direction: column; align-items: center;">
-          <div class="connect-button" style="background-color: #ff4d79; color: white; padding: 8px 16px; border-radius: 50px; font-weight: bold; text-align: center; margin-bottom: 10px; white-space: nowrap; box-shadow: 0 2px 8px rgba(255,77,121,0.3); cursor: pointer;" onclick="(function(e) { e.stopPropagation(); alert('Connecting with ${peopleCount} people at ${venue.name || 'this venue'}...'); })(event)">
-            Connect with ${peopleCount} people
+        const imageIndex = venue.id ? (parseInt(venue.id, 16) % demoImages.length) : Math.floor(Math.random() * demoImages.length);
+        const venueImage = venue.image_url || demoImages[imageIndex];
+        
+        // Create a custom HTML marker with connect button and circular image
+        const markerHtml = `
+          <div class="venue-marker-container" style="position: relative; display: flex; flex-direction: column; align-items: center;">
+            <div class="connect-button" style="background-color: #ff4d79; color: white; padding: 10px 18px; border-radius: 50px; font-weight: bold; text-align: center; margin-bottom: 12px; white-space: nowrap; box-shadow: 0 4px 12px rgba(255,77,121,0.4); cursor: pointer; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);" onclick="(function(e) { e.stopPropagation(); alert('${peopleCount === 0 ? 'Be the first to connect at' : 'Connecting with ' + peopleCount + ' people at'} ${venue.name || 'this venue'}...'); })(event)">
+              ${peopleText}
+            </div>
+            <div class="venue-marker-circle" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 4px solid #ff4d79; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+              <img src="${venueImage}" alt="${venue.name || 'Venue'}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="venue-name" style="position: absolute; bottom: -30px; text-align: center; color: #ff4d79; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 15px; white-space: nowrap; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 8px;">
+              ${venue.name || 'Venue'}
+            </div>
           </div>
-          <div class="venue-marker-circle" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 4px solid #ff4d79; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-            <img src="${venueImage}" alt="${venue.name || 'Venue'}" style="width: 100%; height: 100%; object-fit: cover;">
+        `;
+      
+        // Create a custom icon for the marker
+        const venueIcon = L.divIcon({
+          className: 'custom-venue-marker',
+          html: markerHtml,
+          iconSize: [200, 130], // Larger size to accommodate the connect button and image
+          iconAnchor: [100, 65]  // Center anchor point
+        });
+        
+        // Add the marker to the map
+        const marker = L.marker(venue.coords, { 
+          icon: venueIcon,
+          venueId: venue.id // Store venue ID for later reference
+        }).addTo(map);
+      
+        // Add popup with venue info
+        marker.bindPopup(`
+          <div class="venue-popup" style="text-align: center;">
+            <h3 style="margin: 5px 0; font-size: 18px;">${venue.name || 'Unnamed Venue'}</h3>
+            <p style="margin: 5px 0; color: #666;">${venue.address || 'No address available'}</p>
+            <div style="margin: 10px 0;">
+              <span style="background-color: #ff4d79; color: white; padding: 8px 14px; border-radius: 20px; font-size: 14px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                ${peopleText}
+              </span>
+            </div>
+            <button class="popup-connect-btn" style="background-color: #ff4d79; color: white; border: none; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer;">
+              Connect
+            </button>
           </div>
-          <div class="venue-name" style="position: absolute; bottom: -25px; text-align: center; color: #ff4d79; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-size: 14px; white-space: nowrap;">
-            ${venue.name || 'Venue'}
-          </div>
-        </div>
-      `;
+        `);
       
-      // Create a custom icon for the marker
-      const venueIcon = L.divIcon({
-        className: 'custom-venue-marker',
-        html: markerHtml,
-        iconSize: [200, 130], // Larger size to accommodate the connect button and image
-        iconAnchor: [100, 65]  // Center anchor point
-      });
-      
-      // Add the marker to the map
-      const marker = L.marker(venue.coords, { 
-        icon: venueIcon,
-        venueId: venue.id // Store venue ID for later reference
-      }).addTo(map);
-      
-      // Add popup with venue info
-      marker.bindPopup(`
-        <div class="venue-popup" style="text-align: center;">
-          <h3 style="margin: 5px 0; font-size: 18px;">${venue.name || 'Unnamed Venue'}</h3>
-          <p style="margin: 5px 0; color: #666;">${venue.address || 'No address available'}</p>
-          <div style="margin: 10px 0;">
-            <span style="background-color: #ff4d79; color: white; padding: 5px 10px; border-radius: 20px; font-size: 14px;">
-              ${peopleCount} people here
-            </span>
-          </div>
-          <button class="popup-connect-btn" style="background-color: #ff4d79; color: white; border: none; padding: 8px 16px; border-radius: 20px; margin-top: 10px; cursor: pointer;">
-            Connect
-          </button>
-        </div>
-      `);
-      
-      // Add click handler for the connect button in the marker
-      marker.on('popupopen', () => {
-        setTimeout(() => {
-          const connectBtn = document.querySelector('.popup-connect-btn');
-          if (connectBtn) {
-            connectBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              alert(`Connecting with ${peopleCount} people at ${venue.name || 'this venue'}...`);
-            });
-          }
-        }, 10);
-      });
-      
-      // Store the marker reference
-      venueMarkers.push(marker);
-      
-      // Add click handler for marker
-      marker.on('click', () => {
-        // Call the venue marker click handler
-        handleVenueMarkerClick(venue, marker);
-      });
-      
-    } catch (error) {
-      console.error(`Error creating marker for venue ${venue.name || 'unknown'}:`, error);
+        // Add click handler for the connect button in the marker
+        marker.on('popupopen', () => {
+          setTimeout(() => {
+            const connectBtn = document.querySelector('.popup-connect-btn');
+            if (connectBtn) {
+              connectBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                alert(`${peopleCount === 0 ? 'Be the first to connect at' : 'Connecting with ' + peopleCount + ' people at'} ${venue.name || 'this venue'}...`);
+              });
+            }
+          }, 10);
+        });
+        
+        // Store the marker reference
+        venueMarkers.push(marker);
+        
+        // Add click handler for marker
+        marker.on('click', () => {
+          // Call the venue marker click handler
+          handleVenueMarkerClick(venue, marker);
+        });
+        
+      } catch (error) {
+        console.error(`Error creating marker for venue ${venue.name || 'unknown'}:`, error);
+      }
+    });
+  } catch (error) {
+    console.error('Error loading venues:', error);
+    if (loadingIndicator) loadingIndicator.style.display = 'none';
+    const venuesContainer = document.getElementById('venues-container');
+    if (venuesContainer) {
+      venuesContainer.innerHTML = `<div class="error-message">Error loading venues: ${error.message || 'Unknown error'}</div>`;
     }
-  });
+  }
   
   // User marker removed as requested
   // No user marker will be shown on the map
@@ -537,7 +551,7 @@ async function setupMapElements() {
     if (activeVenue && activeVenue !== marker) {
       // Reset previous active marker
       const prevPeopleCount = activeVenue.options.venueId ? 
-        venue.people_count || Math.floor(Math.random() * 20) + 5 : 0;
+        venue.people_count || 0 : 0;
       
       const prevMarkerHtml = `
         <div class="venue-marker">
@@ -627,17 +641,9 @@ async function setupMapElements() {
       map.zoomOut(1);
     });
   }
-  
-  // Close the try block from venue fetching
-  } catch (error) {
-    console.error('Error loading venues:', error);
-    if (loadingIndicator) loadingIndicator.style.display = 'none';
-    const venuesContainer = document.getElementById('venues-container');
-    if (venuesContainer) {
-      venuesContainer.innerHTML = `<div class="error-message">Error loading venues: ${error.message || 'Unknown error'}</div>`;
-    }
-  }
 }
+
+
 
 /**
  * Set up bottom navigation
