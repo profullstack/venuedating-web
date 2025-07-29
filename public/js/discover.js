@@ -221,7 +221,7 @@ async function setupMapElements() {
   // Initialize the map centered at user location
   const map = L.map('map', {
     center: userCoords,
-    zoom: 16,
+    zoom: 13, // Zoomed out to show venues within 5km radius
     zoomControl: false // We'll use custom zoom controls
   });
   
@@ -380,22 +380,13 @@ async function setupMapElements() {
       const imageIndex = venue.id ? (parseInt(venue.id, 16) % demoImages.length) : Math.floor(Math.random() * demoImages.length);
       const venueImage = venue.image_url || demoImages[imageIndex];
       
-      // Create card structure based on Figma design
+      // Create card structure to match the beautiful screenshot design
       venueCard.innerHTML = `
-        <div class="venue-card-inner" style="position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <div class="venue-image" style="position: relative; overflow: hidden;">
-            <img src="${venueImage}" alt="${venueName}" style="width: 100%; height: 240px; object-fit: cover;">
-            <div class="people-badge" style="position: absolute; top: 16px; left: 50px; background-color: #ff4d79; color: white; padding: 8px 16px; border-radius: 50px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 8px rgba(255,77,121,0.3);">
-              ${peopleText}
-            </div>
-            
-          </div>
-          <div class="venue-info" style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4), transparent); padding: 16px; color: white;">
-            <h3 style="margin: 0; font-size: 18px; text-align: center; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">${venueName}</h3>
-          </div>
-          <div class="venue-info" style="width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4), transparent); padding: 16px; color: white; text-align: center;">
-            <h3 style="margin: 0; font-size: 18px; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">${distance}</h3>
-          </div>
+        <img src="${venueImage}" alt="${venueName}" class="venue-image">
+        <div class="people-badge">${peopleText}</div>
+        <div class="venue-details">
+          <div class="distance-badge">${distance}</div>
+          <h3 class="venue-name">${venueName}</h3>
         </div>
       `;
       

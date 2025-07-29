@@ -12,9 +12,9 @@ console.log('🔥 SCRIPT DEBUG: matching-controller.js is being loaded!');
 
 import { 
   getPotentialMatches, 
-  likeProfile, 
-  dislikeProfile,
-  getMatches
+  likeUser, 
+  dislikeUser,
+  getUserMatches
 } from './api/matches.js';
 import { getCurrentUser } from './api/supabase-client.js';
 import supabase from './api/supabase-client.js';
@@ -133,7 +133,20 @@ async function initMatching() {
  * Load potential matches from the API
  */
 async function loadPotentialMatches() {
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const cardStack = document.getElementById('card-stack');
+  
   try {
+    // Show loading spinner
+    if (loadingSpinner) {
+      loadingSpinner.style.display = 'flex';
+    }
+    if (cardStack) {
+      cardStack.style.display = 'none';
+    }
+    
+    console.log('🔄 Loading potential matches...');
+    
     // Get potential matches from the API
     const options = {
       limit: 20,
@@ -143,15 +156,35 @@ async function loadPotentialMatches() {
     
     potentialMatches = await getPotentialMatches(options);
     
+    console.log('✅ Loaded potential matches:', potentialMatches.length, potentialMatches);
+    
     // Reset the current card index
     currentCardIndex = 0;
+    
+    // Hide loading spinner
+    if (loadingSpinner) {
+      loadingSpinner.style.display = 'none';
+    }
+    if (cardStack) {
+      cardStack.style.display = 'block';
+    }
     
     // Render the card stack
     renderCardStack();
     
-    console.log('Loaded potential matches:', potentialMatches.length);
   } catch (error) {
-    console.error('Error loading potential matches:', error);
+    console.error('❌ Error loading potential matches:', error);
+    
+    // Hide loading spinner on error
+    if (loadingSpinner) {
+      loadingSpinner.style.display = 'none';
+    }
+    if (cardStack) {
+      cardStack.style.display = 'block';
+    }
+    
+    // Show error state
+    showErrorState(error.message || 'Failed to load matches');
   }
 }
 
@@ -184,41 +217,88 @@ function renderCardStack() {
 }
 
 /**
+ * Calculate age from birth_date
+ */
+function calculateAge(birthDate) {
+  if (!birthDate) return null;
+  const today = new Date();
+  const birth = new Date(birthDate);
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+/**
  * Create a profile card element
  */
 function createProfileCard(profile, index) {
   const card = document.createElement('div');
-  card.className = 'profile-card';
+  card.className = 'match-card';
   card.dataset.index = index;
+  
+  console.log('Creating card for profile:', profile.full_name, 'Avatar URL:', profile.avatar_url);
   
   // Calculate distance in miles
   const distance = profile.distance ? `${Math.round(profile.distance)} miles away` : 'Unknown distance';
   
-  // Determine if card is active
-  const isActive = index === currentCardIndex;
-  if (!isActive) {
+  // Calculate age from birth_date
+  const age = profile.age;
+  
+  // Set up card stacking - show up to 3 cards in stack
+  const stackPosition = index - currentCardIndex;
+  
+  if (stackPosition < 0) {
+    // Cards that have been swiped - hide them
+    card.style.display = 'none';
+  } else if (stackPosition < 3) {
+    // Cards in the visible stack (current + next 2)
+    card.style.display = 'block';
+    card.style.position = 'absolute';
+    card.style.top = '0';
+    card.style.left = '0';
+    card.style.width = '100%';
+    card.style.height = '100%';
+    
+    // Stack layering - current card on top
+    card.style.zIndex = 100 - stackPosition;
+    
+    // Subtle offset and scale for cards behind
+    if (stackPosition > 0) {
+      const offset = stackPosition * 4;
+      const scale = 1 - (stackPosition * 0.02);
+      card.style.transform = `translateY(${offset}px) scale(${scale})`;
+      card.style.opacity = 1 - (stackPosition * 0.1);
+    }
+  } else {
+    // Cards too far back - hide them
     card.style.display = 'none';
   }
   
-  // Get primary image URL
-  const imageUrl = profile.images && profile.images.length > 0 
-    ? profile.images[0] 
-    : '/images/default-avatar.jpg';
+  // Get avatar URL from API response
+  const imageUrl = profile.avatar_url || '/images/default-avatar.jpg';
+  
+  // Set the background image
+  card.style.backgroundImage = `url('${imageUrl}')`;
+  card.style.backgroundSize = 'cover';
+  card.style.backgroundPosition = 'center';
+  card.style.backgroundRepeat = 'no-repeat';
   
   card.innerHTML = `
-    <div class="card-image" style="background-image: url('${imageUrl}')">
-      <div class="card-overlay">
-        <div class="profile-info">
-          <div class="profile-name-age">
-            <h2>${profile.display_name || 'Unknown'}, ${profile.age || '??'}</h2>
-            <p>${distance}</p>
-          </div>
-          <div class="profile-bio">
-            <p>${profile.bio || ''}</p>
-          </div>
-        </div>
-      </div>
+    <!-- Distance badge -->
+    <div class="card-distance">
+      <span class="distance-text">${distance}</span>
     </div>
+    
+    <!-- Card info section -->
+    <div class="card-info">
+      <h2 class="profile-name">${profile.full_name || 'Unknown'}${age ? `, ${age}` : ''}</h2>
+      <p class="venue-name">${profile.bio || 'Looking for connections'}</p>
+    </div>
+    
+    <!-- Like/Dislike badges -->
     <div class="like-badge" style="display: none;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
         <path d="M4.5 12.5L10 18L19.5 8.5" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
@@ -242,41 +322,89 @@ function showEmptyState() {
   if (!cardStack) return;
   
   cardStack.innerHTML = `
-    <div class="empty-matches">
-      <div class="empty-icon">
-        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.04L12 21.35Z" fill="var(--color-primary-light)" stroke="var(--color-primary)" stroke-width="2"/>
-        </svg>
-      </div>
-      <h3>No More Matches</h3>
-      <p>We're finding new people near you. Check back later!</p>
-      <button class="refresh-button" onclick="loadPotentialMatches()">Refresh</button>
+    <div class="empty-state">
+      <div class="empty-icon">💔</div>
+      <h3>No more matches</h3>
+      <p>Check back later for new people!</p>
+      <button class="refresh-button" onclick="location.reload()">Refresh</button>
     </div>
   `;
+  
+  console.log('Showing empty state - no more potential matches');
 }
 
 /**
- * Update the current visible card
+ * Show error state when loading matches fails
+ */
+function showErrorState(errorMessage) {
+  if (!cardStack) return;
+  
+  cardStack.innerHTML = `
+    <div class="error-state">
+      <div class="error-icon">⚠️</div>
+      <h3>Oops! Something went wrong</h3>
+      <p>${errorMessage}</p>
+      <button class="retry-button" onclick="location.reload()">Try Again</button>
+    </div>
+  `;
+  
+  console.log('Showing error state:', errorMessage);
+}
+
+/**
+ * Update the current visible card stack
  */
 function updateCurrentCard() {
-  // Hide all cards
-  const allCards = document.querySelectorAll('.profile-card');
-  allCards.forEach(card => {
-    card.style.display = 'none';
-  });
+  const allCards = document.querySelectorAll('.match-card');
   
-  // Show current card if it exists
-  if (currentCardIndex < potentialMatches.length) {
-    const currentCard = document.querySelector(`.profile-card[data-index="${currentCardIndex}"]`);
-    if (currentCard) {
-      currentCard.style.display = 'block';
-    } else {
-      console.error('Current card element not found!');
-    }
-  } else {
+  // Check if we have more cards
+  if (currentCardIndex >= potentialMatches.length) {
     // No more cards, show empty state
     showEmptyState();
+    return;
   }
+  
+  // Update all cards to reflect new stack positions
+  allCards.forEach((card, index) => {
+    const cardIndex = parseInt(card.dataset.index);
+    const stackPosition = cardIndex - currentCardIndex;
+    
+    if (stackPosition < 0) {
+      // Cards that have been swiped - hide them
+      card.style.display = 'none';
+    } else if (stackPosition < 3) {
+      // Cards in the visible stack (current + next 2)
+      card.style.display = 'block';
+      card.style.position = 'absolute';
+      card.style.top = '0';
+      card.style.left = '0';
+      card.style.width = '100%';
+      card.style.height = '100%';
+      
+      // Stack layering - current card on top
+      card.style.zIndex = 100 - stackPosition;
+      
+      // Reset any transforms from swiping
+      card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      
+      // Subtle offset and scale for cards behind
+      if (stackPosition > 0) {
+        const offset = stackPosition * 4;
+        const scale = 1 - (stackPosition * 0.02);
+        card.style.transform = `translateY(${offset}px) scale(${scale})`;
+        card.style.opacity = 1 - (stackPosition * 0.1);
+      } else {
+        // Current card - no offset
+        card.style.transform = 'translateY(0) scale(1)';
+        card.style.opacity = '1';
+      }
+    } else {
+      // Cards too far back - hide them
+      card.style.display = 'none';
+    }
+  });
+  
+  console.log(`🃏 Updated card stack - showing card ${currentCardIndex + 1} of ${potentialMatches.length}`);
 }
 
 /**
@@ -286,39 +414,35 @@ async function handleLike() {
   if (currentCardIndex >= potentialMatches.length) return;
   
   const currentProfile = potentialMatches[currentCardIndex];
-  const currentCard = document.querySelector(`.profile-card[data-index="${currentCardIndex}"]`);
+  const currentCard = document.querySelector(`.match-card[data-index="${currentCardIndex}"]`);
   
   try {
+    console.log('👍 Liking profile:', currentProfile.display_name || currentProfile.id);
+    
     // Show like badge
     if (currentCard) {
       const likeBadge = currentCard.querySelector('.like-badge');
       if (likeBadge) {
         likeBadge.style.display = 'flex';
+        likeBadge.style.opacity = '1';
       }
     }
     
     // Send like to API
-    const result = await likeProfile(currentProfile.id);
+    const result = await likeUser(currentProfile.id);
     
     // Check if it's a match
     if (result && result.isMatch) {
+      console.log('🎉 It\'s a match!', result);
       // It's a match! Show match screen
       showMatchScreen(currentProfile);
     } else {
-      // Move to the next card after a delay
-      setTimeout(() => {
-        currentCardIndex++;
-        updateCurrentCard();
-      }, 500);
+      console.log('👍 Like sent, no match yet');
+      // Card transition is handled by animateCardExit in swipe gesture
     }
   } catch (error) {
-    console.error('Error handling like:', error);
-    
-    // Still move to the next card
-    setTimeout(() => {
-      currentCardIndex++;
-      updateCurrentCard();
-    }, 500);
+    console.error('❌ Error handling like:', error);
+    // Card transition is handled by animateCardExit in swipe gesture
   }
 }
 
@@ -329,33 +453,29 @@ async function handleDislike() {
   if (currentCardIndex >= potentialMatches.length) return;
   
   const currentProfile = potentialMatches[currentCardIndex];
-  const currentCard = document.querySelector(`.profile-card[data-index="${currentCardIndex}"]`);
+  const currentCard = document.querySelector(`.match-card[data-index="${currentCardIndex}"]`);
   
   try {
+    console.log('👎 Disliking profile:', currentProfile.display_name || currentProfile.id);
+    
     // Show dislike badge
     if (currentCard) {
       const dislikeBadge = currentCard.querySelector('.dislike-badge');
       if (dislikeBadge) {
         dislikeBadge.style.display = 'flex';
+        dislikeBadge.style.opacity = '1';
       }
     }
     
     // Send dislike to API
-    await dislikeProfile(currentProfile.id);
+    await dislikeUser(currentProfile.id);
     
-    // Move to the next card after a delay
-    setTimeout(() => {
-      currentCardIndex++;
-      updateCurrentCard();
-    }, 500);
+    console.log('👎 Dislike sent');
+    
+    // Card transition is handled by animateCardExit in swipe gesture
   } catch (error) {
-    console.error('Error handling dislike:', error);
-    
-    // Still move to the next card
-    setTimeout(() => {
-      currentCardIndex++;
-      updateCurrentCard();
-    }, 500);
+    console.error('❌ Error handling dislike:', error);
+    // Card transition is handled by animateCardExit in swipe gesture
   }
 }
 
@@ -502,6 +622,207 @@ function setupEventListeners() {
   const keepSwipingButton = document.getElementById('keep-swiping-button');
   if (keepSwipingButton) {
     keepSwipingButton.addEventListener('click', hideMatchScreen);
+  }
+  
+  // Set up swipe gestures for cards
+  setupSwipeGestures();
+}
+
+/**
+ * Set up swipe gesture handlers for cards
+ */
+function setupSwipeGestures() {
+  if (!cardStack) return;
+  
+  let startX = 0;
+  let startY = 0;
+  let currentX = 0;
+  let currentY = 0;
+  let isDragging = false;
+  let currentCard = null;
+  
+  // Touch events for mobile
+  cardStack.addEventListener('touchstart', handleTouchStart, { passive: false });
+  cardStack.addEventListener('touchmove', handleTouchMove, { passive: false });
+  cardStack.addEventListener('touchend', handleTouchEnd, { passive: false });
+  
+  // Mouse events for desktop
+  cardStack.addEventListener('mousedown', handleMouseDown);
+  cardStack.addEventListener('mousemove', handleMouseMove);
+  cardStack.addEventListener('mouseup', handleMouseUp);
+  cardStack.addEventListener('mouseleave', handleMouseUp);
+  
+  function handleTouchStart(e) {
+    if (currentCardIndex >= potentialMatches.length) return;
+    
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+    currentX = startX;
+    currentY = startY;
+    isDragging = true;
+    
+    currentCard = document.querySelector(`.match-card[data-index="${currentCardIndex}"]`);
+    if (currentCard) {
+      currentCard.style.transition = 'none';
+    }
+    
+    e.preventDefault();
+  }
+  
+  function handleTouchMove(e) {
+    if (!isDragging || !currentCard) return;
+    
+    const touch = e.touches[0];
+    currentX = touch.clientX;
+    currentY = touch.clientY;
+    
+    updateCardPosition();
+    e.preventDefault();
+  }
+  
+  function handleTouchEnd(e) {
+    if (!isDragging || !currentCard) return;
+    
+    handleSwipeEnd();
+    e.preventDefault();
+  }
+  
+  function handleMouseDown(e) {
+    if (currentCardIndex >= potentialMatches.length) return;
+    
+    startX = e.clientX;
+    startY = e.clientY;
+    currentX = startX;
+    currentY = startY;
+    isDragging = true;
+    
+    currentCard = document.querySelector(`.match-card[data-index="${currentCardIndex}"]`);
+    if (currentCard) {
+      currentCard.style.transition = 'none';
+      currentCard.style.cursor = 'grabbing';
+    }
+    
+    e.preventDefault();
+  }
+  
+  function handleMouseMove(e) {
+    if (!isDragging || !currentCard) return;
+    
+    currentX = e.clientX;
+    currentY = e.clientY;
+    
+    updateCardPosition();
+  }
+  
+  function handleMouseUp(e) {
+    if (!isDragging || !currentCard) return;
+    
+    handleSwipeEnd();
+  }
+  
+  function updateCardPosition() {
+    if (!currentCard) return;
+    
+    const deltaX = currentX - startX;
+    const deltaY = currentY - startY;
+    const rotation = deltaX * 0.1; // Slight rotation based on horizontal movement
+    
+    currentCard.style.transform = `translateX(${deltaX}px) translateY(${deltaY}px) rotate(${rotation}deg)`;
+    
+    // Show like/dislike badges based on swipe direction
+    const likeBadge = currentCard.querySelector('.like-badge');
+    const dislikeBadge = currentCard.querySelector('.dislike-badge');
+    
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) {
+        // Swiping right (like)
+        if (likeBadge) {
+          likeBadge.style.display = 'flex';
+          likeBadge.style.opacity = Math.min(Math.abs(deltaX) / 150, 1);
+        }
+        if (dislikeBadge) {
+          dislikeBadge.style.display = 'none';
+        }
+      } else {
+        // Swiping left (dislike)
+        if (dislikeBadge) {
+          dislikeBadge.style.display = 'flex';
+          dislikeBadge.style.opacity = Math.min(Math.abs(deltaX) / 150, 1);
+        }
+        if (likeBadge) {
+          likeBadge.style.display = 'none';
+        }
+      }
+    } else {
+      // Hide badges when not swiping far enough
+      if (likeBadge) likeBadge.style.display = 'none';
+      if (dislikeBadge) dislikeBadge.style.display = 'none';
+    }
+  }
+  
+  function handleSwipeEnd() {
+    if (!currentCard) return;
+    
+    const deltaX = currentX - startX;
+    const swipeThreshold = 100; // Minimum distance to trigger swipe
+    
+    // Reset card styling
+    currentCard.style.cursor = 'grab';
+    
+    if (Math.abs(deltaX) > swipeThreshold) {
+      // Swipe detected
+      if (deltaX > 0) {
+        // Swipe right (like)
+        animateCardExit(currentCard, 'right');
+        handleLike();
+      } else {
+        // Swipe left (dislike)
+        animateCardExit(currentCard, 'left');
+        handleDislike();
+      }
+    } else {
+      // Snap back to center
+      currentCard.style.transition = 'transform 0.3s ease';
+      currentCard.style.transform = 'translateX(0) translateY(0) rotate(0deg)';
+      
+      // Hide badges
+      const likeBadge = currentCard.querySelector('.like-badge');
+      const dislikeBadge = currentCard.querySelector('.dislike-badge');
+      if (likeBadge) likeBadge.style.display = 'none';
+      if (dislikeBadge) dislikeBadge.style.display = 'none';
+    }
+    
+    // Reset dragging state
+    isDragging = false;
+    currentCard = null;
+  }
+  
+  function animateCardExit(card, direction) {
+    if (!card) return;
+    
+    const exitDistance = window.innerWidth;
+    const exitX = direction === 'right' ? exitDistance : -exitDistance;
+    const rotation = direction === 'right' ? 30 : -30;
+    
+    // Faster animation for instant feel
+    card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+    card.style.transform = `translateX(${exitX}px) rotate(${rotation}deg)`;
+    card.style.opacity = '0';
+    card.style.zIndex = '200'; // Bring to front during exit
+    
+    // Immediately update the card stack to show next card
+    setTimeout(() => {
+      currentCardIndex++;
+      updateCurrentCard();
+    }, 50); // Very short delay for smooth transition
+    
+    // Remove card after animation
+    setTimeout(() => {
+      if (card.parentNode) {
+        card.parentNode.removeChild(card);
+      }
+    }, 300);
   }
 }
 
