@@ -362,8 +362,9 @@ async function setupMapElements() {
       });
       
       // Create card content
-      const distance = venue.distance ? `${(venue.distance / 1000).toFixed(0)} km away` : '';
-      const peopleCount = venue.people_count || 0;
+      const distance = venue.distance_km ? `${venue.distance_km.toFixed(1)} km away` : '';
+      const peopleCount = venue.people_count !== undefined ? venue.people_count : 0;
+      const peopleText = peopleCount === 0 ? 'Be the first here' : `${peopleCount} people`;
       
       // Generate a venue name if none exists
       const venueName = venue.name || `Venue ${venue.id || Math.floor(Math.random() * 1000)}`;
@@ -385,7 +386,7 @@ async function setupMapElements() {
           <div class="venue-image" style="position: relative; overflow: hidden;">
             <img src="${venueImage}" alt="${venueName}" style="width: 100%; height: 240px; object-fit: cover;">
             <div class="people-badge" style="position: absolute; top: 16px; left: 50px; background-color: #ff4d79; color: white; padding: 8px 16px; border-radius: 50px; font-weight: bold; font-size: 16px; box-shadow: 0 2px 8px rgba(255,77,121,0.3);">
-              ${peopleCount} people
+              ${peopleText}
             </div>
             
           </div>
@@ -439,9 +440,10 @@ async function setupMapElements() {
         // Add random people count for demo if not present
         
         // Create a custom marker for this venue with people count
-        // For now, use random people count since we don't have real-time data
-        const rawPeopleCount = venue.people_count || Math.floor(Math.random() * 15) + 1;
-        const peopleCount = rawPeopleCount || 0;
+        // Use the real people_count from the API (including 0 values)
+        const peopleCount = venue.people_count !== undefined ? venue.people_count : 0;
+        
+        console.log(`🏢 Venue ${venue.name}: people_count = ${venue.people_count}, using = ${peopleCount}`);
         
         // Create people count text
         const peopleText = peopleCount === 0 ? 'Be the first at this venue' : `${peopleCount} people here`;

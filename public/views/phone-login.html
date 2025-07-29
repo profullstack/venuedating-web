@@ -335,11 +335,12 @@
   phoneInputEl.addEventListener('focus', function() {
     document.getElementById('country-select').classList.add('phone-focused');
   });
-  
+
+  // Add blur event to remove focus styling
   phoneInputEl.addEventListener('blur', function() {
     document.getElementById('country-select').classList.remove('phone-focused');
   });
-
+  
   // Variable to track if we're in verification mode
   let isVerificationMode = false;
   
@@ -362,8 +363,41 @@
       
       try {
         console.log('Verifying OTP for:', storedFullPhone);
-        await verifyPhoneOtp(storedFullPhone, otp);
-        showStatus('Login successful!');
+        
+        // Check if this is the demo phone number (+15555555555)
+        const isDemoPhone = storedFullPhone === '+15555555555';
+        
+        if (isDemoPhone) {
+          console.log('[DEMO PHONE] Accepting any verification code for demo number:', storedFullPhone);
+          showStatus('Demo account: Creating session...');
+          
+          try {
+            // For demo account with phone +15555555555, use the verifyPhoneOtp function directly
+            // This will create a real Supabase session for the demo account
+            const result = await verifyPhoneOtp(storedFullPhone, otp);
+            console.log('[DEMO PHONE] Verification result:', result);
+            showStatus('Demo login successful!');
+            
+            // Add debug information to localStorage for troubleshooting
+            localStorage.setItem('demo_phone_session', JSON.stringify({
+              success: true,
+              timestamp: new Date().toISOString(),
+              hasSession: !!result?.session
+            }));
+          } catch (verifyError) {
+            console.error('[DEMO PHONE] Error verifying demo phone:', verifyError);
+            
+            // For demo phone, even if verification fails, we proceed with a fallback
+            // This ensures the demo can be tested even if Supabase auth is having issues
+            localStorage.setItem('demo_account', 'true');
+            localStorage.setItem('demo_phone_used', 'true');
+            showStatus('Demo fallback mode activated. Continue testing.');
+          }
+        } else {
+          // For regular accounts, verify normally
+          await verifyPhoneOtp(storedFullPhone, otp);
+          showStatus('Login successful!');
+        }
         
         // Redirect to discover page after successful login
         setTimeout(() => {
@@ -406,25 +440,39 @@
     sendOtpBtn.textContent = isTestAccount ? 'Logging in...' : 'Checking...';
     
     try {
-      // Check if this is a test account (demo or real test)
-      const isDemoAccount = phone === '5555555555' || phone === '555-555-5555';
-      const isRealTestAccount = phone === '5555555556' || phone === '555-555-5556';
-      const isTestAccount = isDemoAccount || isRealTestAccount;
+      // Check if this is the demo phone number (+15555555555)
+      const isDemoPhone = fullPhone === '+15555555555';
       
-      if (isTestAccount) {
-        // For test accounts, bypass OTP and log in directly
-        const accountType = isDemoAccount ? 'demo' : 'real test';
-        console.log(`[TEST ACCOUNT] Bypassing OTP for ${accountType} account:`, fullPhone);
+      if (isDemoPhone) {
+        // For demo phone account, enter verification mode and send fake OTP
+        // We'll accept any verification code in the next step
+        console.log(`[DEMO PHONE] Setting up verification mode for demo phone:`, fullPhone);
+        showStatus('Demo account: Please enter any verification code.');
+        
+        // Skip the actual OTP sending and just show the OTP input
+        otpSection.style.display = 'block';
+        otpInput.focus();
+        isVerificationMode = true;
+        sendOtpBtn.textContent = 'Verify Code';
+        return;
+      } 
+      
+      // Legacy support for older test account pattern
+      // These use localStorage flags instead of real Supabase sessions
+      const isLegacyDemo = phone === '5555555555' || phone === '555-555-5555';
+      const isRealTestAccount = phone === '5555555556' || phone === '555-555-5556';
+      const isLegacyTest = isLegacyDemo || isRealTestAccount;
+      
+      if (isLegacyTest) {
+        // For legacy test accounts, bypass OTP and log in directly
+        const accountType = isLegacyDemo ? 'legacy demo' : 'legacy test';
+        console.log(`[LEGACY TEST] Bypassing OTP for ${accountType} account:`, fullPhone);
         showStatus(`${accountType.charAt(0).toUpperCase() + accountType.slice(1)} account: Auto-login in progress...`);
         
-        if (isDemoAccount) {
-          // For demo account, we'll use a simpler approach with a flag in localStorage
-          // that our auth-middleware will check for
-          
-          // Set the demo account flag that auth-middleware will check
+        if (isLegacyDemo) {
+          // For legacy demo account, we'll use the localStorage flags
           localStorage.setItem('demo_account', 'true');
           
-          // Store basic demo user info
           localStorage.setItem('demo_user', JSON.stringify({
             id: 'demo-user-id',
             name: 'Demo User',
@@ -434,10 +482,8 @@
             phone_verified: true
           }));
           
-          console.log('[DEMO] Demo account flag set in localStorage');
+          console.log('[LEGACY DEMO] Demo account flag set in localStorage');
           
-          // Clear any existing Supabase tokens to avoid conflicts
-          // This ensures we're using our demo account system only
           const storageKeys = Object.keys(localStorage);
           storageKeys.forEach(key => {
             if (key.startsWith('sb-') && key.includes('-auth-token')) {
@@ -782,12 +828,13 @@
     width: 100%;
     height: 50px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #F44B74;
     padding: 0 15px;
-    font-size: 18px;
-    letter-spacing: 4px;
+    font-size: 24px;
+    letter-spacing: 6px;
     text-align: center;
-    color: #333;
+    color: #F44B74; /* Match brand color for better visibility */
+    font-weight: 600;
     margin-bottom: 20px;
     outline: none;
     transition: all 0.2s ease;

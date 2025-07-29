@@ -2,22 +2,41 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// You'll need to set these environment variables or replace with your actual values
-const supabaseUrl = process.env.SUPABASE_URL || 'YOUR_SUPABASE_URL';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'YOUR_SERVICE_ROLE_KEY';
+// Load environment variables
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Missing required environment variables:');
+  console.error('   SUPABASE_URL:', supabaseUrl ? '✅' : '❌');
+  console.error('   SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? '✅' : '❌');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function applyMigration() {
   try {
-    console.log('🚀 Applying SF venues migration...');
+    // Get migration file from command line argument
+    const migrationFile = process.argv[2];
+    if (!migrationFile) {
+      console.error('❌ Please provide a migration file path as an argument');
+      console.error('   Usage: node apply-migration.js <migration-file-path>');
+      process.exit(1);
+    }
+    
+    console.log(`🚀 Applying migration: ${migrationFile}`);
     
     // Read the migration file
-    const migrationPath = join(__dirname, 'supabase/migrations/20250723215400_seed_sf_venues.sql');
+    const migrationPath = join(__dirname, migrationFile);
     const migrationSQL = readFileSync(migrationPath, 'utf8');
     
     // Split the SQL into individual statements (basic approach)

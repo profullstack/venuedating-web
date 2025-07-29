@@ -59,6 +59,73 @@ export async function signInWithPhone(phone) {
 // Verify OTP for phone login
 export async function verifyPhoneOtp(phone, token) {
   const supabase = await supabaseClientPromise;
+  
+  // Special handling for demo phone number
+  if (phone === '+15555555555') {
+    console.log('[DEMO PHONE] Creating session for demo phone account:', phone);
+    
+    try {
+      // For the demo account, we'll use a special endpoint that creates a session
+      // without requiring a valid OTP token (this is just for the demo number)
+      
+      // Option 1: Use a known good OTP if Twilio verification is set up and working
+      const DEMO_OTP = '123456'; // A pre-verified OTP for the demo account
+      const { data, error } = await supabase.auth.verifyOtp({ 
+        phone, 
+        token: DEMO_OTP, 
+        type: 'sms' 
+      });
+      
+      if (!error) {
+        console.log('[DEMO PHONE] Successfully created session for demo phone account');
+        return data;
+      }
+      
+      // Option 2: If that doesn't work, try sign in with email/password
+      // for the same user (assuming the demo account has both phone and email)
+      console.log('[DEMO PHONE] Falling back to email sign-in for demo account');
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: 'demo@barcrush.app',
+        password: 'demo12345'
+      });
+      
+      if (signInError) {
+        // Last resort: Set the demo flag in localStorage for backwards compatibility
+        console.log('[DEMO PHONE] Creating localStorage-based session for demo account');
+        localStorage.setItem('demo_account', 'true');
+        localStorage.setItem('demo_user', JSON.stringify({
+          id: 'demo-user-id',
+          name: 'Demo User',
+          full_name: 'Demo User',
+          avatar_url: '/images/avatar.jpg',
+          phone_number: phone,
+          phone_verified: true
+        }));
+        
+        // Return a mock session structure similar to what Supabase would return
+        return {
+          session: {
+            access_token: 'demo-token',
+            user: {
+              id: 'demo-user-id',
+              phone: phone
+            }
+          },
+          user: {
+            id: 'demo-user-id',
+            phone: phone
+          }
+        };
+      }
+      
+      return signInData;
+    } catch (err) {
+      console.error('[DEMO PHONE] Error creating demo session:', err);
+      throw new Error('Could not create demo session. Please try again.');
+    }
+  }
+  
+  // Normal verification for all other phone numbers
   const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
   if (error) throw error;
   return data;

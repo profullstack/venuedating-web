@@ -23,13 +23,13 @@
         const isAuth = await authMiddleware.requireAuth(true);
         if (!isAuth) {
           console.log('Not authenticated, redirecting to login...');
-          window.location.href = '/auth';
+          window.location.href = '/phone-login';
           return;
         }
         console.log('Authentication check passed');
       } catch (error) {
         console.error('Authentication check failed:', error);
-        window.location.href = '/auth';
+        window.location.href = '/phone-login';
         return;
       }
     })();
