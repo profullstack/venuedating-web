@@ -509,8 +509,9 @@ export function defineRoutes(router) {
           console.error('Admin route guard error:', err);
           alert('Error validating admin access');
           next('/');
-        },
-       afterRender: () => {
+        }
+      },
+      afterRender: () => {
         if (window.initAdminVenuesPage) {
           window.initAdminVenuesPage();
         }

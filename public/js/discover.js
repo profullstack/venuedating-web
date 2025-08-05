@@ -21,6 +21,68 @@ let map;
 let userMarker;
 let venueMarkers = [];
 
+/**
+ * Generate a static map image URL for a venue location
+ * @param {number} lat - Latitude of the venue
+ * @param {number} lng - Longitude of the venue
+ * @param {string} venueName - Name of the venue for alt text
+ * @returns {string} - URL for static map image
+ */
+function generateMapImageUrl(lat, lng, venueName) {
+  const zoom = 15; // Good zoom level for showing venue context
+  const width = 300;
+  const height = 200;
+  
+  // Using Mapbox static maps API with a demo token
+  const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-marker+ff0000(${lng},${lat})/${lng},${lat},${zoom}/${width}x${height}@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`;
+  
+  return mapUrl;
+}
+
+/**
+ * Generate venue initials from venue name
+ * @param {string} venueName - The name of the venue
+ * @returns {string} - 1-2 character initials
+ */
+function generateVenueInitials(venueName) {
+  if (!venueName) return '?';
+  
+  const words = venueName.trim().split(' ').filter(word => word.length > 0);
+  
+  if (words.length === 1) {
+    // Single word: take first 2 characters
+    return words[0].substring(0, 2).toUpperCase();
+  } else {
+    // Multiple words: take first character of first two words
+    return (words[0][0] + (words[1] ? words[1][0] : '')).toUpperCase();
+  }
+}
+
+/**
+ * Get appropriate icon for venue type
+ * @param {string} venueType - The type of venue
+ * @returns {string} - Emoji icon
+ */
+function getVenueIcon(venueType) {
+  const iconMap = {
+    'bar': '🍺',
+    'restaurant': '🍽️',
+    'club': '🎵',
+    'lounge': '🍷',
+    'pub': '🍻',
+    'cafe': '☕',
+    'brewery': '🍺',
+    'wine_bar': '🍷',
+    'cocktail_bar': '🍸',
+    'sports_bar': '🏈',
+    'rooftop': '🌆',
+    'nightclub': '💃',
+    'music_venue': '🎤'
+  };
+  
+  return iconMap[venueType?.toLowerCase()] || '🏢';
+}
+
 export async function initDiscoverPage() {
   console.log('Initialize discover page');
   setupHeaderButtons();
@@ -34,8 +96,8 @@ export async function initDiscoverPage() {
  */
 function setupHeaderButtons() {
   const searchBtn = document.querySelector('.discover-search-button');
-  const filterBtn = document.querySelector('.discover-filter-button');
-  const notificationBtn = document.querySelector('.discover-notification-button');
+  const filterBtn = document.querySelector('.filter-btn');
+  const notificationBtn = document.querySelector('.notification-btn');
   
   if (searchBtn) {
     searchBtn.addEventListener('click', function() {
@@ -46,10 +108,7 @@ function setupHeaderButtons() {
   }
   
   if (filterBtn) {
-    filterBtn.addEventListener('click', function() {
-      console.log('Filter button clicked');
-      // TODO: Implement filter functionality
-    });
+    filterBtn.addEventListener('click', showFilterModal);
   }
   
   if (notificationBtn) {
@@ -58,6 +117,201 @@ function setupHeaderButtons() {
       // TODO: Implement notification functionality
     });
   }
+}
+
+/**
+ * Show filter modal with slide-up animation
+ */
+function showFilterModal() {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  // Show modal
+  modal.classList.add('visible');
+  
+  // Add event listeners for modal interactions
+  setupFilterModalListeners();
+  
+  // Prevent body scroll when modal is open
+  document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Hide filter modal with slide-down animation
+ */
+function hideFilterModal() {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  modal.classList.remove('visible');
+  
+  // Restore body scroll
+  document.body.style.overflow = '';
+}
+
+/**
+ * Set up filter modal event listeners
+ */
+function setupFilterModalListeners() {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      hideFilterModal();
+    }
+  });
+
+  // Interest options
+  const interestOptions = modal.querySelectorAll('.interest-option');
+  interestOptions.forEach(option => {
+    option.addEventListener('click', () => {
+      // Remove active class from all options
+      interestOptions.forEach(opt => opt.classList.remove('active'));
+      // Add active class to clicked option
+      option.classList.add('active');
+    });
+  });
+
+  // Location selector
+  const locationSelector = modal.querySelector('#location-selector');
+  if (locationSelector) {
+    locationSelector.addEventListener('click', () => {
+      // TODO: Show location picker
+      console.log('Location selector clicked');
+    });
+  }
+
+  // Distance slider
+  const distanceRange = modal.querySelector('#distance-range');
+  const distanceValue = modal.querySelector('#distance-value');
+  if (distanceRange && distanceValue) {
+    distanceRange.addEventListener('input', (e) => {
+      const value = e.target.value;
+      distanceValue.textContent = value + 'm';
+    });
+  }
+
+  // Age sliders
+  const ageMin = modal.querySelector('#age-min');
+  const ageMax = modal.querySelector('#age-max');
+  const ageValue = modal.querySelector('#age-value');
+  
+  function updateAgeDisplay() {
+    if (ageMin && ageMax && ageValue) {
+      const minVal = parseInt(ageMin.value);
+      const maxVal = parseInt(ageMax.value);
+      
+      // Ensure min doesn't exceed max
+      if (minVal > maxVal) {
+        ageMin.value = maxVal;
+      }
+      if (maxVal < minVal) {
+        ageMax.value = minVal;
+      }
+      
+      ageValue.textContent = `${ageMin.value}-${ageMax.value}`;
+    }
+  }
+  
+  if (ageMin) {
+    ageMin.addEventListener('input', updateAgeDisplay);
+  }
+  if (ageMax) {
+    ageMax.addEventListener('input', updateAgeDisplay);
+  }
+
+  // Clear filters button
+  const clearBtn = modal.querySelector('#clear-filters-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      // Reset all filters to default values
+      resetFilters();
+    });
+  }
+
+  // Apply filters button
+  const applyBtn = modal.querySelector('#apply-filters-btn');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      // Apply filters and close modal
+      applyFilters();
+      hideFilterModal();
+    });
+  }
+}
+
+/**
+ * Reset all filters to default values
+ */
+function resetFilters() {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  // Reset interest to first option
+  const interestOptions = modal.querySelectorAll('.interest-option');
+  interestOptions.forEach((opt, index) => {
+    opt.classList.toggle('active', index === 0);
+  });
+
+  // Reset distance
+  const distanceRange = modal.querySelector('#distance-range');
+  const distanceValue = modal.querySelector('#distance-value');
+  if (distanceRange && distanceValue) {
+    distanceRange.value = 40;
+    distanceValue.textContent = '40m';
+  }
+
+  // Reset age
+  const ageMin = modal.querySelector('#age-min');
+  const ageMax = modal.querySelector('#age-max');
+  const ageValue = modal.querySelector('#age-value');
+  if (ageMin && ageMax && ageValue) {
+    ageMin.value = 20;
+    ageMax.value = 28;
+    ageValue.textContent = '20-28';
+  }
+
+  // Reset location to default
+  const currentLocation = modal.querySelector('#current-location');
+  if (currentLocation) {
+    currentLocation.textContent = 'Chicago, USA';
+  }
+}
+
+/**
+ * Apply current filter settings
+ */
+function applyFilters() {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  // Get current filter values
+  const activeInterest = modal.querySelector('.interest-option.active');
+  const interest = activeInterest ? activeInterest.dataset.interest : 'girls';
+  
+  const distanceRange = modal.querySelector('#distance-range');
+  const distance = distanceRange ? distanceRange.value : 40;
+  
+  const ageMin = modal.querySelector('#age-min');
+  const ageMax = modal.querySelector('#age-max');
+  const minAge = ageMin ? ageMin.value : 20;
+  const maxAge = ageMax ? ageMax.value : 28;
+  
+  const currentLocation = modal.querySelector('#current-location');
+  const location = currentLocation ? currentLocation.textContent : 'Chicago, USA';
+
+  console.log('Applying filters:', {
+    interest,
+    distance,
+    minAge,
+    maxAge,
+    location
+  });
+
+  // TODO: Apply filters to venue search/display
+  // This would typically trigger a new API call with the filter parameters
 }
 
 /**
@@ -370,25 +624,17 @@ async function setupMapElements() {
       // Generate a venue name if none exists
       const venueName = venue.name || `Venue ${venue.id || Math.floor(Math.random() * 1000)}`;
       
-      // For demo purposes, use placeholder images that look like bars/venues
-      const demoImages = [
-        '/images/venue-placeholder.jpg',
-        'https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Bar
-        'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80', // Club
-        'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'  // Music venue
-      ];
-      
-      const imageIndex = venue.id ? (parseInt(venue.id, 16) % demoImages.length) : Math.floor(Math.random() * demoImages.length);
-      const venueImage = venue.image_url || demoImages[imageIndex];
-      
-      // Create card structure to match the beautiful screenshot design
-      const imageHTML = ENABLE_VENUE_IMAGES ? `<img src="${venueImage}" alt="${venueName}" class="venue-image">` : '';
+      // Create minimalistic text-only venue card structure
       venueCard.innerHTML = `
-        ${imageHTML}
-        <div class="people-badge">${peopleText}</div>
-        <div class="venue-details">
-          <div class="distance-badge">${distance}</div>
-          <h3 class="venue-name">${venueName}</h3>
+        <div class="venue-text-content" style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; background-color: var(--color-background); border-radius: 12px; border: 1px solid var(--color-border, rgba(0,0,0,0.1));">
+          <div class="venue-header">
+            <h3 class="venue-name" style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: var(--color-text); line-height: 1.3;">${venueName}</h3>
+            <p class="venue-description" style="margin: 0; font-size: 14px; color: var(--color-text-secondary); line-height: 1.4; opacity: 0.8;">${venue.description || 'A great place to visit'}</p>
+          </div>
+          <div class="venue-stats" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border, rgba(0,0,0,0.1));">
+            <span class="people-count" style="font-size: 13px; color: #fff; font-weight: 500;">${peopleText}</span>
+            <span class="distance" style="font-size: 13px; color: #fff; font-weight: 500;">${distance}</span>
+          </div>
         </div>
       `;
       

@@ -178,70 +178,60 @@
 
 <!-- Filter Modal -->
 <div id="filter-modal" class="filter-modal">
-  <div class="filter-modal-content">
-    <div class="filter-modal-header">
-      <h2>Filter</h2>
-      <button id="close-filter-modal" class="close-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+  <div class="filter-modal-container">
+    <div class="handle-bar"></div>
+    <div class="filter-header">
+      <h2>Filters</h2>
+      <button id="clear-filters-btn" class="clear-btn">Clear</button>
     </div>
     
-    <div class="filter-modal-body">
-      <!-- Gender Filter -->
+    <div class="filter-content">
+      <!-- Interested in -->
       <div class="filter-section">
-        <h3>Gender</h3>
-        <div class="filter-options">
-          <button class="filter-option" data-filter="gender" data-value="male">Male</button>
-          <button class="filter-option" data-filter="gender" data-value="female">Female</button>
-          <button class="filter-option" data-filter="gender" data-value="all">All</button>
+        <h3>Interested in</h3>
+        <div class="interest-options">
+          <button class="interest-option active" data-interest="girls">Girls</button>
+          <button class="interest-option" data-interest="boys">Boys</button>
+          <button class="interest-option" data-interest="both">Both</button>
         </div>
       </div>
       
-      <!-- Location Filter -->
+      <!-- Location -->
       <div class="filter-section">
-        <h3>Location</h3>
-        <div class="location-input">
-          <input type="text" id="location-filter" placeholder="Enter location">
-          <button id="use-current-location">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Distance Filter -->
-      <div class="filter-section">
-        <h3>Distance</h3>
-        <div class="slider-container">
-          <input type="range" id="distance-slider" min="1" max="50" value="10" class="slider">
-          <div class="slider-value"><span id="distance-value">10</span> km</div>
-        </div>
-      </div>
-      
-      <!-- Age Filter -->
-      <div class="filter-section">
-        <h3>Age</h3>
-        <div class="slider-container">
-          <div class="dual-slider">
-            <input type="range" id="min-age-slider" min="18" max="65" value="18" class="slider">
-            <input type="range" id="max-age-slider" min="18" max="65" value="65" class="slider">
+        <div class="location-header" id="location-selector">
+          <div class="location-info">
+            <h3>Location</h3>
+            <span id="current-location">Chicago, USA</span>
           </div>
-          <div class="slider-range">
-            <span id="min-age-value">18</span> - <span id="max-age-value">65</span>
-          </div>
+          <span class="location-arrow">›</span>
+        </div>
+      </div>
+      
+      <!-- Distance -->
+      <div class="filter-section">
+        <div class="range-header">
+          <h3>Distance</h3>
+          <span id="distance-value">40m</span>
+        </div>
+        <div class="range-slider">
+          <input type="range" id="distance-range" min="1" max="100" value="40" class="slider">
+        </div>
+      </div>
+      
+      <!-- Age -->
+      <div class="filter-section">
+        <div class="range-header">
+          <h3>Age</h3>
+          <span id="age-value">20-28</span>
+        </div>
+        <div class="range-slider dual-range">
+          <input type="range" id="age-min" min="18" max="65" value="20" class="slider">
+          <input type="range" id="age-max" min="18" max="65" value="28" class="slider">
         </div>
       </div>
     </div>
     
-    <div class="filter-modal-footer">
-      <button id="clear-filters" class="secondary-btn">Clear</button>
-      <button id="apply-filters" class="primary-btn">Continue</button>
-    </div>
+    <button id="apply-filters-btn" class="apply-btn">Continue</button>
   </div>
 </div>
 
@@ -384,7 +374,6 @@
     display: flex;
     overflow-x: auto;
     gap: 8px;
-    padding: 16px 12px;
     -webkit-overflow-scrolling: touch;
     scroll-snap-type: x mandatory;
     scrollbar-width: none; /* Hide scrollbar for Firefox */
@@ -521,28 +510,77 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     aspect-ratio: 3 / 4;
     margin: 0 4px;
+    background-color: #ff4d79;
   }
 
-  .venue-image {
+  .venue-visual-header {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+    height: 60%;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: 12px 12px 0 0;
+    /* Background will be set via inline styles */
+  }
+
+  .venue-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+
+  .venue-initials {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 1px;
+  }
+
+  .venue-stats-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
   }
 
   .people-badge {
-    position: absolute;
-    top: 12px;
-    left: 53px;
-    background-color: #FF69B4;
+    background-color: rgba(255, 105, 180, 0.9);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    width: 50%;
+    text-align: center;
+    margin: 0px auto;
+    margin-top: 10px;
+}
+
+.distance-badge {
+    display: block;
+    background-color: rgba(0, 0, 0, 0.6);
     color: white;
     padding: 6px 12px;
     border-radius: 16px;
     font-size: 12px;
     font-weight: 600;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: sticky;
+    margin: 0px auto;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
+
+}
 
   .venue-details {
     position: absolute;
@@ -555,13 +593,14 @@
   }
   
   .venue-info {
-    position: absolute;
-    bottom: 40px;
-    left: 0;
-    width: 100%;
+    height: 40%;
     padding: 12px;
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-radius: 0 0 12px 12px;
   }
   
   .venue-name {
@@ -571,6 +610,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: #fff !important;
   }
   
   .venue-description {
@@ -583,6 +623,7 @@
     line-clamp: 2;
     -webkit-box-orient: vertical;
     opacity: 0.9;
+    color: #fff !important;
   }
 
   .distance-badge {
@@ -624,8 +665,9 @@
   
   /* Venues list and loading indicator */
   .venues-list {
-    padding: 0 16px;
-    margin-bottom: 60px;
+    padding: 33px 16px;
+    margin-bottom: -6px;
+    background: var(--background-color);
   }
   
   .loading-indicator {
@@ -1024,6 +1066,314 @@
     font-size: 16px;
     font-weight: 500;
     cursor: pointer;
+  }
+
+  /* Filter Modal Styles */
+  .filter-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-color);
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .filter-modal.visible {
+    display: flex;
+  }
+
+  .filter-modal-container {
+    background: var(--surface-color);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 100%;
+    padding: 24px;
+    box-shadow: 0 -4px 20px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    color: var(--text-primary);
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+  }
+
+  .filter-modal.visible .filter-modal-container {
+    transform: translateY(0);
+  }
+
+  .handle-bar {
+    width: 40px;
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    margin: 0 auto 16px auto;
+  }
+
+  .filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .filter-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .clear-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .clear-btn:hover {
+    color: var(--primary-dark);
+  }
+
+  .filter-content {
+    flex: 1;
+    margin-bottom: 24px;
+  }
+
+  .filter-section {
+    margin-bottom: 32px;
+  }
+
+  .filter-section h3 {
+    font-size: 18px;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+    color: var(--text-primary);
+  }
+
+  .interest-options {
+    display: flex;
+    background: var(--surface-variant);
+    border-radius: 25px;
+    padding: 4px;
+    gap: 2px;
+    border: 1px solid var(--border-color);
+  }
+
+  .interest-option {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .interest-option:hover {
+    background: var(--button-hover);
+    color: var(--text-primary);
+  }
+
+  .interest-option.active {
+    background: var(--primary-color);
+    color: var(--text-on-primary);
+  }
+
+  .location-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    background: var(--card-background);
+  }
+
+  .location-header:hover {
+    background: var(--surface-variant);
+  }
+
+  .location-info h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .location-info #current-location {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .location-arrow {
+    font-size: 20px;
+    color: var(--text-tertiary);
+  }
+
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .range-header span {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .range-slider {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .range-slider .slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border-color);
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .range-slider .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 3px solid var(--surface-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .range-slider .slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .range-slider .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 3px solid var(--surface-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .range-slider .slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .dual-range {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .dual-range::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  .dual-range .slider {
+    position: absolute;
+    width: 100%;
+    height: 6px;
+    background: transparent;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .dual-range .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 3px solid var(--surface-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 3;
+    transition: all 0.2s ease;
+  }
+
+  .dual-range .slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .dual-range .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    border: 3px solid var(--surface-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 3;
+    transition: all 0.2s ease;
+  }
+
+  .dual-range .slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .apply-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary-color);
+    color: var(--text-on-primary);
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .apply-btn:hover {
+    background: var(--primary-dark);
   }
 </style>
 

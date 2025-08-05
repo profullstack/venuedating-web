@@ -547,6 +547,112 @@ async function loadRecommendedVenues() {
 }
 
 /**
+ * Generate a static map image URL for a venue location
+ * @param {number} lat - Latitude of the venue
+ * @param {number} lng - Longitude of the venue
+ * @param {string} venueName - Name of the venue for alt text
+ * @returns {string} - URL for static map image
+ */
+function generateMapImageUrl(lat, lng, venueName) {
+  // Using OpenStreetMap-based static map service
+  // Format: https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+ff0000(lng,lat)/lng,lat,zoom,bearing,pitch/widthxheight@2x?access_token=YOUR_TOKEN
+  
+  // For now, we'll use a simple tile-based approach with OpenStreetMap
+  // This creates a static map image centered on the venue location
+  const zoom = 15; // Good zoom level for showing venue context
+  const width = 300;
+  const height = 200;
+  
+  // Using StaticMaps API (free alternative)
+  // Format: https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/lng,lat,zoom/widthxheight?access_token=token
+  
+  // For demo purposes, we'll use a simple approach with map tiles
+  // In production, you'd want to use a proper static maps service
+  const mapUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s-marker+ff0000(${lng},${lat})/${lng},${lat},${zoom}/${width}x${height}@2x?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw`;
+  
+  return mapUrl;
+}
+
+/**
+ * Generate venue initials from venue name
+ * @param {string} venueName - The name of the venue
+ * @returns {string} - 1-2 character initials
+ */
+function generateVenueInitials(venueName) {
+  if (!venueName) return '?';
+  
+  const words = venueName.trim().split(' ').filter(word => word.length > 0);
+  
+  if (words.length === 1) {
+    // Single word: take first 2 characters
+    return words[0].substring(0, 2).toUpperCase();
+  } else {
+    // Multiple words: take first character of first two words
+    return (words[0][0] + (words[1] ? words[1][0] : '')).toUpperCase();
+  }
+}
+
+/**
+ * Get appropriate icon for venue type
+ * @param {string} venueType - The type of venue
+ * @returns {string} - Emoji icon
+ */
+function getVenueIcon(venueType) {
+  const iconMap = {
+    'bar': '🍺',
+    'restaurant': '🍽️',
+    'club': '🎵',
+    'lounge': '🍷',
+    'pub': '🍻',
+    'cafe': '☕',
+    'brewery': '🍺',
+    'wine_bar': '🍷',
+    'cocktail_bar': '🍸',
+    'sports_bar': '🏈',
+    'rooftop': '🌆',
+    'nightclub': '💃',
+    'music_venue': '🎤'
+  };
+  
+  return iconMap[venueType?.toLowerCase()] || '🏢';
+}
+
+/**
+ * Generate a consistent color gradient based on venue name
+ * @param {string} venueName - The name of the venue
+ * @returns {string} - CSS gradient string
+ */
+function generateVenueColor(venueName) {
+  // Define a set of attractive gradient combinations
+  const colorGradients = [
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+    'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+    'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    'linear-gradient(135deg, #fad0c4 0%, #ffd1ff 100%)',
+    'linear-gradient(135deg, #ffebbf 0%, #f093fb 100%)',
+    'linear-gradient(135deg, #c1dfc4 0%, #deecdd 100%)'
+  ];
+  
+  // Create a simple hash from the venue name
+  let hash = 0;
+  for (let i = 0; i < venueName.length; i++) {
+    const char = venueName.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  
+  // Use the hash to select a gradient (ensure positive index)
+  const index = Math.abs(hash) % colorGradients.length;
+  return colorGradients[index];
+}
+
+/**
  * Create a venue card element
  */
 function createVenueCard(venue) {
@@ -589,24 +695,37 @@ function createVenueCard(venue) {
   // Use actual number of active users from API data
   const peopleCount = venue.active_users || 0;
   
-  // Get venue image
-  let venueImage = '/images/venue-placeholder.jpg';
-  if (venue.images && venue.images.length > 0) {
-    venueImage = venue.images[0];
-  } else if (venue.image_url) {
-    venueImage = venue.image_url;
-  }
+  // Generate map image URL for the venue location
+  const mapImageUrl = generateMapImageUrl(venueLat, venueLng, venue.name);
+  const venueIcon = getVenueIcon(venue.venue_type || venue.type);
   
-  // Add venue name and details
+  // Debug logging
+  console.log('Creating venue card for:', venue.name);
+  console.log('Venue coordinates:', venueLat, venueLng);
+  console.log('Map image URL:', mapImageUrl);
+  console.log('Venue icon:', venueIcon);
+  
+  // Add venue name and details with map-based visual design
   card.innerHTML = `
-    <img src="${venueImage}" alt="${venue.name}" class="venue-image">
+    <div class="venue-map-container" style="position: relative; width: 100%; height: 60%; min-height: 180px; overflow: hidden; border-radius: 12px 12px 0 0;">
+      <img src="${mapImageUrl}" alt="Map of ${venue.name}" class="venue-map-image" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="venue-map-fallback" style="display: none; width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); align-items: center; justify-content: center; flex-direction: column;">
+        <div class="venue-icon" style="font-size: 32px; margin-bottom: 8px;">${venueIcon}</div>
+        <div class="venue-initials" style="font-size: 24px; font-weight: bold; color: white; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">${generateVenueInitials(venue.name)}</div>
+      </div>
+      <div class="venue-map-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.5) 100%);">
+        <div class="venue-stats-overlay" style="position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between;">
+          <div class="people-badge">${peopleCount} people</div>
+          <div class="distance-badge">${distance.toFixed(1)} km</div>
+        </div>
+        <div class="venue-location-marker" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 24px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+          📍
+        </div>
+      </div>
+    </div>
     <div class="venue-info">
       <h3 class="venue-name">${venue.name}</h3>
       <p class="venue-description">${venue.description || 'Visit this venue'}</p>
-    </div>
-    <div class="venue-stats">
-      <div class="people-badge">${peopleCount} people</div>
-      <div class="distance-badge">${distance.toFixed(1)} km away</div>
     </div>
   `;
   
