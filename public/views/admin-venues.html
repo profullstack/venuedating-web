@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Manage Venues</title>
+  <link rel="stylesheet" href="/public/css/matching.css" />
+  <style>
+    .admin-container {
+      max-width: 900px;
+      margin: 80px auto 40px;
+      padding: 0 16px;
+      font-family: var(--font-primary, 'Roboto', sans-serif);
+    }
+    h1 {
+      color: var(--primary-color, #f44b74);
+      margin-bottom: 24px;
+    }
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    form input,
+    form textarea,
+    form select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border-color, #ddd);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    form button {
+      grid-column: span 2;
+      padding: 10px 20px;
+      background: var(--primary-color, #f44b74);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    table.venue-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .venue-table th,
+    .venue-table td {
+      padding: 8px 10px;
+      border: 1px solid #eee;
+      text-align: left;
+      font-size: 14px;
+    }
+    .venue-table th {
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Manage Venues</h1>
+    <form id="venue-form">
+      <input type="text" name="name" placeholder="Venue Name*" required />
+      <input type="text" name="city" placeholder="City" />
+      <input type="text" name="category" placeholder="Category" />
+      <input type="number" step="any" name="lat" placeholder="Latitude*" required />
+      <input type="number" step="any" name="lng" placeholder="Longitude*" required />
+      <input type="text" name="image_url" placeholder="Image URL" />
+      <textarea name="description" placeholder="Description" rows="3" style="grid-column: span 2;"></textarea>
+      <button type="submit">Add Venue</button>
+    </form>
+
+    <div id="venue-list"></div>
+  </div>
+
+  <script type="module" src="/public/js/admin-venues.js"></script>
+</body>
+</html>

@@ -105,9 +105,10 @@ export async function likeUser(likedUserId, venueId = null) {
       .eq('user_id_1', likedUserId)
       .eq('user_id_2', user.id)
       .eq('status', 'pending')
-      .single();
+      .maybeSingle();
 
-    if (likeError && likeError.code !== 'PGRST116') { // PGRST116 is "No rows returned" which is expected if no match
+    if (likeError) {
+      console.error('Error checking for existing like:', likeError);
       throw likeError;
     }
 
@@ -144,7 +145,14 @@ export async function likeUser(likedUserId, venueId = null) {
       .select()
       .single();
 
-    if (newLikeError) throw newLikeError;
+    if (newLikeError) {
+      // Gracefully handle duplicate like (unique constraint violation)
+      if (newLikeError.code === '23505' || (newLikeError.message && newLikeError.message.includes('duplicate key value'))) {
+        // Treat as success: return a friendly message and indicate no new like was created
+        return { like: null, isMatch: false, duplicate: true };
+      }
+      throw newLikeError;
+    }
     
     return { like: newLike, isMatch: false };
   } catch (error) {
@@ -169,6 +177,22 @@ export const getMatches = getUserMatches;
  * @returns {Promise<Array>} Array of potential match profiles
  */
 export async function getPotentialMatches(options = { limit: 20, offset: 0, distance: 50 }) {
+  // Filter out users already liked or disliked by the current user
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  // Get all match records where the current user is user_id_1 (initiator)
+  const { data: myMatches, error: myMatchesError } = await supabase
+    .from('matches')
+    .select('user_id_2, status')
+    .eq('user_id_1', user.id);
+
+  const excludedIds = myMatches && myMatches.length > 0
+    ? myMatches.filter(m => m.status === 'pending' || m.status === 'matched' || m.status === 'disliked').map(m => m.user_id_2)
+    : [];
+
+  // Also exclude self
+  excludedIds.push(user.id);
   console.log('🔍 MATCHES DEBUG: Getting potential matches...');
   
   try {
@@ -180,6 +204,7 @@ export async function getPotentialMatches(options = { limit: 20, offset: 0, dist
       .from('profiles')
       .select('*')
       .eq('is_verified', true) // Only verified profiles
+      .not('id', 'in', `(${excludedIds.join(',')})`)
       .limit(options.limit || 20);
     
     if (verifiedProfiles && verifiedProfiles.length > 0) {
@@ -197,6 +222,7 @@ export async function getPotentialMatches(options = { limit: 20, offset: 0, dist
     const { data: allProfiles, error: allProfilesError } = await supabase
       .from('profiles')
       .select('*')
+      .not('id', 'in', `(${excludedIds.join(',')})`)
       .limit(options.limit || 20);
     
     if (allProfiles && allProfiles.length > 0) {

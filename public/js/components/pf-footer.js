@@ -122,39 +122,7 @@ class PfFooter extends HTMLElement {
         }
       </style>
       
-      <div class="footer">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h3 data-i18n="app_name">BarCrush</h3>
-            <ul class="footer-links">
-              <li><a href="/">Home</a></li>
-              <li><a href="/auth">Login / Sign Up</a></li>
-              <li><a href="/about">About Us</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Discover</h3>
-            <ul class="footer-links">
-              <li><a href="/api-keys" data-i18n="footer.api_keys">API Keys</a></li>
-              <li><a href="mailto:support@barcrush.app" data-i18n="footer.support">Support</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Legal</h3>
-            <ul class="footer-links">
-              <li><a href="/terms">Terms of Service</a></li>
-              <li><a href="/privacy">Privacy Policy</a></li>
-              <li><a href="/contact">Contact Us</a></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="copyright">
-          &copy; ${year} <span data-i18n="footer.company_name">BarCrush, Inc.</span> <span data-i18n="footer.all_rights_reserved">All rights reserved.</span>
-        </div>
-      </div>
+      
     `;
     
     // Translate elements after rendering

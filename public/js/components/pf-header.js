@@ -2,6 +2,8 @@
  * Header component for BarCrush application
  */
 
+import supabase from '../api/supabase-client.js';
+
 class PfHeader extends HTMLElement {
   constructor() {
     super();
@@ -13,8 +15,10 @@ class PfHeader extends HTMLElement {
   }
 
   connectedCallback() {
+    // Called when component is attached to DOM
     this.render();
     this.initEventListeners();
+    this.addAdminLinkIfNeeded();
   }
 
   render() {
@@ -287,37 +291,39 @@ class PfHeader extends HTMLElement {
           }
         }
       </style>
-      
-      <div class="header">
-        <a href="/" class="logo-link" style="text-decoration: none;">
-          <div class="logo">
-            <img src="/images/app-logo.png" alt="BarCrush Logo" style="width: 100%; height: auto;">
-          </div>
-        </a>
-        
-        <!-- Hamburger menu for mobile -->
-        <div class="hamburger-menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        
-        <div class="nav-links">
-          <a href="/" class="nav-link" id="home-link">${homeText}</a>
-          <a href="/login" class="nav-link login-link" id="login-link">${loginText}</a>
-          <a href="/register" class="register-link" id="register-link">${registerText}</a>
-          
-          <!-- No theme toggle for BarCrush -->
-        </div>
-      </div>
-      
-      <!-- Mobile menu container -->
-      <div class="mobile-menu">
-        <a href="/" class="nav-link" id="mobile-home-link">${homeText}</a>
-        <a href="/login" class="nav-link login-link" id="mobile-login-link">${loginText}</a>
-        <a href="/register" class="register-link" id="mobile-register-link">${registerText}</a>
-      </div>
+
     `;
+  }
+
+  /**
+   * Add an Admin link to the navigation when localStorage.isAdmin === 'true'.
+   */
+  async addAdminLinkIfNeeded() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile || !profile.is_admin) return;
+
+      const navLinks = this.shadowRoot.querySelector('.nav-links');
+      if (!navLinks) return;
+      if (navLinks.querySelector('a[data-admin-link]')) return;
+
+      const adminLink = document.createElement('a');
+      adminLink.className = 'nav-link';
+      adminLink.setAttribute('data-admin-link', 'true');
+      adminLink.href = '/admin/venues';
+      adminLink.textContent = 'Admin';
+      navLinks.appendChild(adminLink);
+    } catch (err) {
+      console.error('Failed to add admin link:', err);
+    }
   }
 
   initEventListeners() {

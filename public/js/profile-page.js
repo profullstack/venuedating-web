@@ -41,7 +41,7 @@ function loadMapScript() {
 }
 
 export async function initProfilePage() {
-  // Progress indicator removed
+  console.log('Initializing profile page...');
   
   // Load validation CSS
   if (!document.getElementById('form-validation-css')) {
@@ -69,12 +69,157 @@ export async function initProfilePage() {
   const phoneInput = document.getElementById('phone-number');
   const countrySelect = document.getElementById('country-select');
   const countryDropdown = document.getElementById('country-dropdown');
-  const countryCodeInput = document.getElementById('country-code');
+  const countryCodeInput = document.getElementById('country-code-input');
   const fullPhoneInput = document.getElementById('full-phone');
   const birthdayBtn = document.getElementById('birthday-btn');
   const locationBtn = document.querySelector('.location-btn');
   const confirmBtn = document.getElementById('confirm-btn');
   const skipBtn = document.querySelector('.skip-btn');
+  
+  // Status container for showing messages
+  let statusContainer = document.getElementById('status-container');
+  if (!statusContainer) {
+    statusContainer = document.createElement('div');
+    statusContainer.id = 'status-container';
+    statusContainer.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+      max-width: 90%;
+      text-align: center;
+    `;
+    document.body.appendChild(statusContainer);
+  }
+  
+  // Profile data object to store form state
+  let profileData = {
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
+    birthday: '',
+    location: '',
+    avatarUrl: ''
+  };
+  
+  // Load existing user data from Supabase
+  await loadExistingUserData();
+  
+  // Function to load existing user data from Supabase
+  async function loadExistingUserData() {
+    try {
+      const supabase = await supabaseClientPromise;
+      
+      // Check if there's an active session first
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.log('No authenticated session found - user is creating new profile');
+        return;
+      }
+      
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.log('No authenticated user found - user is creating new profile');
+        return;
+      }
+      
+      console.log('Loading profile data for user:', user.id);
+      
+      // Load profile data from Supabase
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError) {
+        console.log('No existing profile found:', profileError.message);
+        return;
+      }
+      
+      if (profile) {
+        console.log('Found existing profile:', profile);
+        
+        // Auto-fill form fields with existing data
+        if (profile.first_name && firstNameInput) {
+          firstNameInput.value = profile.first_name;
+          profileData.firstName = profile.first_name;
+        }
+        
+        if (profile.last_name && lastNameInput) {
+          lastNameInput.value = profile.last_name;
+          profileData.lastName = profile.last_name;
+        }
+        
+        if (profile.phone && phoneInput) {
+          // Extract country code and phone number
+          const phoneStr = profile.phone.toString();
+          if (phoneStr.startsWith('+')) {
+            // Find matching country by dial code
+            const matchingCountry = countries.find(country => 
+              phoneStr.startsWith(country.dialCode)
+            );
+            
+            if (matchingCountry) {
+              // Update country selector
+              const selectedFlag = countrySelect?.querySelector('.country-flag');
+              const selectedCode = countrySelect?.querySelector('.country-code');
+              
+              if (selectedFlag && selectedCode) {
+                selectedFlag.textContent = matchingCountry.flag;
+                selectedCode.textContent = matchingCountry.dialCode;
+              }
+              
+              if (countryCodeInput) {
+                countryCodeInput.value = matchingCountry.dialCode;
+              }
+              
+              // Set phone number without country code
+              const phoneNumber = phoneStr.replace(matchingCountry.dialCode, '');
+              phoneInput.value = phoneNumber;
+              
+              if (fullPhoneInput) {
+                fullPhoneInput.value = phoneStr;
+              }
+              
+              profileData.phoneNumber = phoneStr;
+            }
+          }
+        }
+        
+        if (profile.birthday && birthdayBtn) {
+          const birthday = new Date(profile.birthday);
+          const formattedDate = formatDate(birthday);
+          birthdayBtn.querySelector('span').textContent = formattedDate;
+          birthdayBtn.setAttribute('data-birthday', profile.birthday);
+          profileData.birthday = profile.birthday;
+        }
+        
+        if (profile.location && locationBtn) {
+          locationBtn.querySelector('span').textContent = profile.location;
+          locationBtn.setAttribute('data-location', profile.location);
+          profileData.location = profile.location;
+        }
+        
+        if (profile.avatar_url && profileImage) {
+          loadProfileImage(profile.avatar_url);
+          profileData.avatarUrl = profile.avatar_url;
+        }
+        
+        showStatus('Profile data loaded successfully', 'success');
+      }
+    } catch (error) {
+      console.error('Error loading existing user data:', error);
+      showStatus('Failed to load profile data', 'error');
+    }
+  }
   
   // Initialize country picker
   if (countrySelect && countryDropdown) {
@@ -251,21 +396,11 @@ export async function initProfilePage() {
   // State variables
   let selectedBirthday = null;
   let selectedLocation = null;
-  let profileData = {};
   let fileToUpload = null;
   let mapInstance = null;
   let currentUser = null;
   let isNewUser = true;
-  
-  // Create status message container
-  const statusContainer = document.createElement('div');
-  statusContainer.className = 'status-container';
-  statusContainer.style.display = 'none';
-  statusContainer.style.padding = '10px';
-  statusContainer.style.marginTop = '10px';
-  statusContainer.style.borderRadius = '8px';
-  statusContainer.style.textAlign = 'center';
-  confirmBtn.parentNode.insertBefore(statusContainer, confirmBtn);
+  // Remove duplicate statusContainer creation since it's already created above
 
   // Check if user is logged in and load profile data
   try {
@@ -382,14 +517,39 @@ export async function initProfilePage() {
           }
           
           fileToUpload = file;
-          showStatus('Photo selected', 'success');
+          showStatus('Photo selected, uploading...', 'loading');
           
           // Preview the image with better error handling
           const reader = new FileReader();
-          reader.onload = function(e) {
+          reader.onload = async function(e) {
             profileImage.src = e.target.result;
             // Store in profile data
             profileData.avatar_preview = e.target.result;
+            
+            // Check if user is authenticated before uploading
+            try {
+              const supabase = await supabaseClientPromise;
+              const { data: { session } } = await supabase.auth.getSession();
+              
+              if (session && session.user) {
+                // User is authenticated, upload immediately
+                const avatarUrl = await uploadProfilePhoto(file);
+                if (avatarUrl) {
+                  profileData.avatarUrl = avatarUrl;
+                  showStatus('Profile photo uploaded successfully!', 'success');
+                }
+              } else {
+                // User not authenticated yet, store for later upload
+                profileData.pendingPhotoFile = file;
+                showStatus('Photo selected. Will upload after account creation.', 'success');
+              }
+            } catch (error) {
+              console.error('Error with photo upload:', error);
+              // Store for later upload as fallback
+              profileData.pendingPhotoFile = file;
+              showStatus('Photo selected. Will upload after account creation.', 'success');
+            }
+            
             // Save to localStorage for persistence
             saveToLocalStorage();
             // Clean up after successful read

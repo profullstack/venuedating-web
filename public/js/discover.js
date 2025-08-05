@@ -11,9 +11,10 @@ const VENUE_LOCATIONS = {
   'sanfrancisco': { lat: 37.7749, lng: -122.4194, name: 'San Francisco, CA' }
 };
 
-// Use the Dallas location by default
+// Use the San Francisco location as fallback only
 const DEFAULT_LOCATION = VENUE_LOCATIONS.sanfrancisco;
-const USE_TEST_COORDINATES = true; // Set to true to use venue location instead of real geolocation
+const USE_TEST_COORDINATES = false; // Set to false to use real device geolocation
+const ENABLE_VENUE_IMAGES = false; // Feature flag: set to true to show venue images
 
 // Map and markers
 let map;
@@ -381,8 +382,9 @@ async function setupMapElements() {
       const venueImage = venue.image_url || demoImages[imageIndex];
       
       // Create card structure to match the beautiful screenshot design
+      const imageHTML = ENABLE_VENUE_IMAGES ? `<img src="${venueImage}" alt="${venueName}" class="venue-image">` : '';
       venueCard.innerHTML = `
-        <img src="${venueImage}" alt="${venueName}" class="venue-image">
+        ${imageHTML}
         <div class="people-badge">${peopleText}</div>
         <div class="venue-details">
           <div class="distance-badge">${distance}</div>
@@ -407,11 +409,34 @@ async function setupMapElements() {
     venues = venues.filter(venue => venue.lat && venue.lng);
     console.log('🗺️ Valid venues with geolocation:', venues.length);
     
-    // Display venues in the UI
-    displayVenues(venues);
-    
     // Hide loading indicator when done
     if (loadingIndicator) loadingIndicator.style.display = 'none';
+    
+    // Check if we have venues to display
+    if (venues.length === 0) {
+      // No venues found, show empty state message
+      const venuesContainer = document.getElementById('venues-container');
+      if (venuesContainer) {
+        venuesContainer.innerHTML = `
+          <div class="empty-venues-message" style="text-align: center; padding: 40px 20px; color: #666;">
+            <div style="font-size: 48px; margin-bottom: 15px;">😢</div>
+            <h3 style="margin-bottom: 10px; font-size: 20px;">No Venues Found</h3>
+            <p style="font-size: 16px; line-height: 1.5;">We couldn't find any venues near your current location.<br>Try changing your location or increasing the search radius.</p>
+          </div>
+        `;
+        
+        // Add event listener to the change location button
+        const changeLocationBtn = venuesContainer.querySelector('.change-location-btn');
+        if (changeLocationBtn) {
+          changeLocationBtn.addEventListener('click', () => {
+            showLocationSelector();
+          });
+        }
+      }
+    } else {
+      // Display venues in the UI
+      displayVenues(venues);
+    }
     
     // Create and add venue markers
     venueMarkers = [];

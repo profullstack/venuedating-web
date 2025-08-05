@@ -8,7 +8,66 @@
   <meta http-equiv="Expires" content="0">
   <title data-i18n="matching.page_title">Matching - BarCrush</title>
   <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/payment-modal.css">
+  <link rel="stylesheet" href="/css/match-modal.css">
   <script src="/js/dark-mode.js"></script>
+  <!-- Square payments configuration via backend API -->
+  <script>
+    // Fetch Square credentials from backend API instead of hardcoding
+    async function fetchSquareCredentials() {
+      try {
+        // Get the user's current auth token
+        const token = localStorage.getItem('supabase.auth.token');
+        const parsedToken = token ? JSON.parse(token) : null;
+        const accessToken = parsedToken?.currentSession?.access_token;
+        
+        if (!accessToken) {
+          console.error('❌ No auth token available for Square credentials API');
+          return false;
+        }
+        
+        // Call the backend API to get credentials
+        const response = await fetch('/api/square-credentials', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+        
+        const credentials = await response.json();
+        
+        // Set the credentials globally
+        window.applicationId = credentials.applicationId;
+        window.locationId = credentials.locationId;
+        window.squareEnvironment = credentials.environment;
+        
+        console.log(`✅ Square credentials fetched from backend (${credentials.environment})`);
+        return true;
+      } catch (error) {
+        console.error('❌ Failed to fetch Square credentials:', error);
+        
+        // Fallback to sandbox values for development
+        window.applicationId = 'sandbox-sq0idb-lT3HhaTKMRYkJnZ-yJsltA';
+        window.locationId = 'LPVRBB3FZW566';
+        window.squareEnvironment = 'sandbox';
+        
+        console.warn('⚠️ Using fallback Square sandbox credentials');
+        return false;
+      }
+    }
+  </script>
+  
+  <!-- Load Square Web Payments SDK -->
+  <script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function () {
+      await fetchSquareCredentials();
+      console.log('✅ Square Web Payments SDK loaded');
+    });
+  </script>
   <script type="module" src="/js/auth-middleware.js"></script>
   <script type="module" src="/js/matching-controller.js"></script>
   <script type="module" src="/js/test-language-switch.js"></script>
@@ -106,7 +165,7 @@
       
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button id="reject-button" class="action-button reject">
+      <button id="dislike-button" class="action-button reject">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -247,11 +306,19 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         overflow: hidden;
         transform-origin: bottom center;
-        cursor: grab;
+        cursor: pointer !important; /* Make it clear this is clickable */
         transform-style: preserve-3d;
-        transition: transform 0.5s ease, opacity 0.3s ease;
+        transition: transform 0.5s ease, opacity 0.3s ease, box-shadow 0.3s ease;
         touch-action: none; /* Ensures touch events work properly */
       }
+      
+      /* Hover effect to make clickability more obvious */
+      .match-card:hover {
+        box-shadow: 0 10px 25px rgba(244, 75, 116, 0.4);
+        transform: translateY(-5px) scale(1.02) !important;
+      }
+      
+      /* View profile button removed as requested */
       
       /* Position the cards in stacked format */
       .match-card:nth-child(1) {
@@ -317,7 +384,7 @@
       }
 
       .profile-name {
-        font-size: 28px;
+        font-size: 22px;
         font-weight: 700;
         margin: 0 0 5px 0;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);

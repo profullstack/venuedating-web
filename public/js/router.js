@@ -28,6 +28,7 @@ import { initProfileVerifyPage } from './profile-verify.js';
 import { initProfileCompletePage } from './profile-complete.js';
 import { initDiscoverPage } from './discover.js';
 import { initProfileDetail } from './profile-detail.js';
+import supabase from './api/supabase-client.js';
 
 // Create a DOM fragment with the default layout
 function createLayoutFragment(content, pageUrl) {
@@ -481,6 +482,41 @@ export function defineRoutes(router) {
       }
     },
     
+    '/admin/venues': {
+      viewPath: '/views/admin-venues.html',
+      requireAuth: true,
+      beforeEnter: async (to, from, next) => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            alert('Please log in');
+            return next('/');
+          }
+
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', user.id)
+            .single();
+
+          if (!profile || !profile.is_admin) {
+            alert('Admin access required');
+            return next('/');
+          }
+
+          next();
+        } catch (err) {
+          console.error('Admin route guard error:', err);
+          alert('Error validating admin access');
+          next('/');
+        },
+       afterRender: () => {
+        if (window.initAdminVenuesPage) {
+          window.initAdminVenuesPage();
+        }
+      }
+    },
+
     '/chat': {
       viewPath: '/views/chat.html',
       afterRender: () => {
@@ -547,6 +583,12 @@ export function defineRoutes(router) {
       afterRender: initProfilePage
     },
 
+    '/profile-detail': {
+      viewPath: '/views/profile-detail.html',
+      afterRender: initProfileDetail,
+      noheaderfooter: true
+    },
+
     '/profile-gender': {
       viewPath: '/views/profile-gender.html',
       afterRender: initProfileGenderPage
@@ -571,6 +613,15 @@ export function defineRoutes(router) {
     '/login': {
       viewPath: '/views/auth.html',
       afterRender: initAuthPage
+    },
+    '/login-email': {
+      viewPath: '/views/login-email.html',
+      afterRender: () => {
+        console.log('Login-email page initialized');
+        if (typeof window.initLoginEmailPage === 'function') {
+          window.initLoginEmailPage();
+        }
+      }
     },
     '/register': {
       viewPath: '/views/profile.html',
