@@ -3,6 +3,10 @@
  * Handles the matching page functionality including card swiping and like/dislike actions
  */
 
+import { supabaseClientPromise } from './supabase-client.js';
+import authMiddleware from './auth-middleware.js';
+import { getProfiles } from './api/profiles.js';
+
 // Sample user data - this would come from an API in a real app
 const users = [
   {
@@ -72,8 +76,9 @@ const users = [
 ];
 
 // Initialize the matching page
-function initMatchingPage() {
+async function initMatchingPage() {
   console.log('Initialize matching page');
+  
   // Ensure we're working with the right elements
   const cardStack = document.getElementById('card-stack');
   if (!cardStack) {
@@ -81,19 +86,145 @@ function initMatchingPage() {
     return;
   }
   
-  // Generate cards from users array
-  generateCards();
-  
-  // Setup the core functionality
-  setupCards();
-  setupActionButtons();
-  setupBottomNavigation();
-  
-  console.log('Matching page initialized successfully');
+  try {
+    // Load filtered users (excluding already liked/disliked)
+    const filteredUsers = await loadFilteredUsers();
+    
+    if (filteredUsers.length === 0) {
+      showNoMoreUsersMessage();
+      return;
+    }
+    
+    // Generate cards from filtered users
+    generateCards(filteredUsers);
+    
+    // Setup the core functionality
+    setupCards();
+    setupActionButtons();
+    setupBottomNavigation();
+    
+    console.log('Matching page initialized successfully with', filteredUsers.length, 'users');
+  } catch (error) {
+    console.error('Error initializing matching page:', error);
+    showErrorMessage('Failed to load users. Please try again.');
+  }
+}
+
+// Load users from database and filter out already liked/disliked users
+async function loadFilteredUsers() {
+  try {
+    const user = authMiddleware.getUser();
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
+    }
+    
+    console.log('Loading users and filtering out already liked/disliked...');
+    
+    // Get all users from profiles API
+    const allUsers = await getProfiles();
+    
+    // Get users that current user has already liked or disliked
+    const [likedUsers, dislikedUsers] = await Promise.all([
+      getUserLikes(user.id),
+      getUserDislikes(user.id)
+    ]);
+    
+    // Create sets for faster lookup
+    const likedUserIds = new Set(likedUsers.map(like => like.liked_user_id));
+    const dislikedUserIds = new Set(dislikedUsers.map(dislike => dislike.disliked_user_id));
+    
+    // Filter out current user and already liked/disliked users
+    const filteredUsers = allUsers.filter(profile => {
+      // Exclude current user
+      if (profile.id === user.id) return false;
+      
+      // Exclude already liked users
+      if (likedUserIds.has(profile.id)) return false;
+      
+      // Exclude already disliked users
+      if (dislikedUserIds.has(profile.id)) return false;
+      
+      return true;
+    });
+    
+    console.log(`📊 Filtered ${allUsers.length} users down to ${filteredUsers.length} available users`);
+    console.log(`👍 Excluded ${likedUserIds.size} liked users`);
+    console.log(`👎 Excluded ${dislikedUserIds.size} disliked users`);
+    
+    return filteredUsers;
+    
+  } catch (error) {
+    console.error('Error loading filtered users:', error);
+    throw error;
+  }
+}
+
+// Get users that the current user has liked
+async function getUserLikes(userId) {
+  try {
+    const supabase = await supabaseClientPromise;
+    
+    const { data, error } = await supabase
+      .from('user_likes')
+      .select('liked_user_id')
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching user likes:', error);
+    return [];
+  }
+}
+
+// Get users that the current user has disliked
+async function getUserDislikes(userId) {
+  try {
+    const supabase = await supabaseClientPromise;
+    
+    const { data, error } = await supabase
+      .from('user_dislikes')
+      .select('disliked_user_id')
+      .eq('user_id', userId);
+    
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching user dislikes:', error);
+    return [];
+  }
+}
+
+// Show message when no more users are available
+function showNoMoreUsersMessage() {
+  const cardStack = document.getElementById('card-stack');
+  cardStack.innerHTML = `
+    <div class="no-users-message">
+      <div class="no-users-icon">🎆</div>
+      <h2>You've seen everyone!</h2>
+      <p>Check back later for new people in your area.</p>
+      <button class="btn btn-primary" onclick="location.reload()">Refresh</button>
+    </div>
+  `;
+}
+
+// Show error message
+function showErrorMessage(message) {
+  const cardStack = document.getElementById('card-stack');
+  cardStack.innerHTML = `
+    <div class="error-message">
+      <div class="error-icon">⚠️</div>
+      <h2>Oops!</h2>
+      <p>${message}</p>
+      <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+    </div>
+  `;
 }
 
 // Generate cards from the users array
-function generateCards() {
+function generateCards(usersData = users) {
   console.log('Generating cards from users data');
   const cardStack = document.getElementById('card-stack');
   
@@ -101,7 +232,7 @@ function generateCards() {
   cardStack.innerHTML = '';
   
   // Create a card for each user
-  users.forEach(user => {
+  usersData.forEach(user => {
     const card = document.createElement('div');
     card.className = 'match-card';
     card.setAttribute('data-id', user.id);

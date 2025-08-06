@@ -5,6 +5,7 @@
 
 import { getNearbyVenues } from './api/venues.js';
 import { getCurrentUser } from './api/supabase-client.js';
+import { getUserFilters, saveUserFilters, applyLocationFilter, getCurrentLocation, reverseGeocode } from './api/filters.js';
 
 // Default locations for different venue areas
 const VENUE_LOCATIONS = {
@@ -20,6 +21,10 @@ const ENABLE_VENUE_IMAGES = false; // Feature flag: set to true to show venue im
 let map;
 let userMarker;
 let venueMarkers = [];
+
+// Current user location and filters
+let currentUserLocation = null;
+let currentFilters = null;
 
 /**
  * Generate a static map image URL for a venue location
@@ -85,8 +90,16 @@ function getVenueIcon(venueType) {
 
 export async function initDiscoverPage() {
   console.log('Initialize discover page');
+  
+  // Initialize components
   setupHeaderButtons();
   setupVenueCards();
+  
+  // Load user filters and location
+  await loadUserFilters();
+  await initializeUserLocation();
+  
+  // Setup map with user location
   await setupMapElements();
   setupBottomNavigation();
 }
@@ -114,6 +127,7 @@ function setupHeaderButtons() {
   if (notificationBtn) {
     notificationBtn.addEventListener('click', function() {
       console.log('Notification button clicked');
+      router.navigate('/notifications');
       // TODO: Implement notification functionality
     });
   }
@@ -177,9 +191,8 @@ function setupFilterModalListeners() {
   // Location selector
   const locationSelector = modal.querySelector('#location-selector');
   if (locationSelector) {
-    locationSelector.addEventListener('click', () => {
-      // TODO: Show location picker
-      console.log('Location selector clicked');
+    locationSelector.addEventListener('click', async () => {
+      await showLocationPicker();
     });
   }
 
@@ -283,35 +296,507 @@ function resetFilters() {
 /**
  * Apply current filter settings
  */
-function applyFilters() {
+async function applyFilters() {
   const modal = document.getElementById('filter-modal');
   if (!modal) return;
 
-  // Get current filter values
-  const activeInterest = modal.querySelector('.interest-option.active');
-  const interest = activeInterest ? activeInterest.dataset.interest : 'girls';
-  
-  const distanceRange = modal.querySelector('#distance-range');
-  const distance = distanceRange ? distanceRange.value : 40;
-  
-  const ageMin = modal.querySelector('#age-min');
-  const ageMax = modal.querySelector('#age-max');
-  const minAge = ageMin ? ageMin.value : 20;
-  const maxAge = ageMax ? ageMax.value : 28;
-  
-  const currentLocation = modal.querySelector('#current-location');
-  const location = currentLocation ? currentLocation.textContent : 'Chicago, USA';
+  try {
+    // Get current filter values
+    const activeInterest = modal.querySelector('.interest-option.active');
+    const interest = activeInterest ? activeInterest.dataset.interest : 'girls';
+    
+    const distanceRange = modal.querySelector('#distance-range');
+    const distance = parseInt(distanceRange ? distanceRange.value : 40);
+    
+    const ageMin = modal.querySelector('#age-min');
+    const ageMax = modal.querySelector('#age-max');
+    const minAge = parseInt(ageMin ? ageMin.value : 20);
+    const maxAge = parseInt(ageMax ? ageMax.value : 28);
+    
+    const currentLocation = modal.querySelector('#current-location');
+    const location = currentLocation ? currentLocation.textContent : 'Chicago, USA';
 
-  console.log('Applying filters:', {
-    interest,
-    distance,
-    minAge,
-    maxAge,
-    location
+    // Get current user
+    const user = await getCurrentUser();
+    if (!user) {
+      console.error('No user found, cannot save filters');
+      return;
+    }
+
+    // Prepare filter data
+    const filterData = {
+      interestedIn: interest,
+      location: location,
+      latitude: currentUserLocation?.latitude || null,
+      longitude: currentUserLocation?.longitude || null,
+      distance: distance,
+      minAge: minAge,
+      maxAge: maxAge
+    };
+
+    console.log('Applying filters:', filterData);
+
+    // Save filters to database
+    await saveUserFilters(user.id, filterData);
+    console.log('✅ Filters saved successfully');
+
+    // Apply filters to current venues
+    await refreshVenuesWithFilters(filterData);
+    
+  } catch (error) {
+    console.error('Error applying filters:', error);
+    // Show error message to user
+    showErrorMessage('Failed to apply filters. Please try again.');
+  }
+}
+
+/**
+ * Refresh venues with applied filters
+ * @param {Object} filterData - Filter data to apply
+ */
+async function refreshVenuesWithFilters(filterData) {
+  try {
+    console.log('🔄 Refreshing venues with filters:', filterData);
+    
+    // Show loading indicator
+    const venuesList = document.querySelector('.venues-list');
+    if (venuesList) {
+      venuesList.innerHTML = '<div class="loading-indicator">Applying filters...</div>';
+    }
+
+    // Use filter location coordinates if available, otherwise current user location or default
+    let searchLat, searchLng;
+    
+    if (filterData.latitude && filterData.longitude) {
+      // Use filter coordinates
+      searchLat = filterData.latitude;
+      searchLng = filterData.longitude;
+      console.log('🎯 Using filter coordinates:', { lat: searchLat, lng: searchLng });
+    } else if (currentUserLocation) {
+      // Use current user location
+      searchLat = currentUserLocation.latitude;
+      searchLng = currentUserLocation.longitude;
+      console.log('📍 Using current user location:', { lat: searchLat, lng: searchLng });
+    } else {
+      // Use default location
+      searchLat = DEFAULT_LOCATION.lat;
+      searchLng = DEFAULT_LOCATION.lng;
+      console.log('🏠 Using default location:', { lat: searchLat, lng: searchLng });
+    }
+    
+    // Get venues from API
+    const venues = await getNearbyVenues(
+      searchLat, 
+      searchLng, 
+      filterData.distance || 40
+    );
+
+    // Apply location filter if we have coordinates
+    let filteredVenues = venues;
+    if (filterData.latitude && filterData.longitude) {
+      filteredVenues = applyLocationFilter(venues, {
+        latitude: filterData.latitude,
+        longitude: filterData.longitude,
+        distance: filterData.distance
+      });
+    }
+
+    console.log(`📍 Filtered venues: ${filteredVenues.length} out of ${venues.length}`);
+
+    // Update venues display
+    displayVenues(filteredVenues);
+    
+  } catch (error) {
+    console.error('Error refreshing venues with filters:', error);
+    showErrorMessage('Failed to load venues with filters.');
+  }
+}
+
+/**
+ * Display venues in the venues list
+ * @param {Array} venues - Array of venues to display
+ */
+function displayVenues(venues) {
+  const venuesList = document.querySelector('.venues-list');
+  if (!venuesList) return;
+
+  if (!venues || venues.length === 0) {
+    venuesList.innerHTML = '<div class="no-venues">No venues found with current filters.</div>';
+    return;
+  }
+
+  // Clear existing venues
+  venuesList.innerHTML = '';
+
+  // Create venue cards
+  venues.forEach(venue => {
+    // Skip venues without valid data
+    if (!venue.name) {
+      console.warn('Skipping venue with missing name:', venue);
+      return;
+    }
+    
+    // Create venue card
+    const venueCard = document.createElement('div');
+    venueCard.className = 'venue-card';
+    venueCard.dataset.venueId = venue.id;
+    
+    // Create card content
+    const distance = venue.distance_km ? `${venue.distance_km.toFixed(1)} km away` : '';
+    const peopleCount = venue.people_count !== undefined ? venue.people_count : 0;
+    const peopleText = peopleCount === 0 ? 'Be the first here' : `${peopleCount} people`;
+    
+    // Generate a venue name if none exists
+    const venueName = venue.name || `Venue ${venue.id || Math.floor(Math.random() * 1000)}`;
+    
+    // Create minimalistic text-only venue card structure
+    venueCard.innerHTML = `
+      <div class="venue-text-content" style="padding: 20px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; background-color: var(--color-background); border-radius: 12px; border: 1px solid var(--color-border, rgba(0,0,0,0.1));">
+        <div class="venue-header">
+          <h3 class="venue-name" style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: var(--color-text); line-height: 1.3;">${venueName}</h3>
+          <p class="venue-description" style="margin: 0; font-size: 14px; color: var(--color-text-secondary); line-height: 1.4; opacity: 0.8;">${venue.description || 'A great place to visit'}</p>
+        </div>
+        <div class="venue-stats" style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border, rgba(0,0,0,0.1));">
+          <span class="people-count" style="font-size: 13px; color: #fff; font-weight: 500;">${peopleText}</span>
+          <span class="distance" style="font-size: 13px; color: #fff; font-weight: 500;">${distance}</span>
+        </div>
+      </div>
+    `;
+    
+    // Add click event to focus on map
+    venueCard.addEventListener('click', () => {
+      console.log('Venue card clicked:', venue.name);
+      // Add any venue card click functionality here
+    });
+    
+    // Add the card to the container
+    venuesList.appendChild(venueCard);
   });
 
-  // TODO: Apply filters to venue search/display
-  // This would typically trigger a new API call with the filter parameters
+  // Re-setup venue card interactions
+  setupVenueCards();
+}
+
+/**
+ * Load user's saved filters and apply them to the modal
+ */
+async function loadUserFilters() {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return;
+
+    const filters = await getUserFilters(user.id);
+    currentFilters = filters;
+
+    console.log('📋 Loaded user filters:', filters);
+
+    // Apply filters to modal UI
+    applyFiltersToModal(filters);
+    
+  } catch (error) {
+    console.error('Error loading user filters:', error);
+  }
+}
+
+/**
+ * Initialize user location for filtering
+ */
+async function initializeUserLocation() {
+  try {
+    console.log('🌍 Initializing user location...');
+    
+    // Try to get current location
+    const location = await getCurrentLocation();
+    currentUserLocation = location;
+    
+    console.log('📍 Current location obtained:', location);
+    
+    // Reverse geocode to get location name
+    const locationName = await reverseGeocode(location.latitude, location.longitude);
+    
+    // Update location in filter modal if it exists
+    const currentLocationElement = document.querySelector('#current-location');
+    if (currentLocationElement) {
+      currentLocationElement.textContent = locationName;
+    }
+    
+    console.log('🏙️ Location name:', locationName);
+    
+  } catch (error) {
+    console.warn('Could not get current location, using default:', error);
+    // Use default location if geolocation fails
+    currentUserLocation = {
+      latitude: DEFAULT_LOCATION.lat,
+      longitude: DEFAULT_LOCATION.lng
+    };
+  }
+}
+
+/**
+ * Apply saved filters to the modal UI
+ * @param {Object} filters - Filter data to apply to UI
+ */
+function applyFiltersToModal(filters) {
+  const modal = document.getElementById('filter-modal');
+  if (!modal) return;
+
+  // Set interested in option
+  const interestOptions = modal.querySelectorAll('.interest-option');
+  interestOptions.forEach(option => {
+    option.classList.toggle('active', option.dataset.interest === filters.interestedIn);
+  });
+
+  // Set location
+  const currentLocation = modal.querySelector('#current-location');
+  if (currentLocation && filters.location) {
+    currentLocation.textContent = filters.location;
+  }
+
+  // Set distance
+  const distanceRange = modal.querySelector('#distance-range');
+  const distanceValue = modal.querySelector('#distance-value');
+  if (distanceRange && distanceValue) {
+    distanceRange.value = filters.distance || 40;
+    distanceValue.textContent = (filters.distance || 40) + 'm';
+  }
+
+  // Set age range
+  const ageMin = modal.querySelector('#age-min');
+  const ageMax = modal.querySelector('#age-max');
+  const ageValue = modal.querySelector('#age-value');
+  if (ageMin && ageMax && ageValue) {
+    ageMin.value = filters.minAge || 20;
+    ageMax.value = filters.maxAge || 28;
+    ageValue.textContent = `${filters.minAge || 20}-${filters.maxAge || 28}`;
+  }
+}
+
+/**
+ * Show error message to user
+ * @param {string} message - Error message to display
+ */
+function showErrorMessage(message) {
+  // Create or update error message element
+  let errorElement = document.querySelector('.error-message');
+  if (!errorElement) {
+    errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--error-color);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 10000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    `;
+    document.body.appendChild(errorElement);
+  }
+
+  errorElement.textContent = message;
+  errorElement.style.display = 'block';
+
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    if (errorElement) {
+      errorElement.style.display = 'none';
+    }
+  }, 5000);
+}
+
+/**
+ * Show location picker for filter modal
+ */
+async function showLocationPicker() {
+  try {
+    console.log('🗺️ Opening location picker...');
+    
+    // Create location picker modal
+    const locationModal = document.createElement('div');
+    locationModal.className = 'location-picker-modal';
+    locationModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    `;
+    
+    locationModal.innerHTML = `
+      <div class="location-picker-content" style="
+        background: var(--surface-color);
+        border-radius: 16px;
+        padding: 24px;
+        width: 100%;
+        max-width: 400px;
+        max-height: 80vh;
+        overflow-y: auto;
+      ">
+        <div class="location-picker-header" style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        ">
+          <h3 style="margin: 0; color: var(--text-primary);">Choose Location</h3>
+          <button class="close-location-picker" style="
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+          ">&times;</button>
+        </div>
+        
+        <div class="location-options">
+          <button class="location-option current-location-btn" style="
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--card-background);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          ">
+            <span style="font-size: 20px;">📍</span>
+            <span>Use Current Location</span>
+          </button>
+          
+          <div class="manual-location" style="margin-top: 16px;">
+            <label style="
+              display: block;
+              margin-bottom: 8px;
+              color: var(--text-primary);
+              font-weight: 500;
+            ">Or enter manually:</label>
+            <input type="text" class="location-input" placeholder="Enter city, state" style="
+              width: 100%;
+              padding: 12px;
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              background: var(--input-background);
+              color: var(--text-primary);
+              font-size: 16px;
+            ">
+            <button class="search-location-btn" style="
+              width: 100%;
+              padding: 12px;
+              margin-top: 12px;
+              border: none;
+              border-radius: 8px;
+              background: var(--primary-color);
+              color: var(--text-on-primary);
+              cursor: pointer;
+              font-size: 16px;
+              font-weight: 500;
+            ">Search Location</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(locationModal);
+    
+    // Add event listeners
+    const closeBtn = locationModal.querySelector('.close-location-picker');
+    const currentLocationBtn = locationModal.querySelector('.current-location-btn');
+    const searchBtn = locationModal.querySelector('.search-location-btn');
+    const locationInput = locationModal.querySelector('.location-input');
+    
+    // Close modal
+    const closeModal = () => {
+      document.body.removeChild(locationModal);
+    };
+    
+    closeBtn.addEventListener('click', closeModal);
+    locationModal.addEventListener('click', (e) => {
+      if (e.target === locationModal) closeModal();
+    });
+    
+    // Use current location
+    currentLocationBtn.addEventListener('click', async () => {
+      try {
+        currentLocationBtn.innerHTML = '<span>📍</span><span>Getting location...</span>';
+        
+        const location = await getCurrentLocation();
+        const locationName = await reverseGeocode(location.latitude, location.longitude);
+        
+        // Update current user location
+        currentUserLocation = location;
+        
+        // Update filter modal
+        const currentLocationElement = document.querySelector('#current-location');
+        if (currentLocationElement) {
+          currentLocationElement.textContent = locationName;
+        }
+        
+        console.log('✅ Location updated:', locationName);
+        closeModal();
+        
+      } catch (error) {
+        console.error('Error getting current location:', error);
+        currentLocationBtn.innerHTML = '<span>📍</span><span>Location access denied</span>';
+        setTimeout(() => {
+          currentLocationBtn.innerHTML = '<span>📍</span><span>Use Current Location</span>';
+        }, 2000);
+      }
+    });
+    
+    // Search location
+    const searchLocation = async () => {
+      const query = locationInput.value.trim();
+      if (!query) return;
+      
+      try {
+        searchBtn.textContent = 'Searching...';
+        
+        // Simple geocoding using a free service
+        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en&key=bdc_pk_free`);
+        
+        // For demo purposes, just update with the entered text
+        // In a real app, you'd geocode this to get coordinates
+        const currentLocationElement = document.querySelector('#current-location');
+        if (currentLocationElement) {
+          currentLocationElement.textContent = query;
+        }
+        
+        console.log('✅ Manual location set:', query);
+        closeModal();
+        
+      } catch (error) {
+        console.error('Error searching location:', error);
+        searchBtn.textContent = 'Search Failed';
+        setTimeout(() => {
+          searchBtn.textContent = 'Search Location';
+        }, 2000);
+      }
+    };
+    
+    searchBtn.addEventListener('click', searchLocation);
+    locationInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchLocation();
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error showing location picker:', error);
+    showErrorMessage('Failed to open location picker.');
+  }
 }
 
 /**

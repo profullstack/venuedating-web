@@ -1,5 +1,12 @@
 import { initI18n } from './i18n-setup.js';
 import authMiddleware from './auth-middleware.js';
+import { 
+  getUserNotifications, 
+  markNotificationAsRead, 
+  markAllNotificationsAsRead, 
+  deleteNotification, 
+  getNotificationCounts 
+} from './api/notifications.js';
 
 /**
  * Notifications page script
@@ -12,8 +19,18 @@ await initI18n();
 // DOM Elements
 const notificationsList = document.getElementById('notifications-list');
 const notificationPlaceholder = document.getElementById('notification-placeholder');
+const loadingState = document.getElementById('loading-state');
 const filterButtons = document.querySelectorAll('.filter-btn');
 const notificationTemplate = document.getElementById('notification-template');
+const markAllReadBtn = document.getElementById('mark-all-read-btn');
+
+// Stats elements
+const totalCountEl = document.getElementById('total-count');
+const unreadCountEl = document.getElementById('unread-count');
+const allCountEl = document.getElementById('all-count');
+const unreadFilterCountEl = document.getElementById('unread-filter-count');
+const matchesCountEl = document.getElementById('matches-count');
+const venuesCountEl = document.getElementById('venues-count');
 
 // State
 let notifications = [];
@@ -22,7 +39,7 @@ let currentFilter = 'all';
 // Initialize the page
 async function init() {
   // Check authentication
-  await authMiddleware.checkAuth();
+  await authMiddleware.requireAuth();
   
   // Load notifications
   await loadNotifications();
@@ -41,70 +58,105 @@ async function loadNotifications() {
     const user = authMiddleware.getUser();
     
     if (!user || !user.id) {
-      throw new Error('User not authenticated');
+      console.log('User not authenticated');
+      showError('Please log in to view notifications');
+      return;
     }
     
-    // Fetch notifications from the API
-    const response = await fetch('/api/notifications', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authMiddleware.getToken()}`
-      }
+    console.log('Loading notifications for user:', user.id);
+    
+    // Load notifications from Supabase
+    notifications = await getUserNotifications(user.id, {
+      limit: 50 // Load last 50 notifications
     });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch notifications');
-    }
+    console.log(`📧 Loaded ${notifications.length} notifications`);
     
-    // Parse response data
-    notifications = await response.json();
-    
-    // If no notifications yet, use mock data for development
-    if (!notifications || notifications.length === 0) {
-      notifications = getMockNotifications();
-    }
-    
-    // Render notifications based on current filter
+    // Render notifications
     renderNotifications();
+    
   } catch (error) {
     console.error('Error loading notifications:', error);
-    showError(error.message);
+    showError(error.message || 'Failed to load notifications');
+  }
+}
+
+// Update notification stats
+function updateStats() {
+  const totalCount = notifications.length;
+  const unreadCount = notifications.filter(n => !n.read).length;
+  const matchesCount = notifications.filter(n => n.type === 'match').length;
+  const venuesCount = notifications.filter(n => n.type === 'venue').length;
+  
+  // Update stats display
+  if (totalCountEl) totalCountEl.textContent = totalCount;
+  if (unreadCountEl) unreadCountEl.textContent = unreadCount;
+  
+  // Update filter counts
+  if (allCountEl) allCountEl.textContent = totalCount;
+  if (unreadFilterCountEl) unreadFilterCountEl.textContent = unreadCount;
+  if (matchesCountEl) matchesCountEl.textContent = matchesCount;
+  if (venuesCountEl) venuesCountEl.textContent = venuesCount;
+  
+  // Show/hide mark all read button
+  if (markAllReadBtn) {
+    markAllReadBtn.style.display = unreadCount > 0 ? 'flex' : 'none';
   }
 }
 
 // Render notifications based on current filter
 function renderNotifications() {
-  // Clear previous notifications (except placeholder)
-  const existingNotifications = notificationsList.querySelectorAll('.notification-item');
-  existingNotifications.forEach(item => item.remove());
+  // Get the notifications container
+  const notificationsContainer = document.getElementById('notifications-container');
   
   // Filter notifications based on current filter
   const filteredNotifications = filterNotifications(notifications, currentFilter);
   
-  // Show placeholder if no notifications
-  if (filteredNotifications.length === 0) {
-    notificationPlaceholder.style.display = 'flex';
-  } else {
-    notificationPlaceholder.style.display = 'none';
-    
-    // Render each notification
-    filteredNotifications.forEach(notification => {
-      const notificationElement = createNotificationElement(notification);
-      notificationsList.appendChild(notificationElement);
-    });
+  // Hide loading state
+  if (loadingState) loadingState.style.display = 'none';
+  
+  // Clear existing notifications
+  if (notificationsContainer) {
+    notificationsContainer.innerHTML = '';
   }
+  
+  if (filteredNotifications.length === 0) {
+    if (notificationPlaceholder) {
+      notificationPlaceholder.style.display = 'flex';
+    }
+    return;
+  }
+  
+  if (notificationPlaceholder) {
+    notificationPlaceholder.style.display = 'none';
+  }
+  
+  // Create notification elements
+  filteredNotifications.forEach(notification => {
+    const notificationElement = createNotificationElement(notification);
+    if (notificationsContainer) {
+      notificationsContainer.appendChild(notificationElement);
+    }
+  });
+  
+  // Update stats after rendering
+  updateStats();
 }
 
 // Filter notifications based on filter type
 function filterNotifications(notifications, filter) {
-  if (filter === 'all') {
-    return notifications;
-  } else if (filter === 'unread') {
-    return notifications.filter(notification => !notification.read);
+  switch (filter) {
+    case 'all':
+      return notifications;
+    case 'unread':
+      return notifications.filter(notification => !notification.read);
+    case 'matches':
+      return notifications.filter(notification => notification.type === 'match');
+    case 'venues':
+      return notifications.filter(notification => notification.type === 'venue');
+    default:
+      return notifications;
   }
-  return notifications;
 }
 
 // Create notification element from template
@@ -174,30 +226,26 @@ function formatTime(timestamp) {
 // Mark notification as read
 async function markAsRead(notificationId) {
   try {
-    // Send API request to mark notification as read
-    const response = await fetch(`/api/notifications/${notificationId}/read`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authMiddleware.getToken()}`
-      }
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || window.app.localizer.translate('notifications.error_mark_read'));
-    }
-    
-    // Find notification and mark as read locally
+    // Find the notification in our local array
     const notification = notifications.find(n => n.id === notificationId);
-    if (notification) {
-      notification.read = true;
-      
-      // Re-render notifications
-      renderNotifications();
+    if (!notification) {
+      throw new Error('Notification not found');
     }
+    
+    // Update in database
+    await markNotificationAsRead(notificationId);
+    
+    // Update local state
+    notification.read = true;
+    
+    // Re-render notifications to update UI
+    renderNotifications();
+    
+    console.log(`✅ Marked notification ${notificationId} as read`);
   } catch (error) {
     console.error('Error marking notification as read:', error);
+    // Show error to user
+    showError('Failed to mark notification as read');
   }
 }
 
@@ -243,73 +291,60 @@ function setupEventListeners() {
 
 // Show loading state
 function showLoading() {
-  notificationPlaceholder.style.display = 'flex';
-  notificationPlaceholder.querySelector('.placeholder-text').textContent = window.app.localizer.translate('notifications.loading') || 'Loading...';
-  notificationPlaceholder.querySelector('.placeholder-subtext').textContent = '';
+  // Show loading indicator
+  if (loadingState) {
+    loadingState.style.display = 'flex';
+  }
+  
+  // Hide placeholder
+  if (notificationPlaceholder) {
+    notificationPlaceholder.style.display = 'none';
+  }
+  
+  // Clear notifications container
+  const notificationsContainer = document.getElementById('notifications-container');
+  if (notificationsContainer) {
+    notificationsContainer.innerHTML = '';
+  }
 }
 
 // Show error state
 function showError(message) {
-  notificationPlaceholder.style.display = 'flex';
-  notificationPlaceholder.querySelector('.placeholder-text').textContent = window.app.localizer.translate('notifications.error') || 'Error loading notifications';
-  notificationPlaceholder.querySelector('.placeholder-subtext').textContent = message;
+  // Hide loading indicator
+  if (loadingState) {
+    loadingState.style.display = 'none';
+  }
+  
+  // Show placeholder with error message
+  if (notificationPlaceholder) {
+    notificationPlaceholder.style.display = 'flex';
+    
+    const titleEl = notificationPlaceholder.querySelector('.placeholder-title');
+    const textEl = notificationPlaceholder.querySelector('.placeholder-text');
+    
+    if (titleEl) {
+      titleEl.textContent = 'Error loading notifications';
+    }
+    if (textEl) {
+      textEl.textContent = message || 'Something went wrong. Please try again.';
+    }
+  }
 }
 
-// Mock notifications data for development
-function getMockNotifications() {
-  const localizer = window.app.localizer;
-  return [
-    {
-      id: 1,
-      type: 'match',
-      title: localizer.translate('notifications.mock_match_title'),
-      message: localizer.translate('notifications.mock_match_message'),
-      timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-      read: false
-    },
-    {
-      id: 2,
-      type: 'like',
-      title: localizer.translate('notifications.mock_like_title'),
-      message: localizer.translate('notifications.mock_like_message'),
-      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
-      read: false
-    },
-    {
-      id: 3,
-      type: 'message',
-      title: localizer.translate('notifications.mock_message_title'),
-      message: localizer.translate('notifications.mock_message_content'),
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      read: true
-    },
-    {
-      id: 4,
-      type: 'system',
-      title: localizer.translate('notifications.mock_system_title'),
-      message: localizer.translate('notifications.mock_system_message'),
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      read: true
-    }
-  ];
-}
+
 
 // Mark all notifications as read
 async function markAllAsRead() {
   try {
-    // Send API request to mark all notifications as read
-    const response = await fetch('/api/notifications/read-all', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authMiddleware.getToken()}`
-      }
-    });
+    // Get user from auth middleware
+    const user = authMiddleware.getUser();
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || window.app.localizer.translate('notifications.error_mark_all_read'));
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
     }
+    
+    // Mark all notifications as read in database
+    await markAllNotificationsAsRead(user.id);
     
     // Mark all notifications as read locally
     notifications.forEach(notification => {
@@ -318,8 +353,11 @@ async function markAllAsRead() {
     
     // Re-render notifications
     renderNotifications();
+    
+    console.log('✅ Marked all notifications as read');
   } catch (error) {
     console.error('Error marking all notifications as read:', error);
+    showError('Failed to mark all notifications as read');
   }
 }
 

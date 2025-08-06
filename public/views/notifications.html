@@ -3,77 +3,537 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notifications | BarCrush</title>
-  <link rel="stylesheet" href="/css/main.css">
-  <link rel="stylesheet" href="/css/notifications.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title data-i18n="notifications.page_title">Notifications - BarCrush</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/dark-mode.js"></script>
+  <script type="module" src="/js/auth-middleware.js"></script>
   <script src="/js/i18n-setup.js" type="module"></script>
+
+  <script type="module">
+    // Check authentication and redirect if not logged in
+    import authMiddleware from '/js/auth-middleware.js';
+    
+    // Immediately check authentication before DOM is loaded
+    (async function() {
+      try {
+        console.log('Checking authentication immediately...');
+        const isAuth = await authMiddleware.requireAuth(true);
+        if (!isAuth) {
+          console.log('Not authenticated, redirecting to login...');
+          window.location.href = '/auth';
+          return;
+        }
+        console.log('Authentication check passed');
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        window.location.href = '/auth';
+        return;
+      }
+    })();
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Initialize dark mode
+      initDarkMode();
+      
+      // Double-check authentication on DOM content loaded
+      await authMiddleware.requireAuth(true);
+    });
+  </script>
 </head>
 <body>
-  <div class="app-container">
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-content">
-        <side-menu></side-menu>
-        <h1 class="page-title" data-i18n="notifications.title">Notifications</h1>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="notifications-container">
-        <!-- Notification filters -->
-        <div class="notification-filters">
-          <button class="filter-btn active" data-filter="all" data-i18n="notifications.all">All</button>
-          <button class="filter-btn" data-filter="unread" data-i18n="notifications.unread">Unread</button>
-        </div>
-
-        <!-- Notifications list -->
-        <div class="notifications-list" id="notifications-list">
-          <!-- Notifications will be populated here -->
-          <div class="notification-placeholder" id="notification-placeholder">
-            <div class="placeholder-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-              </svg>
-            </div>
-            <p class="placeholder-text" data-i18n="notifications.no_notifications">No notifications yet</p>
-            <p class="placeholder-subtext" data-i18n="notifications.check_back">Check back later for updates</p>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Bottom Navigation -->
-    <bottom-nav active="none"></bottom-nav>
-  </div>
-
-  <!-- Templates -->
-  <template id="notification-template">
-    <div class="notification-item">
-      <div class="notification-icon">
-        <!-- Icon will be inserted here -->
-      </div>
-      <div class="notification-content">
-        <div class="notification-header">
-          <h3 class="notification-title"></h3>
-          <span class="notification-time"></span>
-        </div>
-        <p class="notification-message"></p>
-      </div>
-      <div class="notification-actions">
-        <button class="mark-read-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
+<div class="notifications-page">
+  <header class="notifications-header">
+    <div class="container">
+      <div class="notifications-header-content">
+        <button class="icon-button back-btn" onclick="history.back(-1)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5"></path>
+            <path d="M12 19l-7-7 7-7"></path>
           </svg>
+        </button>
+        <h1 class="notifications-title" data-i18n="notifications.title">Notifications</h1>
+        <div class="notifications-actions">
+          <button class="icon-button mark-all-read-btn" id="mark-all-read-btn" title="Mark all as read">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification filters -->
+  <div class="notification-filters-section">
+    <div class="container">
+      <div class="notification-filters">
+        <button class="filter-btn active" data-filter="all">
+          <span>All</span>
+          <span class="filter-count" id="all-count">0</span>
+        </button>
+        <button class="filter-btn" data-filter="unread">
+          <span>Unread</span>
+          <span class="filter-count" id="unread-filter-count">0</span>
+        </button>
+        <button class="filter-btn" data-filter="matches">
+          <span>Matches</span>
+          <span class="filter-count" id="matches-count">0</span>
+        </button>
+        <button class="filter-btn" data-filter="venues">
+          <span>Venues</span>
+          <span class="filter-count" id="venues-count">0</span>
         </button>
       </div>
     </div>
-  </template>
+  </div>
 
-  <!-- Scripts -->
-  <script src="/components/side-menu.js" type="module"></script>
-  <script src="/components/bottom-nav.js" type="module"></script>
-  <script src="/js/notifications.js" type="module"></script>
+  <!-- Notifications list -->
+  <div class="notifications-list" id="notifications-list-container">
+    <!-- Loading indicator -->
+    <div class="loading-indicator" id="loading-state">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading notifications...</p>
+    </div>
+    
+    <div id="notifications-container" class="notifications-container">
+      <!-- Notification items will be added here by JavaScript -->
+    </div>
+    
+    <!-- Empty state -->
+    <div class="notification-placeholder" id="notification-placeholder" style="display: none;">
+      <div class="placeholder-icon">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+      </div>
+      <h3 class="placeholder-title">No notifications yet</h3>
+      <p class="placeholder-text">When you get matches or venue updates, they'll appear here</p>
+      <button class="primary-btn" onclick="router.navigate('/discover')">
+        Discover Venues
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats overlay (optional) -->
+  <div class="notification-stats" id="notification-stats" style="display: none;">
+    <div class="container">
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-number" id="total-count">0</span>
+          <span class="stat-label">Total</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="unread-count">0</span>
+          <span class="stat-label">Unread</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Templates -->
+<template id="notification-template">
+  <div class="notification-item" data-notification-id="" data-read="false">
+    <div class="notification-indicator"></div>
+    <div class="notification-icon">
+      <!-- Icon will be inserted here -->
+    </div>
+    <div class="notification-content">
+      <div class="notification-header">
+        <h3 class="notification-title"></h3>
+        <span class="notification-time"></span>
+      </div>
+      <p class="notification-message"></p>
+      <div class="notification-meta">
+        <span class="notification-type"></span>
+      </div>
+    </div>
+    <div class="notification-actions">
+      <button class="mark-read-btn" title="Mark as read">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </button>
+      <button class="delete-btn" title="Delete notification">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</template>
+
+<style>
+  .notifications-page {
+    min-height: 100vh;
+    background-color: var(--color-background);
+  }
+
+  .notifications-header {
+    background-color: var(--background-color);
+    padding: 1px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: none;
+    border-bottom: none;
+  }
+
+  .notifications-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .notifications-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .notifications-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+    position: relative;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+  }
+
+  .icon-button:hover {
+    background-color: var(--surface-variant);
+  }
+
+  .notification-filters-section {
+    background-color: var(--background-color);
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .notification-filters {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .notification-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-variant);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: fit-content;
+  }
+
+  .filter-btn:hover {
+    background: var(--surface-hover);
+    transform: translateY(-1px);
+  }
+
+  .filter-btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), #e91e63);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(244, 75, 116, 0.3);
+  }
+
+  .filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  .filter-btn.active .filter-count {
+    background: rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
+  .notifications-list {
+    background-color: var(--color-background);
+    min-height: 60vh;
+  }
+
+  .loading-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-text {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .notifications-container {
+    padding: 0;
+  }
+
+  .notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--surface-color);
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .notification-item:hover {
+    background: var(--surface-hover);
+    transform: translateX(4px);
+  }
+
+  .notification-item[data-read="false"] {
+    background: var(--surface-variant);
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .notification-indicator {
+    position: absolute;
+    top: 16px;
+    left: 8px;
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .notification-item[data-read="false"] .notification-indicator {
+    opacity: 1;
+  }
+
+  .notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 18px;
+  }
+
+  .notification-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+    gap: 12px;
+  }
+
+  .notification-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .notification-time {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .notification-message {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0 0 8px 0;
+  }
+
+  .notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .notification-item:hover .notification-actions {
+    opacity: 1;
+  }
+
+  .mark-read-btn, .delete-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mark-read-btn:hover {
+    background: var(--success-color);
+    color: #fff;
+    transform: scale(1.1);
+  }
+
+  .delete-btn:hover {
+    background: var(--error-color);
+    color: #fff;
+    transform: scale(1.1);
+  }
+
+  .notification-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+    background: var(--surface-color);
+  }
+
+  .placeholder-icon {
+    margin-bottom: 24px;
+    opacity: 0.5;
+    color: var(--text-secondary);
+  }
+
+  .placeholder-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+  }
+
+  .placeholder-text {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 24px 0;
+    max-width: 300px;
+  }
+
+  .primary-btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .primary-btn:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(244, 75, 116, 0.3);
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0 12px;
+    }
+    
+    .notification-filters {
+      gap: 8px;
+    }
+    
+    .filter-btn {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    
+    .notification-item {
+      padding: 12px 16px;
+    }
+    
+    .notification-title {
+      font-size: 15px;
+    }
+    
+    .notification-message {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<!-- Scripts -->
+<script src="/components/side-menu.js" type="module"></script>
+<script src="/components/bottom-nav.js" type="module"></script>
+<script src="/js/router.js" type="module"></script>
+<script src="/js/notifications.js" type="module"></script>
 </body>
 </html>

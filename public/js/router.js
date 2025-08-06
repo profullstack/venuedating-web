@@ -481,6 +481,18 @@ export function defineRoutes(router) {
         }
       }
     },
+
+    '/notifications': {
+      viewPath: '/views/notifications.html',
+      noheaderfooter: true,
+      afterRender: () => {
+        console.log('Notifications page initialized');
+        // Initialize any notifications page specific code if needed
+        if (typeof window.initNotificationsPage === 'function') {
+          window.initNotificationsPage();
+        }
+      }
+    },
     
     '/admin/venues': {
       viewPath: '/views/admin-venues.html',
