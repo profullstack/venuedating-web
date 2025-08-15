@@ -91,6 +91,7 @@
 
 .country-option {
   display: flex;
+  color: #000;
   align-items: center;
   padding: 8px 12px;
   cursor: pointer;

@@ -85,7 +85,7 @@ export function initLoginEmailPage() {
 
                 // Redirect to matching page after successful login
                 setTimeout(() => {
-                    window.location.href = '/matching';
+                    window.location.href = '/discover';
                 }, 1500);
 
             } catch (error) {

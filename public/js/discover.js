@@ -1215,7 +1215,7 @@ async function setupMapElements() {
             <div class="venue-marker-circle" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 4px solid #ff4d79; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
               <img src="${venueImage}" alt="${venue.name || 'Venue'}" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <div class="venue-name" style="position: absolute; bottom: -30px; text-align: center; color: #ff4d79; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 15px; white-space: nowrap; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 8px;">
+            <div class="venue-name" style="position: absolute; bottom: -30px; text-align: center; color: #ff4d79; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 15px; white-space: nowrap; background: #f44b74; padding: 4px 8px; border-radius: 8px;">
               ${venue.name || 'Venue'}
             </div>
           </div>

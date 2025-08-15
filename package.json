@@ -7,7 +7,12 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "pnpm build && nodemon src/index.js",
-    "test": "node test.js",
+    "test": "node test-runner-comprehensive.js",
+    "test:api": "node test-runner-comprehensive.js api",
+    "test:ui": "node test-runner-comprehensive.js ui",
+    "test:integration": "node test-runner-comprehensive.js integration",
+    "test:watch": "nodemon --exec \"npm test\" --watch test --watch ui-tests",
+    "test:coverage": "nyc npm test",
     "deploy": "pnpm build && ./bin/deploy.sh",
     "build": "./bin/build.sh",
     "stripe:products": "node bin/create-stripe-products.js"
@@ -52,8 +57,10 @@
   },
   "devDependencies": {
     "chai": "^5.2.0",
+    "jsdom": "^26.1.0",
     "mocha": "^11.7.0",
     "nodemon": "^3.1.0",
+    "puppeteer": "^22.5.0",
     "sinon": "^21.0.0"
   },
   "optionalDependencies": {

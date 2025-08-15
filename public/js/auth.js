@@ -32,9 +32,32 @@ export async function signInWithPhone(phone) {
     }
     */
     
-    // If we get here, the phone is valid and we're allowing the OTP
-    const supabase = await supabaseClientPromise;
-    const { data, error } = await supabase.auth.signInWithOtp({ phone });
+    // Use our server-side bypass route instead of direct Supabase call
+    // Parse phone number to get country code and number
+    const countryCode = phone.startsWith('+1') ? '+1' : '+1'; // Default to +1 for now
+    const phoneNumber = phone.replace(countryCode, '');
+    
+    const response = await fetch('/api/verify/send-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        phoneNumber: phoneNumber,
+        countryCode: countryCode,
+        isSignup: false // This is a login flow
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to send verification code');
+    }
+    
+    // Return data in expected format
+    const data = { user: null };
+    const error = null;
     
     if (error) {
       // Handle specific OTP sending errors
@@ -58,87 +81,148 @@ export async function signInWithPhone(phone) {
 
 // Verify OTP for phone login
 export async function verifyPhoneOtp(phone, token) {
-  const supabase = await supabaseClientPromise;
-  
-  // Special handling for demo phone number
-  if (phone === '+15555555555') {
-    console.log('[DEMO PHONE] Creating session for demo phone account:', phone);
+  try {
+    console.log('[VERIFY OTP] Starting verification process for phone:', phone);
     
-    try {
-      // For the demo account, we'll use a special endpoint that creates a session
-      // without requiring a valid OTP token (this is just for the demo number)
-      
-      // Option 1: Use a known good OTP if Twilio verification is set up and working
-      const DEMO_OTP = '123456'; // A pre-verified OTP for the demo account
-      const { data, error } = await supabase.auth.verifyOtp({ 
-        phone, 
-        token: DEMO_OTP, 
-        type: 'sms' 
-      });
-      
-      if (!error) {
-        console.log('[DEMO PHONE] Successfully created session for demo phone account');
-        return data;
+    // Use our server-side bypass route instead of direct Supabase call
+    // Parse phone number to get country code and number
+    let countryCode, phoneNumber;
+    
+    // Improved phone number parsing
+    if (phone.startsWith('+')) {
+      // For international numbers, extract the country code properly
+      const match = phone.match(/^\+(\d+)/);
+      if (match && match[1]) {
+        // Get the first 1-3 digits as country code
+        const ccLength = Math.min(match[1].length, 3);
+        countryCode = '+' + match[1].substring(0, ccLength);
+        phoneNumber = phone.substring(countryCode.length);
+        console.log(`[VERIFY OTP] Parsed international number: countryCode=${countryCode}, phoneNumber=${phoneNumber}`);
+      } else {
+        // Fallback
+        countryCode = '+1';
+        phoneNumber = phone.replace(countryCode, '');
+        console.log(`[VERIFY OTP] Fallback parsing: countryCode=${countryCode}, phoneNumber=${phoneNumber}`);
       }
-      
-      // Option 2: If that doesn't work, try sign in with email/password
-      // for the same user (assuming the demo account has both phone and email)
-      console.log('[DEMO PHONE] Falling back to email sign-in for demo account');
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: 'demo@barcrush.app',
-        password: 'demo12345'
-      });
-      
-      if (signInError) {
-        // Last resort: Set the demo flag in localStorage for backwards compatibility
-        console.log('[DEMO PHONE] Creating localStorage-based session for demo account');
-        localStorage.setItem('demo_account', 'true');
-        localStorage.setItem('demo_user', JSON.stringify({
-          id: 'demo-user-id',
-          name: 'Demo User',
-          full_name: 'Demo User',
-          avatar_url: '/images/avatar.jpg',
-          phone_number: phone,
-          phone_verified: true
-        }));
-        
-        // Return a mock session structure similar to what Supabase would return
-        return {
-          session: {
-            access_token: 'demo-token',
-            user: {
-              id: 'demo-user-id',
-              phone: phone
-            }
-          },
-          user: {
-            id: 'demo-user-id',
-            phone: phone
-          }
-        };
-      }
-      
-      return signInData;
-    } catch (err) {
-      console.error('[DEMO PHONE] Error creating demo session:', err);
-      throw new Error('Could not create demo session. Please try again.');
+    } else {
+      // For numbers without +, assume US/Canada
+      countryCode = '+1';
+      phoneNumber = phone;
+      console.log(`[VERIFY OTP] Assumed US number: countryCode=${countryCode}, phoneNumber=${phoneNumber}`);
     }
+    
+    console.log(`[VERIFY OTP] Sending verification request with code: ${token.substring(0, 2)}****`);
+    
+    const response = await fetch('/api/verify/check-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        phoneNumber: phoneNumber,
+        countryCode: countryCode,
+        code: token
+      })
+    });
+    
+    const result = await response.json();
+    console.log('[VERIFY OTP] Verification response:', result);
+    
+    if (!result.success) {
+      console.error('[VERIFY OTP] Verification failed:', result.error);
+      throw new Error(result.error || 'Invalid verification code');
+    }
+    
+    // Format phone for lookup
+    const formattedPhone = phone.startsWith('+') ? phone : countryCode + phoneNumber;
+    console.log('[VERIFY OTP] Looking up user with phone number:', formattedPhone);
+    
+    // Get user data from verification result
+    const user = result.user;
+    
+    if (user && user.id) {
+      console.log('[VERIFY OTP] User found/verified with ID:', user.id);
+      
+      // Update user as verified via API
+      try {
+        const updateResponse = await fetch(`/api/users/${user.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            phone_verified: true,
+            updated_at: new Date().toISOString()
+          })
+        });
+        
+        if (!updateResponse.ok) {
+          const errorData = await updateResponse.json();
+          console.error('[VERIFY OTP] API error updating user:', errorData);
+        } else {
+          const updateResult = await updateResponse.json();
+          
+          if (updateResult.success) {
+            console.log('[VERIFY OTP] User verification status updated successfully');
+          } else {
+            console.error('[VERIFY OTP] API returned error:', updateResult.error);
+          }
+        }
+      } catch (updateErr) {
+        console.error('[VERIFY OTP] Error updating user verification status:', updateErr);
+      }
+      
+      // Store user ID in localStorage for session management
+      localStorage.setItem('userId', user.id);
+      console.log('[VERIFY OTP] User ID stored in localStorage:', user.id);
+    } else {
+      console.error('[VERIFY OTP] No valid user found after verification');
+    }
+    
+    // Return the user data from our server response
+    return {
+      session: sessionData?.session || result.session,
+      user: result.user
+    };
+  } catch (error) {
+    console.error('Error in verifyPhoneOtp:', error);
+    throw error;
   }
-  
-  // Normal verification for all other phone numbers
-  const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
-  if (error) throw error;
-  return data;
 }
 
 // Save complete profile data to Supabase after phone verification
 export async function saveCompleteProfileToSupabase() {
+  console.log('[PROFILE] Starting profile save process');
   const supabase = await supabaseClientPromise;
+  
+  // Get current authenticated user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   
-  if (userError || !user) {
-    console.error('Error getting authenticated user:', userError);
+  if (userError) {
+    console.error('[PROFILE] Error getting authenticated user:', userError);
     return { success: false, error: userError };
+  }
+  
+  if (!user) {
+    console.error('[PROFILE] No authenticated user found');
+    // Try to get session and refresh it
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !sessionData.session) {
+      console.error('[PROFILE] No active session found:', sessionError);
+      return { success: false, error: 'No authenticated user or session found' };
+    }
+    
+    // Try refreshing the session
+    console.log('[PROFILE] Attempting to refresh session');
+    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+    
+    if (refreshError || !refreshData.user) {
+      console.error('[PROFILE] Failed to refresh session:', refreshError);
+      return { success: false, error: 'Failed to refresh authentication session' };
+    }
+    
+    console.log('[PROFILE] Session refreshed successfully');
   }
   
   // Get stored profile data from localStorage
@@ -146,25 +230,34 @@ export async function saveCompleteProfileToSupabase() {
   const storedProfile = localStorage.getItem(PROFILE_STORAGE_KEY);
   
   if (!storedProfile) {
-    console.log('No profile data found in localStorage');
+    console.log('[PROFILE] No profile data found in localStorage');
     return { success: false, error: 'No profile data found' };
   }
   
   try {
     // Parse the stored profile data
     const profileData = JSON.parse(storedProfile);
+    console.log('[PROFILE] Retrieved profile data from localStorage:', profileData);
+    
+    // Get the current user again in case we refreshed the session
+    const { data: { user: currentUser }, error: currentUserError } = await supabase.auth.getUser();
+    
+    if (currentUserError || !currentUser) {
+      console.error('[PROFILE] Failed to get current user after refresh:', currentUserError);
+      return { success: false, error: currentUserError || 'User not found after session refresh' };
+    }
     
     // Add user ID and timestamps
     const completeProfile = {
       ...profileData,
-      id: user.id,
-      phone_number: user.phone,
+      id: currentUser.id,
+      phone_number: profileData.phone_number || currentUser.phone,
       phone_verified: true,
       updated_at: new Date().toISOString(),
       created_at: profileData.created_at || new Date().toISOString()
     };
     
-    console.log('Saving complete profile to Supabase:', completeProfile);
+    console.log('[PROFILE] Saving complete profile to Supabase:', completeProfile);
     
     // Save to Supabase profiles table
     const { error: upsertError } = await supabase
@@ -172,14 +265,57 @@ export async function saveCompleteProfileToSupabase() {
       .upsert(completeProfile);
       
     if (upsertError) {
-      console.error('Error saving profile to Supabase:', upsertError);
+      console.error('[PROFILE] Error saving profile to Supabase:', upsertError);
       return { success: false, error: upsertError };
     }
     
-    console.log('Profile successfully saved to Supabase');
+    console.log('[PROFILE] Profile successfully saved to Supabase');
+    
+    // Handle profile photo if available
+    const profilePhoto = localStorage.getItem('profilePhoto');
+    if (profilePhoto) {
+      console.log('[PROFILE] Found profile photo in localStorage, processing...');
+      try {
+        // Convert base64 to blob
+        const response = await fetch(profilePhoto);
+        const blob = await response.blob();
+        const fileName = `${currentUser.id}/profile.${blob.type.split('/')[1]}`;
+        
+        // Upload to Supabase Storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('profile-photos')
+          .upload(fileName, blob, { upsert: true });
+        
+        if (uploadError) {
+          console.error('[PROFILE] Error uploading profile photo:', uploadError);
+        } else {
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from('profile-photos')
+            .getPublicUrl(fileName);
+          
+          // Update profile with photo URL
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: urlData.publicUrl })
+            .eq('id', currentUser.id);
+          
+          if (updateError) {
+            console.error('[PROFILE] Error updating profile with photo URL:', updateError);
+          } else {
+            console.log('[PROFILE] Profile photo uploaded and linked successfully');
+            // Clear the stored photo data
+            localStorage.removeItem('profilePhoto');
+          }
+        }
+      } catch (photoError) {
+        console.error('[PROFILE] Error processing profile photo:', photoError);
+      }
+    }
+    
     return { success: true };
   } catch (err) {
-    console.error('Error processing profile data:', err);
+    console.error('[PROFILE] Error processing profile data:', err);
     return { success: false, error: err };
   }
 }
@@ -192,12 +328,61 @@ export async function signInWithGoogle() {
   window.location.href = data.url;
 }
 
-// Get current user
+// Get current user from users table
 export async function getCurrentUser() {
-  const supabase = await supabaseClientPromise;
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw error;
-  return data.user;
+  try {
+    const supabase = await supabaseClientPromise;
+    
+    // First try to get from session
+    const { data: sessionData } = await supabase.auth.getSession();
+    
+    if (sessionData?.session?.user) {
+      console.log('[USER] Found user in session:', sessionData.session.user.id);
+      return sessionData.session.user;
+    }
+    
+    // If no session, check localStorage for user ID
+    const userId = localStorage.getItem('userId');
+    
+    if (userId) {
+      console.log('[USER] Found user ID in localStorage:', userId);
+      
+      try {
+        // Get user from API
+        const response = await fetch(`/api/users/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('[USER] Error fetching user from API:', response.status);
+          localStorage.removeItem('userId'); // Clear invalid ID
+          return null;
+        }
+        
+        const result = await response.json();
+        
+        if (!result.success || !result.user) {
+          console.error('[USER] API returned error or no user:', result.error || 'No user data');
+          localStorage.removeItem('userId'); // Clear invalid ID
+          return null;
+        }
+        
+        console.log('[USER] Found user via API:', result.user.id);
+        return result.user;
+      } catch (fetchError) {
+        console.error('[USER] Error fetching user from API:', fetchError);
+        return null;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[USER] Error in getCurrentUser:', error);
+    return null;
+  }
 }
 
 // Logout

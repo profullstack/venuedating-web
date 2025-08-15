@@ -115,46 +115,74 @@ async function loadFilteredUsers() {
   try {
     const user = authMiddleware.getUser();
     if (!user || !user.id) {
+      console.error('❌ User not authenticated, falling back to mock data');
       throw new Error('User not authenticated');
     }
     
-    console.log('Loading users and filtering out already liked/disliked...');
+    console.log('🔍 Loading users and filtering out already liked/disliked...');
+    console.log('👤 Current user ID:', user.id);
     
     // Get all users from profiles API
+    console.log('📥 Fetching all profiles...');
     const allUsers = await getProfiles();
+    console.log('📊 Total profiles loaded:', allUsers.length);
+    console.log('📋 Profile IDs:', allUsers.map(u => u.id));
     
     // Get users that current user has already liked or disliked
+    console.log('🔍 Checking for existing likes and dislikes...');
     const [likedUsers, dislikedUsers] = await Promise.all([
       getUserLikes(user.id),
       getUserDislikes(user.id)
     ]);
     
+    console.log('👍 Liked users raw data:', likedUsers);
+    console.log('👎 Disliked users raw data:', dislikedUsers);
+    
     // Create sets for faster lookup
     const likedUserIds = new Set(likedUsers.map(like => like.liked_user_id));
     const dislikedUserIds = new Set(dislikedUsers.map(dislike => dislike.disliked_user_id));
     
+    console.log('👍 Liked user IDs set:', Array.from(likedUserIds));
+    console.log('👎 Disliked user IDs set:', Array.from(dislikedUserIds));
+    
     // Filter out current user and already liked/disliked users
     const filteredUsers = allUsers.filter(profile => {
+      console.log(`🔍 Checking profile ${profile.id} (${profile.full_name || profile.name})`);
+      
       // Exclude current user
-      if (profile.id === user.id) return false;
+      if (profile.id === user.id) {
+        console.log(`❌ Excluding current user: ${profile.id}`);
+        return false;
+      }
       
       // Exclude already liked users
-      if (likedUserIds.has(profile.id)) return false;
+      if (likedUserIds.has(profile.id)) {
+        console.log(`❌ Excluding already liked user: ${profile.id}`);
+        return false;
+      }
       
       // Exclude already disliked users
-      if (dislikedUserIds.has(profile.id)) return false;
+      if (dislikedUserIds.has(profile.id)) {
+        console.log(`❌ Excluding already disliked user: ${profile.id}`);
+        return false;
+      }
       
+      console.log(`✅ Including user: ${profile.id}`);
       return true;
     });
     
-    console.log(`📊 Filtered ${allUsers.length} users down to ${filteredUsers.length} available users`);
-    console.log(`👍 Excluded ${likedUserIds.size} liked users`);
-    console.log(`👎 Excluded ${dislikedUserIds.size} disliked users`);
+    console.log(`📊 FILTERING SUMMARY:`);
+    console.log(`📊 Total profiles: ${allUsers.length}`);
+    console.log(`📊 Filtered profiles: ${filteredUsers.length}`);
+    console.log(`👍 Excluded liked users: ${likedUserIds.size}`);
+    console.log(`👎 Excluded disliked users: ${dislikedUserIds.size}`);
+    console.log(`📋 Final filtered profile IDs:`, filteredUsers.map(u => u.id));
     
     return filteredUsers;
     
   } catch (error) {
-    console.error('Error loading filtered users:', error);
+    console.error('❌ Error loading filtered users:', error);
+    console.log('🔄 Falling back to mock data due to error');
     throw error;
   }
 }
@@ -358,25 +386,69 @@ function setupActionButtons() {
   const rejectButton = document.getElementById('reject-button');
   
   if (likeButton) {
-    likeButton.addEventListener('click', () => {
+    likeButton.addEventListener('click', async () => {
       const topCard = getTopCard();
       if (topCard) {
-        // Show the like badge
-        const likeBadge = topCard.querySelector('.like-badge');
-        if (likeBadge) likeBadge.style.opacity = '1';
+        const profileId = topCard.getAttribute('data-id');
         
-        // Swipe the card right
-        setTimeout(() => {
-          swipeCard(topCard, 'right');
-        }, 300);
+        // Disable button to prevent double-clicks
+        likeButton.disabled = true;
+        
+        try {
+          // Show the like badge
+          const likeBadge = topCard.querySelector('.like-badge');
+          if (likeBadge) likeBadge.style.opacity = '1';
+          
+          // Record the like in database
+          const result = await likeProfile(profileId);
+          
+          // Check if it's a match
+          if (result.isMatch) {
+            console.log('🎉 It\'s a match!');
+            // Show match screen before swiping
+            showMatchedScreen(profileId, topCard);
+          } else {
+            // No match, just swipe the card
+            setTimeout(() => {
+              swipeCard(topCard, 'right');
+            }, 300);
+          }
+        } catch (error) {
+          console.error('Error liking profile:', error);
+          // Still swipe the card even if database fails
+          setTimeout(() => {
+            swipeCard(topCard, 'right');
+          }, 300);
+        } finally {
+          // Re-enable button
+          likeButton.disabled = false;
+        }
       }
     });
   }
   
   if (rejectButton) {
-    rejectButton.addEventListener('click', () => {
+    rejectButton.addEventListener('click', async () => {
       const topCard = getTopCard();
       if (topCard) {
+        const profileId = topCard.getAttribute('data-id');
+        
+        // Disable button to prevent double-clicks
+        rejectButton.disabled = true;
+        
+        try {
+          // Record the dislike in database
+          await dislikeProfile(profileId);
+          console.log('❌ Profile disliked and recorded');
+        } catch (error) {
+          console.error('Error disliking profile:', error);
+          // Still swipe the card even if database fails
+        } finally {
+          // Re-enable button
+          rejectButton.disabled = false;
+        }
+        
+        // Swipe the card left
         swipeCard(topCard, 'left');
       }
     });
@@ -644,6 +716,441 @@ function setupCardDragging(card) {
       if (likeBadge) likeBadge.style.opacity = '0';
       if (dislikeBadge) dislikeBadge.style.opacity = '0';
     }
+  }
+}
+
+// API call to like a profile (from matching page)
+async function likeProfile(profileId) {
+  try {
+    const user = authMiddleware.getUser();
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
+    }
+    
+    console.log(`👍 Liking profile ${profileId} for user ${user.id}`);
+    
+    // Get Supabase client
+    const supabase = await supabaseClientPromise;
+    
+    // Insert the like into the database
+    const { data: likeData, error: likeError } = await supabase
+      .from('user_likes')
+      .insert({
+        user_id: user.id,
+        liked_user_id: profileId,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (likeError) {
+      console.error('Error inserting like:', likeError);
+      throw likeError;
+    }
+    
+    console.log('✅ Like recorded in database:', likeData);
+    
+    // Check if it's a mutual like (match)
+    const isMatch = await checkForMutualLike(user.id, profileId);
+    
+    return { success: true, isMatch };
+  } catch (error) {
+    console.error('Error in likeProfile:', error);
+    throw error;
+  }
+}
+
+// API call to dislike a profile (from matching page)
+async function dislikeProfile(profileId) {
+  try {
+    const user = authMiddleware.getUser();
+    if (!user || !user.id) {
+      throw new Error('User not authenticated');
+    }
+    
+    console.log(`👎 Disliking profile ${profileId} for user ${user.id}`);
+    
+    // Get Supabase client
+    const supabase = await supabaseClientPromise;
+    
+    // Insert the dislike into the database
+    const { data: dislikeData, error: dislikeError } = await supabase
+      .from('user_dislikes')
+      .insert({
+        user_id: user.id,
+        disliked_user_id: profileId,
+        created_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+    
+    if (dislikeError) {
+      console.error('Error inserting dislike:', dislikeError);
+      throw dislikeError;
+    }
+    
+    console.log('✅ Dislike recorded in database:', dislikeData);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error in dislikeProfile:', error);
+    throw error;
+  }
+}
+
+// Check if two users have liked each other (mutual like = match)
+async function checkForMutualLike(currentUserId, likedUserId) {
+  try {
+    const supabase = await supabaseClientPromise;
+    
+    // Check if the liked user has also liked the current user
+    const { data, error } = await supabase
+      .from('user_likes')
+      .select('*')
+      .eq('user_id', likedUserId)
+      .eq('liked_user_id', currentUserId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      console.error('Error checking for mutual like:', error);
+      throw error;
+    }
+    
+    const isMatch = !!data; // Convert to boolean
+    
+    if (isMatch) {
+      console.log('🎉 Mutual like detected! Creating match record...');
+      
+      // Create a match record in the matches table
+      await createMatchRecord(currentUserId, likedUserId);
+    }
+    
+    console.log(`💕 Mutual like check: ${isMatch ? 'MATCH!' : 'No match yet'}`);
+    return isMatch;
+    
+  } catch (error) {
+    console.error('Error in checkForMutualLike:', error);
+    // Don't throw error here - we don't want to break the like flow
+    return false;
+  }
+}
+
+// Create a match record when two users like each other
+async function createMatchRecord(user1Id, user2Id) {
+  try {
+    const supabase = await supabaseClientPromise;
+    
+    // Check if match already exists (to avoid duplicates)
+    const { data: existingMatch } = await supabase
+      .from('matches')
+      .select('*')
+      .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`)
+      .single();
+    
+    if (existingMatch) {
+      console.log('Match record already exists');
+      return existingMatch;
+    }
+    
+    // Create new match record
+    const { data: matchData, error: matchError } = await supabase
+      .from('matches')
+      .insert({
+        user1_id: user1Id,
+        user2_id: user2Id,
+        matched_at: new Date().toISOString(),
+        status: 'active'
+      })
+      .select()
+      .single();
+    
+    if (matchError) {
+      console.error('Error creating match record:', matchError);
+      throw matchError;
+    }
+    
+    console.log('✅ Match record created:', matchData);
+    return matchData;
+    
+  } catch (error) {
+    console.error('Error in createMatchRecord:', error);
+    return null;
+  }
+}
+
+// Show matched screen when users like each other back (from matching page)
+function showMatchedScreen(profileId, cardElement) {
+  // Get profile data from the card
+  const profileData = getProfileDataFromCard(cardElement);
+  
+  // Create matched screen modal
+  const matchedModal = document.createElement('div');
+  matchedModal.className = 'matched-modal';
+  matchedModal.innerHTML = `
+    <div class="matched-overlay"></div>
+    <div class="matched-content">
+      <div class="matched-header">
+        <h1 class="matched-title">It's a Match!</h1>
+        <p class="matched-subtitle">You and ${profileData?.name || 'this person'} liked each other</p>
+      </div>
+      
+      <div class="matched-profiles">
+        <div class="matched-profile-card left">
+          <div class="profile-image">
+            <img src="${profileData?.image || '/images/default-avatar.png'}" alt="${profileData?.name || 'Profile'}" />
+          </div>
+        </div>
+        
+        <div class="matched-heart">
+          <div class="heart-icon">💖</div>
+        </div>
+        
+        <div class="matched-profile-card right">
+          <div class="profile-image">
+            <div class="profile-placeholder">You</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="matched-actions">
+        <button class="btn btn-primary matched-message-btn" onclick="startConversation('${profileId}')">
+          Send Message
+        </button>
+        <button class="btn btn-secondary matched-continue-btn" onclick="closeMatchedScreen()">
+          Keep Swiping
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Add matched screen styles
+  addMatchedScreenStyles();
+  
+  // Add to DOM
+  document.body.appendChild(matchedModal);
+  
+  // Trigger animation
+  setTimeout(() => {
+    matchedModal.classList.add('show');
+  }, 100);
+  
+  // Add confetti effect
+  createConfettiEffect();
+}
+
+// Get profile data from card element
+function getProfileDataFromCard(cardElement) {
+  const nameElement = cardElement.querySelector('.card-name');
+  const imageUrl = cardElement.style.backgroundImage?.match(/url\(["']?([^"']*)["']?\)/)?.[1];
+  
+  return {
+    name: nameElement?.textContent || 'Unknown',
+    image: imageUrl || null
+  };
+}
+
+// Close matched screen and continue swiping
+function closeMatchedScreen() {
+  const matchedModal = document.querySelector('.matched-modal');
+  if (matchedModal) {
+    matchedModal.classList.remove('show');
+    setTimeout(() => {
+      matchedModal.remove();
+      // Continue with card swiping
+      const topCard = getTopCard();
+      if (topCard) {
+        swipeCard(topCard, 'right');
+      }
+    }, 300);
+  }
+}
+
+// Start conversation with matched user
+function startConversation(profileId) {
+  console.log('Starting conversation with:', profileId);
+  // TODO: Navigate to chat/conversation page
+  // For now, close modal and continue swiping
+  closeMatchedScreen();
+}
+
+// Add CSS styles for matched screen (simplified version)
+function addMatchedScreenStyles() {
+  if (document.querySelector('#matched-screen-styles')) return;
+  
+  const style = document.createElement('style');
+  style.id = 'matched-screen-styles';
+  style.textContent = `
+    .matched-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+    }
+    
+    .matched-modal.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+    
+    .matched-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      opacity: 0.95;
+    }
+    
+    .matched-content {
+      position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      color: white;
+      text-align: center;
+    }
+    
+    .matched-title {
+      font-size: 3rem;
+      font-weight: bold;
+      margin: 0 0 0.5rem 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .matched-subtitle {
+      font-size: 1.2rem;
+      margin: 0 0 3rem 0;
+      opacity: 0.9;
+    }
+    
+    .matched-profiles {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .matched-profile-card {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid white;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    
+    .matched-profile-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-placeholder {
+      width: 100%;
+      height: 100%;
+      background: var(--accent-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .matched-heart {
+      font-size: 3rem;
+      animation: heartBeat 1s ease-in-out infinite;
+    }
+    
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    
+    .matched-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .matched-actions .btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .matched-message-btn {
+      background: white;
+      color: var(--accent-color);
+    }
+    
+    .matched-continue-btn {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+  `;
+  
+  document.head.appendChild(style);
+}
+
+// Create confetti effect for celebration
+function createConfettiEffect() {
+  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7', '#dda0dd'];
+  
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      const confetti = document.createElement('div');
+      confetti.style.cssText = `
+        position: fixed;
+        width: 8px;
+        height: 8px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        left: ${Math.random() * 100}%;
+        top: -10px;
+        z-index: 10001;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: confettiFall ${2 + Math.random() * 2}s linear forwards;
+      `;
+      
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => {
+        if (confetti.parentNode) {
+          confetti.parentNode.removeChild(confetti);
+        }
+      }, 4000);
+    }, i * 50);
+  }
+  
+  // Add confetti animation if not already present
+  if (!document.querySelector('#confetti-animation')) {
+    const style = document.createElement('style');
+    style.id = 'confetti-animation';
+    style.textContent = `
+      @keyframes confettiFall {
+        to {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   }
 }
 

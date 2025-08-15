@@ -50,17 +50,16 @@ export async function getUserMatches(options = { limit: 20, offset: 0 }) {
     const { data, error } = await supabase
       .from('matches')
       .select(`
-        id, 
+        id,
+        matched_at,
         created_at,
-        venue_id,
         status,
-        user_id_1, 
-        user_id_2,
-        venues:venue_id (name, address),
-        profile1:user_id_1 (display_name, avatar_url),
-        profile2:user_id_2 (display_name, avatar_url)
+        user1_id, 
+        user2_id,
+        profile1:user1_id (display_name, avatar_url),
+        profile2:user2_id (display_name, avatar_url)
       `)
-      .or(`user_id_1.eq.${user.id},user_id_2.eq.${user.id}`)
+      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
       .eq('status', 'matched')
       .order('created_at', { ascending: false })
       .range(options.offset, options.offset + options.limit - 1);
@@ -69,12 +68,12 @@ export async function getUserMatches(options = { limit: 20, offset: 0 }) {
     
     // Transform the data to make it easier to use
     return data.map(match => {
-      const isUser1 = match.user_id_1 === user.id;
+      const isUser1 = match.user1_id === user.id;
       return {
         ...match,
         // Make it clear which profile is the matched person (not the current user)
         matchedWith: isUser1 ? match.profile2 : match.profile1,
-        matchedWithId: isUser1 ? match.user_id_2 : match.user_id_1
+        matchedWithId: isUser1 ? match.user2_id : match.user1_id
       };
     });
   } catch (error) {
@@ -102,8 +101,8 @@ export async function likeUser(likedUserId, venueId = null) {
     const { data: existingLike, error: likeError } = await supabase
       .from('matches')
       .select('*')
-      .eq('user_id_1', likedUserId)
-      .eq('user_id_2', user.id)
+      .eq('user1_id', likedUserId)
+      .eq('user2_id', user.id)
       .eq('status', 'pending')
       .maybeSingle();
 
@@ -137,9 +136,8 @@ export async function likeUser(likedUserId, venueId = null) {
     const { data: newLike, error: newLikeError } = await supabase
       .from('matches')
       .insert({
-        user_id_1: user.id,
-        user_id_2: likedUserId,
-        venue_id: venueId,
+        user1_id: user.id,
+        user2_id: likedUserId,
         status: 'pending'
       })
       .select()
@@ -181,14 +179,14 @@ export async function getPotentialMatches(options = { limit: 20, offset: 0, dist
   const user = await getCurrentUser();
   if (!user) return [];
 
-  // Get all match records where the current user is user_id_1 (initiator)
+  // Get all match records where the current user is user1_id (initiator)
   const { data: myMatches, error: myMatchesError } = await supabase
     .from('matches')
-    .select('user_id_2, status')
-    .eq('user_id_1', user.id);
+    .select('user2_id, status')
+    .eq('user1_id', user.id);
 
   const excludedIds = myMatches && myMatches.length > 0
-    ? myMatches.filter(m => m.status === 'pending' || m.status === 'matched' || m.status === 'disliked').map(m => m.user_id_2)
+    ? myMatches.filter(m => m.status === 'pending' || m.status === 'matched' || m.status === 'disliked').map(m => m.user2_id)
     : [];
 
   // Also exclude self
@@ -302,8 +300,8 @@ export async function dislikeUser(dislikedUserId) {
     const { data, error } = await supabase
       .from('matches')
       .insert({
-        user_id_1: user.id,
-        user_id_2: dislikedUserId,
+        user1_id: user.id,
+        user2_id: dislikedUserId,
         status: 'disliked'
       })
       .select()
@@ -337,7 +335,7 @@ export async function unmatchUser(matchId) {
     if (matchError) throw matchError;
 
     // Verify the current user is part of the match
-    if (match.user_id_1 !== user.id && match.user_id_2 !== user.id) {
+    if (match.user1_id !== user.id && match.user2_id !== user.id) {
       throw new Error('Not authorized to unmatch');
     }
 

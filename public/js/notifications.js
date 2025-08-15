@@ -38,14 +38,50 @@ let currentFilter = 'all';
 
 // Initialize the page
 async function init() {
-  // Check authentication
-  await authMiddleware.requireAuth();
-  
-  // Load notifications
-  await loadNotifications();
-  
-  // Set up event listeners
-  setupEventListeners();
+  try {
+    console.log('🔍 Notifications: Starting initialization...');
+    
+    // Check if auth middleware is properly loaded
+    console.log('🔍 Auth middleware available:', !!authMiddleware);
+    
+    // Check current user before requireAuth
+    const currentUser = authMiddleware.getUser();
+    console.log('🔍 Current user before requireAuth:', currentUser);
+    
+    // Check authentication with detailed logging
+    console.log('🔍 Calling requireAuth...');
+    const isAuthenticated = await authMiddleware.requireAuth();
+    console.log('🔍 Authentication result:', isAuthenticated);
+    
+    if (!isAuthenticated) {
+      console.error('❌ Authentication failed, user should be redirected');
+      return;
+    }
+    
+    // Check current user after requireAuth
+    const userAfterAuth = authMiddleware.getUser();
+    console.log('🔍 Current user after requireAuth:', userAfterAuth);
+    
+    if (!userAfterAuth || !userAfterAuth.id) {
+      console.error('❌ No user data available after authentication');
+      showError('Authentication error. Please try logging in again.');
+      return;
+    }
+    
+    console.log('✅ Authentication successful, loading notifications...');
+    
+    // Load notifications
+    await loadNotifications();
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    console.log('✅ Notifications page initialized successfully');
+    
+  } catch (error) {
+    console.error('❌ Error initializing notifications page:', error);
+    showError('Failed to initialize notifications page. Please refresh and try again.');
+  }
 }
 
 // Load notifications from API
@@ -277,16 +313,19 @@ function setupEventListeners() {
     <span data-i18n="notifications.mark_all_read">Mark all as read</span>
   `;
   
-  // Add translation to the new button
-  if (window.app && window.app.localizer) {
-    window.app.localizer.translateElement(markAllReadBtn);
+  // Add translation to the new button (with safety check)
+  if (window.app && window.app.localizer && typeof window.app.localizer.translateElement === 'function') {
+    try {
+      window.app.localizer.translateElement(markAllReadBtn);
+    } catch (error) {
+      console.warn('Translation failed for mark all read button:', error);
+    }
   }
   
   // Add event listener to mark all as read button
   markAllReadBtn.addEventListener('click', markAllAsRead);
   
   // Add button to filters container
-  document.querySelector('.notification-filters').appendChild(markAllReadBtn);
 }
 
 // Show loading state

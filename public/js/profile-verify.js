@@ -297,6 +297,52 @@ export async function initProfileVerifyPage() {
   }
   
   // Handle send code button click
+  // Function to create initial account using the API endpoint
+  async function createInitialAccount() {
+    try {
+      console.log('[ACCOUNT] Creating initial account via API');
+      
+      // Format phone number for storage
+      const phoneNumber = profileData.phoneNumber.replace(/[\s-]/g, '');
+      const countryCode = profileData.countryCode;
+      console.log('[ACCOUNT] Using phone:', countryCode + phoneNumber);
+      
+      // Create user via API
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          phoneNumber: phoneNumber,
+          countryCode: countryCode,
+          phoneVerified: false
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('[ACCOUNT] API error creating user:', errorData);
+        return null;
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('[ACCOUNT] API returned error:', result.error);
+        return null;
+      }
+      
+      console.log('[ACCOUNT] User created/retrieved successfully:', result.user);
+      return result.user;
+    } catch (err) {
+      console.error('[ACCOUNT] Error in createInitialAccount:', err);
+      return null;
+    }
+  }
+
   if (sendCodeBtn) {
     sendCodeBtn.addEventListener('click', async function() {
       // Show loading state
@@ -309,6 +355,17 @@ export async function initProfileVerifyPage() {
         if (!profileData.phoneNumber || !profileData.countryCode) {
           console.error('Missing phone data:', profileData);
           throw new Error('Phone number and country code are required. Please go back and complete your profile.');
+        }
+        
+        // Create initial account in Supabase before sending OTP
+        showStatus('Creating your account...', 'loading');
+        const user = await createInitialAccount();
+        
+        if (user) {
+          currentUser = user;
+          console.log('[ACCOUNT] Account created/found with ID:', user.id);
+        } else {
+          console.warn('[ACCOUNT] Could not create initial account, continuing with OTP');
         }
         
         // Check if this is a demo account (e.g., +15555555555)
@@ -325,7 +382,8 @@ export async function initProfileVerifyPage() {
           },
           body: JSON.stringify({
             phoneNumber: profileData.phoneNumber,
-            countryCode: profileData.countryCode
+            countryCode: profileData.countryCode,
+            isSignup: true // This is a signup flow
           })
         });
         
@@ -495,7 +553,8 @@ export async function initProfileVerifyPage() {
           },
           body: JSON.stringify({
             phoneNumber: profileData.phoneNumber,
-            countryCode: profileData.countryCode
+            countryCode: profileData.countryCode,
+            isSignup: true // This is a signup flow
           })
         });
         
@@ -579,27 +638,54 @@ export async function initProfileVerifyPage() {
   
   // Note: Simulation functions have been removed and replaced with actual API calls to Twilio
   
-  // Update profile in Supabase
+  // Update profile in Supabase users table
   async function updateProfileInSupabase() {
-    const supabase = await supabaseClientPromise;
-    
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: currentUser.id,
-          phone_verified: true,
-          updated_at: new Date().toISOString()
-        });
+      console.log('[PROFILE] Updating user in users table');
+      // Properly await the Supabase client with error handling
+      const supabase = await supabaseClientPromise;
       
-      if (error) {
-        console.error('Error updating profile in Supabase:', error);
-        throw error;
+      if (!supabase) {
+        throw new Error('Supabase client initialization failed');
       }
       
-      console.log('Profile updated in Supabase');
+      if (!currentUser || !currentUser.id) {
+        console.error('[PROFILE] No current user ID available for update');
+        throw new Error('No user ID available for update');
+      }
+      
+      console.log('[PROFILE] Updating user with ID:', currentUser.id);
+      
+      // Update user via API
+      const response = await fetch(`/api/users/${currentUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          phone_verified: true,
+          updated_at: new Date().toISOString()
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('[PROFILE] API error updating user:', errorData);
+        throw new Error('Failed to update user via API');
+      }
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        console.error('[PROFILE] API returned error:', result.error);
+        throw new Error(result.error || 'Unknown error updating user');
+      }
+      
+      console.log('[PROFILE] User updated successfully via API');
     } catch (err) {
-      console.error('Error updating profile:', err);
+      console.error('[PROFILE] Error updating user in users table:', err);
+      // Show a non-blocking error message but continue
+      showStatus('Note: Phone was verified but there was an issue updating your account. Please continue.', 'info');
       // Don't throw here - we want to continue even if Supabase update fails
     }
   }

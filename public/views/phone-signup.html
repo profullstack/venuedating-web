@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Signup - BarCrush</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .phone-signup-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .phone-input-group {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .country-code {
+            width: 80px;
+            margin-right: 10px;
+        }
+        
+        .phone-number {
+            flex: 1;
+        }
+        
+        .verification-code {
+            margin-bottom: 20px;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        .loader {
+            display: none;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary-color);
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .button-with-loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: var(--success-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .resend-code {
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .countdown {
+            font-size: 14px;
+            margin-top: 10px;
+            color: var(--text-secondary-color);
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary-color);
+            cursor: pointer;
+        }
+        
+        .back-button i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="/images/logo.png" alt="BarCrush Logo" class="auth-logo">
+                <h1>Phone Signup</h1>
+            </div>
+            
+            <div class="phone-signup-container">
+                <!-- Step 1: Enter Phone Number -->
+                <div class="step step-1 active">
+                    <div class="back-button" onclick="window.location.href='/auth'">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </div>
+                    
+                    <p>Enter your phone number to create an account or sign in</p>
+                    
+                    <div class="phone-input-group">
+                        <select class="input-field country-code" id="countryCode">
+                            <option value="+1">+1</option>
+                            <option value="+44">+44</option>
+                            <option value="+61">+61</option>
+                            <option value="+33">+33</option>
+                            <option value="+49">+49</option>
+                            <option value="+81">+81</option>
+                            <option value="+86">+86</option>
+                            <!-- Add more country codes as needed -->
+                        </select>
+                        <input type="tel" class="input-field phone-number" id="phoneNumber" placeholder="Phone Number" autocomplete="tel">
+                    </div>
+                    
+                    <div class="error-message" id="phoneError"></div>
+                    
+                    <button class="primary-button" id="sendCodeButton">
+                        <div class="button-with-loader">
+                            <span>Send Verification Code</span>
+                            <div class="loader" id="sendCodeLoader"></div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Step 2: Enter Verification Code -->
+                <div class="step step-2">
+                    <div class="back-button" id="backToPhone">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </div>
+                    
+                    <p>Enter the verification code sent to <span id="displayPhoneNumber"></span></p>
+                    
+                    <input type="text" class="input-field verification-code" id="verificationCode" placeholder="Verification Code" maxlength="6">
+                    
+                    <div class="error-message" id="codeError"></div>
+                    <div class="success-message" id="codeSuccess"></div>
+                    
+                    <div class="countdown" id="countdown"></div>
+                    <a class="resend-code" id="resendCode">Resend Code</a>
+                    
+                    <button class="primary-button" id="verifyCodeButton">
+                        <div class="button-with-loader">
+                            <span>Verify Code</span>
+                            <div class="loader" id="verifyCodeLoader"></div>
+                        </div>
+                    </button>
+                </div>
+                
+                <!-- Step 3: Complete Profile -->
+                <div class="step step-3">
+                    <h2>Complete Your Profile</h2>
+                    
+                    <input type="text" class="input-field" id="displayName" placeholder="Display Name">
+                    
+                    <div class="error-message" id="nameError"></div>
+                    
+                    <button class="primary-button" id="completeSignupButton">
+                        <div class="button-with-loader">
+                            <span>Complete Signup</span>
+                            <div class="loader" id="completeSignupLoader"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/phone-signup.js"></script>
+</body>
+</html>

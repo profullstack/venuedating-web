@@ -303,11 +303,17 @@ class PfHeader extends HTMLElement {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)
         .single();
+
+      // Handle case where profile doesn't exist yet
+      if (error && error.code === 'PGRST116') {
+        console.log('No profile found for admin check in header');
+        return;
+      }
 
       if (!profile || !profile.is_admin) return;
 

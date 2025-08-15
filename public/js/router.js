@@ -493,6 +493,18 @@ export function defineRoutes(router) {
         }
       }
     },
+
+    '/edit-profile': {
+      viewPath: '/views/edit-profile.html',
+      noheaderfooter: true,
+      afterRender: () => {
+        console.log('Edit profile page initialized');
+        // Initialize any edit profile page specific code if needed
+        if (typeof window.initEditProfilePage === 'function') {
+          window.initEditProfilePage();
+        }
+      }
+    },
     
     '/admin/venues': {
       viewPath: '/views/admin-venues.html',
@@ -505,11 +517,18 @@ export function defineRoutes(router) {
             return next('/');
           }
 
-          const { data: profile } = await supabase
+          const { data: profile, error } = await supabase
             .from('profiles')
             .select('is_admin')
             .eq('id', user.id)
             .single();
+
+          // Handle case where profile doesn't exist yet
+          if (error && error.code === 'PGRST116') {
+            console.log('No profile found for admin check, denying access');
+            alert('Admin access required');
+            return next('/');
+          }
 
           if (!profile || !profile.is_admin) {
             alert('Admin access required');

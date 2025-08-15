@@ -39,10 +39,13 @@ import {
   resetPasswordConfirmRoute
 } from './auth.js';
 import { phoneAuthRoutes } from './phone-auth.js';
+import { phoneSignupRoutes } from './phone-signup.js';
+import { userRoutes as userApiRoutes } from './user-routes.js';
 import { authStatusRoute } from './auth-status.js';
 import { supabaseConfigRoute } from './config.js';
 import { websocketRoute } from './websocket.js';
-import { twilioVerifyRoutes } from './twilio-verify.js';
+import { verificationRoutes } from './verification-routes.js';
+import { verifyRoutes } from './verify-routes.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
 
 // Routes that require authentication
@@ -84,10 +87,12 @@ const publicRoutes = [
   resetPasswordRoute,
   resetPasswordConfirmRoute,
   ...phoneAuthRoutes,
+  ...phoneSignupRoutes,
+  ...userApiRoutes,
   authStatusRoute,
   supabaseConfigRoute,
   websocketRoute,
-  ...twilioVerifyRoutes,
+  ...verificationRoutes,
   ...userRoutes,
   ...notificationRoutes,
   ...venueRoutes,

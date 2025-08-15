@@ -81,12 +81,24 @@ class AuthMiddleware {
         .eq('id', userId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        // Handle case where profile doesn't exist yet
+        if (error.code === 'PGRST116') {
+          console.log('No profile found for user, will create one when needed');
+          this.currentUser = null;
+          this.updateUI();
+          return;
+        }
+        throw error;
+      }
       
       this.currentUser = data;
       this.updateUI();
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Set currentUser to null on error so UI can handle gracefully
+      this.currentUser = null;
+      this.updateUI();
     }
   }
 
@@ -223,6 +235,21 @@ class AuthMiddleware {
         console.log('No active session found, redirecting to login page');
         window.location.href = '/auth';
         return false;
+      }
+      
+      // If authenticated, populate currentUser with session data
+      if (isAuth && data.session?.user) {
+        this.currentUser = {
+          id: data.session.user.id,
+          email: data.session.user.email,
+          name: data.session.user.user_metadata?.name || data.session.user.user_metadata?.full_name || 'User',
+          full_name: data.session.user.user_metadata?.full_name || data.session.user.user_metadata?.name || 'User',
+          avatar_url: data.session.user.user_metadata?.avatar_url || '/images/avatar.jpg',
+          phone_number: data.session.user.user_metadata?.phone_number || data.session.user.phone,
+          phone_verified: data.session.user.user_metadata?.phone_verified || false
+        };
+        console.log('✅ User data populated from session:', this.currentUser);
+        this.updateUI();
       }
       
       return isAuth;

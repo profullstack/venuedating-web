@@ -127,7 +127,22 @@
       
       // Clear existing options
       const countryDropdown = document.getElementById('country-dropdown');
-      countryDropdown.innerHTML = '';
+      
+      // Create search input and options container
+      countryDropdown.innerHTML = `
+        <div class="country-search-container">
+          <input type="text" id="country-search" placeholder="Search countries..." class="country-search-input">
+          <div class="country-search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 21L16.65 16.65" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="country-options-container"></div>
+      `;
+      
+      const optionsContainer = countryDropdown.querySelector('.country-options-container');
       
       // Add popular countries first (US, UK, Canada, Australia)
       const popularCountryCodes = ['us', 'gb', 'ca', 'au'];
@@ -138,14 +153,14 @@
       if (popularCountries.length > 0) {
         // Add popular countries
         popularCountries.forEach(country => {
-          addCountryOption(country, countryDropdown);
+          addCountryOption(country, optionsContainer);
         });
         
         // Add separator
         const separator = document.createElement('div');
         separator.style.borderBottom = '1px solid #e0e0e0';
         separator.style.margin = '5px 0';
-        countryDropdown.appendChild(separator);
+        optionsContainer.appendChild(separator);
       }
       
       // Add all countries alphabetically
@@ -153,7 +168,7 @@
         .filter(country => !popularCountryCodes.includes(country.code))
         .sort((a, b) => a.name.localeCompare(b.name))
         .forEach(country => {
-          addCountryOption(country, countryDropdown);
+          addCountryOption(country, optionsContainer);
         });
       
       // Set default country to US
@@ -164,12 +179,30 @@
         flag: '🇺🇸'
       });
       
+      // Set up search functionality
+      setupCountrySearch();
+      
     } catch (err) {
       console.error('Error loading countries:', err);
       
       // Fallback: Add some common countries manually
       const countryDropdown = document.getElementById('country-dropdown');
-      countryDropdown.innerHTML = '';
+      
+      // Create search input and options container
+      countryDropdown.innerHTML = `
+        <div class="country-search-container">
+          <input type="text" id="country-search" placeholder="Search countries..." class="country-search-input">
+          <div class="country-search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 21L16.65 16.65" stroke="#666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="country-options-container"></div>
+      `;
+      
+      const optionsContainer = countryDropdown.querySelector('.country-options-container');
       
       const fallbackCountries = [
         { code: 'us', name: 'United States', dialCode: '+1', flag: '🇺🇸' },
@@ -180,11 +213,14 @@
       ];
       
       fallbackCountries.forEach(country => {
-        addCountryOption(country, countryDropdown);
+        addCountryOption(country, optionsContainer);
       });
       
       // Set default country to US
       setSelectedCountry(fallbackCountries[0]);
+      
+      // Set up search functionality
+      setupCountrySearch();
     }
   }
   
@@ -195,6 +231,7 @@
     option.setAttribute('data-code', country.dialCode);
     option.setAttribute('data-country', country.code);
     option.setAttribute('data-flag', country.flag);
+    option.setAttribute('data-name', country.name.toLowerCase()); // Add name as data attribute for search
     
     option.innerHTML = `
       <div class="country-option-flag">${country.flag}</div>
@@ -542,6 +579,56 @@
       sendOtpBtn.disabled = false;
     }
   });
+  
+  // Setup country search functionality
+  function setupCountrySearch() {
+    const searchInput = document.getElementById('country-search');
+    if (!searchInput) return;
+    
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      const countryOptions = document.querySelectorAll('.country-option');
+      
+      countryOptions.forEach(option => {
+        const countryName = option.getAttribute('data-name');
+        const countryCode = option.getAttribute('data-country');
+        const dialCode = option.getAttribute('data-code').toLowerCase();
+        
+        if (
+          countryName.includes(query) || 
+          countryCode.includes(query) || 
+          dialCode.includes(query)
+        ) {
+          option.style.display = 'flex';
+        } else {
+          option.style.display = 'none';
+        }
+      });
+    });
+    
+    // Focus search input when dropdown opens
+    document.getElementById('country-select').addEventListener('click', function() {
+      setTimeout(() => {
+        if (document.getElementById('country-dropdown').classList.contains('show')) {
+          searchInput.focus();
+        }
+      }, 100);
+    });
+    
+    // Clear search when dropdown closes
+    document.addEventListener('click', function(e) {
+      const countrySelect = document.getElementById('country-select');
+      const countryDropdown = document.getElementById('country-dropdown');
+      
+      if (!countrySelect.contains(e.target) && !countryDropdown.contains(e.target)) {
+        searchInput.value = '';
+        const countryOptions = document.querySelectorAll('.country-option');
+        countryOptions.forEach(option => {
+          option.style.display = 'flex';
+        });
+      }
+    });
+  }
   
   // Make populateCountries function available globally
   window.populateCountries = populateCountries;
@@ -1005,6 +1092,62 @@
   
   .country-option:hover .country-option-code {
     color: #F44B74;
+  }
+  
+  /* Country search styles */
+  .country-search-container {
+    position: relative;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f9f9f9;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .country-search-input {
+    width: 100%;
+    height: 36px;
+    border-radius: 18px;
+    border: 1px solid #e0e0e0;
+    padding: 0 35px 0 15px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  
+  .country-search-input:focus {
+    border-color: #F44B74;
+    box-shadow: 0 0 0 2px rgba(244, 75, 116, 0.2);
+  }
+  
+  .country-search-icon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  
+  .country-options-container {
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #F44B74 #f1f1f1;
+  }
+  
+  .country-options-container::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .country-options-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  .country-options-container::-webkit-scrollbar-thumb {
+    background: #F44B74;
+    border-radius: 3px;
   }
   
   @media (max-width: 600px) {

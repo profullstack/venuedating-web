@@ -602,7 +602,7 @@ class SideMenu extends HTMLElement {
     // Add edit profile button event listener
     if (editProfileBtn) {
       editProfileBtn.addEventListener('click', () => {
-        window.location.href = '/views/edit-profile.html';
+        window.location.href = '/edit-profile';
       });
     }
     

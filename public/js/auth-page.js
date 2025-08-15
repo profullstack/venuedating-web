@@ -82,7 +82,7 @@ function showPhoneModal() {
     try {
       await verifyPhoneOtp(phone, otp);
       showStatus('Login successful!');
-      setTimeout(() => window.location.href = '/feed', 1200);
+      setTimeout(() => window.location.href = '/discover', 1200);
     } catch (err) {
       showStatus(err.message || 'OTP verification failed', true);
     }

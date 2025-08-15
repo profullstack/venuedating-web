@@ -939,7 +939,7 @@ export async function initAuthPage() {
           modal.classList.remove('visible');
           setTimeout(() => {
             modal.style.display = 'none';
-            window.location.href = '/feed';
+            window.location.href = '/discover';
           }, 300);
         }, 1000);
       } catch (err) {
