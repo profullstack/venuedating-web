@@ -740,6 +740,8 @@ export async function initProfilePage() {
     return {
       first_name: firstName,
       last_name: lastName,
+      firstName: firstName, // Add firstName for profile-verify.js
+      lastName: lastName,   // Add lastName for profile-verify.js
       phone: phone,
       phoneNumber: phoneInput.value, // Store formatted phone
       countryCode: countryCode,      // Store country code separately
@@ -1049,9 +1051,9 @@ function showMapModal(callback) {
     modal.className = 'modal';
     modal.innerHTML = `
       <div class="modal-content map-modal-content">
-        <h2>Select Location</h2>
+        <h2 style="color: #000;">Select Location</h2>
         <div id="location-map" style="height: 300px; width: 100%; border-radius: 8px;"></div>
-        <div class="location-info" style="margin: 10px 0; font-size: 14px;">
+        <div class="location-info" style="margin: 10px 0; font-size: 14px; color: #000;">
           <p>Click on the map to select your location or use your current location.</p>
           <p id="selected-location-text">No location selected</p>
         </div>

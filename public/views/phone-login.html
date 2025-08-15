@@ -630,11 +630,14 @@
     });
   }
   
-  // Make populateCountries function available globally
-  window.populateCountries = populateCountries;
-
-  // Initialize
-  document.addEventListener('DOMContentLoaded', () => {
+  // Initialize once with a flag to prevent duplicate initialization
+  let initialized = false;
+  
+  function initialize() {
+    if (initialized) return;
+    initialized = true;
+    
+    console.log('Initializing phone login page...');
     populateCountries();
     
     // Allow submitting form with Enter key
@@ -649,7 +652,15 @@
         sendOtpBtn.click();
       }
     });
-  });
+  }
+  
+  // Initialize when DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    // DOM already loaded, initialize immediately
+    initialize();
+  }
 </script>
 
 <style>

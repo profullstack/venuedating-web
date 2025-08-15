@@ -78,6 +78,54 @@ export async function initProfileVerifyPage() {
       profileData = JSON.parse(storedProfile);
       console.log('Found profile data in localStorage:', profileData);
       
+      // Debug: Check if firstName and lastName exist
+      console.log('firstName exists:', profileData.firstName !== undefined);
+      console.log('lastName exists:', profileData.lastName !== undefined);
+      console.log('first_name exists:', profileData.first_name !== undefined);
+      console.log('last_name exists:', profileData.last_name !== undefined);
+      
+      // If we have snake_case but not camelCase, convert them
+      if (!profileData.firstName && profileData.first_name) {
+        profileData.firstName = profileData.first_name;
+        console.log('Converted first_name to firstName:', profileData.firstName);
+      }
+      
+      if (!profileData.lastName && profileData.last_name) {
+        profileData.lastName = profileData.last_name;
+        console.log('Converted last_name to lastName:', profileData.lastName);
+      }
+      
+      // Fallback for missing names - use placeholder if both formats are missing
+      if (!profileData.firstName && !profileData.first_name) {
+        profileData.firstName = "User";
+        console.log('Using fallback firstName:', profileData.firstName);
+      }
+      
+      if (!profileData.lastName && !profileData.last_name) {
+        profileData.lastName = "";
+        console.log('Using fallback lastName:', profileData.lastName);
+      }
+      
+      // Ensure we have both formats for consistency
+      if (profileData.firstName && !profileData.first_name) {
+        profileData.first_name = profileData.firstName;
+      }
+      
+      if (profileData.lastName && !profileData.last_name) {
+        profileData.last_name = profileData.lastName;
+      }
+      
+      // Save the normalized profile data back to localStorage to ensure consistency
+      // This helps prevent race conditions by ensuring all keys exist
+      localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+      
+      // Ensure country code is set to US (+1) if not already set
+      if (!profileData.countryCode) {
+        profileData.countryCode = '+1'; // Default to US
+        localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+        console.log('Set default country code to US (+1)');
+      }
+      
       // Update the UI with the phone number
       updatePhoneDisplay();
       
@@ -107,6 +155,14 @@ export async function initProfileVerifyPage() {
     // Load countries data
     import('./data/countries.js').then(module => {
       const { countries } = module;
+      
+      // Find US in the countries list and ensure it's used for +1
+      const usCountry = countries.find(c => c.code === 'us');
+      if (usCountry && profileData.countryCode === '+1') {
+        // If country code is +1, explicitly set to US
+        countryFlagElement.textContent = usCountry.flag;
+        console.log('Setting country to US for +1 dial code');
+      }
       
       // Populate country list
       populateCountryList(countries);
@@ -239,6 +295,9 @@ export async function initProfileVerifyPage() {
     }
     
     // Try to find the country flag based on the country code
+    // Always set US flag as default first
+    countryFlagElement.textContent = '🇺🇸';
+    
     if (profileData.countryCode) {
       // Import countries data to get the flag
       import('./data/countries.js').then(module => {
@@ -247,14 +306,22 @@ export async function initProfileVerifyPage() {
         // Find country by dialCode (camelCase as in the countries.js file)
         const country = countries.find(c => c.dialCode === profileData.countryCode);
         
-        if (country && country.flag) {
+        // Only update flag if it's not US and we found a valid country
+        if (country && country.flag && country.code !== 'us') {
           countryFlagElement.textContent = country.flag;
           console.log('Found country flag:', country.flag, 'for', country.name);
-        } else {
+        } else if (!country || !country.flag) {
           // Fallback to default flag if country not found
           console.log('Country not found for dial code:', profileData.countryCode);
-          // Set US flag as default
+          // Ensure US flag is set
           countryFlagElement.textContent = '🇺🇸';
+          // Update country code to US if not found
+          if (profileData.countryCode !== '+1') {
+            profileData.countryCode = '+1';
+            countryCodeElement.textContent = '+1';
+            localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileData));
+            console.log('Updated country code to US (+1)');
+          }
         }
       }).catch(err => {
         console.error('Error loading countries data:', err);
@@ -272,8 +339,23 @@ export async function initProfileVerifyPage() {
       // Only allow digits
       this.value = this.value.replace(/[^0-9]/g, '');
       
-      // Enable verify button if we have 6 digits
-      verifyBtn.disabled = this.value.length !== 6;
+      // Real-time validation feedback
+      if (this.value.length === 6) {
+        // Valid code length
+        this.classList.remove('invalid');
+        this.classList.add('valid');
+        verifyBtn.disabled = false;
+      } else if (this.value.length > 0) {
+        // Incomplete code
+        this.classList.remove('valid');
+        this.classList.remove('invalid'); // Don't show as invalid while typing
+        verifyBtn.disabled = true;
+      } else {
+        // Empty input
+        this.classList.remove('valid');
+        this.classList.remove('invalid');
+        verifyBtn.disabled = true;
+      }
       
       // Hide any previous error
       verificationError.classList.add('hidden');
@@ -306,6 +388,14 @@ export async function initProfileVerifyPage() {
       const phoneNumber = profileData.phoneNumber.replace(/[\s-]/g, '');
       const countryCode = profileData.countryCode;
       console.log('[ACCOUNT] Using phone:', countryCode + phoneNumber);
+      
+      // Debug: Log what we're about to send
+      console.log('[ACCOUNT] Sending to API:', {
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phoneNumber: phoneNumber,
+        countryCode: countryCode
+      });
       
       // Create user via API
       const response = await fetch('/api/users', {
@@ -442,15 +532,54 @@ export async function initProfileVerifyPage() {
     });
   }
   
+  // Validate verification code format
+  function isValidVerificationCode(code) {
+    // Must be exactly 6 digits
+    return /^\d{6}$/.test(code);
+  }
+  
+  // Validate phone number format
+  function isValidPhoneNumber(phone, countryCode) {
+    if (!phone || !countryCode) return false;
+    
+    // Remove all non-digit characters
+    const digitsOnly = phone.replace(/\D/g, '');
+    
+    // Different validation based on country code
+    if (countryCode === '+1') { // US/Canada
+      return /^\d{10}$/.test(digitsOnly); // Must be exactly 10 digits
+    } else if (countryCode === '+44') { // UK
+      return /^\d{10,11}$/.test(digitsOnly); // 10-11 digits
+    } else {
+      // Generic international validation - at least 7 digits, max 15
+      return digitsOnly.length >= 7 && digitsOnly.length <= 15;
+    }
+  }
+  
   // Handle verify button click
   if (verifyBtn) {
     verifyBtn.addEventListener('click', async function() {
       const code = verificationCodeInput.value.trim();
       
-      if (code.length !== 6) {
+      // Enhanced validation with visual feedback
+      if (!isValidVerificationCode(code)) {
+        verificationCodeInput.classList.add('invalid');
         showVerificationError('Please enter a valid 6-digit code');
         return;
       }
+      
+      // Validate phone number before proceeding
+      const phoneNumber = phoneNumberDisplay.textContent.replace(/\D/g, '');
+      const countryCode = document.getElementById('country-code').textContent;
+      
+      if (!isValidPhoneNumber(phoneNumber, countryCode)) {
+        showVerificationError('Invalid phone number format. Please go back and correct it.');
+        return;
+      }
+      
+      // Clear any validation styling
+      verificationCodeInput.classList.remove('invalid');
+      verificationCodeInput.classList.add('valid');
       
       // Show loading state
       verifyBtn.disabled = true;
@@ -523,8 +652,9 @@ export async function initProfileVerifyPage() {
       resendCodeBtn.classList.add('hidden');
       resendTimer.classList.remove('hidden');
       
-      // Reset countdown
-      resendCountdown = 30;
+      // Reset countdown - use 60 seconds instead of 30
+      // This is still shorter than server expiration (10 min) but provides better UX
+      resendCountdown = 60;
       updateResendTimer();
       
       // Start countdown
@@ -585,7 +715,12 @@ export async function initProfileVerifyPage() {
   
   // Update resend timer text
   function updateResendTimer() {
-    resendTimer.textContent = `Resend in ${resendCountdown}s`;
+    // Add note about code validity when timer is showing
+    if (resendCountdown > 30) {
+      resendTimer.textContent = `Resend in ${resendCountdown}s (current code valid for 10 min)`;
+    } else {
+      resendTimer.textContent = `Resend in ${resendCountdown}s`;
+    }
   }
   
   // Show verification error
@@ -642,21 +777,36 @@ export async function initProfileVerifyPage() {
   async function updateProfileInSupabase() {
     try {
       console.log('[PROFILE] Updating user in users table');
-      // Properly await the Supabase client with error handling
-      const supabase = await supabaseClientPromise;
       
-      if (!supabase) {
-        throw new Error('Supabase client initialization failed');
-      }
-      
+      // Check if we have a user ID to update
       if (!currentUser || !currentUser.id) {
-        console.error('[PROFILE] No current user ID available for update');
-        throw new Error('No user ID available for update');
+        console.warn('[PROFILE] No current user ID available for update');
+        // Instead of throwing error, just show a message and continue
+        showStatus('Note: Phone was verified but user ID is missing. Your profile will be updated on next login.', 'info');
+        return; // Exit function but don't throw error
       }
       
       console.log('[PROFILE] Updating user with ID:', currentUser.id);
       
-      // Update user via API
+      // First, check if a profile already exists for this user
+      // This prevents duplicate profile creation attempts
+      const supabase = await supabaseClientPromise;
+      const { data: existingProfile, error: profileCheckError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', currentUser.id)
+        .single();
+      
+      if (profileCheckError && profileCheckError.code !== 'PGRST116') { // PGRST116 = not found
+        console.error('[PROFILE] Error checking for existing profile:', profileCheckError);
+      }
+      
+      if (existingProfile) {
+        console.log('[PROFILE] Profile already exists, skipping profile creation');
+      }
+      
+      // Only update the user record in the users table, not the profile
+      // The profile is created server-side when the user is created
       const response = await fetch(`/api/users/${currentUser.id}`, {
         method: 'PUT',
         headers: {
@@ -671,14 +821,28 @@ export async function initProfileVerifyPage() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('[PROFILE] API error updating user:', errorData);
-        throw new Error('Failed to update user via API');
+        
+        // More specific error message based on status code
+        let errorMsg = 'Failed to update your profile';
+        if (response.status === 404) {
+          errorMsg = 'Your user profile could not be found';
+        } else if (response.status === 400) {
+          errorMsg = 'Invalid profile data';
+        } else if (response.status === 500) {
+          errorMsg = 'Server error while updating your profile';
+        }
+        
+        // Show non-blocking error
+        showStatus(`Note: Phone was verified but ${errorMsg.toLowerCase()}. Please continue.`, 'info');
+        return;
       }
       
       const result = await response.json();
       
       if (!result.success) {
         console.error('[PROFILE] API returned error:', result.error);
-        throw new Error(result.error || 'Unknown error updating user');
+        showStatus(`Note: Phone was verified but ${result.error || 'there was an issue updating your account'}. Please continue.`, 'info');
+        return;
       }
       
       console.log('[PROFILE] User updated successfully via API');
@@ -686,7 +850,7 @@ export async function initProfileVerifyPage() {
       console.error('[PROFILE] Error updating user in users table:', err);
       // Show a non-blocking error message but continue
       showStatus('Note: Phone was verified but there was an issue updating your account. Please continue.', 'info');
-      // Don't throw here - we want to continue even if Supabase update fails
+      // Don't throw here - we want to continue even if update fails
     }
   }
 }

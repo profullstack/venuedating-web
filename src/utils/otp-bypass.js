@@ -10,10 +10,10 @@ import { createClient } from '@supabase/supabase-js';
  */
 export async function shouldBypassOTP(phoneNumber) {
   try {
-    // Initialize Supabase client
+    // Initialize Supabase client with service role key for admin operations
     const supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY
     );
 
     // Check if user exists with this phone number and has bypass_otp flag

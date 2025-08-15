@@ -28,8 +28,17 @@ export async function createUserHandler(c) {
         error: 'Phone number and country code are required' 
       }, 400);
     }
+
+    if (!firstName || !lastName) {
+      return c.json({
+        success: false,
+        error: 'First name and last name missing'
+      }, 400)
+    }
     
     console.log(`Creating user with phone: ${countryCode}${phoneNumber}`);
+
+    console.log(`Creating user with names: ${firstName} ${lastName}`)
     
     // Normalize phone number to E.164 format (only + and digits)
     // First ensure country code starts with +
@@ -96,6 +105,148 @@ export async function createUserHandler(c) {
     }
     
     console.log(`User created successfully: ${newUser.id}`);
+    
+    // Create a profile for the user with synchronized data from users table
+    try {
+      // CRITICAL: We need to ensure the user exists in auth.users table first
+      // The profiles table has a foreign key constraint that references auth.users(id)
+      
+      // First, check if the user exists in auth.users table
+      const { data: authUser, error: authUserError } = await supabase.auth.admin.getUserById(newUser.id);
+      
+      if (authUserError || !authUser || !authUser.user) {
+        // User doesn't exist in auth.users table, we need to create an auth user first
+        console.log('User not found in auth.users table, creating auth user first...');
+        
+        // Create a random password for the auth user (they'll use phone auth anyway)
+        const randomPassword = Math.random().toString(36).slice(-10);
+        
+        // Create auth user with the same ID
+        const { data: createdAuthUser, error: createAuthError } = await supabase.auth.admin.createUser({
+          uuid: newUser.id,
+          email: newUser.email,
+          phone: newUser.phone_number,
+          password: randomPassword,
+          email_confirm: true,
+          phone_confirm: newUser.phone_verified || false,
+          user_metadata: {
+            full_name: newUser.full_name,
+            first_name: newUser.first_name,
+            last_name: newUser.last_name
+          }
+        });
+        
+        if (createAuthError) {
+          console.error('Error creating auth user:', createAuthError);
+          // If we can't create the auth user, we can't create the profile
+          return c.json({
+            success: true,
+            user: newUser,
+            warning: 'User created but profile creation failed: ' + createAuthError.message
+          });
+        }
+        
+        console.log('Auth user created successfully');
+        
+        // Wait a moment for the auth user to be fully created and available
+        // This helps ensure the foreign key constraint will be satisfied
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+      // Try a completely different approach - use raw SQL via Supabase REST API
+      try {
+        // Double-check that the auth user exists and is fully created
+        const { data: authUserCheck, error: authCheckError } = await supabase.auth.admin.getUserById(newUser.id);
+        
+        if (authCheckError || !authUserCheck || !authUserCheck.user) {
+          console.error('Auth user still not available after creation attempt');
+          return c.json({
+            success: true,
+            user: newUser,
+            warning: 'User created but profile creation failed: Auth user not available'
+          });
+        }
+        
+        console.log('Auth user confirmed available, proceeding with profile creation');
+        
+        // First try the simplest approach - direct insert with minimal fields
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: newUser.id,
+            full_name: newUser.full_name,
+            display_name: newUser.first_name || newUser.full_name.split(' ')[0],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select();
+        
+        if (profileError) {
+          console.error('Error creating profile with minimal fields:', profileError);
+          
+          // Try a different approach - use the REST API directly
+          const restUrl = `${process.env.SUPABASE_URL}/rest/v1/profiles`;
+          const restHeaders = {
+            'Content-Type': 'application/json',
+            'apikey': process.env.SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+            'Prefer': 'return=representation'
+          };
+          
+          const restBody = JSON.stringify({
+            id: newUser.id,
+            full_name: newUser.full_name,
+            display_name: newUser.first_name || newUser.full_name.split(' ')[0],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          });
+          
+          try {
+            const response = await fetch(restUrl, {
+              method: 'POST',
+              headers: restHeaders,
+              body: restBody
+            });
+            
+            if (response.ok) {
+              console.log('Profile created successfully via REST API');
+            } else {
+              const errorData = await response.json();
+              console.error('REST API profile creation failed:', errorData);
+              
+              // Last resort - try to update the user record to include profile fields
+              console.log('Attempting last resort approach - updating user record');
+              const { error: userUpdateError } = await supabase
+                .from('users')
+                .update({
+                  profile_created: true,
+                  profile_data: JSON.stringify({
+                    full_name: newUser.full_name,
+                    display_name: newUser.first_name || newUser.full_name.split(' ')[0]
+                  })
+                })
+                .eq('id', newUser.id);
+              
+              if (userUpdateError) {
+                console.error('Failed to update user record:', userUpdateError);
+              } else {
+                console.log('User record updated with profile data');
+              }
+            }
+          } catch (restError) {
+            console.error('REST API request failed:', restError);
+          }
+        } else {
+          console.log('Profile created successfully with direct insert');
+        }
+      } catch (sqlErr) {
+        console.error('Exception in profile creation:', sqlErr);
+      }
+    } catch (profileErr) {
+      console.error('Exception creating profile:', profileErr);
+      console.error('Error details:', profileErr.message);
+      // Continue anyway, as the user was created successfully
+    }
     
     return c.json({
       success: true,

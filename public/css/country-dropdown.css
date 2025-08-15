@@ -104,6 +104,7 @@
 
 .country-name {
   flex: 1;
+  color: black;
   margin: 0 8px;
   font-size: 14px;
   white-space: nowrap;

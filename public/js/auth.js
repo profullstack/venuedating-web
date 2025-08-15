@@ -2,11 +2,32 @@ import { supabaseClientPromise } from './supabase-client.js';
 import { validatePhoneE164, checkPhoneExists } from './utils/phone-utils.js';
 
 // Sign in with phone (OTP)
+// Flag to prevent multiple OTP sends in quick succession
+let otpSendInProgress = false;
+let lastOtpSendTime = 0;
+const OTP_THROTTLE_MS = 5000; // 5 seconds minimum between OTP sends
+
 export async function signInWithPhone(phone) {
   // Validate phone number format first
   if (!validatePhoneE164(phone)) {
     throw new Error('Invalid phone number format. Please enter a valid phone number with country code.');
   }
+  
+  // Prevent multiple simultaneous OTP sends
+  if (otpSendInProgress) {
+    console.warn('OTP send already in progress, preventing duplicate request');
+    throw new Error('Verification code is already being sent. Please wait.');
+  }
+  
+  // Throttle OTP sends to prevent accidental multiple sends
+  const now = Date.now();
+  if (now - lastOtpSendTime < OTP_THROTTLE_MS) {
+    console.warn('OTP send throttled - too many requests');
+    throw new Error(`Please wait ${Math.ceil((OTP_THROTTLE_MS - (now - lastOtpSendTime)) / 1000)} seconds before requesting another code.`);
+  }
+  
+  otpSendInProgress = true;
+  lastOtpSendTime = now;
   
   try {
     // Check if phone exists in the system and is valid
@@ -24,18 +45,18 @@ export async function signInWithPhone(phone) {
       // We can still try to proceed with OTP, but log the warning
     }
     
-    // Optional: Prevent OTP for non-existent numbers
-    // Uncomment this block if you want to prevent OTPs for non-existent numbers
-    /*
+    // Prevent OTP for non-existent numbers
     if (!phoneCheckResult.exists) {
+      console.log('Phone number does not exist in users table, preventing SMS send:', phone);
       throw new Error('This phone number is not registered. Please sign up first.');
     }
-    */
     
     // Use our server-side bypass route instead of direct Supabase call
     // Parse phone number to get country code and number
     const countryCode = phone.startsWith('+1') ? '+1' : '+1'; // Default to +1 for now
     const phoneNumber = phone.replace(countryCode, '');
+    
+    console.log(`Sending OTP to ${countryCode}${phoneNumber} (login flow)`);
     
     const response = await fetch('/api/verify/send-code', {
       method: 'POST',
@@ -54,6 +75,8 @@ export async function signInWithPhone(phone) {
     if (!result.success) {
       throw new Error(result.error || 'Failed to send verification code');
     }
+    
+    console.log('OTP sent successfully');
     
     // Return data in expected format
     const data = { user: null };
@@ -76,6 +99,9 @@ export async function signInWithPhone(phone) {
   } catch (error) {
     console.error('Error in signInWithPhone:', error);
     throw error;
+  } finally {
+    // Always reset the flag when done, regardless of success or failure
+    otpSendInProgress = false;
   }
 }
 
@@ -145,7 +171,14 @@ export async function verifyPhoneOtp(phone, token) {
       
       // Update user as verified via API
       try {
-        const updateResponse = await fetch(`/api/users/${user.id}`, {
+        // Check if user.id is a UUID or a phone number
+        const userId = user.id.includes('-') ? user.id : null;
+        if (!userId) {
+          console.error('[VERIFY OTP] Invalid user ID format:', user.id);
+          throw new Error('Invalid user ID format');
+        }
+        
+        const updateResponse = await fetch(`/api/users/${userId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
@@ -181,7 +214,7 @@ export async function verifyPhoneOtp(phone, token) {
     
     // Return the user data from our server response
     return {
-      session: sessionData?.session || result.session,
+      session: result.session || null,
       user: result.user
     };
   } catch (error) {
