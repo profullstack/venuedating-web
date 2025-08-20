@@ -509,6 +509,7 @@
         if (isLegacyDemo) {
           // For legacy demo account, we'll use the localStorage flags
           localStorage.setItem('demo_account', 'true');
+          localStorage.setItem('demo_phone', phone); // Set demo phone flag for auth utils
           
           localStorage.setItem('demo_user', JSON.stringify({
             id: 'demo-user-id',

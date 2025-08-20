@@ -21,6 +21,14 @@ dotenvFlow.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = new Hono();
 
+// Import Supabase for database operations
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client with service role key for server operations
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
 // Integrate WebXR experience at /webxr path
 integrateWebXR(app);
 
@@ -393,6 +401,169 @@ app.post('/api/1/html-to-ppt', async (c) => {
   } catch (error) {
     console.error('Error generating PowerPoint file:', error);
     return c.json({ error: 'Failed to generate PowerPoint file' }, 500);
+  }
+});
+
+// Middleware to verify JWT token
+async function verifyToken(c, next) {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return c.json({ error: 'Authorization token required' }, 401);
+  }
+
+  const token = authHeader.substring(7);
+  
+  try {
+    // Verify the token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    
+    if (error || !user) {
+      return c.json({ error: 'Invalid or expired token' }, 401);
+    }
+    
+    // Store user in context for use in route handlers
+    c.set('user', user);
+    await next();
+  } catch (error) {
+    console.error('Token verification error:', error);
+    return c.json({ error: 'Token verification failed' }, 401);
+  }
+}
+
+// Square API Endpoints
+
+// Get Square credentials
+app.get('/api/square-credentials', verifyToken, async (c) => {
+  try {
+    // Return Square sandbox credentials for development
+    // In production, these should come from environment variables
+    const credentials = {
+      applicationId: process.env.SQUARE_APPLICATION_ID || 'sandbox-sq0idb-your-app-id',
+      locationId: process.env.SQUARE_LOCATION_ID || 'sandbox-location-id',
+      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+    };
+    
+    return c.json(credentials);
+  } catch (error) {
+    console.error('Error fetching Square credentials:', error);
+    return c.json({ error: 'Failed to fetch Square credentials' }, 500);
+  }
+});
+
+// Process Square payment
+app.post('/api/process-payment', verifyToken, async (c) => {
+  try {
+    const { token, amount, currency = 'USD' } = await c.req.json();
+    const user = c.get('user');
+    
+    if (!token || !amount) {
+      return c.json({ error: 'Payment token and amount are required' }, 400);
+    }
+    
+    // In a real implementation, you would process the payment with Square here
+    // For now, we'll simulate a successful payment
+    console.log(`Processing payment for user ${user.id}: $${amount/100} ${currency}`);
+    
+    // Simulate payment processing delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Update user's payment status in the database
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ has_paid: true })
+      .eq('id', user.id);
+    
+    if (updateError) {
+      console.error('Error updating payment status:', updateError);
+      return c.json({ error: 'Failed to update payment status' }, 500);
+    }
+    
+    return c.json({
+      success: true,
+      paymentId: `payment_${Date.now()}`,
+      amount,
+      currency,
+      status: 'completed'
+    });
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    return c.json({ error: 'Payment processing failed' }, 500);
+  }
+});
+
+// Get user profile
+app.get('/api/user-profile', verifyToken, async (c) => {
+  try {
+    const user = c.get('user');
+    
+    // Get user profile from database
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching user profile:', error);
+      return c.json({ error: 'Failed to fetch user profile' }, 500);
+    }
+    
+    return c.json(profile);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return c.json({ error: 'Failed to fetch user profile' }, 500);
+  }
+});
+
+// Check payment status
+app.get('/api/user/payment-status', verifyToken, async (c) => {
+  try {
+    const user = c.get('user');
+    
+    // Get payment status from database
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('has_paid')
+      .eq('id', user.id)
+      .single();
+    
+    if (error) {
+      console.error('Error fetching payment status:', error);
+      return c.json({ error: 'Failed to fetch payment status' }, 500);
+    }
+    
+    return c.json({ has_paid: profile.has_paid || false });
+  } catch (error) {
+    console.error('Error fetching payment status:', error);
+    return c.json({ error: 'Failed to fetch payment status' }, 500);
+  }
+});
+
+// Update payment status
+app.post('/api/user/payment-status', verifyToken, async (c) => {
+  try {
+    const { has_paid } = await c.req.json();
+    const user = c.get('user');
+    
+    if (typeof has_paid !== 'boolean') {
+      return c.json({ error: 'has_paid must be a boolean value' }, 400);
+    }
+    
+    // Update payment status in database
+    const { error } = await supabase
+      .from('profiles')
+      .update({ has_paid })
+      .eq('id', user.id);
+    
+    if (error) {
+      console.error('Error updating payment status:', error);
+      return c.json({ error: 'Failed to update payment status' }, 500);
+    }
+    
+    return c.json({ success: true, has_paid });
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    return c.json({ error: 'Failed to update payment status' }, 500);
   }
 });
 

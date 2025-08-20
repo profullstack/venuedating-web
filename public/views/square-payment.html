@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premium Subscription - BarCrush</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .payment-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+    @media (max-width: 768px) {
+      .payment-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .subscription-details {
+      background-color: #f9f9f9;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .features li {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+      position: relative;
+      padding-left: 25px;
+    }
+    .features li:before {
+      content: "✓";
+      color: #F44B74;
+      position: absolute;
+      left: 0;
+    }
+    .loading-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+    .spinner-large {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(244, 75, 116, 0.2);
+      border-radius: 50%;
+      border-top-color: #F44B74;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #F44B74;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <a href="/"><img src="/img/logo.png" alt="BarCrush Logo" class="logo"></a>
+      </div>
+      <div class="navbar-menu">
+        <a href="/dashboard.html">Dashboard</a>
+        <a href="/matches.html">Matches</a>
+        <a href="/profile.html">Profile</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="payment-container">
+      <div class="payment-header">
+        <h1>Premium Subscription</h1>
+        <p>Upgrade your BarCrush experience with premium features</p>
+      </div>
+      
+      <div id="loading-indicator" class="loading-indicator">
+        <div class="spinner-large"></div>
+      </div>
+      
+      <div class="payment-grid">
+        <div id="subscription-details" class="subscription-details"></div>
+        <div class="payment-form-container">
+          <div id="square-payment-form"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 BarCrush. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/js/views/square-payment.js"></script>
+</body>
+</html>

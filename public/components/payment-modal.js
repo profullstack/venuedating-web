@@ -138,13 +138,6 @@ class PaymentModal {
           <div class="payment-section">
             <div class="payment-info">
               <h2>Pay $2 to unlock who's at this venue</h2>
-              <div class="stripe-logo">
-                <svg width="60" height="25" viewBox="0 0 60 25" fill="none">
-                  <path d="M59.5 12.5C59.5 19.4036 53.9036 25 47 25H13C6.09644 25 0.5 19.4036 0.5 12.5C0.5 5.59644 6.09644 0 13 0H47C53.9036 0 59.5 5.59644 59.5 12.5Z" fill="#635BFF"/>
-                  <path d="M22.5 8.5C22.5 7.67157 21.8284 7 21 7H19C18.1716 7 17.5 7.67157 17.5 8.5V16.5C17.5 17.3284 18.1716 18 19 18H21C21.8284 18 22.5 17.3284 22.5 16.5V8.5Z" fill="white"/>
-                  <path d="M30 7C29.1716 7 28.5 7.67157 28.5 8.5V16.5C28.5 17.3284 29.1716 18 30 18H32C32.8284 18 33.5 17.3284 33.5 16.5V12.5L36.5 16.5C37.1667 17.3333 38.1667 18 39.5 18H41C41.8284 18 42.5 17.3284 42.5 16.5V8.5C42.5 7.67157 41.8284 7 41 7H39C38.1716 7 37.5 7.67157 37.5 8.5V12.5L34.5 8.5C33.8333 7.66667 32.8333 7 31.5 7H30Z" fill="white"/>
-                </svg>
-              </div>
             </div>
 
             <!-- Payment Form -->
@@ -382,16 +375,11 @@ class PaymentModal {
    */
   async processPayment(token) {
     try {
-      // Get auth token for API call
-      const authToken = localStorage.getItem('supabase.auth.token') || 
-                       sessionStorage.getItem('supabase.auth.token');
+      // Import auth utilities dynamically
+      const { authenticatedFetch } = await import('/js/auth-utils.js');
       
-      const response = await fetch('/api/process-payment', {
+      const response = await authenticatedFetch('/api/process-payment', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
         body: JSON.stringify({
           token: token,
           amount: 200, // $2.00 in cents
@@ -399,10 +387,15 @@ class PaymentModal {
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payment processing failed');
+      }
+
       return await response.json();
     } catch (error) {
       console.error('❌ Backend payment processing failed:', error);
-      return { success: false, error: 'Payment processing failed' };
+      return { success: false, error: error.message || 'Payment processing failed' };
     }
   }
 
@@ -415,21 +408,18 @@ class PaymentModal {
       localStorage.setItem('barcrush_paid', 'true');
       localStorage.setItem('barcrush_payment_date', new Date().toISOString());
       
-      // Get auth token for API call
-      const authToken = localStorage.getItem('supabase.auth.token') || 
-                       sessionStorage.getItem('supabase.auth.token');
+      // Import auth utilities dynamically
+      const { authenticatedFetch } = await import('/js/auth-utils.js');
       
       // Update user profile in backend
-      const response = await fetch('/api/unlock-matching', {
+      const response = await authenticatedFetch('/api/user/payment-status', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+        body: JSON.stringify({ has_paid: true })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to unlock matching in backend');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to unlock matching in backend');
       }
 
       console.log('✅ Matching unlocked successfully');

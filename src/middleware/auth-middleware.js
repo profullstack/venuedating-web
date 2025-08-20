@@ -22,6 +22,7 @@ export async function authMiddleware(c, next) {
       return next();
     }
     
+    
     // Get API key from header
     const authHeader = c.req.header('Authorization');
     const apiKeyHeader = c.req.header('X-API-Key');
@@ -69,7 +70,6 @@ export async function authMiddleware(c, next) {
           }
         } catch (jwtError) {
           console.error('Auth middleware: JWT validation error:', jwtError);
-          console.error('Auth middleware: JWT validation error stack:', jwtError.stack);
           console.log('Auth middleware: JWT validation failed, trying as API key');
         }
         

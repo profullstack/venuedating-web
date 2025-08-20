@@ -73,6 +73,27 @@ async function createDemoSession() {
   }
 }
 
+async function checkSubscriptionStatus() {
+  try {
+    // Import auth utilities for authenticated requests
+    const { authenticatedFetch } = await import('/js/auth-utils.js');
+    
+    // Use the payment status API endpoint
+    const response = await authenticatedFetch('/api/user/payment-status');
+    
+    if (!response.ok) {
+      console.error('❌ Error checking subscription status:', response.status);
+      return false;
+    }
+    
+    const data = await response.json();
+    return data.has_paid === true;
+  } catch (error) {
+    console.error('❌ Error checking subscription status:', error);
+    return false;
+  }
+}
+
 
 
 /**
@@ -102,6 +123,7 @@ async function initMatching() {
     console.error('Card stack element not found!');
     return;
   }
+
   
   // Load potential matches
   await loadPotentialMatches();
@@ -113,6 +135,17 @@ async function initMatching() {
   subscribeToMatches();
   
   console.log('Matching page initialized');
+
+
+  // Check user payment status before proceeding
+  const hasPaid = await checkSubscriptionStatus();
+  
+  if (!hasPaid) {
+    console.log('❌ User has not paid, showing payment modal');
+    // redirect to payment page
+    window.location.href = '/discover?payment_required=true';
+    return;
+  }
 }
 
 /**

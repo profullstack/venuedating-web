@@ -482,6 +482,18 @@ export function defineRoutes(router) {
       }
     },
 
+    '/payment': {
+      viewPath: '/views/payment.html',
+      noheaderfooter: true,
+      afterRender: () => {
+        console.log('Payment page initialized');
+        // Initialize any payment page specific code if needed
+        if (typeof window.initPaymentPage === 'function') {
+          window.initPaymentPage();
+        }
+      }
+    },
+
     '/notifications': {
       viewPath: '/views/notifications.html',
       noheaderfooter: true,
@@ -655,6 +667,7 @@ export function defineRoutes(router) {
         }
       }
     },
+    
     '/register': {
       viewPath: '/views/profile.html',
       afterRender: initRegisterPage

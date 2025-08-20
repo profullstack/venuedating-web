@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Payment - BarCrush</title>
+  <link rel="stylesheet" href="/css/theme.css">
+  <script src="/js/dark-mode.js"></script>
+  <script type="module" src="/js/auth-middleware.js"></script>
+  <script type="module">
+    // Check authentication and redirect if not logged in
+    import authMiddleware from '/js/auth-middleware.js';
+    
+    // Immediately check authentication before DOM is loaded
+    (async function() {
+      try {
+        console.log('Checking authentication immediately...');
+        const isAuth = await authMiddleware.requireAuth(true);
+        if (!isAuth) {
+          console.log('Not authenticated, redirecting to login...');
+          window.location.href = '/phone-login';
+          return;
+        }
+        console.log('Authentication check passed');
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        window.location.href = '/phone-login';
+      }
+    })();
+  </script>
+</head>
+<body>
+
+<div class="payment-page">
+  <!-- Background with blurred map -->
+  <div class="payment-background">
+    <div class="background-overlay"></div>
+  </div>
+  
+  <!-- Payment Card -->
+  <div class="payment-card">
+    <div class="payment-header">
+      <h1 class="payment-title">Pay $2 to unlock</h1>
+      <p class="payment-subtitle">who's at this venue</p>
+    </div>
+    
+    <div class="payment-body">
+      <!-- Stripe Logo -->
+      
+      <!-- Payment Form -->
+      <div class="payment-form">
+        <div id="card-container" class="card-input-container">
+          <div class="card-input-placeholder">
+            <span>Card information</span>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-field">
+            <input type="text" placeholder="MM / YY" class="form-input" id="expiry">
+          </div>
+          <div class="form-field">
+            <input type="text" placeholder="CVC" class="form-input" id="cvc">
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <input type="text" placeholder="ZIP" class="form-input" id="zip">
+        </div>
+      </div>
+      
+      <!-- Payment Actions -->
+      <div class="payment-actions">
+        <button id="cancel-payment" class="payment-button cancel-btn">Cancel</button>
+        <button id="complete-payment" class="payment-button pay-btn">
+          <span class="button-text">Pay $2</span>
+          <div class="button-spinner" style="display: none;">
+            <div class="spinner"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #000;
+    overflow: hidden;
+  }
+  
+  .payment-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  
+  .payment-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect width="400" height="300" fill="%23f0f0f0"/><circle cx="100" cy="80" r="20" fill="%23ff6b8a" opacity="0.3"/><circle cx="300" cy="120" r="15" fill="%23ff4b77" opacity="0.4"/><circle cx="200" cy="200" r="25" fill="%23ff6b8a" opacity="0.2"/><rect x="50" y="150" width="80" height="40" rx="8" fill="%23333" opacity="0.1"/><rect x="250" y="50" width="100" height="30" rx="6" fill="%23333" opacity="0.1"/><rect x="150" y="250" width="120" height="25" rx="4" fill="%23333" opacity="0.1"/></svg>');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  
+  .background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 75, 119, 0.8) 0%, rgba(255, 107, 138, 0.8) 100%);
+  }
+  
+  .payment-card {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(135deg, #FF4B77 0%, #FF6B8A 100%);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(100px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .payment-header {
+    padding: 48px 32px 32px;
+    text-align: center;
+    color: white;
+  }
+  
+  .payment-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    line-height: 1.2;
+  }
+  
+  .payment-subtitle {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+    opacity: 0.95;
+    line-height: 1.3;
+  }
+  
+  .payment-body {
+    background: white;
+    padding: 40px 32px;
+    border-radius: 0 0 24px 24px;
+  }
+  
+  .stripe-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  
+  .stripe-logo svg {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  }
+  
+  .payment-form {
+    margin-bottom: 32px;
+  }
+  
+  .card-input-container {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    transition: all 0.2s ease;
+    cursor: text;
+  }
+  
+  .card-input-container:hover,
+  .card-input-container:focus-within {
+    border-color: #FF4B77;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 75, 119, 0.1);
+  }
+  
+  .card-input-placeholder {
+    color: #6c757d;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .form-field {
+    flex: 1;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 16px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  
+  .form-input:hover,
+  .form-input:focus {
+    border-color: #FF4B77;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 75, 119, 0.1);
+  }
+  
+  .form-input::placeholder {
+    color: #6c757d;
+  }
+  
+  .payment-actions {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .payment-button {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 18px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 56px;
+  }
+  
+  .payment-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .cancel-btn {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+  }
+  
+  .cancel-btn:hover:not(:disabled) {
+    background: #e9ecef;
+    color: #495057;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pay-btn {
+    background: #FF4B77;
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 75, 119, 0.3);
+  }
+  
+  .pay-btn:hover:not(:disabled) {
+    background: #e63d6b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 75, 119, 0.4);
+  }
+  
+  .pay-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  
+  .button-spinner {
+    display: none;
+  }
+  
+  .payment-button.loading .button-text {
+    opacity: 0;
+  }
+  
+  .payment-button.loading .button-spinner {
+    display: flex;
+    position: absolute;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Mobile responsive adjustments */
+  @media (max-width: 480px) {
+    .payment-page {
+      padding: 16px;
+    }
+    
+    .payment-card {
+      max-width: 100%;
+    }
+    
+    .payment-header {
+      padding: 40px 24px 24px;
+    }
+    
+    .payment-title {
+      font-size: 28px;
+    }
+    
+    .payment-subtitle {
+      font-size: 18px;
+    }
+    
+    .payment-body {
+      padding: 32px 24px;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .payment-actions {
+      flex-direction: column;
+    }
+    
+    .payment-button {
+      width: 100%;
+    }
+  }
+</style>
+
+<script type="module">
+  import { getCurrentUser } from '/js/api/supabase-client.js';
+  import supabase from '/js/api/supabase-client.js';
+  
+  let currentUser = null;
+  
+  // Initialize payment page
+  async function initPaymentPage() {
+    console.log('🚀 Initializing payment page...');
+    
+    try {
+      // Get current user
+      currentUser = await getCurrentUser();
+      
+      if (!currentUser) {
+        console.error('❌ No user found, redirecting to login...');
+        window.location.href = '/phone-login';
+        return;
+      }
+      
+      console.log('👤 Current user:', currentUser.id);
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      console.log('✅ Payment page initialized successfully');
+    } catch (error) {
+      console.error('❌ Error initializing payment page:', error);
+      window.location.href = '/phone-login';
+    }
+  }
+  
+  // Set up event listeners
+  function setupEventListeners() {
+    // Cancel button
+    const cancelBtn = document.getElementById('cancel-payment');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        console.log('🔙 Payment cancelled, returning to matching page');
+        window.location.href = '/matching';
+      });
+    }
+    
+    // Complete payment button
+    const completeBtn = document.getElementById('complete-payment');
+    if (completeBtn) {
+      completeBtn.addEventListener('click', handlePayment);
+    }
+    
+    // Form inputs for better UX
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+      input.addEventListener('input', validateForm);
+      input.addEventListener('focus', () => {
+        input.parentElement.classList.add('focused');
+      });
+      input.addEventListener('blur', () => {
+        input.parentElement.classList.remove('focused');
+      });
+    });
+  }
+  
+  // Handle payment processing
+  async function handlePayment() {
+    const completeBtn = document.getElementById('complete-payment');
+    
+    try {
+      console.log('💰 Processing payment...');
+      
+      // Show loading state
+      completeBtn.classList.add('loading');
+      completeBtn.disabled = true;
+      
+      // Simulate payment processing (replace with actual Square integration)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update user payment status in database
+      const { error } = await supabase
+        .from('profiles')
+        .update({ has_paid: true })
+        .eq('id', currentUser.id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      console.log('✅ Payment successful!');
+      
+      // Show success and redirect
+      alert('Payment successful! Welcome to BarCrush Premium!');
+      window.location.href = '/matching';
+      
+    } catch (error) {
+      console.error('❌ Payment failed:', error);
+      alert('Payment failed. Please try again.');
+      
+      // Reset button state
+      completeBtn.classList.remove('loading');
+      completeBtn.disabled = false;
+    }
+  }
+  
+  // Validate form inputs
+  function validateForm() {
+    const cardInput = document.getElementById('card-container');
+    const expiryInput = document.getElementById('expiry');
+    const cvcInput = document.getElementById('cvc');
+    const zipInput = document.getElementById('zip');
+    const completeBtn = document.getElementById('complete-payment');
+    
+    // Simple validation (replace with proper card validation)
+    const isValid = expiryInput.value.length >= 5 && 
+                   cvcInput.value.length >= 3 && 
+                   zipInput.value.length >= 5;
+    
+    completeBtn.disabled = !isValid;
+  }
+  
+  // Expose function globally for router
+  window.initPaymentPage = initPaymentPage;
+  
+  // Initialize when DOM is loaded
+  document.addEventListener('DOMContentLoaded', initPaymentPage);
+</script>
+
+</body>
+</html>

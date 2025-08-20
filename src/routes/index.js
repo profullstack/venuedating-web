@@ -17,6 +17,7 @@ import { downloadDocumentRoute } from './download-document.js';
 import { userRoutes } from './users.js';
 import { notificationRoutes } from './notifications.js';
 import { venueRoutes } from './venues.js';
+import { squareRoutes } from './square.js';
 import { matchRoutes } from './matches.js';
 import { conversationRoutes } from './conversations.js';
 import {
@@ -65,7 +66,8 @@ const protectedRoutes = [
   pptxToMarkdownRoute,
   xlsxToMarkdownRoute,
   documentHistoryRoute,
-  downloadDocumentRoute
+  downloadDocumentRoute,
+  ...squareRoutes,
 ];
 
 // Apply auth middleware to protected routes

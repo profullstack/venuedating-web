@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Test - BarCrush</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .test-section {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    
+    .test-button {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #F44B74;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    
+    .test-button:hover {
+      background-color: #E03A63;
+    }
+    
+    .test-button.secondary {
+      background-color: #6c757d;
+    }
+    
+    .test-button.secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .result-container {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #F44B74;
+    }
+    
+    .result-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    pre {
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin: 0;
+    }
+    
+    .payment-form-container {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-brand">
+        <a href="/">
+          <img src="/img/logo.png" alt="BarCrush Logo" class="logo">
+        </a>
+      </div>
+      <div class="navbar-menu">
+        <a href="/views/user-dashboard.html">Dashboard</a>
+        <a href="/views/payment-test.html" class="active">Payment Test</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Square Payment Integration Test</h1>
+      <p>Use this page to test the Square payment integration components.</p>
+      
+      <div class="test-section">
+        <h2>1. Square SDK Loading</h2>
+        <button id="test-sdk-load" class="test-button">Test SDK Load</button>
+        <div id="sdk-result" class="result-container" style="display: none;">
+          <div class="result-title">Result:</div>
+          <div id="sdk-result-content"></div>
+        </div>
+      </div>
+      
+      <div class="test-section">
+        <h2>2. Square Credentials</h2>
+        <button id="test-credentials" class="test-button">Test Credentials API</button>
+        <div id="credentials-result" class="result-container" style="display: none;">
+          <div class="result-title">Result:</div>
+          <pre id="credentials-result-content"></pre>
+        </div>
+      </div>
+      
+      <div class="test-section">
+        <h2>3. Payment Form</h2>
+        <button id="show-payment-form" class="test-button">Show Payment Form</button>
+        <div id="payment-form-container" class="payment-form-container" style="display: none;"></div>
+      </div>
+      
+      <div class="test-section">
+        <h2>4. User Profile API</h2>
+        <button id="test-user-profile" class="test-button">Test User Profile API</button>
+        <div id="profile-result" class="result-container" style="display: none;">
+          <div class="result-title">Result:</div>
+          <pre id="profile-result-content"></pre>
+        </div>
+      </div>
+      
+      <div class="test-section">
+        <h2>5. Subscription Status</h2>
+        <button id="test-subscription" class="test-button">Check Subscription Status</button>
+        <div id="subscription-result" class="result-container" style="display: none;">
+          <div class="result-title">Result:</div>
+          <div id="subscription-result-content"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 BarCrush. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { loadSquareSDK, fetchSquareCredentials, checkSubscriptionStatus } from '/js/utils/square-api.js';
+    import SquarePaymentForm from '/js/components/square-payment-form.js';
+    import { showToast } from '/js/utils/toast.js';
+    
+    // DOM Elements
+    const testSdkLoadButton = document.getElementById('test-sdk-load');
+    const sdkResult = document.getElementById('sdk-result');
+    const sdkResultContent = document.getElementById('sdk-result-content');
+    
+    const testCredentialsButton = document.getElementById('test-credentials');
+    const credentialsResult = document.getElementById('credentials-result');
+    const credentialsResultContent = document.getElementById('credentials-result-content');
+    
+    const showPaymentFormButton = document.getElementById('show-payment-form');
+    const paymentFormContainer = document.getElementById('payment-form-container');
+    
+    const testUserProfileButton = document.getElementById('test-user-profile');
+    const profileResult = document.getElementById('profile-result');
+    const profileResultContent = document.getElementById('profile-result-content');
+    
+    const testSubscriptionButton = document.getElementById('test-subscription');
+    const subscriptionResult = document.getElementById('subscription-result');
+    const subscriptionResultContent = document.getElementById('subscription-result-content');
+    
+    let paymentForm = null;
+    
+    // Initialize event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      testSdkLoadButton.addEventListener('click', testSdkLoad);
+      testCredentialsButton.addEventListener('click', testCredentials);
+      showPaymentFormButton.addEventListener('click', togglePaymentForm);
+      testUserProfileButton.addEventListener('click', testUserProfile);
+      testSubscriptionButton.addEventListener('click', testSubscription);
+    });
+    
+    /**
+     * Test Square SDK loading
+     */
+    async function testSdkLoad() {
+      try {
+        sdkResultContent.textContent = 'Loading Square SDK...';
+        sdkResult.style.display = 'block';
+        
+        await loadSquareSDK();
+        
+        if (window.Square) {
+          sdkResultContent.textContent = 'Success! Square SDK loaded successfully.';
+          showToast('Square SDK loaded successfully', 'success');
+        } else {
+          sdkResultContent.textContent = 'Error: Square SDK not available after loading.';
+          showToast('Failed to load Square SDK', 'error');
+        }
+      } catch (error) {
+        console.error('Error loading Square SDK:', error);
+        sdkResultContent.textContent = `Error: ${error.message}`;
+        showToast('Failed to load Square SDK: ' + error.message, 'error');
+      }
+    }
+    
+    /**
+     * Test Square credentials API
+     */
+    async function testCredentials() {
+      try {
+        credentialsResultContent.textContent = 'Fetching Square credentials...';
+        credentialsResult.style.display = 'block';
+        
+        const credentials = await fetchSquareCredentials();
+        
+        credentialsResultContent.textContent = JSON.stringify(credentials, null, 2);
+        showToast('Credentials fetched successfully', 'success');
+      } catch (error) {
+        console.error('Error fetching Square credentials:', error);
+        credentialsResultContent.textContent = `Error: ${error.message}`;
+        showToast('Failed to fetch credentials: ' + error.message, 'error');
+      }
+    }
+    
+    /**
+     * Toggle payment form display
+     */
+    async function togglePaymentForm() {
+      try {
+        if (paymentFormContainer.style.display === 'none') {
+          paymentFormContainer.style.display = 'block';
+          showPaymentFormButton.textContent = 'Hide Payment Form';
+          
+          // Initialize payment form
+          paymentFormContainer.innerHTML = '<div id="test-square-payment-form"></div>';
+          
+          paymentForm = new SquarePaymentForm({
+            amount: 100, // $1.00 for testing
+            currency: 'USD',
+            buttonText: 'Pay $1.00 (Test)',
+            onPaymentStart: () => {
+              showToast('Payment started', 'info');
+            },
+            onPaymentSuccess: (result) => {
+              showToast('Payment successful!', 'success');
+              console.log('Payment result:', result);
+            },
+            onPaymentError: (error) => {
+              showToast('Payment failed: ' + error.message, 'error');
+            }
+          });
+          
+          await paymentForm.initialize('test-square-payment-form');
+        } else {
+          paymentFormContainer.style.display = 'none';
+          showPaymentFormButton.textContent = 'Show Payment Form';
+          
+          // Destroy payment form
+          if (paymentForm) {
+            paymentForm.destroy();
+            paymentForm = null;
+          }
+        }
+      } catch (error) {
+        console.error('Error with payment form:', error);
+        showToast('Payment form error: ' + error.message, 'error');
+      }
+    }
+    
+    /**
+     * Test user profile API
+     */
+    async function testUserProfile() {
+      try {
+        profileResultContent.textContent = 'Fetching user profile...';
+        profileResult.style.display = 'block';
+        
+        // Get the current user's token
+        const token = localStorage.getItem('supabase.auth.token');
+        
+        if (!token) {
+          throw new Error('User authentication required');
+        }
+        
+        const response = await fetch('/api/user-profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to fetch user profile');
+        }
+        
+        const profile = await response.json();
+        profileResultContent.textContent = JSON.stringify(profile, null, 2);
+        showToast('User profile fetched successfully', 'success');
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        profileResultContent.textContent = `Error: ${error.message}`;
+        showToast('Failed to fetch user profile: ' + error.message, 'error');
+      }
+    }
+    
+    /**
+     * Test subscription status
+     */
+    async function testSubscription() {
+      try {
+        subscriptionResultContent.textContent = 'Checking subscription status...';
+        subscriptionResult.style.display = 'block';
+        
+        const hasPremium = await checkSubscriptionStatus();
+        
+        subscriptionResultContent.textContent = hasPremium
+          ? 'User has an active premium subscription.'
+          : 'User does not have a premium subscription.';
+        
+        showToast('Subscription status checked', 'info');
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        subscriptionResultContent.textContent = `Error: ${error.message}`;
+        showToast('Failed to check subscription: ' + error.message, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
