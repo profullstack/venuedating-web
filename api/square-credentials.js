@@ -35,18 +35,25 @@ export const handler = async (req, res) => {
     }
     
     // Provide Square credentials from environment variables
-    // Use sandbox values for non-production environments
-    const isProduction = process.env.NODE_ENV === 'production';
+    const isProduction = process.env.SQUARE_ENV === 'production';
     
     const credentials = {
       applicationId: isProduction 
         ? process.env.SQUARE_APP_ID 
-        : process.env.SQUARE_SANDBOX_APP_ID || 'sandbox-sq0idb-lT3HhaTKMRYkJnZ-yJsltA',
+        : process.env.SQUARE_SANDBOX_APP_ID,
       locationId: isProduction 
         ? process.env.SQUARE_LOCATION_ID 
-        : process.env.SQUARE_SANDBOX_LOCATION_ID || 'LPVRBB3FZW566',
-      environment: isProduction ? 'production' : 'sandbox'
+        : process.env.SQUARE_SANDBOX_LOCATION_ID,
+      environment: process.env.SQUARE_ENV || 'sandbox'
     };
+    
+    // Validate that required credentials are present
+    if (!credentials.applicationId || !credentials.locationId) {
+      return res.status(500).json({ 
+        error: 'Server Configuration Error', 
+        message: 'Square credentials not properly configured' 
+      });
+    }
     
     return res.status(200).json(credentials);
     

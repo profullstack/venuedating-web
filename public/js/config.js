@@ -9,10 +9,12 @@
  * @returns {Object} Configuration object
  */
 function getConfig() {
-  // Return values from window global config if available
+  // Configuration is now fetched from the server via API endpoints
+  // This ensures proper environment variable usage
   return {
-    squareAppId: window.SQUARE_APP_ID || '',
-    squareEnvironment: window.SQUARE_ENVIRONMENT || 'sandbox'
+    // These values will be fetched from /api/square-credentials endpoint
+    squareAppId: null,
+    squareEnvironment: null
   };
 }
 

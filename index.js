@@ -435,13 +435,22 @@ async function verifyToken(c, next) {
 // Get Square credentials
 app.get('/api/square-credentials', verifyToken, async (c) => {
   try {
-    // Return Square sandbox credentials for development
-    // In production, these should come from environment variables
+    const isProduction = process.env.SQUARE_ENV === 'production';
+    
     const credentials = {
-      applicationId: process.env.SQUARE_APPLICATION_ID || 'sandbox-sq0idb-your-app-id',
-      locationId: process.env.SQUARE_LOCATION_ID || 'sandbox-location-id',
-      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+      applicationId: isProduction 
+        ? process.env.SQUARE_APP_ID 
+        : process.env.SQUARE_SANDBOX_APP_ID,
+      locationId: isProduction 
+        ? process.env.SQUARE_LOCATION_ID 
+        : process.env.SQUARE_SANDBOX_LOCATION_ID,
+      environment: process.env.SQUARE_ENV || 'sandbox'
     };
+    
+    // Validate that required credentials are present
+    if (!credentials.applicationId || !credentials.locationId) {
+      return c.json({ error: 'Square credentials not properly configured' }, 500);
+    }
     
     return c.json(credentials);
   } catch (error) {
@@ -495,20 +504,23 @@ app.post('/api/process-payment', verifyToken, async (c) => {
 app.get('/api/user-profile', verifyToken, async (c) => {
   try {
     const user = c.get('user');
+    console.log('Fetching profile for user:', user.id);
     
     // Get user profile from database
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
     
     if (error) {
       console.error('Error fetching user profile:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return c.json({ error: 'Failed to fetch user profile' }, 500);
     }
     
-    return c.json(profile);
+    console.log('Profile found:', profile ? 'yes' : 'no');
+    return c.json(profile || {});
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return c.json({ error: 'Failed to fetch user profile' }, 500);
@@ -519,8 +531,9 @@ app.get('/api/user-profile', verifyToken, async (c) => {
 app.get('/api/user/payment-status', verifyToken, async (c) => {
   try {
     const user = c.get('user');
+    console.log('Fetching payment status for user:', user.id);
     
-    // Get payment status from database
+    // Get payment status from database using service role for debugging
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('has_paid')
@@ -529,10 +542,12 @@ app.get('/api/user/payment-status', verifyToken, async (c) => {
     
     if (error) {
       console.error('Error fetching payment status:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       return c.json({ error: 'Failed to fetch payment status' }, 500);
     }
     
-    return c.json({ has_paid: profile.has_paid || false });
+    console.log('Payment status found:', profile ? profile.has_paid : 'no profile');
+    return c.json({ has_paid: profile?.has_paid || false });
   } catch (error) {
     console.error('Error fetching payment status:', error);
     return c.json({ error: 'Failed to fetch payment status' }, 500);

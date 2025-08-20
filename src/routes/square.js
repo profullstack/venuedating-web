@@ -6,13 +6,22 @@ import { authMiddleware } from '../middleware/auth-middleware.js';
 // Get Square credentials
 async function getSquareCredentials(c) {
   try {
-    // Return Square sandbox credentials for development
-    // In production, these should come from environment variables
+    const isProduction = process.env.SQUARE_ENV === 'production';
+    
     const credentials = {
-      applicationId: process.env.SQUARE_APPLICATION_ID || 'sandbox-sq0idb-your-app-id',
-      locationId: process.env.SQUARE_LOCATION_ID || 'sandbox-location-id',
-      environment: process.env.SQUARE_ENVIRONMENT || 'sandbox'
+      applicationId: isProduction 
+        ? process.env.SQUARE_APP_ID 
+        : process.env.SQUARE_SANDBOX_APP_ID,
+      locationId: isProduction 
+        ? process.env.SQUARE_LOCATION_ID 
+        : process.env.SQUARE_SANDBOX_LOCATION_ID,
+      environment: process.env.SQUARE_ENV || 'sandbox'
     };
+    
+    // Validate that required credentials are present
+    if (!credentials.applicationId || !credentials.locationId) {
+      return c.json({ error: 'Square credentials not properly configured' }, 500);
+    }
     
     return c.json(credentials);
   } catch (error) {

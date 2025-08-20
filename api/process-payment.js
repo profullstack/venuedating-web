@@ -9,8 +9,10 @@ import { createClient } from '@supabase/supabase-js';
 
 // Initialize Square client
 const squareClient = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
-  environment: process.env.NODE_ENV === 'production' ? Environment.Production : Environment.Sandbox
+  accessToken: process.env.SQUARE_ENV === 'production' 
+    ? process.env.SQUARE_ACCESS_TOKEN 
+    : process.env.SQUARE_SANDBOX_ACCESS_TOKEN,
+  environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox
 });
 
 // Initialize Supabase client
