@@ -129,11 +129,10 @@ function setupPaymentModalEventListeners() {
   const payBtn = document.getElementById('complete-payment');
   const overlay = modal.querySelector('.payment-modal-overlay');
   
-  // Form inputs for validation
-  const cardNumberInput = document.getElementById('card-number');
-  const expiryInput = document.getElementById('expiry');
-  const cvcInput = document.getElementById('cvc');
-  const zipInput = document.getElementById('zip');
+  if (!modal || !cancelBtn || !payBtn || !overlay) {
+    console.error('Payment modal elements not found');
+    return;
+  }
   
   // Close modal handlers
   const closeModal = () => {
@@ -147,113 +146,74 @@ function setupPaymentModalEventListeners() {
   cancelBtn.addEventListener('click', closeModal);
   overlay.addEventListener('click', closeModal);
   
-  // Form validation
-  const validateForm = () => {
-    const hasCardNumber = cardNumberInput.value.replace(/\s/g, '').length >= 13; // At least 13 digits
-    const hasExpiry = expiryInput.value.trim().length >= 5; // MM/YY format
-    const hasCvc = cvcInput.value.trim().length >= 3;
-    const hasZip = zipInput.value.trim().length >= 5;
-    
-    const isValid = hasCardNumber && hasExpiry && hasCvc && hasZip;
-    payBtn.disabled = !isValid;
-    
-    return isValid;
-  };
-  
-  // Input event listeners for validation
-  [cardNumberInput, expiryInput, cvcInput, zipInput].forEach(input => {
-    input.addEventListener('input', validateForm);
-  });
-  
-  // Format card number input (add spaces every 4 digits)
-  cardNumberInput.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-    value = value.substring(0, 16); // Limit to 16 digits
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 '); // Add spaces every 4 digits
-    e.target.value = value;
-  });
-  
-  // Format expiry input
-  expiryInput.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length >= 2) {
-      value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    e.target.value = value;
-  });
-  
-  // Format CVC input (numbers only)
-  cvcInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-  });
-  
-  // Format ZIP input (numbers only)
-  zipInput.addEventListener('input', (e) => {
-    e.target.value = e.target.value.replace(/\D/g, '').substring(0, 5);
-  });
-  
-  // Payment processing
+  // Hosted checkout payment processing
   payBtn.addEventListener('click', async () => {
-    if (!validateForm()) return;
-    
     // Show loading state
-    payBtn.classList.add('loading');
+    const buttonText = payBtn.querySelector('.button-text');
+    const buttonSpinner = payBtn.querySelector('.button-spinner');
+    
+    if (buttonText) buttonText.style.display = 'none';
+    if (buttonSpinner) buttonSpinner.style.display = 'block';
     payBtn.disabled = true;
     
     try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Update payment status in database
       // Get the access token from Supabase session
-      const supabaseSession = localStorage.getItem('supabase.auth.token');
       let accessToken = '';
       
-      if (supabaseSession) {
-        try {
-          const sessionData = JSON.parse(supabaseSession);
-          accessToken = sessionData.access_token || sessionData;
-        } catch (e) {
-          // If it's not JSON, assume it's just the token string
-          accessToken = supabaseSession;
+      try {
+        // Import supabase client to get current session
+        const supabaseModule = await import('./api/supabase-client.js');
+        const supabase = supabaseModule.default;
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          throw new Error('Authentication required');
         }
+        
+        if (!session) {
+          throw new Error('No active session found');
+        }
+        
+        accessToken = session.access_token;
+        console.log('✅ Got access token from session');
+      } catch (sessionError) {
+        console.error('Session error:', sessionError);
+        throw new Error('Authentication required');
       }
       
-      const response = await fetch('/api/user/payment-status', {
+      // Create hosted checkout session
+      const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ has_paid: true })
+        }
       });
       
       if (response.ok) {
-        // Show success message
-        showToast('Payment successful! 🎉', 'success');
+        const data = await response.json();
         
-        // Close modal and remove URL parameter
-        closeModal();
-        
-        // Optional: Refresh page or update UI to show unlocked content
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        if (data.success && data.checkoutUrl) {
+          // Redirect to Square hosted checkout
+          window.location.href = data.checkoutUrl;
+        } else {
+          throw new Error('Failed to create checkout session');
+        }
       } else {
-        throw new Error('Payment update failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Checkout session creation failed');
       }
     } catch (error) {
       console.error('Payment error:', error);
-      showToast('Payment failed. Please try again.', 'error');
-    } finally {
+      showToast('Failed to start checkout. Please try again.', 'error');
+      
       // Reset button state
-      payBtn.classList.remove('loading');
+      if (buttonText) buttonText.style.display = 'block';
+      if (buttonSpinner) buttonSpinner.style.display = 'none';
       payBtn.disabled = false;
     }
   });
-  
-  // Initial validation
-  validateForm();
 }
 
 function showToast(message, type = 'info') {

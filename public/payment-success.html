@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - BarCrush</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        .success-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+        
+        .success-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .success-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        
+        .continue-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        
+        .continue-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            display: none;
+            color: #666;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-container">
+        <div class="success-icon">✓</div>
+        <h1 class="success-title">Payment Successful!</h1>
+        <p class="success-message">
+            Your payment has been processed successfully. You now have access to premium features including venue information and enhanced matching.
+        </p>
+        <div class="loading" id="loading">
+            <p>Updating your account... Please wait.</p>
+        </div>
+        <a href="/views/matching.html" class="continue-btn" id="continueBtn">
+            Continue to Matching
+        </a>
+    </div>
+
+    <script>
+        // Get user ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('user_id');
+        
+        // Update payment status when page loads
+        window.addEventListener('load', async () => {
+            if (userId) {
+                try {
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('continueBtn').style.display = 'none';
+                    
+                    // Get auth token from localStorage
+                    const authToken = localStorage.getItem('authToken');
+                    
+                    if (authToken) {
+                        // Update payment status
+                        const response = await fetch('/api/user/payment-status', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify({ has_paid: true })
+                        });
+                        
+                        if (response.ok) {
+                            console.log('Payment status updated successfully');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating payment status:', error);
+                } finally {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('continueBtn').style.display = 'inline-block';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,47 +3,74 @@
  * Based on the provided design mockup
  */
 
-.payment-modal-overlay {
+.payment-modal {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  height: 100%;
   z-index: 1000;
   opacity: 0;
-  transition: opacity 0.3s ease;
-  padding: 20px;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
 }
 
-.payment-modal-overlay.show {
+.payment-modal.visible {
+  display: flex;
   opacity: 1;
+  visibility: visible;
 }
 
-.payment-modal {
-  background: #1a1a1a;
-  border-radius: 20px;
+.payment-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 400px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.payment-modal-content {
+  position: relative;
+  background: var(--surface-color, #ffffff);
+  border-radius: 24px;
+  width: 90%;
+  max-width: 420px;
   max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  transform: translateY(20px);
-  transition: transform 0.3s ease;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.payment-modal-overlay.show .payment-modal {
-  transform: translateY(0);
+.payment-modal.visible .payment-modal-content {
+  transform: scale(1) translateY(0);
 }
 
-/* Header */
-.payment-header {
-  position: relative;
-  padding: 16px 20px;
-  border-bottom: 1px solid #333;
+/* Payment Modal Header */
+.payment-modal-header {
+  background: linear-gradient(135deg, #F44B74 0%, #FF6B9D 100%);
+  padding: 32px 24px;
+  text-align: center;
+  color: white;
+}
+
+.payment-modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.payment-modal-subtitle {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
 }
 
 .close-button {
@@ -169,17 +196,115 @@
   margin: 0 auto;
 }
 
-/* Payment Form */
-.payment-form {
-  margin-top: 20px;
+/* Benefits List */
+.benefits-list {
+  margin: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-#card-container {
-  background: white;
-  border-radius: 12px;
-  padding: 16px;
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-primary, #1a1a1a);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.benefit-item svg {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #10B981;
+}
+
+/* Payment Actions */
+.payment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Button Spinner */
+.button-spinner {
+  display: none;
+}
+
+.button-spinner .spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.payment-button {
+  width: 100%;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+}
+
+.payment-button.pay-btn {
+  background: linear-gradient(135deg, #F44B74 0%, #FF6B9D 100%);
+  color: white;
   margin-bottom: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-button.pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(244, 75, 116, 0.4);
+}
+
+.payment-button.pay-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.payment-button.cancel-btn {
+  background: transparent;
+  color: var(--text-secondary, #666);
+  border: 1px solid var(--border-color, #e0e0e0);
+}
+
+.payment-button.cancel-btn:hover {
+  background: var(--surface-hover, #f5f5f5);
+}
+
+.payment-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.payment-security svg {
+  width: 18px;
+  height: 18px;
 }
 
 .payment-errors {

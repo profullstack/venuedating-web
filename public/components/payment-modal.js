@@ -15,49 +15,12 @@ class PaymentModal {
   }
 
   /**
-   * Initialize Square Payments
+   * Initialize hosted checkout (no Square SDK needed)
    */
-  async initializeSquare() {
-    try {
-      // Check if Square SDK is loaded
-      if (typeof Square === 'undefined') {
-        throw new Error('Square SDK not loaded. Please refresh the page and try again.');
-      }
-      
-      // Wait for credentials to be available if they're not yet loaded
-      if (!window.applicationId || !window.locationId) {
-        console.log('⏳ Waiting for Square credentials to load...');
-        // Try to use fetchSquareCredentials if available
-        if (window.fetchSquareCredentials) {
-          await window.fetchSquareCredentials();
-        } else {
-          // Wait a bit in case credentials are being loaded
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-      
-      // Get configuration values directly from window globals (following quickstart approach)
-      const applicationId = window.applicationId;
-      const locationId = window.locationId;
-      
-      // Use fallback values if still not available
-      if (!applicationId || !locationId) {
-        console.warn('⚠️ Using fallback Square credentials');
-        window.applicationId = 'sandbox-sq0idb-lT3HhaTKMRYkJnZ-yJsltA';
-        window.locationId = 'LPVRBB3FZW566';
-        return this.initializeSquare(); // Retry initialization
-      }
-      
-      console.log(`Initializing Square with App ID: ${applicationId} for location: ${locationId}`);
-      
-      // Initialize Square payments (following the official quickstart approach)
-      this.squarePayments = await Square.payments(applicationId, locationId);
-      this.isInitialized = true;
-      console.log('✅ Square Payments initialized');
-    } catch (error) {
-      console.error('❌ Failed to initialize Square Payments:', error);
-      throw error;
-    }
+  async initializeHostedCheckout() {
+    // No initialization needed for hosted checkout
+    this.isInitialized = true;
+    console.log('✅ Hosted checkout ready');
   }
 
   /**
@@ -70,8 +33,8 @@ class PaymentModal {
     }
 
     await this.createModal();
-    await this.initializeSquare();
-    await this.setupPaymentForm();
+    await this.initializeHostedCheckout();
+    await this.setupPaymentButton();
     
     document.body.appendChild(this.modal);
     this.modal.style.display = 'flex';
@@ -140,17 +103,53 @@ class PaymentModal {
               <h2>Pay $2 to unlock who's at this venue</h2>
             </div>
 
-            <!-- Payment Form -->
+            <!-- Benefits List -->
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+                <span>See who's currently at venues near you</span>
+              </div>
+              <div class="benefit-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+                <span>Connect with people at your favorite spots</span>
+              </div>
+              <div class="benefit-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+                <span>Premium matching features</span>
+              </div>
+              <div class="benefit-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+                <span>Access to exclusive venue information</span>
+              </div>
+            </div>
+
+            <!-- Simple Payment Button -->
             <div class="payment-form">
-              <div id="card-container"></div>
               <div class="payment-errors" id="payment-errors"></div>
               
-              <button class="pay-button" id="pay-button" disabled>
-                <span class="pay-text">Pay $2.00</span>
+              <button class="pay-button" id="pay-button">
+                <span class="pay-text">Pay $2.00 - Secure Checkout</span>
                 <div class="pay-spinner" style="display: none;">
                   <div class="spinner"></div>
                 </div>
               </button>
+              
+              <div class="payment-security">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <circle cx="12" cy="16" r="1"></circle>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Secured by Square</span>
+              </div>
             </div>
           </div>
         </div>
@@ -171,51 +170,21 @@ class PaymentModal {
   }
 
   /**
-   * Setup Square payment form
+   * Setup payment button for hosted checkout
    */
-  async setupPaymentForm() {
+  async setupPaymentButton() {
     try {
-      const cardContainer = this.modal.querySelector('#card-container');
       const payButton = this.modal.querySelector('#pay-button');
       const errorsContainer = this.modal.querySelector('#payment-errors');
 
-      // Create card payment form following official quickstart
-      this.card = await this.squarePayments.card();
-      await this.card.attach('#card-container', {
-        style: {
-          '.input-container': {
-            borderColor: '#E5E7EB',
-            borderRadius: '8px',
-            borderWidth: '1px',
-            backgroundColor: '#FFFFFF',
-            padding: '12px'
-          },
-          '.input-container.is-focus': {
-            borderColor: '#FF4B77'
-          },
-          '.input-container.is-error': {
-            borderColor: '#EF4444'
-          },
-          '.message-text': {
-            color: '#EF4444',
-            fontSize: '14px'
-          }
-        }
-      });
-
-      // Enable pay button when card is ready
-      this.card.addEventListener('cardBrandChanged', () => {
-        payButton.disabled = false;
-      });
-
-      // Handle payment
+      // Handle payment button click
       payButton.addEventListener('click', async () => {
-        await this.handlePayment();
+        await this.handleHostedCheckout();
       });
 
     } catch (error) {
-      console.error('❌ Failed to setup payment form:', error);
-      this.showError('Failed to load payment form. Please try again.');
+      console.error('❌ Failed to setup payment button:', error);
+      this.showError('Failed to load payment button. Please try again.');
     }
   }
 
@@ -284,9 +253,9 @@ class PaymentModal {
   }
 
   /**
-   * Handle payment processing
+   * Handle hosted checkout redirect
    */
-  async handlePayment() {
+  async handleHostedCheckout() {
     const payButton = this.modal.querySelector('#pay-button');
     const payText = payButton.querySelector('.pay-text');
     const paySpinner = payButton.querySelector('.pay-spinner');
@@ -299,69 +268,45 @@ class PaymentModal {
       paySpinner.style.display = 'flex';
       errorsContainer.innerHTML = '';
       
-      // First try to tokenize the card
-      try {
-        // Get token from Square
-        const token = await this.tokenize(this.card);
-        console.log('✅ Card tokenized successfully:', token.slice(0, 8) + '...');
-        
-        let paymentResult;
-        
-        try {
-          // Try to process payment with real API if available
-          paymentResult = await this.createPayment(token);
-          console.log('✅ Payment processed successfully:', paymentResult);
-        } catch (apiError) {
-          // If API fails (e.g., in development), use demo mode
-          console.warn('⚠️ Payment API unavailable, using demo mode:', apiError);
-          
-          // Simulate API delay
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Use demo payment result
-          paymentResult = { 
-            status: 'SUCCESS',
-            payment: {
-              id: 'demo-' + Date.now(),
-              amount: 200,
-              status: 'COMPLETED'
-            }
-          };
-        }
-        
-        // Show success message
-        errorsContainer.innerHTML = '<div class="payment-success">Payment successful! ✓</div>';
-        
-        // Create a subscription record
-        await this.createSubscriptionRecord(paymentResult);
-        
-        // Fire success event
-        const successEvent = new CustomEvent('payment:success', {
-          detail: { 
-            amount: 2.00,
-            paymentId: paymentResult?.payment?.id || ('demo-' + Date.now()),
-            timestamp: new Date().toISOString()
-          }
-        });
-        window.dispatchEvent(successEvent);
-        
-        // Hide modal after a short delay to show success message
-        setTimeout(() => this.hide(), 1000);
-        
-      } catch (error) {
-        console.error('❌ Payment failed:', error);
-        
-        // Reset button
-        payButton.disabled = false;
-        payText.style.display = 'block';
-        paySpinner.style.display = 'none';
-        
-        // Show error
-        this.showError(error.message || 'Payment processing failed. Please try again.');
+      // Get auth token
+      const token = localStorage.getItem('supabase.auth.token') || 
+                   JSON.parse(localStorage.getItem('sb-whwodcfvmdhkzwjsxfju-auth-token') || '{}').access_token;
+      
+      if (!token) {
+        throw new Error('Please log in to continue with payment');
       }
+
+      // Create checkout session
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.checkoutUrl) {
+        console.log('✅ Checkout session created, redirecting to:', data.checkoutUrl);
+        
+        // Hide modal before redirect
+        this.hide();
+        
+        // Redirect to Square hosted checkout
+        window.location.href = data.checkoutUrl;
+      } else {
+        throw new Error('Invalid checkout session response');
+      }
+      
     } catch (error) {
-      console.error('❌ Payment failed:', error);
-      this.showError(error.message || 'Payment failed. Please try again.');
+      console.error('❌ Hosted checkout failed:', error);
+      this.showError(error.message || 'Failed to start checkout. Please try again.');
       
       // Reset button state
       payButton.disabled = false;

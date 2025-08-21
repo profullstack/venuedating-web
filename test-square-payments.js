@@ -377,6 +377,31 @@ async function testUpdatePaymentStatus(hasPaid) {
 }
 
 /**
+ * Test hosted checkout session creation
+ */
+async function testCreateCheckoutSession() {
+  console.log('\n🛒 Testing Hosted Checkout Session Creation');
+  console.log('POST /api/create-checkout-session');
+  
+  const result = await makeRequest('POST', '/api/create-checkout-session');
+  
+  console.log(`   Status: ${result.status}`);
+  
+  if (result.ok) {
+    const data = await result.json();
+    console.log('✅ Checkout session created successfully');
+    console.log(`   Checkout URL: ${data.checkoutUrl}`);
+    console.log(`   Payment Link ID: ${data.paymentLinkId}`);
+    return true;
+  } else {
+    const errorText = await result.text();
+    console.log('❌ Checkout session creation failed');
+    console.log(`   Error: ${errorText}`);
+    return false;
+  }
+}
+
+/**
  * Test process payment endpoint with mock data
  */
 async function testProcessPayment() {
@@ -508,7 +533,8 @@ async function runAllTests() {
     updatePaymentStatus: false,
     processPayment: false,
     userProfile: false,
-    unauthenticatedAccess: true
+    unauthenticatedAccess: true,
+    createCheckoutSession: false
   };
   
   try {
@@ -521,6 +547,9 @@ async function runAllTests() {
     
     // Test updating payment status
     results.updatePaymentStatus = await testUpdatePaymentStatus(true);
+    
+    // Test hosted checkout session creation
+    results.createCheckoutSession = await testCreateCheckoutSession();
     
     // Test process payment (mock)
     results.processPayment = await testProcessPayment();

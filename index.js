@@ -459,7 +459,63 @@ app.get('/api/square-credentials', verifyToken, async (c) => {
   }
 });
 
-// Process Square payment
+// Create Square Online Checkout session
+app.post('/api/create-checkout-session', verifyToken, async (c) => {
+  try {
+    const user = c.get('user');
+    const { Client, Environment } = await import('squareup');
+    
+    const client = new Client({
+      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox
+    });
+    
+    const { checkoutApi } = client;
+    
+    const requestBody = {
+      idempotencyKey: `checkout-${user.id}-${Date.now()}`,
+      order: {
+        locationId: process.env.SQUARE_LOCATION_ID,
+        lineItems: [
+          {
+            quantity: '1',
+            basePriceMoney: {
+              amount: 200, // $2.00 in cents
+              currency: 'USD'
+            },
+            name: 'BarCrush Premium Access',
+            note: 'Unlock venue information and premium features'
+          }
+        ]
+      },
+      checkoutOptions: {
+        redirectUrl: `${process.env.API_BASE_URL || 'http://localhost:8097'}/payment-success?user_id=${user.id}`,
+        askForShippingAddress: false,
+        merchantSupportEmail: 'support@barcrush.app'
+      },
+      prePopulatedData: {
+        buyerEmail: user.email
+      }
+    };
+    
+    const response = await checkoutApi.createPaymentLink(requestBody);
+    
+    if (response.result.paymentLink) {
+      return c.json({
+        success: true,
+        checkoutUrl: response.result.paymentLink.url,
+        paymentLinkId: response.result.paymentLink.id
+      });
+    } else {
+      return c.json({ error: 'Failed to create checkout session' }, 400);
+    }
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    return c.json({ error: 'Checkout session creation failed' }, 500);
+  }
+});
+
+// Process Square payment (legacy endpoint - keeping for backward compatibility)
 app.post('/api/process-payment', verifyToken, async (c) => {
   try {
     const { token, amount, currency = 'USD' } = await c.req.json();
@@ -551,6 +607,46 @@ app.get('/api/user/payment-status', verifyToken, async (c) => {
   } catch (error) {
     console.error('Error fetching payment status:', error);
     return c.json({ error: 'Failed to fetch payment status' }, 500);
+  }
+});
+
+// Payment success page route
+app.get('/payment-success', async (c) => {
+  return c.html(await Bun.file('./public/payment-success.html').text());
+});
+
+// Square webhook handler for payment events
+app.post('/api/square-webhook', async (c) => {
+  try {
+    const body = await c.req.json();
+    const signature = c.req.header('x-square-signature');
+    
+    // Verify webhook signature (in production)
+    // const webhookSignatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY;
+    
+    console.log('Square webhook received:', body);
+    
+    // Handle payment completed event
+    if (body.type === 'payment.created' && body.data?.object?.payment) {
+      const payment = body.data.object.payment;
+      
+      // Extract user ID from order metadata or reference
+      const orderId = payment.order_id;
+      
+      if (payment.status === 'COMPLETED') {
+        // Update user payment status in database
+        // Note: In production, you'd need to map the order to a user
+        console.log('Payment completed:', payment.id);
+        
+        // For now, we'll handle this in the success page
+        // In production, you'd want to update the user's payment status here
+      }
+    }
+    
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return c.json({ error: 'Webhook processing failed' }, 500);
   }
 });
 

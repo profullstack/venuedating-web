@@ -147,6 +147,102 @@ async function updatePaymentStatus(c) {
   }
 }
 
+// Create Square Online Checkout session
+async function createCheckoutSession(c) {
+  try {
+    const user = c.get('user');
+    
+    // Validate required Square credentials
+    if (!process.env.SQUARE_ACCESS_TOKEN) {
+      return c.json({ error: 'Square access token not configured' }, 500);
+    }
+    
+    if (!process.env.SQUARE_LOCATION_ID && !process.env.SQUARE_SANDBOX_LOCATION_ID) {
+      return c.json({ error: 'Square location ID not configured' }, 500);
+    }
+    
+    // Use Square SDK
+    const { Client, Environment } = await import('square');
+    
+    const client = new Client({
+      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox
+    });
+    
+    const { checkoutApi } = client;
+    
+    const requestBody = {
+      idempotencyKey: `checkout-${user.id}-${Date.now()}`,
+      order: {
+        locationId: process.env.SQUARE_LOCATION_ID || process.env.SQUARE_SANDBOX_LOCATION_ID,
+        lineItems: [
+          {
+            quantity: '1',
+            basePriceMoney: {
+              amount: BigInt(200), // $2.00 in cents
+              currency: 'USD'
+            },
+            name: 'BarCrush Premium Access',
+            note: 'Unlock venue information and premium features'
+          }
+        ]
+      },
+      checkoutOptions: {
+        redirectUrl: `${process.env.API_BASE_URL || 'http://localhost:8097'}/payment-success?user_id=${user.id}`,
+        askForShippingAddress: false,
+        merchantSupportEmail: 'support@barcrush.app'
+      },
+      prePopulatedData: {
+        buyerEmail: user.email
+      }
+    };
+    
+    const response = await checkoutApi.createPaymentLink(requestBody);
+    
+    if (response.result.paymentLink) {
+      return c.json({
+        success: true,
+        checkoutUrl: response.result.paymentLink.url,
+        paymentLinkId: response.result.paymentLink.id
+      });
+    } else {
+      return c.json({ error: 'Failed to create checkout session' }, 400);
+    }
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    return c.json({ error: 'Checkout session creation failed' }, 500);
+  }
+}
+
+// Handle Square webhook events
+async function handleSquareWebhook(c) {
+  try {
+    const body = await c.req.text();
+    const signature = c.req.header('x-square-signature');
+    
+    // TODO: Implement webhook signature verification
+    console.log('Received Square webhook:', body);
+    
+    // Parse webhook payload
+    const event = JSON.parse(body);
+    
+    // Handle different event types
+    switch (event.type) {
+      case 'payment.updated':
+        // Handle payment status updates
+        console.log('Payment updated:', event.data);
+        break;
+      default:
+        console.log('Unhandled webhook event type:', event.type);
+    }
+    
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error handling Square webhook:', error);
+    return c.json({ error: 'Webhook processing failed' }, 500);
+  }
+}
+
 // Export Square routes
 export const squareRoutes = [
   {
@@ -178,5 +274,17 @@ export const squareRoutes = [
     path: '/api/user/payment-status',
     handler: updatePaymentStatus,
     middleware: [authMiddleware]
+  },
+  {
+    method: 'POST',
+    path: '/api/create-checkout-session',
+    handler: createCheckoutSession,
+    middleware: [authMiddleware]
+  },
+  {
+    method: 'POST',
+    path: '/api/square-webhook',
+    handler: handleSquareWebhook
+    // No auth middleware for webhooks - Square will send signature for verification
   }
 ];
