@@ -55,7 +55,8 @@
 <script type="module" src="/js/test-language-switch.js"></script>
 
 <script type="module">
-  import { signInWithPhone, verifyPhoneOtp } from '/js/auth.js';
+  // Import phone authentication module
+  import { sendPhoneOtp, verifyOtp, getPostAuthRedirect, formatPhoneNumber, validatePhoneNumber } from '/js/phone-auth.js';
   import { checkPhoneExists } from '/js/password-reset.js';
 
   // DOM elements
@@ -283,7 +284,7 @@
   }
   
   // Format phone number as user types (US format by default)
-  function formatPhoneNumber(input) {
+  function formatPhoneNumberInput(input) {
     // Get only digits from input
     let digits = input.value.replace(/\D/g, '');
     
@@ -364,7 +365,7 @@
   // Update full phone when phone input changes
   const phoneInputEl = document.getElementById('phone-input');
   phoneInputEl.addEventListener('input', function() {
-    formatPhoneNumber(this);
+    formatPhoneNumberInput(this);
     updateFullPhoneNumber();
   });
   
@@ -381,7 +382,14 @@
   // Variable to track if we're in verification mode
   let isVerificationMode = false;
   
-  sendOtpBtn.addEventListener('click', async () => {
+  sendOtpBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Prevent double-clicking and multiple submissions
+    if (sendOtpBtn.disabled) {
+      return;
+    }
     // If we're in verification mode, handle OTP verification
     if (isVerificationMode) {
       const otp = otpInput.value.trim();
@@ -409,9 +417,8 @@
           showStatus('Demo account: Creating session...');
           
           try {
-            // For demo account with phone +15555555555, use the verifyPhoneOtp function directly
-            // This will create a real Supabase session for the demo account
-            const result = await verifyPhoneOtp(storedFullPhone, otp);
+            // For demo account with phone +15555555555, use the direct Twilio verification
+            const result = await verifyOtp(storedFullPhone, otp);
             console.log('[DEMO PHONE] Verification result:', result);
             showStatus('Demo login successful!');
             
@@ -432,14 +439,14 @@
           }
         } else {
           // For regular accounts, verify normally
-          await verifyPhoneOtp(storedFullPhone, otp);
+          const result = await verifyOtp(storedFullPhone, otp);
           showStatus('Login successful!');
         }
         
-        // Redirect to discover page after successful login
-        setTimeout(() => {
-          window.location.href = '/discover';
-        }, 1500);
+        // Redirect to appropriate page after successful login
+        const redirectUrl = handlePostLoginRedirect();
+        console.log('Login successful, redirecting to:', redirectUrl);
+        window.location.href = redirectUrl;
       } catch (err) {
         console.error('Error verifying code:', err);
         showStatus(err.message || 'Invalid verification code. Please try again.', true);
@@ -474,6 +481,7 @@
     const isTestAccount = isDemoAccount || isRealTestAccount;
     
     sendOtpBtn.disabled = true;
+    const originalBtnText = sendOtpBtn.textContent;
     sendOtpBtn.textContent = isTestAccount ? 'Logging in...' : 'Checking...';
     
     try {
@@ -548,36 +556,45 @@
           }
         }
         
-        // Show success and redirect
-        showStatus(`${accountType.charAt(0).toUpperCase() + accountType.slice(1)} account: Login successful!`);
+        // Show success and redirect for legacy test accounts
+        showStatus('Test account login successful!');
         setTimeout(() => {
-          window.location.href = '/discover';
-        }, 1500);
-        
+          const redirectUrl = getPostAuthRedirect();
+          window.location.href = redirectUrl;
+        }, 1000);
         return;
       }
       
-      // For regular accounts, proceed with normal OTP flow
-      // We're now bypassing the phone existence check due to Supabase limitations
-      // The checkPhoneExists function will always return true
-      await checkPhoneExists(fullPhone);
+      // For regular accounts, send actual OTP
+      const result = await sendPhoneOtp(fullPhone);
+      console.log('OTP send result:', result);
       
-      // Send the OTP - this will fail if the phone number doesn't exist
-      sendOtpBtn.textContent = 'Sending...';
-      console.log('Sending OTP to:', fullPhone);
-      await signInWithPhone(fullPhone);
-      showStatus('Verification code sent! Check your phone.');
+      if (result.isDemo) {
+        showStatus('Demo account: Enter any verification code');
+      } else {
+        showStatus('Verification code sent! Please check your messages.');
+      }
+      
+      // Show OTP input section
       otpSection.style.display = 'block';
-      otpInput.focus();
-      
-      // Change button text and functionality for verification
+      phoneInput.disabled = true;
+      sendOtpBtn.style.display = 'block';
       sendOtpBtn.textContent = 'Verify Code';
       isVerificationMode = true;
-    } catch (err) {
-      console.error('Error sending verification code:', err);
-      showStatus(err.message || 'Failed to send verification code. Please try again.', true);
+      otpInput.focus();
+      
+      // Store the full phone number for verification
+      storedFullPhone = fullPhone;
+      
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      showStatus(error.message || 'Failed to send verification code. Please try again.', true);
     } finally {
       sendOtpBtn.disabled = false;
+      // Only reset button text if not in verification mode
+      if (!isVerificationMode) {
+        sendOtpBtn.textContent = originalBtnText;
+      }
     }
   });
   

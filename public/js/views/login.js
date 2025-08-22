@@ -63,10 +63,10 @@ async function handleLogin(e) {
   
   try {
     // Import Supabase client
-    const { default: supabase } = await import('../api/supabase-client.js');
+    const { getCurrentUser } = await import('../supabase-client.js');
     
     // Attempt to sign in
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await getCurrentUser().auth.signInWithPassword({
       email: email,
       password: password
     });

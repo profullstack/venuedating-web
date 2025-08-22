@@ -3,10 +3,11 @@
  * Replaces the embedded payment form with Square's hosted checkout
  */
 
-class HostedCheckoutManager {
-  constructor() {
-    this.isProcessing = false;
-  }
+if (typeof window.HostedCheckoutManager === 'undefined') {
+  window.HostedCheckoutManager = class {
+    constructor() {
+      this.isProcessing = false;
+    }
 
   /**
    * Create checkout session and redirect to Square's hosted checkout
@@ -150,16 +151,17 @@ class HostedCheckoutManager {
       }
     });
   }
-}
+  };
 
-// Global instance
-window.hostedCheckout = new HostedCheckoutManager();
+  // Create global singleton instance
+  window.hostedCheckout = new window.HostedCheckoutManager();
 
-// Auto-initialize
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+  // Auto-initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      window.hostedCheckout.init();
+    });
+  } else {
     window.hostedCheckout.init();
-  });
-} else {
-  window.hostedCheckout.init();
+  }
 }

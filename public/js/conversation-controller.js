@@ -9,8 +9,8 @@
 
 import { getConversationById, markConversationAsRead } from './api/conversations.js';
 import { getConversationMessages, sendTextMessage, markMessagesAsRead, sendMediaMessage, sendLocationMessage } from './api/messages.js';
-import { getCurrentUser } from './api/supabase-client.js';
-import supabase from './api/supabase-client.js';
+import { getCurrentUser } from './supabase-client.js';
+import { supabaseClientPromise } from './supabase-client.js';
 
 // Store for conversation data
 let currentConversation = null;

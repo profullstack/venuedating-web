@@ -23,18 +23,42 @@ class SideMenu extends HTMLElement {
     let userName = this.getAttribute('user-name') || 'User Name';
     let userAvatar = this.getAttribute('user-avatar') || '/images/avatar.jpg';
     
-    const user = authMiddleware.getUser();
-    if (user) {
-      userName = user.name || user.full_name || userName;
-      userAvatar = user.avatar_url || userAvatar;
-    }
+    // Wait for auth middleware to initialize and get real user data
+    const updateUserInfo = () => {
+      const user = authMiddleware.getUser();
+      if (user && user.name !== 'Demo User') {
+        userName = user.name || user.full_name || userName;
+        userAvatar = user.avatar_url || userAvatar;
+        
+        // Update the rendered content with real user data
+        const userNameElement = this.shadowRoot?.querySelector('.user-name');
+        const userAvatarElement = this.shadowRoot?.querySelector('.user-avatar img');
+        
+        if (userNameElement) {
+          userNameElement.textContent = userName;
+        }
+        if (userAvatarElement) {
+          userAvatarElement.src = userAvatar;
+          userAvatarElement.alt = userName;
+        }
+      }
+    };
     
+    // Initial render
     this.render(userName, userAvatar);
     this.setupEventListeners();
     this.initializeToggleState();
     
     // Set up language selector
     this.setupLanguageSelector();
+    
+    // Update user info after auth middleware is ready
+    if (authMiddleware.isInitialized) {
+      updateUserInfo();
+    } else {
+      // Wait for auth middleware to initialize
+      setTimeout(updateUserInfo, 500);
+    }
     
     // Listen for auth state changes
     window.addEventListener('auth-state-changed', this.handleAuthStateChange.bind(this));
@@ -715,7 +739,7 @@ class SideMenu extends HTMLElement {
     const user = authMiddleware.getUser();
     
     // Update user name and avatar in the side menu
-    const userNameElement = this.shadowRoot.querySelector('.user-info .user-name');
+    const userNameElement = this.shadowRoot.querySelector('.user-name');
     const userAvatarElement = this.shadowRoot.querySelector('.user-avatar img');
     
     if (userNameElement) {
@@ -724,6 +748,7 @@ class SideMenu extends HTMLElement {
     
     if (userAvatarElement) {
       userAvatarElement.src = user ? (user.avatar_url || '/images/avatar.jpg') : '/images/avatar.jpg';
+      userAvatarElement.alt = user ? (user.name || user.full_name || 'User') : 'Guest';
     }
   }
   

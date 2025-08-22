@@ -4,7 +4,7 @@
  */
 
 import { getNearbyVenues } from './api/venues.js';
-import { getCurrentUser } from './api/supabase-client.js';
+import { getCurrentUser } from './supabase-client.js';
 import { getUserFilters, saveUserFilters, applyLocationFilter, getCurrentLocation, reverseGeocode } from './api/filters.js';
 
 // Default locations for different venue areas
@@ -162,8 +162,7 @@ function setupPaymentModalEventListeners() {
       
       try {
         // Import supabase client to get current session
-        const supabaseModule = await import('./api/supabase-client.js');
-        const supabase = supabaseModule.default;
+        const supabase = await import('./supabase-client.js').then(module => module.default);
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {

@@ -7,6 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title data-i18n="matching.page_title">Matching - BarCrush</title>
+  <script type="module" src="/js/auth-guard.js"></script>
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/match-modal.css">
   <script src="/js/dark-mode.js"></script>
@@ -18,30 +19,35 @@
     // Check authentication and redirect if not logged in
     import authMiddleware from '/js/auth-middleware.js';
     
-    // Immediately check authentication before DOM is loaded
-    (async function() {
+    // Wait for auth middleware to initialize before checking
+    document.addEventListener('DOMContentLoaded', async function() {
       try {
-        console.log('Checking authentication immediately...');
-        const isAuth = await authMiddleware.requireAuth(true);
+        console.log('Checking authentication on DOM loaded...');
+        
+        // Initialize dark mode first
+        initDarkMode();
+        
+        // Wait for auth middleware to fully initialize
+        await authMiddleware.init();
+        
+        // Check authentication with less aggressive redirect
+        const isAuth = await authMiddleware.requireAuth(false);
         if (!isAuth) {
           console.log('Not authenticated, redirecting to login...');
+          // Store current page for redirect after login
+          localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
           window.location.href = '/phone-login';
           return;
         }
         console.log('Authentication check passed');
       } catch (error) {
         console.error('Authentication check failed:', error);
-        window.location.href = '/phone-login';
-        return;
+        // Only redirect on critical errors, not session refresh issues
+        if (error.message && !error.message.includes('refresh')) {
+          localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
+          window.location.href = '/phone-login';
+        }
       }
-    })();
-    
-    document.addEventListener('DOMContentLoaded', async function() {
-      // Initialize dark mode
-      initDarkMode();
-      
-      // Double-check authentication on DOM content loaded
-      await authMiddleware.requireAuth(true);
     });
   </script>
 </head>
@@ -666,10 +672,272 @@
         backdrop-filter: blur(10px);
         border: 2px solid rgba(255, 75, 119, 0.3);
       }
+
+      /* Payment Modal Styles */
+      .payment-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .payment-modal.visible {
+        display: flex;
+        opacity: 1;
+      }
+      
+      .payment-modal-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+      }
+      
+      .payment-modal-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        max-width: 90vw;
+        background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      .payment-modal:not(.visible) .payment-modal-content {
+        transform: translate(-50%, -50%) scale(0.9);
+      }
+      
+      .payment-modal-header {
+        padding: 40px 32px 32px;
+        text-align: center;
+        color: white;
+      }
+      
+      .payment-modal-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 8px 0;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+      
+      .payment-modal-subtitle {
+        font-size: 18px;
+        font-weight: 500;
+        margin: 0;
+        opacity: 0.95;
+      }
+      
+      .payment-modal-body {
+        background: white;
+        padding: 32px;
+        border-radius: 0 0 24px 24px;
+      }
+      
+      .benefits-list {
+        margin-bottom: 32px;
+      }
+      
+      .benefit-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        font-size: 16px;
+        color: #333;
+      }
+      
+      .benefit-item:last-child {
+        margin-bottom: 0;
+      }
+      
+      .benefit-item svg {
+        color: #10B981;
+        flex-shrink: 0;
+      }
+      
+      .payment-form {
+        margin-bottom: 24px;
+      }
+      
+      .payment-button {
+        width: 100%;
+        padding: 16px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .pay-btn {
+        background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(255, 75, 119, 0.3);
+      }
+      
+      .pay-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 75, 119, 0.4);
+      }
+      
+      .cancel-btn {
+        background: transparent;
+        color: #666;
+        border: 2px solid #E5E7EB;
+        margin-top: 12px;
+      }
+      
+      .cancel-btn:hover {
+        background: #F9FAFB;
+        border-color: #D1D5DB;
+      }
+      
+      .payment-security {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 16px;
+        font-size: 14px;
+        color: #666;
+      }
+      
+      .payment-security svg {
+        color: #10B981;
+      }
+      
+      .button-spinner {
+        display: none;
+      }
+      
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Mobile responsive adjustments */
+      @media (max-width: 480px) {
+        .payment-modal-content {
+          width: 95%;
+          margin: 20px;
+        }
+        
+        .payment-modal-header {
+          padding: 32px 24px 24px;
+        }
+        
+        .payment-modal-title {
+          font-size: 24px;
+        }
+        
+        .payment-modal-subtitle {
+          font-size: 16px;
+        }
+        
+        .payment-modal-body {
+          padding: 24px;
+        }
+      }
     </style>
     
     <!-- Load scripts -->
     <script type="module" src="/components/bottom-nav.js"></script>
     <!-- matching.js replaced with matching-controller.js module loaded in head -->
 
+</div>
+
+<!-- Payment Modal -->
+<div id="payment-modal" class="payment-modal">
+  <div class="payment-modal-overlay"></div>
+  <div class="payment-modal-content">
+    <div class="payment-modal-header">
+      <h2 class="payment-modal-title">Upgrade to Premium</h2>
+      <p class="payment-modal-subtitle">Unlock unlimited matching</p>
+    </div>
+    
+    <div class="payment-modal-body">
+      <!-- Benefits List -->
+      <div class="benefits-list">
+        <div class="benefit-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Unlimited swipes and matches
+        </div>
+        <div class="benefit-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          See who liked you first
+        </div>
+        <div class="benefit-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Advanced filtering options
+        </div>
+        <div class="benefit-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Access to venue information
+        </div>
+      </div>
+      
+      <!-- Payment Form -->
+      <div class="payment-form">
+        <button id="complete-payment" class="payment-button pay-btn">
+          <span class="button-text">Pay $2.00 - Secure Checkout</span>
+          <div class="button-spinner" style="display: none;">
+            <div class="spinner"></div>
+          </div>
+        </button>
+        
+        <div class="payment-security">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          Secured by Square
+        </div>
+      </div>
+      
+      <!-- Payment Actions -->
+      <div class="payment-actions">
+        <button id="cancel-payment" class="payment-button cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -22,7 +22,6 @@ class AuthMiddleware {
       const isDemoAccount = this.checkForDemoAccount();
       if (isDemoAccount) {
         console.log('[DEMO] Using demo account during initialization');
-        // Load demo user data
         const demoUserJson = localStorage.getItem('demo_user');
         if (demoUserJson) {
           try {
@@ -36,13 +35,32 @@ class AuthMiddleware {
         }
       }
       
-      // If not a demo account or demo data is invalid, proceed with normal Supabase auth
+      // Use Supabase's built-in session management
       const supabase = await supabaseClientPromise;
       
-      // Get initial auth state
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        await this.fetchUserProfile(data.session.user.id);
+      // Get initial auth state with error handling
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.warn('Session initialization error:', error);
+        // Clear corrupted session data
+        await supabase.auth.signOut();
+        this.currentUser = null;
+      } else if (data?.session) {
+        try {
+          await this.fetchUserProfile(data.session.user.id);
+        } catch (profileError) {
+          console.warn('Profile fetch error during init:', profileError);
+          // Don't clear session for profile errors, just set basic user data
+          this.currentUser = {
+            id: data.session.user.id,
+            email: data.session.user.email,
+            name: data.session.user.user_metadata?.name || 'User',
+            full_name: data.session.user.user_metadata?.full_name || 'User',
+            avatar_url: data.session.user.user_metadata?.avatar_url || '/images/avatar.jpg',
+            phone_number: data.session.user.user_metadata?.phone_number || data.session.user.phone,
+            phone_verified: data.session.user.user_metadata?.phone_verified || false
+          };
+        }
       } else {
         console.log('No active session found during initialization');
         this.currentUser = null;
@@ -55,10 +73,53 @@ class AuthMiddleware {
           // Clear demo account flag if a real user signs in
           localStorage.removeItem('demo_account');
           localStorage.removeItem('demo_user');
-          await this.fetchUserProfile(session.user.id);
+          try {
+            await this.fetchUserProfile(session.user.id);
+          } catch (error) {
+            console.warn('Profile fetch error on sign in:', error);
+            // Set basic user data if profile fetch fails
+            this.currentUser = {
+              id: session.user.id,
+              email: session.user.email,
+              name: session.user.user_metadata?.name || 'User',
+              full_name: session.user.user_metadata?.full_name || 'User',
+              avatar_url: session.user.user_metadata?.avatar_url || '/images/avatar.jpg',
+              phone_number: session.user.user_metadata?.phone_number || session.user.phone,
+              phone_verified: session.user.user_metadata?.phone_verified || false
+            };
+          }
         } else if (event === 'SIGNED_OUT') {
           this.currentUser = null;
           this.updateUI();
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          // Update user data on token refresh to maintain session
+          console.log('Token refreshed, updating user data');
+          try {
+            await this.fetchUserProfile(session.user.id);
+          } catch (error) {
+            console.warn('Profile fetch error on token refresh:', error);
+            // Keep existing user data if profile fetch fails during refresh
+          }
+        } else if (event === 'INITIAL_SESSION' && session) {
+          // Handle initial session load
+          console.log('Initial session detected');
+          if (!this.currentUser) {
+            try {
+              await this.fetchUserProfile(session.user.id);
+            } catch (error) {
+              console.warn('Profile fetch error on initial session:', error);
+              // Set basic user data if profile fetch fails
+              this.currentUser = {
+                id: session.user.id,
+                email: session.user.email,
+                name: session.user.user_metadata?.name || 'User',
+                full_name: session.user.user_metadata?.full_name || 'User',
+                avatar_url: session.user.user_metadata?.avatar_url || '/images/avatar.jpg',
+                phone_number: session.user.user_metadata?.phone_number || session.user.phone,
+                phone_verified: session.user.user_metadata?.phone_verified || false
+              };
+            }
+          }
         }
       });
       
@@ -85,14 +146,30 @@ class AuthMiddleware {
         // Handle case where profile doesn't exist yet
         if (error.code === 'PGRST116') {
           console.log('No profile found for user, will create one when needed');
-          this.currentUser = null;
+          // Don't set currentUser to null, keep the basic user data from session
           this.updateUI();
           return;
         }
         throw error;
       }
       
-      this.currentUser = data;
+      // Merge profile data with existing user data, prioritizing profile data
+      if (data && this.currentUser) {
+        this.currentUser = {
+          ...this.currentUser,
+          ...data,
+          // Ensure we have a proper display name
+          name: data.full_name || data.name || this.currentUser.name || 'User',
+          full_name: data.full_name || data.name || this.currentUser.full_name || 'User'
+        };
+      } else if (data) {
+        this.currentUser = {
+          ...data,
+          name: data.full_name || data.name || 'User',
+          full_name: data.full_name || data.name || 'User'
+        };
+      }
+      
       this.updateUI();
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -106,6 +183,10 @@ class AuthMiddleware {
    * Update UI elements with user information
    */
   updateUI() {
+    // Dispatch auth state change event for components to listen to
+    window.dispatchEvent(new CustomEvent('auth-state-changed', {
+      detail: { user: this.currentUser }
+    }));
     // Update all user name elements
     const userNameElements = document.querySelectorAll('.user-name');
     if (userNameElements.length > 0) {
@@ -156,6 +237,7 @@ class AuthMiddleware {
     }
   }
   
+
   /**
    * Check if the current session is for the demo account
    * @returns {boolean} - True if demo account is being used

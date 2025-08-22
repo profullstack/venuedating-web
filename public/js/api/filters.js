@@ -4,7 +4,7 @@
  * Handles all operations related to user filters and preferences
  */
 
-import supabase from './supabase-client.js';
+import { supabaseClientPromise } from '../supabase-client.js';
 
 /**
  * Get user's current filter preferences
@@ -13,6 +13,7 @@ import supabase from './supabase-client.js';
  */
 export async function getUserFilters(userId) {
   try {
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('user_filters')
       .select('*')
@@ -51,6 +52,7 @@ export async function saveUserFilters(userId, filters) {
       updated_at: new Date().toISOString()
     };
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('user_filters')
       .upsert(filterData, { onConflict: 'user_id' })

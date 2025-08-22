@@ -4,8 +4,8 @@
  * Handles all operations related to conversations between matched users
  */
 
-import supabase from './supabase-client.js';
-import { getCurrentUser } from './supabase-client.js';
+import { supabaseClientPromise } from '../supabase-client.js';
+import { getCurrentUser } from '../supabase-client.js';
 
 /**
  * Get all conversations for the current user
@@ -17,6 +17,7 @@ export async function getUserConversations(options = { limit: 20, offset: 0 }) {
     const user = await getCurrentUser();
     if (!user) throw new Error('Not authenticated');
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('conversations')
       .select(`
@@ -68,6 +69,7 @@ export async function getConversationById(conversationId) {
     const user = await getCurrentUser();
     if (!user) throw new Error('Not authenticated');
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('conversations')
       .select(`
@@ -144,6 +146,7 @@ export async function createConversation(userId1, userId2, matchId = null) {
     }
     
     // Create a new conversation
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('conversations')
       .insert({
@@ -194,6 +197,7 @@ export async function markConversationAsRead(conversationId) {
       : { user_2_unread_count: 0 };
     
     // Update the conversation
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('conversations')
       .update(updateField)

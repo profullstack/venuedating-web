@@ -16,8 +16,8 @@ import {
   dislikeUser,
   getUserMatches
 } from './api/matches.js';
-import { getCurrentUser } from './api/supabase-client.js';
-import supabase from './api/supabase-client.js';
+import { getCurrentUser } from './supabase-client.js';
+import { supabaseClientPromise } from './supabase-client.js';
 import { createConversation } from './api/conversations.js';
 // PaymentModal will be imported dynamically when needed
 import MatchModal from './match-modal.js';
@@ -100,18 +100,37 @@ async function checkSubscriptionStatus() {
  * Initialize matching page
  */
 async function initMatching() {
-  // Get current user
-  currentUser = await getCurrentUser();
-  
-  // If no current user, try to create demo session
-  if (!currentUser) {
-    currentUser = await createDemoSession();
-  }
-  
-  if (!currentUser) {
-    // Redirect to login if no valid session can be created
-    window.location.href = '/phone-login';
-    return;
+  try {
+    // Wait for auth middleware to initialize first
+    await authMiddleware.init();
+    
+    // Get current user from auth middleware (which handles session persistence)
+    currentUser = authMiddleware.currentUser;
+    
+    // If no current user from auth middleware, try direct getCurrentUser
+    if (!currentUser) {
+      currentUser = await getCurrentUser();
+    }
+    
+    // If still no current user, try to create demo session
+    if (!currentUser) {
+      currentUser = await createDemoSession();
+    }
+    
+    if (!currentUser) {
+      console.log('No valid user session found, redirecting to login');
+      localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
+      window.location.href = '/phone-login';
+      return;
+    }
+  } catch (error) {
+    console.error('Error during matching initialization:', error);
+    // Don't redirect on session refresh errors
+    if (!error.message || !error.message.includes('refresh')) {
+      localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
+      window.location.href = '/phone-login';
+      return;
+    }
   }
   
   console.log('✅ Initializing matching');
@@ -132,7 +151,7 @@ async function initMatching() {
   setupEventListeners();
   
   // Subscribe to real-time match updates
-  subscribeToMatches();
+  await subscribeToMatches();
   
   console.log('Matching page initialized');
 
@@ -142,8 +161,7 @@ async function initMatching() {
   
   if (!hasPaid) {
     console.log('❌ User has not paid, showing payment modal');
-    // redirect to payment page
-    window.location.href = '/discover?payment_required=true';
+    showPaymentModal();
     return;
   }
 }
@@ -680,10 +698,87 @@ function navigateToChat(profileId) {
 }
 
 /**
+ * Show payment modal
+ */
+function showPaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    modal.classList.add('visible');
+    
+    // Setup payment button event listener
+    const payButton = document.getElementById('complete-payment');
+    const cancelButton = document.getElementById('cancel-payment');
+    
+    if (payButton) {
+      payButton.addEventListener('click', handlePayment);
+    }
+    
+    if (cancelButton) {
+      cancelButton.addEventListener('click', hidePaymentModal);
+    }
+    
+    // Close modal when clicking overlay
+    const overlay = modal.querySelector('.payment-modal-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', hidePaymentModal);
+    }
+  }
+}
+
+/**
+ * Hide payment modal
+ */
+function hidePaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    modal.classList.remove('visible');
+  }
+}
+
+/**
+ * Handle payment button click
+ */
+async function handlePayment() {
+  const payButton = document.getElementById('complete-payment');
+  const buttonText = payButton.querySelector('.button-text');
+  const buttonSpinner = payButton.querySelector('.button-spinner');
+  
+  try {
+    // Show loading state
+    buttonText.style.display = 'none';
+    buttonSpinner.style.display = 'block';
+    payButton.disabled = true;
+    
+    // Use hosted checkout manager to create checkout session
+    if (window.hostedCheckout) {
+      await window.hostedCheckout.createCheckoutSession();
+    } else {
+      throw new Error('Payment system not available');
+    }
+    
+  } catch (error) {
+    console.error('Payment error:', error);
+    
+    // Show error state
+    buttonText.textContent = 'Payment Failed - Try Again';
+    buttonText.style.display = 'block';
+    buttonSpinner.style.display = 'none';
+    payButton.disabled = false;
+    
+    // Reset button text after 3 seconds
+    setTimeout(() => {
+      buttonText.textContent = 'Pay $2.00 - Secure Checkout';
+    }, 3000);
+  }
+}
+
+/**
  * Subscribe to new matches
  */
-function subscribeToMatches() {
+async function subscribeToMatches() {
   if (!currentUser) return;
+  
+  const supabase = await supabaseClientPromise;
   
   // Unsubscribe from previous subscription if exists
   if (matchesSubscription) {

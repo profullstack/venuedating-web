@@ -30,7 +30,8 @@ import {
   cancelSubscription
 } from './subscription-management.js';
 import { stripePaymentRoutes } from './stripe-payments.js';
-import stripeDirectRouter from './stripe-direct.js';
+import { twilioVerifyRoutes } from './twilio-verify.js';
+import directTwilioAuthRoutes from './direct-twilio-auth.js';
 import { apiKeyRoutes } from './api-keys.js';
 import {
   loginRoute,
@@ -143,4 +144,7 @@ export function registerRoutes(app) {
       app[route.method.toLowerCase()](route.path, route.handler);
     }
   });
+  
+  // Register direct Twilio auth routes
+  app.route('/api/auth/twilio', directTwilioAuthRoutes);
 }

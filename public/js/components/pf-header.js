@@ -2,7 +2,7 @@
  * Header component for BarCrush application
  */
 
-import supabase from '../api/supabase-client.js';
+import { getCurrentUser } from '../supabase-client.js';
 
 class PfHeader extends HTMLElement {
   constructor() {

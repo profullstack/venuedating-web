@@ -7,8 +7,8 @@
  * - Managing existing matches
  */
 
-import supabase from './supabase-client.js';
-import { getCurrentUser } from './supabase-client.js';
+import { supabaseClientPromise } from '../supabase-client.js';
+import { getCurrentUser } from '../supabase-client.js';
 import { createConversation } from './conversations.js';
 import { getProfile } from './profiles.js';
 
@@ -47,6 +47,7 @@ export async function getUserMatches(options = { limit: 20, offset: 0 }) {
     const user = await getCurrentUser();
     if (!user) throw new Error('Not authenticated');
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('matches')
       .select(`
@@ -179,6 +180,8 @@ export async function getPotentialMatches(options = { limit: 20, offset: 0, dist
   const user = await getCurrentUser();
   if (!user) return [];
 
+  const supabase = await supabaseClientPromise;
+  
   // Get all match records where the current user is user1_id (initiator)
   const { data: myMatches, error: myMatchesError } = await supabase
     .from('matches')
@@ -297,6 +300,7 @@ export async function dislikeUser(dislikedUserId) {
     if (!user) throw new Error('Not authenticated');
     
     // Create a dislike record
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('matches')
       .insert({

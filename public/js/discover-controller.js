@@ -8,7 +8,7 @@
  */
 
 import { getNearbyVenues, searchVenues } from './api/venues.js';
-import { getCurrentUser, updateUserLocation } from './api/supabase-client.js';
+import { getCurrentUser, updateUserLocation } from './supabase-client.js';
 import { getUserProfile } from './api/profiles.js';
 
 // Map instance and markers

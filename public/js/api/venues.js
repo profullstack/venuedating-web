@@ -4,7 +4,7 @@
  * Handles all operations related to bars and venues
  */
 
-import supabase from './supabase-client.js';
+import { supabaseClientPromise } from '../supabase-client.js';
 
 /**
  * Get venues within a specific radius from coordinates
@@ -16,26 +16,9 @@ import supabase from './supabase-client.js';
  */
 export async function getNearbyVenues(lat, lng, radiusKm = 5, filters = {}) {
   try {
-    // Debug Supabase client initialization
-    console.log('🔍 API DEBUG - Supabase client:', {
-      url: supabase.supabaseUrl ? 'URL exists' : 'URL missing',
-      key: supabase.supabaseKey ? 'Key exists' : 'Key missing',
-      auth: supabase.auth ? 'Auth module exists' : 'Auth module missing',
-      rpc: typeof supabase.rpc === 'function' ? 'RPC function exists' : 'RPC function missing'
-    });
-    
-    // Log the actual URL and key (first few chars only for security)
-    if (supabase.supabaseUrl) {
-      console.log('🔗 API DEBUG - Actual URL:', supabase.supabaseUrl);
-    }
-    if (supabase.supabaseKey) {
-      console.log('🔑 API DEBUG - Key prefix:', supabase.supabaseKey.substring(0, 10) + '...');
-    }
+    const supabase = await supabaseClientPromise;
     
     console.log('📍 API DEBUG - Request params:', { lat, lng, radiusKm, filters });
-    
-    // RPC function is not returning coordinates, using fallback query directly
-    console.log('🔄 API DEBUG - Using fallback query (RPC function incomplete)...');
     
     // Skip RPC and go straight to fallback query that includes all venue data
     try {
@@ -232,6 +215,7 @@ function deg2rad(deg) {
  */
 export async function getVenueById(venueId) {
   try {
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('venues')
       .select('*')
@@ -272,6 +256,7 @@ export async function createVenue(venueData) {
     delete venueWithGeom.lat;
     delete venueWithGeom.lng;
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('venues')
       .insert(venueWithGeom)
@@ -321,6 +306,7 @@ export async function uploadVenueImage(venueId, file) {
     images.push(publicUrl);
 
     // Update the venue
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('venues')
       .update({ images })
@@ -344,6 +330,7 @@ export async function uploadVenueImage(venueId, file) {
  */
 export async function searchVenues(query, options = { limit: 20, offset: 0 }) {
   try {
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('venues')
       .select('*')

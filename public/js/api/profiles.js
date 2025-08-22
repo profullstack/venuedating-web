@@ -4,7 +4,7 @@
  * Handles all operations related to user profiles
  */
 
-import supabase from './supabase-client.js';
+import { supabaseClientPromise } from '../supabase-client.js';
 
 /**
  * Get current user's profile
@@ -15,6 +15,7 @@ export async function getCurrentProfile() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -39,6 +40,7 @@ export async function updateProfile(profileData) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('profiles')
       .update(profileData)
@@ -61,12 +63,32 @@ export const getUserProfile = getCurrentProfile;
 export const getProfile = getProfileById;
 
 /**
+ * Get all profiles
+ * @returns {Promise<Array>} Array of all user profiles
+ */
+export async function getProfiles() {
+  try {
+    const supabase = await supabaseClientPromise;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*');
+
+    if (error) throw error;
+    return data || [];
+  } catch (error) {
+    console.error('Error getting all profiles:', error);
+    throw error;
+  }
+}
+
+/**
  * Get profile by user ID
  * @param {string} userId - User ID to get profile for
  * @returns {Promise<Object>} User profile data
  */
 export async function getProfileById(userId) {
   try {
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -145,6 +167,7 @@ export async function getNearbyProfiles(radiusKm = 10, filters = {}) {
 
     // Use PostGIS to find profiles within radius
     // This requires the latitude and longitude to be set for the user
+    const supabase = await supabaseClientPromise;
     const { data, error } = await supabase.rpc('get_profiles_within_radius', {
       user_lat: currentProfile.location_lat,
       user_lng: currentProfile.location_lng,

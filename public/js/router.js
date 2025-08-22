@@ -23,12 +23,13 @@ import {
 // Import profile page functionality
 import { initProfilePage } from './profile-page.js';
 import { initProfileGenderPage } from './profile-gender.js';
+import { getCurrentUser } from './supabase-client.js';
 import { initProfileInterestsPage } from './profile-interests.js';
 import { initProfileVerifyPage } from './profile-verify.js';
 import { initProfileCompletePage } from './profile-complete.js';
 import { initDiscoverPage } from './discover.js';
 import { initProfileDetail } from './profile-detail.js';
-import supabase from './api/supabase-client.js';
+import { supabaseClientPromise } from './supabase-client.js';
 
 // Create a DOM fragment with the default layout
 function createLayoutFragment(content, pageUrl) {

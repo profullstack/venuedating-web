@@ -146,14 +146,15 @@ export async function completePhoneSignupHandler(c) {
     
     console.log(`User created successfully with phone: ${formattedPhone}`);
     
-    // Create user profile in public.users table
+    // Create user profile in public.profiles table
     try {
       const { error: insertError } = await supabase
-        .from('users')
+        .from('profiles')
         .insert([{
           id: newUserData.user.id,
           phone: formattedPhone,
-          is_admin: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           ...userData
         }]);
       

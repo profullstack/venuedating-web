@@ -193,7 +193,7 @@ function updateFullPhoneNumber() {
 }
 
 // Format phone number as user types (US format by default)
-function formatPhoneNumber(input) {
+function formatPhoneNumberInput(input) {
   // Get only digits from input
   let digits = input.value.replace(/\D/g, '');
   
@@ -257,7 +257,7 @@ function setupEventHandlers() {
   
   // Update full phone when phone input changes
   phoneInput.addEventListener('input', function() {
-    formatPhoneNumber(this);
+    formatPhoneNumberInput(this);
     updateFullPhoneNumber();
   });
   

@@ -8,7 +8,7 @@
  */
 
 import { getConversations, createConversation, markAsRead } from './api/conversations.js';
-import { getCurrentUser } from './api/supabase-client.js';
+import { getCurrentUser } from './supabase-client.js';
 import { formatRelativeTime } from './utils/date-utils.js';
 import { 
   initializeUnreadTracking, 
