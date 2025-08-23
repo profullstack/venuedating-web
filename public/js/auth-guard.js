@@ -1,6 +1,6 @@
 /**
  * Authentication guard for BarCrush pages
- * Redirects unauthenticated users to login
+ * Uses centralized auth middleware to handle authentication and redirects
  */
 
 import authMiddleware from './auth-middleware.js';
@@ -17,6 +17,7 @@ class AuthGuard {
       '/notifications',
       '/conversation'
     ];
+    console.log('[AUTH GUARD] Initialized with protected pages:', this.protectedPages);
   }
 
   /**
@@ -24,54 +25,57 @@ class AuthGuard {
    */
   async init() {
     try {
+      console.log('[AUTH GUARD] Initializing auth guard');
       // Initialize auth middleware first
       await authMiddleware.init();
       
       // Check if current page needs protection
       const currentPath = window.location.pathname;
-      const needsAuth = this.protectedPages.some(page => 
-        currentPath === page || currentPath.startsWith(page + '/')
-      );
+      console.log('[AUTH GUARD] Current path:', currentPath);
+      
+      const needsAuth = this.protectedPages.some(page => {
+        const isMatch = currentPath === page || 
+                       currentPath.includes(page) || 
+                       (page !== '/' && currentPath.startsWith(page + '/'));
+        if (isMatch) {
+          console.log(`[AUTH GUARD] Matched protected page: ${page}`);
+        }
+        return isMatch;
+      });
       
       if (needsAuth) {
+        console.log('[AUTH GUARD] Current page needs authentication');
         await this.checkAuthAndRedirect();
+      } else {
+        console.log('[AUTH GUARD] Current page does not need authentication');
       }
     } catch (error) {
-      console.error('Error initializing auth guard:', error);
+      console.error('[AUTH GUARD] Error initializing auth guard:', error);
     }
   }
 
   /**
    * Check authentication and redirect if needed
+   * Uses the centralized auth middleware for consistency
    */
   async checkAuthAndRedirect() {
     try {
-      const isAuthenticated = await authMiddleware.isAuthenticated();
+      console.log('[AUTH GUARD] Checking authentication using centralized auth middleware');
+      // Use the centralized auth middleware to check authentication
+      // This will handle redirects consistently across the app
+      const isAuthenticated = await authMiddleware.requireAuth();
       
-      if (!isAuthenticated) {
-        console.log('[AUTH GUARD] User not authenticated, redirecting to login');
-        
-        // Store the current page to redirect back after login
-        const currentUrl = window.location.href;
-        localStorage.setItem('barcrush_redirect_after_login', currentUrl);
-        
-        // Redirect to phone login
-        window.location.href = '/phone-login';
-        return false;
-      }
-      
-      console.log('[AUTH GUARD] User authenticated, allowing access');
-      return true;
+      console.log('[AUTH GUARD] Authentication check result:', isAuthenticated);
+      return isAuthenticated;
     } catch (error) {
-      console.error('Error checking authentication:', error);
-      // On error, redirect to login for safety
-      window.location.href = '/phone-login';
+      console.error('[AUTH GUARD] Error checking authentication:', error);
       return false;
     }
   }
 
   /**
    * Handle post-login redirect
+   * Uses the same redirect key as the centralized auth middleware
    */
   static handlePostLoginRedirect() {
     try {
@@ -84,7 +88,7 @@ class AuthGuard {
       }
       return false;
     } catch (error) {
-      console.error('Error handling post-login redirect:', error);
+      console.error('[AUTH GUARD] Error handling post-login redirect:', error);
       return false;
     }
   }
@@ -96,6 +100,7 @@ class AuthGuard {
   addProtectedPage(path) {
     if (!this.protectedPages.includes(path)) {
       this.protectedPages.push(path);
+      console.log(`[AUTH GUARD] Added protected page: ${path}`);
     }
   }
 
@@ -107,6 +112,7 @@ class AuthGuard {
     const index = this.protectedPages.indexOf(path);
     if (index > -1) {
       this.protectedPages.splice(index, 1);
+      console.log(`[AUTH GUARD] Removed protected page: ${path}`);
     }
   }
 }

@@ -63,10 +63,44 @@ export async function verifyDirectTwilioOtp(phone, otp, isSignup = false) {
     
     console.log('[DIRECT TWILIO CLIENT] OTP verified successfully:', data);
     
-    // Store session token in localStorage
-    if (data.session && data.session.token) {
-      localStorage.setItem('barcrush_session_token', data.session.token);
-      localStorage.setItem('barcrush_session_expires', data.session.expiresAt.toString());
+    // Handle authentication response
+    if (data.user) {
+      // Store user data in local storage (primary authentication method)
+      console.log('[DIRECT TWILIO CLIENT] Storing user data in local storage');
+      localStorage.setItem('barcrush_user', JSON.stringify(data.user));
+      
+      // Still store JWT session as backup, but not required for auth
+      if (data.session && data.session.token) {
+        console.log('[DIRECT TWILIO CLIENT] Storing JWT session as backup');
+        localStorage.setItem('barcrush_session_token', data.session.token);
+        localStorage.setItem('barcrush_session_expires', data.session.expiresAt.toString());
+      }
+      
+      // If Supabase session is also available, set it as backup
+      if (data.supabaseSession) {
+        console.log('[DIRECT TWILIO CLIENT] Setting Supabase session as backup');
+        
+        try {
+          // Use the existing Supabase client from supabase-client.js
+          const { supabaseClientPromise } = await import('./supabase-client.js');
+          const supabase = await supabaseClientPromise;
+          
+          // Set the session in existing Supabase client
+          await supabase.auth.setSession({
+            access_token: data.supabaseSession.access_token,
+            refresh_token: data.supabaseSession.refresh_token
+          });
+          
+          console.log('[DIRECT TWILIO CLIENT] Backup Supabase session set successfully');
+        } catch (error) {
+          console.error('[DIRECT TWILIO CLIENT] Error setting backup Supabase session:', error);
+          // Non-critical error, continue with JWT
+        }
+      }
+    } else {
+      // No JWT session found - this should not happen with updated backend
+      console.error('[DIRECT TWILIO CLIENT] No JWT session in response:', data);
+      throw new Error('Authentication response missing session data');
     }
     
     return data;
@@ -83,6 +117,22 @@ export async function verifyDirectTwilioOtp(phone, otp, isSignup = false) {
  */
 export async function validateDirectTwilioSession() {
   try {
+    // First check for user data in local storage (primary authentication method)
+    const userData = localStorage.getItem('barcrush_user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        if (user && user.id) {
+          console.log('[DIRECT TWILIO CLIENT] Valid user data found in local storage');
+          return { valid: true, user };
+        }
+      } catch (e) {
+        console.error('[DIRECT TWILIO CLIENT] Error parsing user data:', e);
+        localStorage.removeItem('barcrush_user');
+      }
+    }
+    
+    // Fallback to JWT token validation
     const token = localStorage.getItem('barcrush_session_token');
     const expiresAt = localStorage.getItem('barcrush_session_expires');
     
@@ -151,14 +201,27 @@ export async function getCurrentDirectTwilioUser() {
 /**
  * Sign out user
  */
-export function signOutDirectTwilio() {
+export async function signOutDirectTwilio() {
   console.log('[DIRECT TWILIO CLIENT] Signing out user');
+  
+  // Clear all auth-related data
   localStorage.removeItem('barcrush_session_token');
   localStorage.removeItem('barcrush_session_expires');
+  localStorage.removeItem('barcrush_user');
   
   // Clear any other auth-related data
   localStorage.removeItem('demo_account');
   localStorage.removeItem('demo_user');
+  
+  // Use auth middleware's clearAuthSession if available
+  try {
+    const authMiddleware = window.authMiddleware || (await import('./auth-middleware.js')).default;
+    if (authMiddleware && typeof authMiddleware.clearAuthSession === 'function') {
+      authMiddleware.clearAuthSession();
+    }
+  } catch (e) {
+    console.error('[DIRECT TWILIO CLIENT] Error using auth middleware clearAuthSession:', e);
+  }
 }
 
 /**

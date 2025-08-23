@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Auth Debug Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .panel {
+      flex: 1;
+      min-width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      overflow: auto;
+      max-height: 300px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button.danger {
+      background-color: #f44336;
+    }
+    button.warning {
+      background-color: #ff9800;
+    }
+    button.info {
+      background-color: #2196F3;
+    }
+    .key-value {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    .key {
+      font-weight: bold;
+      width: 150px;
+    }
+    .value {
+      flex: 1;
+    }
+    .status-good {
+      color: green;
+    }
+    .status-bad {
+      color: red;
+    }
+    .status-warning {
+      color: orange;
+    }
+    #auth-status {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .status-authenticated {
+      background-color: #dff0d8;
+      color: #3c763d;
+    }
+    .status-unauthenticated {
+      background-color: #f2dede;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h1>Auth Debug Test Page</h1>
+  <div id="auth-status"></div>
+  
+  <div class="container">
+    <div class="panel">
+      <h2>Authentication Status</h2>
+      <div id="jwt-status"></div>
+      <div class="actions">
+        <button id="check-jwt" class="info">Check Auth Status</button>
+        <button id="clear-jwt" class="danger">Clear Auth Data</button>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2>User Data</h2>
+      <div id="user-data"></div>
+    </div>
+  </div>
+  
+  <div class="panel">
+    <h2>Auth Middleware Debug</h2>
+    <div class="actions">
+      <button id="init-auth" class="info">Initialize Auth</button>
+      <button id="require-auth" class="info">Require Auth (No Redirect)</button>
+      <button id="debug-auth" class="info">Debug Auth</button>
+    </div>
+    <pre id="auth-debug-output"></pre>
+  </div>
+  
+  <div class="panel">
+    <h2>LocalStorage Contents</h2>
+    <div class="actions">
+      <button id="inspect-storage" class="info">Inspect Storage</button>
+      <button id="clear-all-storage" class="danger">Clear All Auth Storage</button>
+    </div>
+    <pre id="storage-output"></pre>
+  </div>
+  
+  <div class="panel">
+    <h2>Test Actions</h2>
+    <div class="actions">
+      <button id="test-login" class="info">Simulate Login</button>
+      <button id="test-logout" class="warning">Simulate Logout</button>
+      <button id="go-to-discover" class="info">Go to Discover Page</button>
+      <button id="go-to-login" class="info">Go to Login Page</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import authMiddleware from '/js/auth-middleware.js';
+    
+    // Helper function to format JSON
+    function formatJSON(obj) {
+      return JSON.stringify(obj, null, 2);
+    }
+    
+    // Helper function to update JWT status
+    function updateJwtStatus() {
+      const jwtToken = localStorage.getItem('barcrush_session_token');
+      const jwtExpires = localStorage.getItem('barcrush_session_expires');
+      const userData = localStorage.getItem('barcrush_user');
+      
+      let html = '';
+      
+      if (jwtToken) {
+        const expiresAt = parseInt(jwtExpires);
+        const currentTime = Date.now();
+        const isValid = currentTime < expiresAt;
+        const timeRemaining = expiresAt - currentTime;
+        const minutesRemaining = Math.floor(timeRemaining / 1000 / 60);
+        
+        html += `<div class="key-value">
+          <div class="key">Token:</div>
+          <div class="value status-good">✅ Present (${jwtToken.substring(0, 10)}...)</div>
+        </div>`;
+        
+        html += `<div class="key-value">
+          <div class="key">Expires:</div>
+          <div class="value ${isValid ? 'status-good' : 'status-bad'}">
+            ${isValid ? '✅' : '❌'} ${new Date(expiresAt).toLocaleString()}
+            (${minutesRemaining} minutes ${isValid ? 'remaining' : 'ago'})
+          </div>
+        </div>`;
+        
+        // Try to decode JWT
+        try {
+          const parts = jwtToken.split('.');
+          if (parts.length === 3) {
+            const header = JSON.parse(atob(parts[0]));
+            const payload = JSON.parse(atob(parts[1]));
+            
+            html += `<div class="key-value">
+              <div class="key">Algorithm:</div>
+              <div class="value">${header.alg}</div>
+            </div>`;
+            
+            if (payload.sub) {
+              html += `<div class="key-value">
+                <div class="key">Subject:</div>
+                <div class="value">${payload.sub}</div>
+              </div>`;
+            }
+            
+            if (payload.exp) {
+              const expDate = new Date(payload.exp * 1000);
+              html += `<div class="key-value">
+                <div class="key">JWT Expiration:</div>
+                <div class="value">${expDate.toLocaleString()}</div>
+              </div>`;
+            }
+          }
+        } catch (e) {
+          html += `<div class="key-value status-warning">
+            <div class="key">Decode Error:</div>
+            <div class="value">${e.message}</div>
+          </div>`;
+        }
+      } else {
+        html += `<div class="key-value status-bad">
+          <div class="key">Token:</div>
+          <div class="value">❌ Missing</div>
+        </div>`;
+      }
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          html += `<div class="key-value">
+            <div class="key">User Data:</div>
+            <div class="value status-good">✅ Present</div>
+          </div>`;
+        } catch (e) {
+          html += `<div class="key-value status-warning">
+            <div class="key">User Data:</div>
+            <div class="value">⚠️ Invalid JSON</div>
+          </div>`;
+        }
+      } else {
+        html += `<div class="key-value status-bad">
+          <div class="key">User Data:</div>
+          <div class="value">❌ Missing</div>
+        </div>`;
+      }
+      
+      document.getElementById('jwt-status').innerHTML = html;
+      
+      // Update auth status - focus on user data in local storage
+      const authStatus = document.getElementById('auth-status');
+      if (userData || authMiddleware.getUser()) {
+        authStatus.textContent = 'Status: Authenticated via Local Storage';
+        authStatus.className = 'status-authenticated';
+      } else {
+        authStatus.textContent = 'Status: Not Authenticated';
+        authStatus.className = 'status-unauthenticated';
+      }
+      
+      // Update user data
+      updateUserData();
+    }
+    
+    // Helper function to update user data
+    function updateUserData() {
+      const userData = localStorage.getItem('barcrush_user');
+      const userDataElement = document.getElementById('user-data');
+      
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          let html = '';
+          
+          for (const [key, value] of Object.entries(user)) {
+            if (typeof value !== 'object') {
+              html += `<div class="key-value">
+                <div class="key">${key}:</div>
+                <div class="value">${value}</div>
+              </div>`;
+            }
+          }
+          
+          userDataElement.innerHTML = html;
+        } catch (e) {
+          userDataElement.innerHTML = `<div class="status-bad">Error parsing user data: ${e.message}</div>`;
+        }
+      } else {
+        userDataElement.innerHTML = '<div class="status-bad">No user data found</div>';
+      }
+    }
+    
+    // Helper function to inspect localStorage
+    function inspectLocalStorage() {
+      const output = document.getElementById('storage-output');
+      const items = {};
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        
+        // Only show first 50 chars for long values
+        items[key] = value.length > 50 ? value.substring(0, 50) + '...' : value;
+      }
+      
+      output.textContent = formatJSON(items);
+    }
+    
+    // Initialize the page
+    async function initPage() {
+      console.log('Initializing debug page...');
+      
+      // Initialize auth middleware
+      try {
+        await authMiddleware.init();
+        console.log('Auth middleware initialized');
+      } catch (e) {
+        console.error('Error initializing auth middleware:', e);
+      }
+      
+      // Update initial status
+      updateJwtStatus();
+      inspectLocalStorage();
+      
+      // Set up event listeners
+      document.getElementById('check-jwt').addEventListener('click', updateJwtStatus);
+      
+      document.getElementById('clear-jwt').addEventListener('click', () => {
+        // Use the auth middleware's clearAuthSession method
+        authMiddleware.clearAuthSession();
+        updateJwtStatus();
+        
+        // Log the action
+        const output = document.getElementById('auth-debug-output');
+        output.textContent = 'Auth session data cleared\n';
+      });
+      
+      document.getElementById('init-auth').addEventListener('click', async () => {
+        const output = document.getElementById('auth-debug-output');
+        output.textContent = 'Initializing auth middleware...\n';
+        
+        try {
+          await authMiddleware.init();
+          output.textContent += 'Auth middleware initialized successfully\n';
+          updateJwtStatus();
+        } catch (e) {
+          output.textContent += `Error: ${e.message}\n`;
+        }
+      });
+      
+      document.getElementById('require-auth').addEventListener('click', async () => {
+        const output = document.getElementById('auth-debug-output');
+        output.textContent = 'Checking authentication (no redirect)...\n';
+        
+        try {
+          const isAuth = await authMiddleware.requireAuth(false);
+          output.textContent += `Authentication result: ${isAuth ? 'Authenticated' : 'Not authenticated'}\n`;
+          updateJwtStatus();
+        } catch (e) {
+          output.textContent += `Error: ${e.message}\n`;
+        }
+      });
+      
+      document.getElementById('debug-auth').addEventListener('click', () => {
+        const output = document.getElementById('auth-debug-output');
+        output.textContent = 'Running auth debug...\n';
+        
+        try {
+          const debugResult = authMiddleware.debugAuth();
+          output.textContent += formatJSON(debugResult);
+          updateJwtStatus();
+        } catch (e) {
+          output.textContent += `Error: ${e.message}\n`;
+        }
+      });
+      
+      document.getElementById('inspect-storage').addEventListener('click', inspectLocalStorage);
+      
+      document.getElementById('clear-all-storage').addEventListener('click', () => {
+        // Only clear auth-related items
+        const authKeys = [
+          'barcrush_session_token',
+          'barcrush_session_expires',
+          'barcrush_user',
+          'barcrush_redirect_after_login',
+          'supabase.auth.token',
+          'barcrush-demo-user'
+        ];
+        
+        authKeys.forEach(key => localStorage.removeItem(key));
+        
+        inspectLocalStorage();
+        updateJwtStatus();
+      });
+      
+      document.getElementById('test-login').addEventListener('click', () => {
+        // Simulate a login by setting user data in local storage
+        // Note: We're only setting user data without JWT tokens
+        localStorage.setItem('barcrush_user', JSON.stringify({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User',
+          phone: '+15555555555'
+        }));
+        
+        // Update the UI
+        updateJwtStatus();
+        inspectLocalStorage();
+        
+        // Log the action
+        const output = document.getElementById('auth-debug-output');
+        output.textContent = 'Simulated login with local storage user data only\n';
+        output.textContent += 'User data set in localStorage without JWT token\n';
+      });
+      
+      document.getElementById('test-logout').addEventListener('click', () => {
+        authMiddleware.logout();
+        updateJwtStatus();
+        inspectLocalStorage();
+      });
+      
+      document.getElementById('go-to-discover').addEventListener('click', () => {
+        window.location.href = '/views/discover.html';
+      });
+      
+      document.getElementById('go-to-login').addEventListener('click', () => {
+        window.location.href = '/auth';
+      });
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPage);
+    } else {
+      initPage();
+    }
+  </script>
+</body>
+</html>

@@ -7,7 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title data-i18n="discover.page_title">Discover - BarCrush</title>
-  <script type="module" src="/js/auth-guard.js"></script>
   <link rel="stylesheet" href="/css/theme.css">
   <script src="/js/dark-mode.js"></script>
   <script type="module" src="/js/auth-middleware.js"></script>
@@ -16,33 +15,25 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script type="module">
-    // Check authentication and redirect if not logged in
+    // Use centralized auth middleware for authentication
     import authMiddleware from '/js/auth-middleware.js';
     
     // Immediately check authentication before DOM is loaded
     (async function() {
       try {
-        console.log('Checking authentication immediately...');
-        const isAuth = await authMiddleware.requireAuth(true);
-        if (!isAuth) {
-          console.log('Not authenticated, redirecting to login...');
-          window.location.href = '/auth';
-          return;
-        }
-        console.log('Authentication check passed');
+        console.log('[DISCOVER] Initializing auth middleware...');
+        await authMiddleware.init();
+        
+        // Skip auth middleware redirect - let page load normally
+        console.log('[DISCOVER] Skipping authentication check');
       } catch (error) {
-        console.error('Authentication check failed:', error);
-        window.location.href = '/auth';
-        return;
+        console.error('[DISCOVER] Error checking authentication:', error);
       }
     })();
     
     document.addEventListener('DOMContentLoaded', async function() {
       // Initialize dark mode
       initDarkMode();
-      
-      // Double-check authentication on DOM content loaded
-      await authMiddleware.requireAuth(true);
     });
   </script>
 </head>

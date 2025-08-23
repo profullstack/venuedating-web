@@ -131,7 +131,7 @@ export async function authenticatedFetch(url, options = {}) {
       } else {
         console.warn('Token refresh failed, redirecting to login');
         // Redirect to login if refresh fails
-        window.location.href = '/phone-login';
+        window.location.href = '/auth';
         throw new Error('Authentication failed - redirecting to login');
       }
     }

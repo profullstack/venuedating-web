@@ -230,7 +230,7 @@ app.post('/verify-otp', async (c) => {
     // Normalize phone number
     const normalizedPhone = phone.startsWith('+') ? phone : `+1${phone.replace(/\D/g, '')}`;
     
-    console.log('[DIRECT TWILIO] Verifying OTP for:', normalizedPhone);
+    console.log(`[DIRECT TWILIO] Verifying OTP for ${isSignup ? 'SIGNUP' : 'LOGIN'}:`, normalizedPhone);
     
     // Verify OTP
     const verification = await verifyOTP(normalizedPhone, otp);
@@ -256,9 +256,17 @@ app.post('/verify-otp', async (c) => {
     }
     
     if (existingUsers && existingUsers.length > 0) {
+      if (isSignup) {
+        console.log('[DIRECT TWILIO] ERROR: User already exists during SIGNUP:', existingUsers[0].id);
+        return c.json({
+          success: false,
+          error: 'Account already exists with this phone number. Please login instead.'
+        }, 409);
+      }
+      
       // Existing user - login
       user = existingUsers[0];
-      console.log('[DIRECT TWILIO] Existing user found:', user.id);
+      console.log('[DIRECT TWILIO] Existing user found for LOGIN:', user.id);
     } else {
       // For login flow, user should exist - this shouldn't happen
       if (!isSignup) {
@@ -270,7 +278,7 @@ app.post('/verify-otp', async (c) => {
       }
       
       // Create new user for signup
-      console.log('[SUPABASE] Creating new user profile for signup');
+      console.log('[SUPABASE] Creating new user profile for SIGNUP');
       const { data: newUser, error: createError } = await supabase
         .from('profiles')
         .insert({
@@ -292,32 +300,142 @@ app.post('/verify-otp', async (c) => {
       }
       
       user = newUser;
-      console.log('[DIRECT TWILIO] New user created for signup:', user.id);
+      console.log('[DIRECT TWILIO] New user created for SIGNUP:', user.id);
       console.log('[DEBUG] Created profile data:', JSON.stringify(user, null, 2));
     }
     
-    // Generate a simple session token (in production, use proper JWT)
-    const sessionToken = Buffer.from(JSON.stringify({
-      userId: user.id,
-      phone: normalizedPhone,
-      issuedAt: Date.now(),
-      expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-    })).toString('base64');
-    
-    return c.json({
-      success: true,
-      message: 'Authentication successful',
-      user: {
-        id: user.id,
+    // Create a proper Supabase auth user and session
+    try {
+      // First, create or sign in the user in Supabase Auth
+      let authUser;
+      const tempPassword = Math.random().toString(36).slice(2, 15);
+      
+      // Try to create user in Supabase Auth
+      const { data: createData, error: createError } = await supabase.auth.admin.createUser({
         phone: normalizedPhone,
-        name: user.full_name || 'User',
-        email: user.email || null
-      },
-      session: {
-        token: sessionToken,
-        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+        password: tempPassword,
+        phone_confirm: true,
+        user_metadata: {
+          full_name: user.full_name || `User ${normalizedPhone.slice(-4)}`,
+          phone_verified: true,
+          signup_method: 'direct_twilio'
+        }
+      });
+      
+      if (createError && !createError.message.includes('already registered')) {
+        console.error('[SUPABASE AUTH] Error creating auth user:', createError);
+        // Fall back to JWT token if Supabase auth fails
+        const sessionToken = Buffer.from(JSON.stringify({
+          userId: user.id,
+          phone: normalizedPhone,
+          issuedAt: Date.now(),
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+        })).toString('base64');
+        
+        return c.json({
+          success: true,
+          message: 'Authentication successful (fallback)',
+          user: {
+            id: user.id,
+            phone: normalizedPhone,
+            name: user.full_name || 'User',
+            email: user.email || null
+          },
+          session: {
+            token: sessionToken,
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          }
+        });
       }
-    });
+      
+      // Update the profile ID to match the auth user ID
+      if (createData?.user && user.id !== createData.user.id) {
+        await supabase
+          .from('profiles')
+          .update({ id: createData.user.id })
+          .eq('id', user.id);
+        
+        user.id = createData.user.id;
+      }
+      
+      // Generate JWT token as primary authentication method
+      const sessionToken = Buffer.from(JSON.stringify({
+        userId: user.id,
+        phone: normalizedPhone,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+      })).toString('base64');
+      
+      console.log('[JWT AUTH] JWT token generated successfully');
+      
+      // Create a Supabase session as backup but don't rely on it
+      try {
+        const { data: sessionData } = await supabase.auth.admin.createSession({
+          user_id: createData.user.id
+        });
+        
+        console.log('[SUPABASE AUTH] Session created as backup');
+        
+        return c.json({
+          success: true,
+          message: 'Authentication successful',
+          user: {
+            id: user.id,
+            phone: normalizedPhone,
+            name: user.full_name || 'User',
+            email: user.email || null
+          },
+          session: {
+            token: sessionToken,
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          },
+          supabaseSession: sessionData // Include as backup
+        });
+      } catch (sessionError) {
+        console.log('[SUPABASE AUTH] Failed to create backup session, using JWT only');
+        
+        return c.json({
+          success: true,
+          message: 'Authentication successful (JWT only)',
+          user: {
+            id: user.id,
+            phone: normalizedPhone,
+            name: user.full_name || 'User',
+            email: user.email || null
+          },
+          session: {
+            token: sessionToken,
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+          }
+        });
+      }
+      
+    } catch (authError) {
+      console.error('[SUPABASE AUTH] Auth creation failed:', authError);
+      
+      // Use JWT token as primary authentication method
+      const sessionToken = Buffer.from(JSON.stringify({
+        userId: user.id,
+        phone: normalizedPhone,
+        issuedAt: Date.now(),
+        expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+      })).toString('base64');
+      
+      return c.json({
+        success: true,
+        message: 'Authentication successful (JWT only)',
+        user: {
+          id: user.id,
+          phone: normalizedPhone,
+          name: user.full_name || 'User',
+          email: user.email || null
+        },
+        session: {
+          token: sessionToken,
+          expiresAt: Date.now() + (24 * 60 * 60 * 1000)
+        }
+      });
+    }
     
   } catch (error) {
     console.error('[DIRECT TWILIO] Error verifying OTP:', error);

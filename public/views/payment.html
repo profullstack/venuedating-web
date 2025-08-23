@@ -18,16 +18,37 @@
     (async function() {
       try {
         console.log('Checking authentication immediately...');
-        const isAuth = await authMiddleware.requireAuth(true);
+        
+        // Check authentication using local storage first
+        const userData = localStorage.getItem('barcrush_user');
+        let isAuth = false;
+        
+        if (userData) {
+          try {
+            const user = JSON.parse(userData);
+            if (user && user.id) {
+              console.log('Valid user data found in local storage');
+              isAuth = true;
+            }
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+        
+        // Fallback to auth middleware if local storage check fails
+        if (!isAuth) {
+          isAuth = await authMiddleware.requireAuth(false);
+        }
+        
         if (!isAuth) {
           console.log('Not authenticated, redirecting to login...');
-          window.location.href = '/phone-login';
+          window.location.href = '/auth';
           return;
         }
         console.log('Authentication check passed');
       } catch (error) {
         console.error('Authentication check failed:', error);
-        window.location.href = '/phone-login';
+        window.location.href = '/auth';
       }
     })();
   </script>
@@ -398,7 +419,7 @@
       
       if (!currentUser) {
         console.error('❌ No user found, redirecting to login...');
-        window.location.href = '/phone-login';
+        window.location.href = '/auth';
         return;
       }
       
@@ -410,7 +431,7 @@
       console.log('✅ Payment page initialized successfully');
     } catch (error) {
       console.error('❌ Error initializing payment page:', error);
-      window.location.href = '/phone-login';
+      window.location.href = '/auth';
     }
   }
   

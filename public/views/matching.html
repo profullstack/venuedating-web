@@ -7,7 +7,6 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title data-i18n="matching.page_title">Matching - BarCrush</title>
-  <script type="module" src="/js/auth-guard.js"></script>
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/match-modal.css">
   <script src="/js/dark-mode.js"></script>
@@ -15,41 +14,7 @@
   <script type="module" src="/js/matching-controller.js"></script>
   <script type="module" src="/js/test-language-switch.js"></script>
   <script src="/js/hosted-checkout.js"></script>
-  <script type="module">
-    // Check authentication and redirect if not logged in
-    import authMiddleware from '/js/auth-middleware.js';
-    
-    // Wait for auth middleware to initialize before checking
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        console.log('Checking authentication on DOM loaded...');
-        
-        // Initialize dark mode first
-        initDarkMode();
-        
-        // Wait for auth middleware to fully initialize
-        await authMiddleware.init();
-        
-        // Check authentication with less aggressive redirect
-        const isAuth = await authMiddleware.requireAuth(false);
-        if (!isAuth) {
-          console.log('Not authenticated, redirecting to login...');
-          // Store current page for redirect after login
-          localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
-          window.location.href = '/phone-login';
-          return;
-        }
-        console.log('Authentication check passed');
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        // Only redirect on critical errors, not session refresh issues
-        if (error.message && !error.message.includes('refresh')) {
-          localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
-          window.location.href = '/phone-login';
-        }
-      }
-    });
-  </script>
+
 </head>
 <body>
 <div class="matching-page">

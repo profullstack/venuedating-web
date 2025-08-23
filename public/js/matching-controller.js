@@ -18,6 +18,7 @@ import {
 } from './api/matches.js';
 import { getCurrentUser } from './supabase-client.js';
 import { supabaseClientPromise } from './supabase-client.js';
+import authMiddleware from './auth-middleware.js';
 import { createConversation } from './api/conversations.js';
 // PaymentModal will be imported dynamically when needed
 import MatchModal from './match-modal.js';
@@ -100,39 +101,6 @@ async function checkSubscriptionStatus() {
  * Initialize matching page
  */
 async function initMatching() {
-  try {
-    // Wait for auth middleware to initialize first
-    await authMiddleware.init();
-    
-    // Get current user from auth middleware (which handles session persistence)
-    currentUser = authMiddleware.currentUser;
-    
-    // If no current user from auth middleware, try direct getCurrentUser
-    if (!currentUser) {
-      currentUser = await getCurrentUser();
-    }
-    
-    // If still no current user, try to create demo session
-    if (!currentUser) {
-      currentUser = await createDemoSession();
-    }
-    
-    if (!currentUser) {
-      console.log('No valid user session found, redirecting to login');
-      localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
-      window.location.href = '/phone-login';
-      return;
-    }
-  } catch (error) {
-    console.error('Error during matching initialization:', error);
-    // Don't redirect on session refresh errors
-    if (!error.message || !error.message.includes('refresh')) {
-      localStorage.setItem('barcrush_redirect_after_login', window.location.pathname);
-      window.location.href = '/phone-login';
-      return;
-    }
-  }
-  
   console.log('✅ Initializing matching');
   
   // Set up UI elements
@@ -142,7 +110,6 @@ async function initMatching() {
     console.error('Card stack element not found!');
     return;
   }
-
   
   // Load potential matches
   await loadPotentialMatches();
@@ -154,7 +121,6 @@ async function initMatching() {
   await subscribeToMatches();
   
   console.log('Matching page initialized');
-
 
   // Check user payment status before proceeding
   const hasPaid = await checkSubscriptionStatus();

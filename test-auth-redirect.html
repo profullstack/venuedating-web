@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Redirect Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .test-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      cursor: pointer;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Auth Redirect Test</h1>
+  
+  <div class="test-section">
+    <h2>1. Test JWT Token Storage</h2>
+    <button id="store-jwt">Store Test JWT Token</button>
+    <button id="check-jwt">Check JWT Token</button>
+    <button id="clear-jwt">Clear JWT Token</button>
+    <div id="jwt-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Test Redirect URL Storage</h2>
+    <button id="store-redirect">Store Test Redirect URL</button>
+    <button id="check-redirect">Check Redirect URL</button>
+    <button id="clear-redirect">Clear Redirect URL</button>
+    <div id="redirect-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Test Auth Middleware</h2>
+    <button id="init-auth">Initialize Auth Middleware</button>
+    <button id="check-auth">Check Authentication</button>
+    <div id="auth-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Test Full Login Flow</h2>
+    <p>This will simulate the login flow by:</p>
+    <ol>
+      <li>Clearing any existing auth data</li>
+      <li>Setting up a test JWT token</li>
+      <li>Initializing auth middleware</li>
+      <li>Checking authentication</li>
+    </ol>
+    <button id="test-flow">Test Full Login Flow</button>
+    <div id="flow-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Debug Log</h2>
+    <pre id="debug-log"></pre>
+  </div>
+
+  <script src="/js/auth-debug.js"></script>
+  <script type="module">
+    import authMiddleware from '/js/auth-middleware.js';
+
+    // Helper function to log to our debug console
+    function log(message) {
+      const debugLog = document.getElementById('debug-log');
+      const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+      debugLog.textContent += `[${timestamp}] ${message}\n`;
+      console.log(message);
+    }
+
+    // Override console.log to capture auth middleware logs
+    const originalConsoleLog = console.log;
+    console.log = function() {
+      const args = Array.from(arguments);
+      originalConsoleLog.apply(console, args);
+      
+      // Only log auth middleware related messages to our debug console
+      const message = args.join(' ');
+      if (message.includes('[AUTH') || message.includes('JWT') || message.includes('token')) {
+        log(message);
+      }
+    };
+
+    // 1. JWT Token Storage Test
+    document.getElementById('store-jwt').addEventListener('click', () => {
+      const token = 'test-jwt-token-' + Date.now();
+      const expires = Date.now() + 3600000; // 1 hour from now
+      localStorage.setItem('barcrush_session_token', token);
+      localStorage.setItem('barcrush_session_expires', expires);
+      localStorage.setItem('barcrush_user', JSON.stringify({
+        id: 'test-user-id',
+        email: 'test@example.com',
+        name: 'Test User'
+      }));
+      
+      document.getElementById('jwt-result').innerHTML = 
+        `<p class="success">JWT Token stored successfully:</p>
+         <p>Token: ${token}</p>
+         <p>Expires: ${new Date(expires).toLocaleString()}</p>`;
+      
+      log(`Stored JWT token: ${token}, expires: ${new Date(expires).toLocaleString()}`);
+    });
+
+    document.getElementById('check-jwt').addEventListener('click', () => {
+      const token = localStorage.getItem('barcrush_session_token');
+      const expires = localStorage.getItem('barcrush_session_expires');
+      const user = localStorage.getItem('barcrush_user');
+      
+      if (token && expires) {
+        document.getElementById('jwt-result').innerHTML = 
+          `<p class="success">JWT Token found:</p>
+           <p>Token: ${token}</p>
+           <p>Expires: ${new Date(parseInt(expires)).toLocaleString()}</p>
+           <p>User: ${user ? JSON.stringify(JSON.parse(user), null, 2) : 'Not found'}</p>`;
+        
+        log(`Found JWT token: ${token}, expires: ${new Date(parseInt(expires)).toLocaleString()}`);
+      } else {
+        document.getElementById('jwt-result').innerHTML = 
+          `<p class="error">JWT Token not found</p>`;
+        
+        log('JWT token not found');
+      }
+    });
+
+    document.getElementById('clear-jwt').addEventListener('click', () => {
+      localStorage.removeItem('barcrush_session_token');
+      localStorage.removeItem('barcrush_session_expires');
+      localStorage.removeItem('barcrush_user');
+      
+      document.getElementById('jwt-result').innerHTML = 
+        `<p class="success">JWT Token cleared</p>`;
+      
+      log('JWT token cleared');
+    });
+
+    // 2. Redirect URL Storage Test
+    document.getElementById('store-redirect').addEventListener('click', () => {
+      const redirectUrl = '/discover?test=' + Date.now();
+      localStorage.setItem('barcrush_redirect_after_login', redirectUrl);
+      
+      document.getElementById('redirect-result').innerHTML = 
+        `<p class="success">Redirect URL stored:</p>
+         <p>${redirectUrl}</p>`;
+      
+      log(`Stored redirect URL: ${redirectUrl}`);
+    });
+
+    document.getElementById('check-redirect').addEventListener('click', () => {
+      const redirectUrl = localStorage.getItem('barcrush_redirect_after_login');
+      
+      if (redirectUrl) {
+        document.getElementById('redirect-result').innerHTML = 
+          `<p class="success">Redirect URL found:</p>
+           <p>${redirectUrl}</p>`;
+        
+        log(`Found redirect URL: ${redirectUrl}`);
+      } else {
+        document.getElementById('redirect-result').innerHTML = 
+          `<p class="error">Redirect URL not found</p>`;
+        
+        log('Redirect URL not found');
+      }
+    });
+
+    document.getElementById('clear-redirect').addEventListener('click', () => {
+      localStorage.removeItem('barcrush_redirect_after_login');
+      
+      document.getElementById('redirect-result').innerHTML = 
+        `<p class="success">Redirect URL cleared</p>`;
+      
+      log('Redirect URL cleared');
+    });
+
+    // 3. Auth Middleware Test
+    document.getElementById('init-auth').addEventListener('click', async () => {
+      try {
+        log('Initializing auth middleware...');
+        await authMiddleware.init();
+        
+        document.getElementById('auth-result').innerHTML = 
+          `<p class="success">Auth middleware initialized</p>
+           <p>isInitialized: ${authMiddleware.isInitialized}</p>`;
+        
+        log(`Auth middleware initialized, isInitialized: ${authMiddleware.isInitialized}`);
+      } catch (error) {
+        document.getElementById('auth-result').innerHTML = 
+          `<p class="error">Error initializing auth middleware:</p>
+           <p>${error.message}</p>`;
+        
+        log(`Error initializing auth middleware: ${error.message}`);
+      }
+    });
+
+    document.getElementById('check-auth').addEventListener('click', async () => {
+      try {
+        log('Checking authentication...');
+        const isAuth = await authMiddleware.requireAuth(false); // Don't redirect
+        
+        document.getElementById('auth-result').innerHTML = 
+          `<p class="${isAuth ? 'success' : 'error'}">Authentication check result: ${isAuth}</p>
+           <p>Current user: ${JSON.stringify(authMiddleware.getUser(), null, 2)}</p>`;
+        
+        log(`Authentication check result: ${isAuth}`);
+      } catch (error) {
+        document.getElementById('auth-result').innerHTML = 
+          `<p class="error">Error checking authentication:</p>
+           <p>${error.message}</p>`;
+        
+        log(`Error checking authentication: ${error.message}`);
+      }
+    });
+
+    // 4. Full Login Flow Test
+    document.getElementById('test-flow').addEventListener('click', async () => {
+      try {
+        const flowResult = document.getElementById('flow-result');
+        flowResult.innerHTML = '<p>Starting test flow...</p>';
+        log('Starting full login flow test...');
+        
+        // Step 1: Clear any existing auth data
+        localStorage.removeItem('barcrush_session_token');
+        localStorage.removeItem('barcrush_session_expires');
+        localStorage.removeItem('barcrush_user');
+        localStorage.removeItem('barcrush_redirect_after_login');
+        flowResult.innerHTML += '<p>1. Cleared existing auth data</p>';
+        log('1. Cleared existing auth data');
+        
+        // Step 2: Set up a test JWT token
+        const token = 'test-jwt-token-' + Date.now();
+        const expires = Date.now() + 3600000; // 1 hour from now
+        localStorage.setItem('barcrush_session_token', token);
+        localStorage.setItem('barcrush_session_expires', expires);
+        localStorage.setItem('barcrush_user', JSON.stringify({
+          id: 'test-user-id',
+          email: 'test@example.com',
+          name: 'Test User'
+        }));
+        flowResult.innerHTML += '<p>2. Set up test JWT token</p>';
+        log(`2. Set up test JWT token: ${token}`);
+        
+        // Step 3: Initialize auth middleware
+        await authMiddleware.init();
+        flowResult.innerHTML += '<p>3. Initialized auth middleware</p>';
+        log('3. Initialized auth middleware');
+        
+        // Step 4: Check authentication
+        const isAuth = await authMiddleware.requireAuth(false); // Don't redirect
+        flowResult.innerHTML += `<p>4. Authentication check result: ${isAuth}</p>`;
+        log(`4. Authentication check result: ${isAuth}`);
+        
+        // Final result
+        if (isAuth) {
+          flowResult.innerHTML += `<p class="success">Test passed! Authentication successful.</p>`;
+          log('Test passed! Authentication successful.');
+        } else {
+          flowResult.innerHTML += `<p class="error">Test failed! Authentication unsuccessful.</p>`;
+          log('Test failed! Authentication unsuccessful.');
+        }
+      } catch (error) {
+        document.getElementById('flow-result').innerHTML = 
+          `<p class="error">Error in test flow:</p>
+           <p>${error.message}</p>`;
+        
+        log(`Error in test flow: ${error.message}`);
+      }
+    });
+  </script>
+</body>
+</html>

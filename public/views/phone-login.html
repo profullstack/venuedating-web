@@ -382,6 +382,28 @@
   // Variable to track if we're in verification mode
   let isVerificationMode = false;
   
+  // Function to determine post-login redirect URL
+  function getPostLoginRedirectUrl() {
+    // Check for redirect parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTo = urlParams.get('redirect');
+    
+    if (redirectTo) {
+      // Validate the redirect URL to prevent open redirect attacks
+      try {
+        const url = new URL(redirectTo, window.location.origin);
+        if (url.origin === window.location.origin) {
+          return redirectTo;
+        }
+      } catch (e) {
+        console.warn('Invalid redirect URL:', redirectTo);
+      }
+    }
+    
+    // Default redirect to discover page
+    return '/discover';
+  }
+  
   sendOtpBtn.addEventListener('click', async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -439,12 +461,12 @@
           }
         } else {
           // For regular accounts, verify normally
-          const result = await verifyOtp(storedFullPhone, otp);
+          const result = await verifyOtp(storedFullPhone, otp, false); // false = login, not signup
           showStatus('Login successful!');
         }
         
         // Redirect to appropriate page after successful login
-        const redirectUrl = handlePostLoginRedirect();
+        const redirectUrl = getPostLoginRedirectUrl();
         console.log('Login successful, redirecting to:', redirectUrl);
         window.location.href = redirectUrl;
       } catch (err) {

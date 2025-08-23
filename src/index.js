@@ -12,7 +12,7 @@ import { errorHandler } from './middleware/error-handler.js';
 import { enableSafeHttpDebugging } from './utils/safe-http-debug.js';
 
 // Enable HTTP debugging for detailed request/response logging
-console.log('Enabling HTTP debugging for detailed request/response logging');
+//console.log('Enabling HTTP debugging for detailed request/response logging');
 enableSafeHttpDebugging();
 
 // Load environment variables
@@ -21,16 +21,16 @@ dotenvFlow.config();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicPath = path.resolve(__dirname, '../public');
 
-console.log('Starting server...');
-console.log('Current directory:', process.cwd());
-console.log('__dirname:', __dirname);
-console.log('Public directory:', publicPath);
-console.log('Public directory exists:', fs.existsSync(publicPath));
+//console.log('Starting server...');
+//console.log('Current directory:', process.cwd());
+//console.log('__dirname:', __dirname);
+//console.log('Public directory:', publicPath);
+//console.log('Public directory exists:', fs.existsSync(publicPath));
 
 if (fs.existsSync(publicPath)) {
-  console.log('Files in public directory:');
+  //console.log('Files in public directory:');
   fs.readdirSync(publicPath).forEach(file => {
-    console.log(`- ${file}`);
+    //console.log(`- ${file}`);
   });
 }
 
@@ -55,7 +55,7 @@ app.use('*', async (c, next) => {
 
 // Log when requests are received and add cache control headers
 app.use('*', async (c, next) => {
-  console.log(`Request for: ${c.req.path}`);
+  //console.log(`Request for: ${c.req.path}`);
   
   // Add cache control headers to prevent caching for SPA routes
   c.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -68,7 +68,7 @@ app.use('*', async (c, next) => {
   
   // First check if this is a request for a view HTML file
   if (reqPath.startsWith('/views/') && reqPath.endsWith('.html')) {
-    console.log(`View HTML file request detected: ${reqPath}`);
+    //console.log(`View HTML file request detected: ${reqPath}`);
     // Let this pass through to the static file middleware
     await next();
     return;
@@ -76,13 +76,13 @@ app.use('*', async (c, next) => {
   
   // Then handle SPA routes
   if (reqPath !== '/' && !reqPath.includes('.') && !reqPath.startsWith('/api/')) {
-    console.log(`SPA route detected: ${reqPath}`);
+    //console.log(`SPA route detected: ${reqPath}`);
     try {
       const indexPath = path.resolve(__dirname, '../public/index.html');
       const content = fs.readFileSync(indexPath, 'utf-8');
       return c.html(content);
     } catch (error) {
-      console.error(`Error serving index.html: ${error.message}`);
+      //console.error(`Error serving index.html: ${error.message}`);
     }
   }
   
@@ -106,7 +106,7 @@ const stripeDirectClient = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Ultra-minimal Stripe checkout using pure fetch - no packages, no database, just API calls
 app.post('/api/stripe-simple/create-checkout', async (c) => {
   try {
-    console.log('Creating simple checkout session using fetch...');
+    //console.log('Creating simple checkout session using fetch...');
     
     // Parse request
     const body = await c.req.json();
@@ -153,7 +153,7 @@ app.post('/api/stripe-simple/create-checkout', async (c) => {
       url: session.url
     });
   } catch (error) {
-    console.error('Simple checkout error:', error.message);
+    //console.error('Simple checkout error:', error.message);
     return c.json({
       error: 'Payment processing error',
       message: error.message
@@ -164,7 +164,7 @@ app.post('/api/stripe-simple/create-checkout', async (c) => {
 // Keep the direct checkout as a fallback
 app.post('/api/stripe-direct/create-checkout', async (c) => {
   try {
-    console.log('Creating direct checkout session...');
+    //console.log('Creating direct checkout session...');
     
     // Parse request
     const body = await c.req.json();
@@ -191,7 +191,7 @@ app.post('/api/stripe-direct/create-checkout', async (c) => {
       url: session.url
     });
   } catch (error) {
-    console.error('Direct checkout error:', error.message);
+    //console.error('Direct checkout error:', error.message);
     return c.json({
       error: 'Payment processing error',
       message: error.message
@@ -208,7 +208,7 @@ app.get('/', async (c) => {
       const content = fs.readFileSync(indexPath, 'utf-8');
       return c.html(content);
     } catch (error) {
-      console.error(`Error serving index.html: ${error.message}`);
+      //console.error(`Error serving index.html: ${error.message}`);
       return c.text('Internal Server Error', 500);
     }
   }
@@ -231,20 +231,20 @@ app.use('*', async (c, next) => {
   }
   
   // Use the static file middleware for non-API routes
-  console.log(`Attempting to serve static file: ${reqPath} from ./public`);
+  //console.log(`Attempting to serve static file: ${reqPath} from ./public`);
   
   // Check if the file exists before serving it
   const filePath = path.join(process.cwd(), 'public', reqPath);
   if (fs.existsSync(filePath)) {
-    console.log(`File exists: ${filePath}`);
+    //console.log(`File exists: ${filePath}`);
   } else {
-    console.log(`File does not exist: ${filePath}`);
+    //console.log(`File does not exist: ${filePath}`);
   }
   
   return serveStatic({
     root: './public',
     rewriteRequestPath: (path) => {
-      console.log(`Static file request for: ${path}`);
+      //console.log(`Static file request for: ${path}`);
       return path;
     }
   })(c, next);
@@ -256,7 +256,7 @@ app.get('*', async (c) => {
   
   // Add detailed logging for API routes
   if (reqPath.startsWith('/api/')) {
-    console.log(`API route not found: ${reqPath}`);
+    //console.log(`API route not found: ${reqPath}`);
     return c.json({
       error: 'API endpoint not found',
       path: reqPath
@@ -268,7 +268,7 @@ app.get('*', async (c) => {
     return c.notFound();
   }
   
-  console.log(`SPA fallback for: ${reqPath}`);
+  //console.log(`SPA fallback for: ${reqPath}`);
   
   // Serve index.html for client-side routes
   try {
@@ -276,7 +276,7 @@ app.get('*', async (c) => {
     const content = fs.readFileSync(indexPath, 'utf-8');
     return c.html(content);
   } catch (error) {
-    console.error(`Error serving index.html: ${error.message}`);
+    //console.error(`Error serving index.html: ${error.message}`);
     return c.text('Internal Server Error', 500);
   }
 });
@@ -287,33 +287,33 @@ serve({
   fetch: app.fetch,
   port
 }, (info) => {
-  console.log(`Server running at http://localhost:${info.port}`);
-  console.log('Available endpoints:');
-  console.log(`- HTML to PDF: http://localhost:${info.port}/api/1/html-to-pdf`);
-  console.log(`- HTML to DOC: http://localhost:${info.port}/api/1/html-to-doc`);
-  console.log(`- HTML to Excel: http://localhost:${info.port}/api/1/html-to-excel`);
-  console.log(`- HTML to PowerPoint: http://localhost:${info.port}/api/1/html-to-ppt`);
-  console.log(`- HTML to EPUB: http://localhost:${info.port}/api/1/html-to-epub`);
-  console.log(`- HTML to Markdown: http://localhost:${info.port}/api/1/html-to-markdown`);
-  console.log(`- Markdown to HTML: http://localhost:${info.port}/api/1/markdown-to-html`);
-  console.log(`- PDF to Markdown: http://localhost:${info.port}/api/1/pdf-to-markdown`);
-  console.log(`- DOCX to Markdown: http://localhost:${info.port}/api/1/docx-to-markdown`);
-  console.log(`- DOC to Markdown: http://localhost:${info.port}/api/1/doc-to-markdown`);
-  console.log(`- EPUB to Markdown: http://localhost:${info.port}/api/1/epub-to-markdown`);
-  console.log(`- Text to Markdown: http://localhost:${info.port}/api/1/text-to-markdown`);
-  console.log(`- PPTX to Markdown: http://localhost:${info.port}/api/1/pptx-to-markdown`);
-  console.log(`- XLSX to Markdown: http://localhost:${info.port}/api/1/xlsx-to-markdown`);
-  console.log(`- Document History: http://localhost:${info.port}/api/1/document-history`);
-  console.log(`- Subscription: http://localhost:${info.port}/api/1/subscription`);
-  console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
-  console.log(`- Stripe Checkout: http://localhost:${info.port}/api/1/payments/stripe/create-checkout-session`);
-  console.log(`- Stripe Webhook: http://localhost:${info.port}/api/1/payments/stripe/webhook`);
-  console.log(`- Stripe Subscription: http://localhost:${info.port}/api/1/payments/stripe/subscription`);
-  console.log(`- Stripe Cancel: http://localhost:${info.port}/api/1/payments/stripe/cancel-subscription`);
-  console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payments/cryptapi/callback`);
-  console.log(`- Payment Logs: http://localhost:${info.port}/api/1/payments/cryptapi/logs`);
-  console.log(`- WebSocket: http://localhost:${info.port}/api/1/ws`);
-  console.log(`- Web interface: http://localhost:${info.port}`);
+  //console.log(`Server running at http://localhost:${info.port}`);
+  //console.log('Available endpoints:');
+  //console.log(`- HTML to PDF: http://localhost:${info.port}/api/1/html-to-pdf`);
+  //console.log(`- HTML to DOC: http://localhost:${info.port}/api/1/html-to-doc`);
+  //console.log(`- HTML to Excel: http://localhost:${info.port}/api/1/html-to-excel`);
+  //console.log(`- HTML to PowerPoint: http://localhost:${info.port}/api/1/html-to-ppt`);
+  //console.log(`- HTML to EPUB: http://localhost:${info.port}/api/1/html-to-epub`);
+  //console.log(`- HTML to Markdown: http://localhost:${info.port}/api/1/html-to-markdown`);
+  //console.log(`- Markdown to HTML: http://localhost:${info.port}/api/1/markdown-to-html`);
+  //console.log(`- PDF to Markdown: http://localhost:${info.port}/api/1/pdf-to-markdown`);
+  //console.log(`- DOCX to Markdown: http://localhost:${info.port}/api/1/docx-to-markdown`);
+  //console.log(`- DOC to Markdown: http://localhost:${info.port}/api/1/doc-to-markdown`);
+  //console.log(`- EPUB to Markdown: http://localhost:${info.port}/api/1/epub-to-markdown`);
+  //console.log(`- Text to Markdown: http://localhost:${info.port}/api/1/text-to-markdown`);
+  //console.log(`- PPTX to Markdown: http://localhost:${info.port}/api/1/pptx-to-markdown`);
+  //console.log(`- XLSX to Markdown: http://localhost:${info.port}/api/1/xlsx-to-markdown`);
+  //console.log(`- Document History: http://localhost:${info.port}/api/1/document-history`);
+  //console.log(`- Subscription: http://localhost:${info.port}/api/1/subscription`);
+  //console.log(`- Subscription Status: http://localhost:${info.port}/api/1/subscription-status`);
+  //console.log(`- Stripe Checkout: http://localhost:${info.port}/api/1/payments/stripe/create-checkout-session`);
+  //console.log(`- Stripe Webhook: http://localhost:${info.port}/api/1/payments/stripe/webhook`);
+  //console.log(`- Stripe Subscription: http://localhost:${info.port}/api/1/payments/stripe/subscription`);
+  //console.log(`- Stripe Cancel: http://localhost:${info.port}/api/1/payments/stripe/cancel-subscription`);
+  //console.log(`- Payment Callback: http://localhost:${info.port}/api/1/payments/cryptapi/callback`);
+  //console.log(`- Payment Logs: http://localhost:${info.port}/api/1/payments/cryptapi/logs`);
+  //console.log(`- WebSocket: http://localhost:${info.port}/api/1/ws`);
+  //console.log(`- Web interface: http://localhost:${info.port}`);
 });
 
 // Create a separate WebSocket server on a different port
@@ -322,26 +322,26 @@ const wss = new WebSocketServer({ port: wsPort });
 
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
-  console.log('WebSocket connection established');
+  //console.log('WebSocket connection established');
   
   // Send a welcome message
   ws.send('Connected to WebSocket server');
   
   // Handle messages
   ws.on('message', (message) => {
-    console.log(`Received message: ${message}`);
+    //console.log(`Received message: ${message}`);
     ws.send(`Echo: ${message}`);
   });
   
   // Handle connection close
   ws.on('close', () => {
-    console.log('WebSocket connection closed');
+    //console.log('WebSocket connection closed');
   });
   
   // Handle errors
   ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
+    //console.error('WebSocket error:', error);
   });
 });
 
-console.log(`WebSocket server running at ws://localhost:${wsPort}`);
+//console.log(`WebSocket server running at ws://localhost:${wsPort}`);

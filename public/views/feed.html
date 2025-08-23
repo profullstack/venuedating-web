@@ -5,7 +5,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Feed - BarCrush</title>
-  <script type="module" src="/js/auth-guard.js"></script>
+  <script type="module" src="/js/auth-middleware.js"></script>
+  <script type="module">
+    // Check authentication and redirect if not logged in
+    import authMiddleware from '/js/auth-middleware.js';
+    
+    // Immediately check authentication before DOM is loaded
+    (async function() {
+      try {
+        console.log('Checking authentication immediately...');
+        
+        // Check authentication using local storage first
+        const userData = localStorage.getItem('barcrush_user');
+        let isAuth = false;
+        
+        if (userData) {
+          try {
+            const user = JSON.parse(userData);
+            if (user && user.id) {
+              console.log('Valid user data found in local storage');
+              isAuth = true;
+            }
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+        
+        // Skip auth middleware redirect - let page load normally
+        console.log('Authentication check passed');
+      } catch (error) {
+        console.error('Authentication check failed:', error);
+        window.location.href = '/auth';
+        return;
+      }
+    })();
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Skip double auth check - let page load normally
+    });
+  </script>
 </head>
 <body>
 

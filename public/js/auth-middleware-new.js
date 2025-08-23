@@ -29,111 +29,38 @@ class AuthMiddleware {
       'barcrush_session_expires'
     ];
     
-    this.AUTH_PAGES = ['/auth', '/login', '/views/auth'];
+    this.AUTH_PAGES = ['/auth', '/login'];
     this.DEFAULT_AVATAR = '/images/avatar.jpg';
   }
 
-  /**
-   * Debug function to diagnose auth issues
-   */
-  debugAuth() {
-    console.log('🔍 AUTH MIDDLEWARE DEBUG 🔍');
-    console.log('isInitialized:', this.isInitialized);
-    console.log('currentUser:', this.currentUser);
-    
-    // Check localStorage
-    const jwtToken = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_TOKEN);
-    const jwtExpires = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_EXPIRES);
-    const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
-    
-    console.log('JWT Token exists:', !!jwtToken);
-    console.log('JWT Expires exists:', !!jwtExpires);
-    console.log('User Data exists:', !!userData);
-    
-    if (jwtToken && jwtExpires) {
-      const expiresAt = parseInt(jwtExpires);
-      const currentTime = Date.now();
-      const isValid = currentTime < expiresAt;
-      
-      console.log('JWT expiration time:', new Date(expiresAt).toISOString());
-      console.log('Current time:', new Date(currentTime).toISOString());
-      console.log('JWT is valid:', isValid);
-      console.log('Time remaining (ms):', expiresAt - currentTime);
-    }
-    
-    // Check storage keys
-    console.log('AUTH_STORAGE_KEYS:', this.AUTH_STORAGE_KEYS);
-    console.log('AUTH_PAGES:', this.AUTH_PAGES);
-    
-    // Check current URL
-    const currentPath = window.location.pathname + window.location.search;
-    console.log('Current path:', currentPath);
-    
-    // Check if on auth page
-    const isOnAuthPage = this.AUTH_PAGES.some(page => {
-      const isMatch = window.location.pathname === page || 
-                     window.location.pathname.includes(page) ||
-                     window.location.href.includes(page);
-      if (isMatch) {
-        console.log(`Matched auth page: ${page}`);
-      }
-      return isMatch;
-    });
-    console.log('Is on auth page:', isOnAuthPage);
-    
-    return {
-      isInitialized: this.isInitialized,
-      hasUser: !!this.currentUser,
-      hasJwtToken: !!jwtToken,
-      hasJwtExpires: !!jwtExpires,
-      hasUserData: !!userData,
-      isJwtValid: jwtToken && jwtExpires ? (parseInt(jwtExpires) > Date.now()) : false,
-      isOnAuthPage
-    };
-  }
-  
   /**
    * Initialize the auth middleware
    * @returns {Promise<void>}
    */
   async init() {
-    if (this.isInitialized) {
-      console.log('[AUTH DEBUG] Auth middleware already initialized');
-      return;
-    }
-    
-    console.log('[AUTH DEBUG] Initializing auth middleware...');
-    this.debugAuth();
+    if (this.isInitialized) return;
     
     try {
       // Check for demo account first
       if (this.isDemoAccount()) {
-        console.log('[AUTH DEBUG] Initializing from demo account');
         await this.initDemoAccount();
-        this.isInitialized = true;
         return;
       }
       
-      // Check for user data in local storage first
-      console.log('[AUTH DEBUG] Checking for user data in local storage');
-      if (await this.initFromLocalStorage()) {
-        console.log('[AUTH DEBUG] Successfully initialized from local storage');
-        this.isInitialized = true;
+      // Check for JWT token first
+      if (await this.initFromJwtToken()) {
         return;
       }
       
       // Fall back to Supabase session
-      console.log('[AUTH DEBUG] Falling back to Supabase session');
-      const supabaseInitialized = await this.initFromSupabaseSession();
+      await this.initFromSupabaseSession();
       
       // Listen for auth state changes
       await this.setupAuthStateListener();
       
       this.isInitialized = true;
-      console.log('[AUTH DEBUG] Auth middleware initialization complete');
-      this.debugAuth();
     } catch (error) {
-      console.error('[AUTH ERROR] Error initializing auth middleware:', error);
+      console.error('Error initializing auth middleware:', error);
     }
   }
 
@@ -158,24 +85,36 @@ class AuthMiddleware {
   }
 
   /**
-   * Initialize from local storage user data
-   * @returns {Promise<boolean>} - True if initialized from local storage
+   * Initialize from JWT token
+   * @returns {Promise<boolean>} - True if initialized from JWT token
    */
-  async initFromLocalStorage() {
-    console.log('[AUTH] Checking for user data in local storage');
-    const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
+  async initFromJwtToken() {
+    const jwtToken = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_TOKEN);
+    const jwtExpires = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_EXPIRES);
     
-    if (userData) {
-      try {
-        this.currentUser = JSON.parse(userData);
-        console.log('[AUTH] Successfully loaded user data from local storage:', this.currentUser);
-        this.updateUI();
-        return true;
-      } catch (e) {
-        console.error('[AUTH] Error parsing stored user data:', e);
+    if (jwtToken && jwtExpires) {
+      const expiresAt = parseInt(jwtExpires);
+      const currentTime = Date.now();
+      
+      if (currentTime < expiresAt) {
+        console.log('[AUTH] Valid JWT session found during initialization');
+        
+        // Load user data from localStorage if available
+        const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
+        
+        if (userData) {
+          try {
+            this.currentUser = JSON.parse(userData);
+            this.updateUI();
+            return true;
+          } catch (e) {
+            console.error('[AUTH] Error parsing stored user data:', e);
+          }
+        }
+      } else {
+        // JWT expired, clear it
+        this.clearJwtSession();
       }
-    } else {
-      console.log('[AUTH] No user data found in local storage');
     }
     return false;
   }
@@ -420,35 +359,50 @@ class AuthMiddleware {
   }
 
   /**
-   * Check if user is authenticated via local storage
-   * @returns {Promise<boolean>} - True if authenticated via local storage
+   * Check if user is authenticated via JWT token
+   * @returns {Promise<boolean>} - True if authenticated via JWT
    */
-  async isLocalStorageAuthenticated() {
-    console.log('[AUTH DEBUG] Checking local storage authentication');
-    const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
+  async isJwtAuthenticated() {
+    const jwtToken = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_TOKEN);
+    const jwtExpires = localStorage.getItem(this.AUTH_STORAGE_KEYS.JWT_EXPIRES);
     
-    if (!userData) {
-      console.log('[AUTH DEBUG] No user data found in local storage');
-      return false;
-    }
+    console.log('[AUTH DEBUG] JWT token exists:', !!jwtToken);
+    console.log('[AUTH DEBUG] JWT expires exists:', !!jwtExpires);
     
-    try {
-      // If we can parse the user data, consider the user authenticated
-      const user = JSON.parse(userData);
+    if (jwtToken && jwtExpires) {
+      const expiresAt = parseInt(jwtExpires);
+      const currentTime = Date.now();
+      const isValid = currentTime < expiresAt;
+      const timeRemaining = expiresAt - currentTime;
       
-      if (!this.currentUser) {
-        this.currentUser = user;
-        console.log('✅ User data loaded from local storage:', this.currentUser);
-        this.updateUI();
+      console.log('[AUTH DEBUG] JWT expiration time:', new Date(expiresAt).toISOString());
+      console.log('[AUTH DEBUG] Current time:', new Date(currentTime).toISOString());
+      console.log('[AUTH DEBUG] JWT is valid:', isValid);
+      console.log('[AUTH DEBUG] Time remaining (ms):', timeRemaining);
+      
+      if (isValid) {
+        console.log('[AUTH] Valid JWT session found, user authenticated');
+        
+        // Load user data from localStorage if available
+        const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
+        console.log('[AUTH DEBUG] User data exists in localStorage:', !!userData);
+        
+        if (userData && !this.currentUser) {
+          try {
+            this.currentUser = JSON.parse(userData);
+            console.log('✅ User data loaded from JWT session:', this.currentUser);
+            this.updateUI();
+          } catch (e) {
+            console.error('[AUTH] Error parsing stored user data:', e);
+          }
+        }
+        return true;
+      } else {
+        // JWT expired, clear it
+        this.clearJwtSession();
       }
-      
-      return true;
-    } catch (e) {
-      console.error('[AUTH] Error parsing stored user data:', e);
-      // Invalid user data, clear it
-      localStorage.removeItem(this.AUTH_STORAGE_KEYS.USER_DATA);
-      return false;
     }
+    return false;
   }
 
   /**
@@ -493,95 +447,76 @@ class AuthMiddleware {
   }
 
   /**
-   * Check if user is authenticated and redirect if not
-   * @param {boolean} redirect - Whether to redirect if not authenticated
-   * @returns {Promise<boolean>} - True if authenticated
+   * Redirect to login page if not authenticated
+   * @param {boolean} redirect - Whether to redirect to login page
+   * @returns {Promise<boolean>} - Promise resolving to true if authenticated
    */
   async requireAuth(redirect = true) {
-    // Ensure middleware is initialized
+    // Make sure initialization is complete
     if (!this.isInitialized) {
-      console.log('[AUTH DEBUG] Auth middleware not initialized, initializing now');
       await this.init();
     }
     
     console.log('[AUTH DEBUG] requireAuth called with redirect =', redirect);
     console.log('[AUTH DEBUG] Current URL:', window.location.href);
     
-    // Check for demo account first
-    if (this.isDemoAccount()) {
-      console.log('[DEMO] Demo account detected, bypassing auth check');
-      return true;
-    }
-    
-    // Check for local storage authentication first
-    if (await this.isLocalStorageAuthenticated()) {
-      console.log('[AUTH DEBUG] Local storage authentication successful');
-      return true;
-    }
-    
-    // Fall back to Supabase authentication
-    const isAuth = await this.isSupabaseAuthenticated();
-    console.log('[AUTH DEBUG] Supabase authentication result:', isAuth);
-    
-    if (!isAuth && redirect) {
-      console.log('[AUTH DEBUG] Not authenticated, redirecting to login');
-      this.redirectToLogin();
+    try {
+      // Check for demo account first
+      if (this.isDemoAccount()) {
+        console.log('[DEMO] Demo account detected, bypassing auth check');
+        
+        // If we don't have demo user data yet, create it
+        if (!this.currentUser) {
+          this.currentUser = {
+            id: 'demo-user-id',
+            name: 'Demo User',
+            full_name: 'Demo User',
+            avatar_url: this.DEFAULT_AVATAR,
+            phone_number: '+15555555555',
+            phone_verified: true
+          };
+          this.updateUI();
+        }
+        
+        return true;
+      }
+      
+      // Check for JWT authentication first
+      if (await this.isJwtAuthenticated()) {
+        return true;
+      }
+      
+      // Fall back to Supabase authentication
+      const isAuth = await this.isSupabaseAuthenticated();
+      
+      if (!isAuth && redirect) {
+        this.redirectToLogin();
+        return false;
+      }
+      
+      return isAuth;
+    } catch (error) {
+      console.error('Error in requireAuth:', error);
+      if (redirect) {
+        window.location.href = '/auth';
+      }
       return false;
     }
-    
-    return isAuth;
   }
 
   /**
    * Redirect to login page if not already on a login page
-   * Only redirects if localStorage doesn't have user data
    */
   redirectToLogin() {
     console.log('[AUTH DEBUG] No active session found, considering redirect');
     console.log('[AUTH DEBUG] Current path:', window.location.pathname);
     
-    // First check if we have user data in localStorage before redirecting
-    const userData = localStorage.getItem(this.AUTH_STORAGE_KEYS.USER_DATA);
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        if (user && user.id) {
-          console.log('[AUTH DEBUG] Found valid user data in localStorage, not redirecting');
-          // Update current user if needed
-          if (!this.currentUser) {
-            this.currentUser = user;
-            this.updateUI();
-          }
-          return; // Don't redirect if we have valid user data
-        }
-      } catch (e) {
-        console.error('[AUTH DEBUG] Error parsing user data:', e);
-      }
-    }
-    
-    // Store the current URL for post-login redirect if not on an auth page
-    const currentPath = window.location.pathname + window.location.search;
-    const isAuthRelatedPath = currentPath.includes('/auth') || 
-                             currentPath.includes('/login') || 
-                             currentPath.includes('/phone-login');
-                             
-    if (!isAuthRelatedPath) {
-      console.log('[AUTH DEBUG] Storing current path for post-login redirect:', currentPath);
-      localStorage.setItem('barcrush_redirect_after_login', currentPath);
-    }
-    
     // Don't redirect if we're already on the auth page to prevent loops
-    const isOnAuthPage = this.AUTH_PAGES.some(page => {
-      const isMatch = window.location.pathname === page || 
-                     window.location.pathname.includes(page) ||
-                     window.location.href.includes(page);
-      if (isMatch) {
-        console.log(`[AUTH DEBUG] Matched auth page: ${page}`);
-      }
-      return isMatch;
-    });
+    const isOnAuthPage = this.AUTH_PAGES.some(page => 
+      window.location.pathname === page || 
+      window.location.pathname.includes(page)
+    );
     
-    // Only redirect if we're not on an auth page and don't have localStorage user data
     if (!isOnAuthPage) {
       console.log('[AUTH DEBUG] Redirecting to login page');
       window.location.href = '/auth';
@@ -591,10 +526,10 @@ class AuthMiddleware {
   }
 
   /**
-   * Clear auth session data
+   * Clear JWT session data
    */
-  clearAuthSession() {
-    console.log('[AUTH] Clearing auth session data');
+  clearJwtSession() {
+    console.log('[AUTH] JWT session expired or invalid, clearing');
     localStorage.removeItem(this.AUTH_STORAGE_KEYS.JWT_TOKEN);
     localStorage.removeItem(this.AUTH_STORAGE_KEYS.JWT_EXPIRES);
     localStorage.removeItem(this.AUTH_STORAGE_KEYS.USER_DATA);
@@ -609,28 +544,30 @@ class AuthMiddleware {
       // Check if this is a demo account logout
       if (this.isDemoAccount()) {
         console.log('[DEMO] Logging out demo account');
-        localStorage.removeItem('demo_account');
-        localStorage.removeItem('demo_user');
-        window.location.href = '/auth';
-        return;
+        // Clear demo account flags
+        localStorage.removeItem(this.AUTH_STORAGE_KEYS.DEMO_FLAG);
+        localStorage.removeItem(this.AUTH_STORAGE_KEYS.DEMO_USER);
       }
       
-      // Clear auth session data
-      this.clearAuthSession();
-      
-      // Also log out from Supabase
+      // Regular Supabase logout
       const supabase = await supabaseClientPromise;
       await supabase.auth.signOut();
       
-      console.log('[AUTH] User logged out successfully');
+      // Clear all auth-related local storage items
+      this.clearAuthData();
       
-      // Reset current user
+      // Update UI and redirect
       this.currentUser = null;
+      this.updateUI();
       
-      // Redirect to login page
+      // Dispatch event for components to react to logout
+      window.dispatchEvent(new CustomEvent('user-logged-out'));
+      
+      // Redirect to auth page
       window.location.href = '/auth';
     } catch (error) {
-      console.error('[AUTH] Error during logout:', error);
+      console.error('Error logging out:', error);
+      throw error; // Re-throw to allow UI to handle the error
     }
   }
 
