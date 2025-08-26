@@ -19,28 +19,39 @@ class SideMenu extends HTMLElement {
   }
   
   connectedCallback() {
-    // Get user info from auth middleware if available, otherwise use attributes
-    let userName = this.getAttribute('user-name') || 'User Name';
-    let userAvatar = this.getAttribute('user-avatar') || '/images/avatar.jpg';
+    // Get user info from localStorage first, then fallback to attributes
+    let userName = 'User Name';
+    let userAvatar = '/images/avatar.jpg';
+    
+    // Try to get user data from localStorage
+    try {
+      const userData = localStorage.getItem('barcrush_user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        userName = user.name || user.full_name || user.email || userName;
+        userAvatar = user.avatar_url || user.profile_image || userAvatar;
+      }
+    } catch (e) {
+      console.error('Error parsing user data from localStorage:', e);
+    }
+    
+    // Fallback to attributes if localStorage doesn't have data
+    userName = this.getAttribute('user-name') || userName;
+    userAvatar = this.getAttribute('user-avatar') || userAvatar;
     
     // Wait for auth middleware to initialize and get real user data
     const updateUserInfo = () => {
-      const user = authMiddleware.getUser();
-      if (user && user.name !== 'Demo User') {
-        userName = user.name || user.full_name || userName;
-        userAvatar = user.avatar_url || userAvatar;
+      // Skip auth middleware check - use localStorage data only
+      // This function is kept for compatibility but doesn't perform auth middleware checks
+      const userNameElement = this.shadowRoot?.querySelector('.user-name');
+      const userAvatarElement = this.shadowRoot?.querySelector('.user-avatar img');
         
-        // Update the rendered content with real user data
-        const userNameElement = this.shadowRoot?.querySelector('.user-name');
-        const userAvatarElement = this.shadowRoot?.querySelector('.user-avatar img');
-        
-        if (userNameElement) {
-          userNameElement.textContent = userName;
-        }
-        if (userAvatarElement) {
-          userAvatarElement.src = userAvatar;
-          userAvatarElement.alt = userName;
-        }
+      if (userNameElement) {
+        userNameElement.textContent = userName;
+      }
+      if (userAvatarElement) {
+        userAvatarElement.src = userAvatar;
+        userAvatarElement.alt = userName;
       }
     };
     

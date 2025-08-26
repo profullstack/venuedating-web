@@ -19,19 +19,35 @@ if (typeof window.HostedCheckoutManager === 'undefined') {
       this.isProcessing = true;
       this.showLoading(true);
 
-      // Get auth token
-      const authToken = localStorage.getItem('authToken');
-      if (!authToken) {
+      // Get user data from localStorage (following the centralized auth approach)
+      const userData = localStorage.getItem('barcrush_user');
+      if (!userData) {
         throw new Error('Authentication required');
       }
 
-      // Create checkout session
+      let user;
+      try {
+        user = JSON.parse(userData);
+        if (!user || !user.id) {
+          throw new Error('Invalid user data');
+        }
+      } catch (e) {
+        throw new Error('Authentication required');
+      }
+
+      console.log('User data for checkout:', user)
+      console.log('Sending to backend:', { userId: user.id, phone: user.phone })
+
+      // Create checkout session using phone-based authentication
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          phone: user.phone
+        })
       });
 
       const data = await response.json();

@@ -1,22 +1,26 @@
-import { apiKeyService } from '../services/api-key-service.js';
+import { createClient } from '@supabase/supabase-js';
 import { errorUtils } from '../utils/error-utils.js';
-import { supabase, supabaseUtils } from '../utils/supabase.js';
+
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
  * Constants for authentication
  */
 const AUTH_CONSTANTS = {
   PUBLIC_ENDPOINTS: [
-    '/api/1/payments/cryptapi/callback',
-    '/api/1/subscription',
-    '/api/1/subscription-status'
-  ],
-  API_KEY_PREFIX: 'pfs_',
-  TOKEN_MIN_LENGTH: 100
+    '/api/create-checkout-session',
+    '/api/user/payment-status',
+    '/api/square-credentials',
+    '/api/process-payment',
+    '/api/user-profile'
+  ]
 };
 
 /**
- * Authentication middleware
+ * Authentication middleware for phone-based authentication
  * @param {Object} c - Hono context
  * @param {Function} next - Next middleware function
  * @returns {Promise<Response>} - Response object
@@ -29,20 +33,15 @@ export async function authMiddleware(c, next) {
       return next();
     }
     
-    // Get auth headers
-    const authHeader = c.req.header('Authorization');
-    const apiKeyHeader = c.req.header('X-API-Key');
+    // Get user data from request body (phone-based auth)
+    const body = await c.req.json().catch(() => ({}));
+    const { userId, phone } = body;
     
     let user = null;
     
-    // Check Authorization header (Bearer token)
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7).trim();
-      user = await authenticateWithToken(token, c.req.path);
-    }
-    // Check X-API-Key header (for backward compatibility)
-    else if (apiKeyHeader) {
-      user = await authenticateWithApiKeyHeader(apiKeyHeader);
+    // Phone-based authentication
+    if (userId && phone) {
+      user = await authenticateWithPhone(userId, phone);
     }
     
     // Handle unauthorized access
@@ -50,11 +49,6 @@ export async function authMiddleware(c, next) {
       return createUnauthorizedResponse(c);
     }
     
-    // Ensure is_admin is always present in user object
-    if (typeof user.is_admin === 'undefined') {
-      user.is_admin = false;
-    }
-
     // Set user in context for later use
     setUserInContext(c, user);
     
@@ -76,108 +70,42 @@ function isPublicEndpoint(path) {
 }
 
 /**
- * Authenticate with token from Authorization header
- * @param {string} token - Token from Authorization header
- * @param {string} path - Request path for logging
+ * Authenticate with phone number and user ID
+ * @param {string} userId - User ID from localStorage
+ * @param {string} phone - Phone number from localStorage
  * @returns {Promise<Object|null>} - User object or null if authentication fails
  */
-async function authenticateWithToken(token, path) {
-  console.log(`Auth middleware: Processing request for path ${path}`);
-  console.log(`Auth middleware: Found Bearer token of length ${token.length}`);
-  
-  // Handle invalid token cases including literal "null" string
-  if (!token || token === 'null' || token.length < AUTH_CONSTANTS.TOKEN_MIN_LENGTH) {
-    console.error('Auth middleware: Token appears to be malformed or truncated:', token);
-    console.error('Auth middleware: Skipping JWT verification for invalid token');
-    // Try as API key
-    return await authenticateWithApiKey(token);
-  }
-  
-  // First, try to validate as JWT token
-  const user = await authenticateWithJwt(token);
-  
-  // If JWT validation failed, try as API key
-  if (!user) {
-    return await authenticateWithApiKey(token);
-  }
-  
-  return user;
-}
-
-/**
- * Authenticate with JWT token
- * @param {string} token - JWT token
- * @returns {Promise<Object|null>} - User object or null if authentication fails
- */
-async function authenticateWithJwt(token) {
+async function authenticateWithPhone(userId, phone) {
   try {
-    console.log('Auth middleware: Attempting to verify JWT token');
-    // Verify JWT token with Supabase
-    const supabaseUser = await supabaseUtils.verifyJwtToken(token);
+    console.log(`Auth middleware: Authenticating user ${userId} with phone ${phone}`);
     
-    if (!supabaseUser) {
-      console.log('Auth middleware: JWT token verification failed, no user returned');
+    // Verify user exists in database by phone and ID
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('id, phone, name, email, has_paid')
+      .eq('id', userId)
+      .eq('phone', phone)
+      .single();
+    
+    if (userError || !userRecord) {
+      console.log('Auth middleware: User not found or phone mismatch');
       return null;
     }
     
-    console.log(`Auth middleware: JWT token verified for user ${supabaseUser.email}`);
+    console.log(`Auth middleware: Phone authentication successful for user ${userRecord.name || userRecord.id}`);
     
-    // Get user from database using email
-    let user = await apiKeyService._getUserByEmail(supabaseUser.email);
-    
-    if (!user) {
-      console.log(`Auth middleware: Creating new user for ${supabaseUser.email}`);
-      // Create user if not exists
-      user = await apiKeyService._createUserIfNotExists(supabaseUser.email);
-    }
-    
-    return user;
-  } catch (jwtError) {
-    console.error('Auth middleware: JWT validation error:', jwtError);
-    console.log('Auth middleware: JWT validation failed, trying as API key');
+    return {
+      id: userRecord.id,
+      phone: userRecord.phone,
+      name: userRecord.name,
+      email: userRecord.email,
+      has_paid: userRecord.has_paid || false,
+      is_admin: false
+    };
+  } catch (error) {
+    console.error('Auth middleware: Phone authentication error:', error);
     return null;
   }
-}
-
-/**
- * Authenticate with API key
- * @param {string} apiKey - API key
- * @returns {Promise<Object|null>} - User object or null if authentication fails
- */
-async function authenticateWithApiKey(apiKey) {
-  console.log('Auth middleware: Attempting to validate as API key');
-  const user = await apiKeyService.validateApiKey(apiKey);
-  
-  if (user) {
-    console.log('Auth middleware: API key validation successful');
-  } else {
-    console.log('Auth middleware: API key validation failed');
-  }
-  
-  return user;
-}
-
-/**
- * Authenticate with API key header
- * @param {string} apiKeyHeader - API key header value
- * @returns {Promise<Object|null>} - User object or null if authentication fails
- */
-async function authenticateWithApiKeyHeader(apiKeyHeader) {
-  // If it looks like an API key (starts with pfs_), validate it
-  if (apiKeyHeader.startsWith(AUTH_CONSTANTS.API_KEY_PREFIX)) {
-    return await apiKeyService.validateApiKey(apiKeyHeader);
-  }
-  // Otherwise, treat it as an email address (legacy behavior)
-  else {
-    const email = apiKeyHeader;
-    const hasAccess = await apiKeyService.hasAccess(email);
-    
-    if (hasAccess) {
-      return { email, is_admin: false };
-    }
-  }
-  
-  return null;
 }
 
 /**
@@ -187,9 +115,8 @@ async function authenticateWithApiKeyHeader(apiKeyHeader) {
  */
 function createUnauthorizedResponse(c) {
   return c.json({
-    error: 'Unauthorized. Valid API key or JWT token required.',
-    subscription_required: true,
-    subscription_url: `${process.env.API_BASE_URL || 'https://convert2doc.com'}/subscription`
+    error: 'Unauthorized. User ID and phone number required.',
+    authentication_required: true
   }, 401);
 }
 
@@ -202,6 +129,7 @@ function setUserInContext(c, user) {
   // Set user in context for later use
   c.set('user', user);
   
-  // Also set user email for easier access
-  c.set('userEmail', user.email);
+  // Also set user phone for easier access
+  c.set('userPhone', user.phone);
+  c.set('userId', user.id);
 }

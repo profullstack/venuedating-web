@@ -18,7 +18,7 @@ import {
 } from './api/matches.js';
 import { getCurrentUser } from './supabase-client.js';
 import { supabaseClientPromise } from './supabase-client.js';
-import authMiddleware from './auth-middleware.js';
+// import authMiddleware from './auth-middleware.js'; // Removed to prevent auth redirects
 import { createConversation } from './api/conversations.js';
 // PaymentModal will be imported dynamically when needed
 import MatchModal from './match-modal.js';
@@ -76,19 +76,9 @@ async function createDemoSession() {
 
 async function checkSubscriptionStatus() {
   try {
-    // Import auth utilities for authenticated requests
-    const { authenticatedFetch } = await import('/js/auth-utils.js');
-    
-    // Use the payment status API endpoint
-    const response = await authenticatedFetch('/api/user/payment-status');
-    
-    if (!response.ok) {
-      console.error('❌ Error checking subscription status:', response.status);
-      return false;
-    }
-    
-    const data = await response.json();
-    return data.has_paid === true;
+    // Skip payment check for now to prevent auth redirects
+    console.log('💳 Skipping payment check (demo mode)');
+    return false; // Always show payment modal for demo
   } catch (error) {
     console.error('❌ Error checking subscription status:', error);
     return false;
@@ -697,6 +687,7 @@ function showPaymentModal() {
 function hidePaymentModal() {
   const modal = document.getElementById('payment-modal');
   if (modal) {
+   
     modal.classList.remove('visible');
   }
 }

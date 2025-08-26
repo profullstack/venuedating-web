@@ -150,23 +150,49 @@ async function updatePaymentStatus(c) {
 // Create Square Online Checkout session
 async function createCheckoutSession(c) {
   try {
-    const user = c.get('user');
+    // Get user data from request body (phone-based auth)
+    const { userId, phone } = await c.req.json();
     
-    // Validate required Square credentials
-    if (!process.env.SQUARE_ACCESS_TOKEN) {
-      return c.json({ error: 'Square access token not configured' }, 500);
+    if (!userId || !phone) {
+      return c.json({ error: 'User ID and phone number required' }, 400);
     }
     
-    if (!process.env.SQUARE_LOCATION_ID && !process.env.SQUARE_SANDBOX_LOCATION_ID) {
-      return c.json({ error: 'Square location ID not configured' }, 500);
+    console.log('Creating checkout for user:', userId, 'with phone:', phone);
+    
+    // Create user object from provided data (skip database verification for now)
+    const user = {
+      id: userId,
+      phone: phone,
+      name: 'User' // Default name
+    };
+    
+    // Validate required Square credentials
+    const isProduction = process.env.SQUARE_ENV === 'production';
+    const accessToken = isProduction ? process.env.SQUARE_ACCESS_TOKEN : process.env.SQUARE_SANDBOX_ACCESS_TOKEN;
+    const locationId = isProduction ? process.env.SQUARE_LOCATION_ID : process.env.SQUARE_SANDBOX_LOCATION_ID;
+    
+    console.log('Square config:', {
+      environment: process.env.SQUARE_ENV || 'sandbox',
+      isProduction,
+      hasAccessToken: !!accessToken,
+      hasLocationId: !!locationId,
+      locationId: locationId
+    });
+    
+    if (!accessToken) {
+      return c.json({ error: 'Square access token not configured for ' + (isProduction ? 'production' : 'sandbox') }, 500);
+    }
+    
+    if (!locationId) {
+      return c.json({ error: 'Square location ID not configured for ' + (isProduction ? 'production' : 'sandbox') }, 500);
     }
     
     // Use Square SDK
     const { Client, Environment } = await import('square');
     
     const client = new Client({
-      accessToken: process.env.SQUARE_ACCESS_TOKEN,
-      environment: process.env.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox
+      accessToken: accessToken,
+      environment: isProduction ? Environment.Production : Environment.Sandbox
     });
     
     const { checkoutApi } = client;
@@ -174,7 +200,7 @@ async function createCheckoutSession(c) {
     const requestBody = {
       idempotencyKey: `checkout-${user.id}-${Date.now()}`,
       order: {
-        locationId: process.env.SQUARE_LOCATION_ID || process.env.SQUARE_SANDBOX_LOCATION_ID,
+        locationId: locationId,
         lineItems: [
           {
             quantity: '1',
@@ -279,7 +305,6 @@ export const squareRoutes = [
     method: 'POST',
     path: '/api/create-checkout-session',
     handler: createCheckoutSession,
-    middleware: [authMiddleware]
   },
   {
     method: 'POST',

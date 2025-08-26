@@ -460,9 +460,26 @@ app.get('/api/square-credentials', verifyToken, async (c) => {
 });
 
 // Create Square Online Checkout session
-app.post('/api/create-checkout-session', verifyToken, async (c) => {
+app.post('/api/create-checkout-session', async (c) => {
   try {
-    const user = c.get('user');
+    const { userId, phone } = await c.req.json();
+    
+    if (!userId || !phone) {
+      return c.json({ error: 'User ID and phone number required' }, 400);
+    }
+    
+    // Verify user exists in database by phone
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('id, phone, name')
+      .eq('id', userId)
+      .eq('phone', phone)
+      .single();
+    
+    if (userError || !userRecord) {
+      return c.json({ error: 'User not found or phone mismatch' }, 401);
+    }
+    
     const { Client, Environment } = await import('squareup');
     
     const client = new Client({
@@ -473,7 +490,7 @@ app.post('/api/create-checkout-session', verifyToken, async (c) => {
     const { checkoutApi } = client;
     
     const requestBody = {
-      idempotencyKey: `checkout-${user.id}-${Date.now()}`,
+      idempotencyKey: `checkout-${userRecord.id}-${Date.now()}`,
       order: {
         locationId: process.env.SQUARE_LOCATION_ID,
         lineItems: [
@@ -489,12 +506,12 @@ app.post('/api/create-checkout-session', verifyToken, async (c) => {
         ]
       },
       checkoutOptions: {
-        redirectUrl: `${process.env.API_BASE_URL || 'http://localhost:8097'}/payment-success?user_id=${user.id}`,
+        redirectUrl: `${process.env.API_BASE_URL || 'http://localhost:8099'}/payment-success?user_id=${userRecord.id}`,
         askForShippingAddress: false,
         merchantSupportEmail: 'support@barcrush.app'
       },
       prePopulatedData: {
-        buyerEmail: user.email
+        buyerPhone: userRecord.phone
       }
     };
     

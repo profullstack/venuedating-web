@@ -92,7 +92,8 @@
 
 /* Content */
 .payment-content {
-  padding: 0;
+  padding: 24px;
+  text-align: center;
 }
 
 /* Venue Preview */
@@ -202,6 +203,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-items: center;
 }
 
 .benefit-item {
@@ -212,6 +214,9 @@
   font-size: 16px;
   font-weight: 500;
   line-height: 1.4;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 280px;
 }
 
 .benefit-item svg {

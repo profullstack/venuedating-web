@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,15 @@
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/css/match-modal.css">
   <script src="/js/dark-mode.js"></script>
-  <script type="module" src="/js/auth-middleware.js"></script>
   <script type="module" src="/js/matching-controller.js"></script>
   <script type="module" src="/js/test-language-switch.js"></script>
   <script src="/js/hosted-checkout.js"></script>
+  <!-- DO NOT load matching.js - it conflicts with matching-controller.js -->
 
 </head>
+
 <body>
-<div class="matching-page">
+  <div class="matching-page">
     <div class="matching-header">
       <div class="header-content">
         <h1 class="page-title" data-i18n="matching.title">Matching</h1>
@@ -30,12 +32,12 @@
         <div class="spinner"></div>
         <p class="loading-text">Finding your matches...</p>
       </div>
-      
+
       <!-- Card stack for regular matching UI -->
       <div id="card-stack" class="card-stack">
         <!-- Cards will be dynamically generated from matching.js -->
       </div>
-      
+
       <!-- Match screen - hidden by default, shown when match occurs -->
       <div id="match-screen" class="match-screen">
         <!-- Profile images with hearts -->
@@ -46,29 +48,33 @@
             </div>
             <div class="heart-icon bottom-heart">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF4B77" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
               </svg>
             </div>
           </div>
-          
+
           <div class="profile-container right-profile">
             <div class="profile-image">
               <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7" alt="Match profile">
             </div>
             <div class="heart-icon top-heart">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF4B77" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                </path>
               </svg>
             </div>
           </div>
         </div>
-        
+
         <!-- Match text -->
         <div class="match-text">
           <h1 class="match-title">It's a match, Jake!</h1>
           <p class="match-subtitle">Want to meet on dance floor?</p>
         </div>
-        
+
         <!-- Match action buttons -->
         <div class="match-actions">
           <button class="match-button primary-button" id="say-hello-button">Say hello</button>
@@ -76,833 +82,886 @@
         </div>
       </div>
     </div>
-      
+
     <!-- Action Buttons -->
     <div class="action-buttons">
       <button id="dislike-button" class="action-button reject">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F44B74" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>
       </button>
       <button id="like-button" class="action-button like">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+          </path>
         </svg>
       </button>
     </div>
   </div>
-    
-    <!-- Bottom Navigation Component -->
-    <bottom-navigation current-page="matching"></bottom-navigation>
 
-    <script src="/components/bottom-nav.js" type="module"></script>
-    <script src="/js/matching.js" type="module"></script>
+  <!-- Bottom Navigation Component -->
+  <bottom-navigation current-page="matching"></bottom-navigation>
 
-    <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      }
-      
-      body {
-        background-color: var(--background-color);
-        color: var(--text-primary);
-        overflow-x: hidden;
-      }
-      
-      .matching-page {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--background-color); 
-        overflow: hidden;
-      }
+  <script src="/components/bottom-nav.js" type="module"></script>
+  <script src="/js/matching.js" type="module"></script>
 
-      .matching-header {  
-        padding: 16px;
-        background-color: var(--background-color); 
-        position: relative;
-        z-index: 10;
-      }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-      .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        max-width: 100%;
-        padding: 0 4px;
-      }
+    body {
+      background-color: var(--background-color);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
 
-      .page-title {
-        font-size:20px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--text-primary);
-      }
+    .matching-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--background-color);
+      overflow: hidden;
+    }
 
-      .menu-dots {
-        cursor: pointer;
-        padding: 8px;
-      }
-      
-      .menu-dots svg {
-        stroke: rgb(208, 77, 99);
-      }
+    .matching-header {
+      padding: 16px;
+      background-color: var(--background-color);
+      position: relative;
+      z-index: 10;
+    }
 
-      .matching-content {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 0 120px;
-        position: relative;
-        margin-top: -150px; /* Pull content up more */
-      }
-      
-      /* Loading Spinner Styles */
-      .loading-spinner {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 100;
-      }
-      
-      .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid var(--border-color, #e1e5e9);
-        border-top: 3px solid var(--primary-color, #FF4B77);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 16px;
-      }
-      
-      .loading-text {
-        color: var(--text-secondary, #666);
-        font-size: 16px;
-        font-weight: 500;
-        text-align: center;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 100%;
+      padding: 0 4px;
+    }
 
-      .card-stack {
-        position: relative;
-        width: 100%;
-        max-width: 300px;
-        height: 400px;
-        margin: 0 auto;
-        padding: 20px;
-        z-index: 10;
+    .page-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0;
+      color: var(--text-primary);
+    }
+
+    .menu-dots {
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .menu-dots svg {
+      stroke: rgb(208, 77, 99);
+    }
+
+    .matching-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 120px;
+      position: relative;
+      margin-top: -150px;
+      /* Pull content up more */
+    }
+
+    /* Loading Spinner Styles */
+    .loading-spinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 100;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color, #e1e5e9);
+      border-top: 3px solid var(--primary-color, #FF4B77);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    .loading-text {
+      color: var(--text-secondary, #666);
+      font-size: 16px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
 
-      .match-card {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-size: cover;
-        background-position: center;
-        border-radius: 20px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        transform-origin: bottom center;
-        cursor: pointer !important; /* Make it clear this is clickable */
-        transform-style: preserve-3d;
-        transition: transform 0.5s ease, opacity 0.3s ease, box-shadow 0.3s ease;
-        touch-action: none; /* Ensures touch events work properly */
+      100% {
+        transform: rotate(360deg);
       }
-      
-      /* Hover effect to make clickability more obvious */
-      .match-card:hover {
-        box-shadow: 0 10px 25px rgba(244, 75, 116, 0.4);
-        transform: translateY(-5px) scale(1.02) !important;
-      }
-      
-      /* View profile button removed as requested */
-      
-      /* Position the cards in stacked format */
-      .match-card:nth-child(1) {
-        transform: translateZ(20px) rotate(6deg) translateX(10px);
-        z-index: 10;
-      }
-      
-      .match-card:nth-child(2) {
-        transform: translateZ(10px) rotate(-4deg) translateX(-8px) scale(0.98);
-        z-index: 9;
-        opacity: 0.9;
-      }
-      
-      .match-card:nth-child(3) {
-        transform: translateZ(0) rotate(-1deg) translateX(-4px) scale(0.96);
-        z-index: 8;
-        opacity: 0.7;
-      }
-      
-      /* Card backgrounds */
-      .match-card[data-id="1"] {
-        background-image: url('/images/concert-barcrush.png');
-      }
-      
-      .match-card[data-id="2"] {
-        background-image: url('/images/concert-barcrush.png');
+    }
+
+    .card-stack {
+      position: relative;
+      width: 100%;
+      max-width: 300px;
+      height: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      z-index: 10;
+    }
+
+    .match-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      transform-origin: bottom center;
+      cursor: pointer !important;
+      /* Make it clear this is clickable */
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+      touch-action: none;
+      /* Ensures touch events work properly */
+    }
+
+    /* Hover effect to make clickability more obvious */
+    .match-card:hover {
+      box-shadow: 0 10px 25px rgba(244, 75, 116, 0.4);
+      transform: translateY(-5px) scale(1.02) !important;
+    }
+
+    /* View profile button removed as requested */
+
+    /* Position the cards in stacked format */
+    .match-card:nth-child(1) {
+      transform: translateZ(20px) rotate(6deg) translateX(10px);
+      z-index: 10;
+    }
+
+    .match-card:nth-child(2) {
+      transform: translateZ(10px) rotate(-4deg) translateX(-8px) scale(0.98);
+      z-index: 9;
+      opacity: 0.9;
+    }
+
+    .match-card:nth-child(3) {
+      transform: translateZ(0) rotate(-1deg) translateX(-4px) scale(0.96);
+      z-index: 8;
+      opacity: 0.7;
+    }
+
+    /* Card backgrounds */
+    .match-card[data-id="1"] {
+      background-image: url('/images/concert-barcrush.png');
+    }
+
+    .match-card[data-id="2"] {
+      background-image: url('/images/concert-barcrush.png');
+    }
+
+    /* Distance badge */
+    .card-distance {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 50px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .distance-text {
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    /* Card info section */
+    .card-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 30px 20px 24px;
+      color: white;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0) 100%);
+      z-index: 2;
+    }
+
+    .profile-name {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 5px 0;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .venue-name {
+      font-size: 17px;
+      margin: 0;
+      font-weight: 500;
+      opacity: 0.9;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Badge overlays */
+    .like-badge,
+    .dislike-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-10deg);
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 3;
+      box-shadow: 0 4px 15px rgba(244, 75, 116, 0.4);
+      border: 3px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .like-badge {
+      background-color: #F44B74;
+    }
+
+    .dislike-badge {
+      background-color: rgba(244, 75, 116, 0.9);
+    }
+
+    .like-badge svg,
+    .dislike-badge svg {
+      width: 80px;
+      height: 80px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    /* View Profile Button */
+    .view-profile-button {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #F44B74;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 20;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .view-profile-button:hover,
+    .view-profile-button:active {
+      background-color: #d33b64;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+      position: absolute;
+      bottom: 181px;
+      left: 0;
+      right: 0;
+    }
+
+    .action-button {
+      border: none;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .action-button:active {
+      transform: scale(0.95);
+    }
+
+    .action-button.reject {
+      background-color: white;
+    }
+
+    .action-button.like {
+      background-color: #F44B74;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--nav-background);
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      border-radius: 40px;
+      box-shadow: 0 4px 20px var(--shadow-color);
+    }
+
+    .bottom-nav-style1 {
+      width: 300px;
+      padding: 10px 20px;
+    }
+
+    .bottom-nav-style2 {
+      width: 200px;
+      padding: 15px 20px;
+      display: none;
+      /* Hide by default, can toggle with JavaScript */
+    }
+
+    .nav-item {
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+      text-decoration: none;
+    }
+
+    .nav-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .nav-item.active {
+      transform: scale(1.1);
+    }
+
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-top: 30px;
+      position: absolute;
+      bottom: 190px;
+      left: 0;
+      right: 0;
+    }
+
+    .action-button {
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px var(--shadow-color);
+      transition: transform 0.2s ease;
+    }
+
+    .action-button:active {
+      transform: scale(0.95);
+    }
+
+    .action-button.reject {
+      background-color: white;
+    }
+
+    .action-button.reject svg {
+      stroke: #F44B74;
+      stroke-width: 2;
+    }
+
+    .action-button.like {
+      background-color: #F44B74;
+    }
+
+    .action-button.like svg {
+      stroke: white;
+      fill: white;
+    }
+
+    /* Match screen styles */
+    .match-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--background-color);
+      z-index: 1000;
+      padding: 20px;
+      color: var(--text-primary);
+    }
+
+    /* Initially hide the match screen */
+    #match-screen {
+      display: none;
+    }
+
+    /* Match profiles with overlapping circles */
+    .match-profiles {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      margin-bottom: 40px;
+    }
+
+    .profile-container {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+    }
+
+    .left-profile {
+      left: calc(50% - 170px);
+      top: 40px;
+      z-index: 1;
+    }
+
+    .right-profile {
+      right: calc(50% - 170px);
+      top: 0px;
+      z-index: 2;
+    }
+
+    .profile-image {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid var(--surface-color);
+      box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    .profile-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Heart icons */
+    .heart-icon {
+      position: absolute;
+      background-color: var(--surface-color);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .bottom-heart {
+      bottom: -20px;
+      right: -15px;
+    }
+
+    .top-heart {
+      top: -15px;
+      left: -15px;
+    }
+
+    /* Match text */
+    .match-text {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .match-title {
+      font-size: 36px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #FF4B77;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .match-subtitle {
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+
+    /* Match action buttons */
+    .match-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .match-button {
+      border: none;
+      border-radius: 100px;
+      padding: 16px 0;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .match-button:active {
+      transform: scale(0.98);
+    }
+
+    .primary-button {
+      background-color: #FF4B77;
+      color: white;
+    }
+
+    .secondary-button {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #FF4B77;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 75, 119, 0.3);
+    }
+
+    /* Payment Modal Styles */
+    .payment-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
+      display: none;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      margin: 0;
+      padding: 0;
+    }
+
+    .payment-modal.visible {
+      display: block;
+      opacity: 1;
+    }
+
+    .payment-modal-overlay {
+      display: none;
+    }
+
+
+
+    .payment-modal-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
+      border-radius: 0;
+      box-shadow: none;
+      overflow-y: auto;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    .payment-modal:not(.visible) .payment-modal-content {
+      transform: translateY(100%);
+    }
+
+    .payment-modal-header {
+      padding: 80px 32px 32px;
+      text-align: center;
+      color: black;
+      position: relative;
+      background-color: #fff;
+      padding-top: env(safe-area-inset-top, 80px);
+    }
+
+    .payment-modal-close {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 20px) + 20px);
+      right: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .payment-modal-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .payment-modal-subtitle {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0;
+      opacity: 0.95;
+    }
+
+    .payment-modal-body {
+      background: white;
+      padding: 32px;
+      border-radius: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .benefits-list {
+      margin-bottom: 32px;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .benefit-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .benefit-item svg {
+      color: #10B981;
+      flex-shrink: 0;
+    }
+
+    .payment-form {
+      margin-bottom: 24px;
+    }
+
+    .payment-button {
+      width: 100%;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pay-btn {
+      background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255, 75, 119, 0.3);
+    }
+
+    .pay-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 75, 119, 0.4);
+    }
+
+    .cancel-btn {
+      background: transparent;
+      color: #666;
+      border: 2px solid #E5E7EB;
+      margin-top: 12px;
+    }
+
+    .cancel-btn:hover {
+      background: #F9FAFB;
+      border-color: #D1D5DB;
+    }
+
+    .payment-security {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .payment-security svg {
+      color: #10B981;
+    }
+
+    .button-spinner {
+      display: none;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
       }
 
-      /* Distance badge */
-      .card-distance {
-        position: absolute;
-        top: 16px;
-        left: 16px;
-        background-color: rgba(0, 0, 0, 0.7);
-        border-radius: 50px;
-        padding: 8px 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: white;
-        font-size: 15px;
-        font-weight: 600;
-        z-index: 2;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+      100% {
+        transform: rotate(360deg);
       }
+    }
 
-      .distance-text {
-        font-weight: 500;
-        letter-spacing: 0.3px;
-      }
-
-      /* Card info section */
-      .card-info {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 30px 20px 24px;
-        color: white;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 50%, rgba(0, 0, 0, 0) 100%);
-        z-index: 2;
-      }
-
-      .profile-name {
-        font-size: 22px;
-        font-weight: 700;
-        margin: 0 0 5px 0;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-
-      .venue-name {
-        font-size: 17px;
-        margin: 0;
-        font-weight: 500;
-        opacity: 0.9;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-      }
-      
-      /* Badge overlays */
-      .like-badge, .dislike-badge {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-10deg);
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        z-index: 3;
-        box-shadow: 0 4px 15px rgba(244, 75, 116, 0.4);
-        border: 3px solid rgba(255, 255, 255, 0.6);
-      }
-      
-      .like-badge {
-        background-color: #F44B74;
-      }
-      
-      .dislike-badge {
-        background-color: rgba(244, 75, 116, 0.9);
-      }
-      
-      .like-badge svg, .dislike-badge svg {
-        width: 80px;
-        height: 80px;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-      }
-      
-      /* View Profile Button */
-      .view-profile-button {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #F44B74;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 30px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        z-index: 20;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        text-align: center;
-        transition: all 0.2s ease;
-      }
-      
-      .view-profile-button:hover, .view-profile-button:active {
-        background-color: #d33b64;
-        transform: translateX(-50%) scale(1.05);
-      }
-      
-      /* Action buttons */
-      .action-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        margin-top: 30px;
-        position: absolute;
-        bottom: 181px;
-        left: 0;
-        right: 0;
-      }
-      
-      .action-button {
-        border: none;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        transition: transform 0.2s ease;
-      }
-      
-      .action-button:active {
-        transform: scale(0.95);
-      }
-      
-      .action-button.reject {
-        background-color: white;
-      }
-      
-      .action-button.like {
-        background-color: #F44B74;
-      }
-
-      /* Bottom Navigation */
-      .bottom-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: var(--nav-background);
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 100;
-        border-radius: 40px;
-        box-shadow: 0 4px 20px var(--shadow-color);
-      }
-      
-      .bottom-nav-style1 {
-        width: 300px;
-        padding: 10px 20px;
-      }
-
-      .bottom-nav-style2 {
-        width: 200px;
-        padding: 15px 20px;
-        display: none; /* Hide by default, can toggle with JavaScript */
-      }
-      
-      .nav-item {
-        padding: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease;
-        text-decoration: none;
-      }
-      
-      .nav-item svg {
-        width: 24px;
-        height: 24px;
-      }
-      
-      .nav-item.active {
-        transform: scale(1.1);
-      }
-
-      /* Action buttons */
-      .action-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 60px;
-        margin-top: 30px;
-        position: absolute;
-        bottom: 190px;
-        left: 0;
-        right: 0;
-      }
-      
-      .action-button {
-        border: none;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 4px 10px var(--shadow-color);
-        transition: transform 0.2s ease;
-      }
-      
-      .action-button:active {
-        transform: scale(0.95);
-      }
-      
-      .action-button.reject {
-        background-color: white;
-      }
-      
-      .action-button.reject svg {
-        stroke: #F44B74;
-        stroke-width: 2;
-      }
-      
-      .action-button.like {
-        background-color: #F44B74;
-      }
-      
-      .action-button.like svg {
-        stroke: white;
-        fill: white;
-      }
-      
-      /* Match screen styles */
-      .match-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: var(--background-color);
-        z-index: 1000;
-        padding: 20px;
-        color: var(--text-primary);
-      }
-      
-      /* Initially hide the match screen */
-      #match-screen {
-        display: none;
-      }
-      
-      /* Match profiles with overlapping circles */
-      .match-profiles {
-        position: relative;
-        width: 100%;
-        height: 300px;
-        margin-bottom: 40px;
-      }
-      
-      .profile-container {
-        position: absolute;
-        width: 180px;
-        height: 180px;
-      }
-      
-      .left-profile {
-        left: calc(50% - 170px);
-        top: 40px;
-        z-index: 1;
-      }
-      
-      .right-profile {
-        right: calc(50% - 170px);
-        top: 0px;
-        z-index: 2;
-      }
-      
-      .profile-image {
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 4px solid var(--surface-color);
-        box-shadow: 0 4px 15px var(--shadow-color);
-      }
-      
-      .profile-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-      
-      /* Heart icons */
-      .heart-icon {
-        position: absolute;
-        background-color: var(--surface-color);
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      }
-      
-      .bottom-heart {
-        bottom: -20px;
-        right: -15px;
-      }
-      
-      .top-heart {
-        top: -15px;
-        left: -15px;
-      }
-      
-      /* Match text */
-      .match-text {
-        text-align: center;
-        margin-bottom: 40px;
-      }
-      
-      .match-title {
-        font-size: 36px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #FF4B77;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      }
-      
-      .match-subtitle {
-        font-size: 18px;
-        color: var(--text-primary);
-      }
-      
-      /* Match action buttons */
-      .match-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        width: 100%;
-        max-width: 320px;
-      }
-      
-      .match-button {
-        border: none;
-        border-radius: 100px;
-        padding: 16px 0;
-        font-size: 18px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: transform 0.2s ease, background-color 0.2s ease;
-      }
-      
-      .match-button:active {
-        transform: scale(0.98);
-      }
-      
-      .primary-button {
-        background-color: #FF4B77;
-        color: white;
-      }
-      
-      .secondary-button {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #FF4B77;
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 75, 119, 0.3);
-      }
-
-      /* Payment Modal Styles */
-      .payment-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-      
-      .payment-modal.visible {
-        display: flex;
-        opacity: 1;
-      }
-      
-      .payment-modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(8px);
-      }
-      
+    /* Mobile responsive adjustments */
+    @media (max-width: 480px) {
       .payment-modal-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 400px;
-        max-width: 90vw;
-        background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 95%;
+        margin: 20px;
       }
-      
-      .payment-modal:not(.visible) .payment-modal-content {
-        transform: translate(-50%, -50%) scale(0.9);
-      }
-      
-      .payment-modal-header {
-        padding: 40px 32px 32px;
-        text-align: center;
-        color: white;
-      }
-      
+
+ 
+
       .payment-modal-title {
-        font-size: 28px;
-        font-weight: 700;
-        margin: 0 0 8px 0;
-        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        font-size: 24px;
       }
-      
+
       .payment-modal-subtitle {
-        font-size: 18px;
-        font-weight: 500;
-        margin: 0;
-        opacity: 0.95;
+        font-size: 16px;
       }
-      
+
       .payment-modal-body {
-        background: white;
-        padding: 32px;
-        border-radius: 0 0 24px 24px;
+        padding: 24px;
       }
-      
-      .benefits-list {
-        margin-bottom: 32px;
-      }
-      
-      .benefit-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-        font-size: 16px;
-        color: #333;
-      }
-      
-      .benefit-item:last-child {
-        margin-bottom: 0;
-      }
-      
-      .benefit-item svg {
-        color: #10B981;
-        flex-shrink: 0;
-      }
-      
-      .payment-form {
-        margin-bottom: 24px;
-      }
-      
-      .payment-button {
-        width: 100%;
-        padding: 16px 24px;
-        border: none;
-        border-radius: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .pay-btn {
-        background: linear-gradient(135deg, #FF4B77 0%, #FF6B9D 100%);
-        color: white;
-        box-shadow: 0 4px 16px rgba(255, 75, 119, 0.3);
-      }
-      
-      .pay-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 75, 119, 0.4);
-      }
-      
-      .cancel-btn {
-        background: transparent;
-        color: #666;
-        border: 2px solid #E5E7EB;
-        margin-top: 12px;
-      }
-      
-      .cancel-btn:hover {
-        background: #F9FAFB;
-        border-color: #D1D5DB;
-      }
-      
-      .payment-security {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 16px;
-        font-size: 14px;
-        color: #666;
-      }
-      
-      .payment-security svg {
-        color: #10B981;
-      }
-      
-      .button-spinner {
-        display: none;
-      }
-      
-      .spinner {
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-top: 2px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-      
-      /* Mobile responsive adjustments */
-      @media (max-width: 480px) {
-        .payment-modal-content {
-          width: 95%;
-          margin: 20px;
-        }
-        
-        .payment-modal-header {
-          padding: 32px 24px 24px;
-        }
-        
-        .payment-modal-title {
-          font-size: 24px;
-        }
-        
-        .payment-modal-subtitle {
-          font-size: 16px;
-        }
-        
-        .payment-modal-body {
-          padding: 24px;
-        }
-      }
-    </style>
-    
-    <!-- Load scripts -->
-    <script type="module" src="/components/bottom-nav.js"></script>
-    <!-- matching.js replaced with matching-controller.js module loaded in head -->
+    }
+  </style>
 
-</div>
+  <!-- Load scripts -->
+  <script type="module" src="/components/bottom-nav.js"></script>
+  <!-- matching.js replaced with matching-controller.js module loaded in head -->
 
-<!-- Payment Modal -->
-<div id="payment-modal" class="payment-modal">
-  <div class="payment-modal-overlay"></div>
-  <div class="payment-modal-content">
-    <div class="payment-modal-header">
-      <h2 class="payment-modal-title">Upgrade to Premium</h2>
-      <p class="payment-modal-subtitle">Unlock unlimited matching</p>
-    </div>
-    
-    <div class="payment-modal-body">
-      <!-- Benefits List -->
-      <div class="benefits-list">
-        <div class="benefit-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Unlimited swipes and matches
-        </div>
-        <div class="benefit-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          See who liked you first
-        </div>
-        <div class="benefit-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Advanced filtering options
-        </div>
-        <div class="benefit-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Access to venue information
-        </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div id="payment-modal" class="payment-modal">
+    <div class="payment-modal-overlay"></div>
+    <div class="payment-modal-content">
+      <div class="payment-modal-header">
+
       </div>
-      
-      <!-- Payment Form -->
-      <div class="payment-form">
-        <button id="complete-payment" class="payment-button pay-btn">
-          <span class="button-text">Pay $2.00 - Secure Checkout</span>
-          <div class="button-spinner" style="display: none;">
-            <div class="spinner"></div>
+
+      <div class="payment-modal-body">
+        <!-- Benefits List -->
+        <img src="/images/logo.png" alt="BarCrush Logo" class="payment-modal-logo" style="width: 60px;">
+        <button class="payment-modal-close" onclick="document.getElementById('payment-modal').classList.remove('visible')">×</button>
+        <h2 class="payment-modal-title">Upgrade to Premium</h2>
+        <br />
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            Unlimited swipes and matches
           </div>
-        </button>
-        
-        <div class="payment-security">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-            <circle cx="12" cy="16" r="1" fill="currentColor"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
-          </svg>
-          Secured by Square
+          <div class="benefit-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            See who liked you first
+          </div>
+          <div class="benefit-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            Advanced filtering options
+          </div>
+          <div class="benefit-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            Access to venue information
+          </div>
         </div>
-      </div>
-      
-      <!-- Payment Actions -->
-      <div class="payment-actions">
-        <button id="cancel-payment" class="payment-button cancel-btn">Cancel</button>
+
+        <!-- Payment Form -->
+        <div class="payment-form">
+          <button id="complete-payment" class="payment-button pay-btn">
+            <span class="button-text">Pay $2.00 - Secure Checkout</span>
+            <div class="button-spinner" style="display: none;">
+              <div class="spinner"></div>
+            </div>
+          </button>
+
+          <div class="payment-security">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2" />
+              <circle cx="12" cy="16" r="1" fill="currentColor" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" />
+            </svg>
+            Secured by Square
+          </div>
+        </div>
+
+        <!-- Payment Actions -->
+        <div class="payment-actions">
+          <button id="cancel-payment" class="payment-button cancel-btn">Go back</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
