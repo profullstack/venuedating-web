@@ -37,10 +37,9 @@ jwt_expiry = 3600
 # Allow/disallow new user signups to your project.
 enable_signup = true
 
-[auth.sms]
-# Use Twilio for SMS
-provider = "twilio"
-# Twilio configuration - use Account SID and Auth Token, not API Key
+[auth.external.twilio]
+enabled = true
 twilio_account_sid = "AC554663cb9ea7efc0ebddb56fb727bd11"
 twilio_auth_token = "f6cf2e4e1cac5d9006d29cb291a00c30"
-twilio_phone_number = "+14085396332"
+twilio_messaging_service_sid = "+14085396332"
+
