@@ -27,6 +27,94 @@ let currentUserLocation = null;
 let currentFilters = null;
 
 /**
+ * Refresh user info from Supabase and update localStorage
+ */
+async function refreshUserInfo() {
+  try {
+    console.log('Refreshing user info from Supabase...');
+    
+    // Get current user data from localStorage
+    const userData = localStorage.getItem('barcrush_user');
+    if (!userData) {
+      console.log('No user data in localStorage, skipping refresh');
+      return;
+    }
+    
+    const currentUser = JSON.parse(userData);
+    if (!currentUser.id || !currentUser.phone) {
+      console.log('Invalid user data in localStorage, skipping refresh');
+      return;
+    }
+    
+    // Import Supabase client
+    const { default: supabaseClientPromise } = await import('./supabase-client.js');
+    const supabase = await supabaseClientPromise;
+    
+    // Get current session user from Supabase auth
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    
+    // If no current session or user ID doesn't match, fetch from profiles table directly
+    let updatedUser;
+    if (authError || !authUser || authUser.id !== currentUser.id) {
+      console.log('No matching auth session, fetching from profiles table');
+      
+      // Fetch user data from profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, phone, has_paid, created_at')
+        .eq('id', currentUser.id)
+        .single();
+      
+      if (profileError || !profileData) {
+        console.error('Error fetching user from profiles:', profileError);
+        return;
+      }
+      
+      updatedUser = {
+        id: profileData.id,
+        phone: profileData.phone || currentUser.phone,
+        email: currentUser.email,
+        name: currentUser.name,
+        has_paid: profileData.has_paid || false,
+        created_at: profileData.created_at
+      };
+    } else {
+      // User has active session, combine auth data with profile data
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('has_paid')
+        .eq('id', currentUser.id)
+        .single();
+      
+      updatedUser = {
+        id: authUser.id,
+        phone: authUser.phone || currentUser.phone,
+        email: authUser.email,
+        name: authUser.user_metadata?.name || currentUser.name,
+        has_paid: profileData?.has_paid || false,
+        created_at: authUser.created_at
+      };
+    }
+    
+    // Update localStorage with fresh data from Supabase
+    const refreshedUserData = {
+      id: updatedUser.id,
+      phone: updatedUser.phone,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      has_paid: updatedUser.has_paid,
+      created_at: updatedUser.created_at
+    };
+    
+    localStorage.setItem('barcrush_user', JSON.stringify(refreshedUserData));
+    console.log('User info refreshed successfully:', refreshedUserData);
+  } catch (error) {
+    console.error('Error refreshing user info:', error);
+    // Don't throw error - just log it and continue with existing localStorage data
+  }
+}
+
+/**
  * Generate a static map image URL for a venue location
  * @param {number} lat - Latitude of the venue
  * @param {number} lng - Longitude of the venue
@@ -90,6 +178,8 @@ function getVenueIcon(venueType) {
 
 export async function initDiscoverPage() {
   console.log('Initialize discover page');
+  
+  // User info refresh now handled in validateDirectTwilioSession
   
   // Initialize components
   setupHeaderButtons();

@@ -430,6 +430,70 @@ async function verifyToken(c, next) {
   }
 }
 
+// User API Endpoints
+
+// Get user data by ID
+app.get('/api/user/:id', async (c) => {
+  try {
+    const userId = c.req.param('id');
+    
+    if (!userId) {
+      return c.json({ error: 'User ID is required' }, 400);
+    }
+    
+    console.log('Fetching user data for ID:', userId);
+    
+    // First try to get user from Supabase auth
+    let userData = null;
+    try {
+      const { data: authData, error: authError } = await supabase.auth.admin.getUserById(userId);
+      if (authData?.user) {
+        userData = {
+          id: authData.user.id,
+          email: authData.user.email,
+          phone: authData.user.phone,
+          name: authData.user.user_metadata?.name,
+          created_at: authData.user.created_at,
+          source: 'auth'
+        };
+      }
+    } catch (authError) {
+      console.log('Auth lookup failed, trying profiles table:', authError.message);
+    }
+    
+    // Get additional data from profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, phone, name, email, has_paid, created_at')
+      .eq('id', userId)
+      .single();
+    
+    if (profileData) {
+      // Merge auth data with profile data
+      userData = {
+        id: profileData.id,
+        email: profileData.email || userData?.email,
+        phone: profileData.phone || userData?.phone,
+        name: profileData.name || userData?.name,
+        has_paid: profileData.has_paid || false,
+        created_at: profileData.created_at || userData?.created_at,
+        source: userData ? 'auth+profiles' : 'profiles'
+      };
+    }
+    
+    if (!userData) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+    
+    console.log('User data found:', userData);
+    return c.json({ success: true, user: userData });
+    
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return c.json({ error: 'Failed to fetch user data' }, 500);
+  }
+});
+
 // Square API Endpoints
 
 // Get Square credentials

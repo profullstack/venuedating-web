@@ -99,7 +99,79 @@ export async function updateUserProfile(c) {
 }
 
 // Export user routes
+// Get user data by ID (no auth required for debugging)
+async function getUserById(c) {
+  try {
+    const userId = c.req.param('id');
+    
+    if (!userId) {
+      return c.json({ error: 'User ID is required' }, 400);
+    }
+    
+    console.log('Fetching user data for ID:', userId);
+    
+    // Import Supabase client
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    
+    // First try to get user from Supabase auth
+    let userData = null;
+    try {
+      const { data: authData, error: authError } = await supabase.auth.admin.getUserById(userId);
+      if (authData?.user) {
+        userData = {
+          id: authData.user.id,
+          email: authData.user.email,
+          phone: authData.user.phone,
+          name: authData.user.user_metadata?.name,
+          created_at: authData.user.created_at,
+          source: 'auth'
+        };
+      }
+    } catch (authError) {
+      console.log('Auth lookup failed, trying profiles table:', authError.message);
+    }
+    
+    // Get additional data from profiles table
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, phone, name, email, has_paid, created_at')
+      .eq('id', userId)
+      .single();
+    
+    if (profileData) {
+      // Merge auth data with profile data
+      userData = {
+        id: profileData.id,
+        email: profileData.email || userData?.email,
+        phone: profileData.phone || userData?.phone,
+        name: profileData.name || userData?.name,
+        has_paid: profileData.has_paid || false,
+        created_at: profileData.created_at || userData?.created_at,
+        source: userData ? 'auth+profiles' : 'profiles'
+      };
+    }
+    
+    if (!userData) {
+      return c.json({ error: 'User not found' }, 404);
+    }
+    
+    console.log('User data found:', userData);
+    return c.json({ success: true, user: userData });
+    
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return c.json({ error: 'Failed to fetch user data' }, 500);
+  }
+}
+
 export const userRoutes = [
+  {
+    method: 'GET',
+    path: '/api/user/:id',
+    handler: getUserById
+    // No auth middleware for debugging
+  },
   {
     method: 'GET',
     path: '/api/users/:id',

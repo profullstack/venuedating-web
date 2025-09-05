@@ -941,8 +941,17 @@
 
         <!-- Payment Form -->
         <div class="payment-form">
-          <button id="complete-payment" class="payment-button pay-btn">
+          <button id="complete-payment" class="payment-button pay-btn" data-amount="2">
             <span class="button-text">Pay $2.00 - Secure Checkout</span>
+            <div class="button-spinner" style="display: none;">
+              <div class="spinner"></div>
+            </div>
+          </button>
+
+          <br />
+
+          <button id="complete-payment-5" class="payment-button pay-btn" data-amount="5" onclick="handlePayment5Direct()">
+            <span class="button-text">Pay $5.00 - Secure Checkout</span>
             <div class="button-spinner" style="display: none;">
               <div class="spinner"></div>
             </div>
@@ -965,3 +974,52 @@
       </div>
     </div>
   </div>
+  <!-- Direct implementation for the $5 payment button -->
+  <script>
+    // Direct implementation for $5 payment button handler
+    function handlePayment5Direct() {
+      console.log('$5 payment button clicked directly');
+      
+      const payButton = document.getElementById('complete-payment-5');
+      const buttonText = payButton.querySelector('.button-text');
+      const buttonSpinner = payButton.querySelector('.button-spinner');
+      
+      try {
+        // Show loading state
+        buttonText.style.display = 'none';
+        buttonSpinner.style.display = 'block';
+        payButton.disabled = true;
+        
+        // Use hosted checkout manager to create checkout session with $5 amount
+        if (window.hostedCheckout) {
+          console.log('Processing $5 payment with hosted checkout');
+          window.hostedCheckout.createCheckoutSession(5);
+        } else {
+          throw new Error('Payment system not available');
+        }
+        
+      } catch (error) {
+        console.error('Payment error:', error);
+        
+        // Show error state
+        buttonText.textContent = 'Payment Failed - Try Again';
+        buttonText.style.display = 'block';
+        buttonSpinner.style.display = 'none';
+        payButton.disabled = false;
+        
+        // Reset button text after 3 seconds
+        setTimeout(() => {
+          buttonText.textContent = 'Pay $5.00 - Secure Checkout';
+        }, 3000);
+      }
+    }
+    
+    // Make sure we attach the handler after DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      const fiveDollarButton = document.getElementById('complete-payment-5');
+      if (fiveDollarButton) {
+        console.log('Found $5 payment button, attaching direct handler');
+        fiveDollarButton.onclick = handlePayment5Direct;
+      }
+    });
+  </script>

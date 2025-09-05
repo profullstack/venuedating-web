@@ -151,13 +151,16 @@ async function updatePaymentStatus(c) {
 async function createCheckoutSession(c) {
   try {
     // Get user data from request body (phone-based auth)
-    const { userId, phone } = await c.req.json();
+    const { userId, phone, amount = 2 } = await c.req.json();
     
     if (!userId || !phone) {
       return c.json({ error: 'User ID and phone number required' }, 400);
     }
     
-    console.log('Creating checkout for user:', userId, 'with phone:', phone);
+    // Convert amount from dollars to cents
+    const amountInCents = amount * 100;
+    
+    console.log('Creating checkout for user:', userId, 'with phone:', phone, 'amount: $' + amount);
     
     // Create user object from provided data (skip database verification for now)
     const user = {
@@ -205,10 +208,10 @@ async function createCheckoutSession(c) {
           {
             quantity: '1',
             basePriceMoney: {
-              amount: BigInt(200), // $2.00 in cents
+              amount: BigInt(amountInCents), // Convert from dollars to cents
               currency: 'USD'
             },
-            name: 'BarCrush Premium Access',
+            name: `BarCrush Premium Access ($${amount})`,
             note: 'Unlock venue information and premium features'
           }
         ]

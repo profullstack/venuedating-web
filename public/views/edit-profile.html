@@ -9,648 +9,376 @@
   <script src="/js/auth-middleware.js" type="module"></script>
   <script src="/js/countries.js"></script>
   <script src="/js/supabase-client.js" type="module"></script>
-</head>
-<body>
-<div class="profile-container">
-
-  <div class="profile-header">
-    <h1 data-i18n="profile.edit_info">Edit Profile</h1>
-    <a href="/discover" class="skip-btn" data-i18n="profile.cancel">Cancel</a>
-  </div>
-  
-  <div class="profile-photo-container">
-    <div class="profile-photo">
-      <img src="/images/default-profile.png" alt="Profile Photo" id="profile-image">
-      <button class="camera-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-    <div class="profile-photo-text" data-i18n="profile.photo">Profile Photo</div>
-  </div>
-  
-  <div class="profile-form">
-    <div class="input-group">
-      <label for="first-name" data-i18n="profile.first_name">First name</label>
-      <input type="text" id="first-name" placeholder="Jane" data-i18n-placeholder="profile.first_name_placeholder">
-    </div>
+  <style>
+    /* Import Roboto font */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+    /* Import country dropdown styles */
+    @import url('/css/country-dropdown.css');
     
-    <div class="input-group">
-      <label for="last-name" data-i18n="profile.last_name">Last name</label>
-      <input type="text" id="last-name" placeholder="Doe" data-i18n-placeholder="profile.last_name_placeholder">
-    </div>
-
-    <div class="input-group">
-      <label for="phone-number" data-i18n="profile.phone_number">Phone number</label>
-      <div class="phone-input-container">
-        <div class="country-select" id="country-select">
-          <div class="selected-country">
-            <div class="country-flag" id="selected-flag">🇺🇸</div>
-            <div class="country-code" id="selected-code">+1</div>
-            <div class="dropdown-arrow">▼</div>
-          </div>
-          <div class="country-dropdown" id="country-dropdown" style="display: none;">
-            <div class="country-search-container">
-              <input type="text" id="country-search-input" placeholder="Search country" class="country-search" data-i18n-placeholder="profile.search_country">
-            </div>
-            <div class="country-list-container">
-              <!-- Country options will be populated dynamically from countries.js -->
-            </div>
-          </div>
-        </div>
-        <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input" data-i18n-placeholder="profile.phone_placeholder">
-        <input type="hidden" id="country-code-input" value="+1">
-        <input type="hidden" id="full-phone" value="">
-      </div>
-    </div>
-    
-    <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M16 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M8 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M3 10H21" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span id="birthday-display" data-i18n="profile.choose_birthday">Choose birthday date</span>
-    </button>
-    
-    <button class="option-btn location-btn" id="location-btn" type="button">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span id="location-display" data-i18n="profile.choose_location">Choose your location</span>
-    </button>
-    
-    <button class="confirm-btn" id="confirm-btn">Save Changes</button>
-  </div>
-</div>
-<style>
-  /* Import Roboto font */
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-  /* Import country dropdown styles */
-  @import url('/css/country-dropdown.css');
-  
-  .profile-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    min-height: 100vh;
-    background-color: #fff;
-    font-family: 'Roboto', sans-serif;
-    padding: 16px;
-    padding-top: 0;
-    box-sizing: border-box;
-  }
-  
-  .profile-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-top: 16px;
-  }
-  
-  .profile-header h1 {
-    font-size: 18px;
-    font-weight: 500;
-    margin: 0;
-    color: #333;
-  }
-  
-  .skip-btn {
-    color: #F44B74;
-    font-size: 14px;
-    font-weight: 400;
-    text-decoration: none;
-  }
-  
-  .profile-photo-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 30px;
-  }
-  
-  .profile-photo {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    background-color: #f3f3f3;
-    margin-bottom: 8px;
-    border: 1px solid #eaeaea;
-  }
-  
-  .profile-photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .profile-photo-text {
-    font-size: 13px;
-    color: #888;
-    text-align: center;
-  }
-  
-  .camera-btn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background-color: #F44B74;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    padding: 0;
-  }
-  
-  .camera-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .profile-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    margin: 0 auto;
-  }
-  
-  .input-group {
-    margin-bottom: 15px;
-  }
-  
-  .input-group label {
-    display: block;
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-  }
-  
-  .input-group input {
-    width: 100%;
-    height: 42px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    padding: 0 15px;
-    font-size: 16px;
-    box-sizing: border-box;
-    color: #333;
-    background-color: #fff;
-  }
-  
-  /* Phone input styles moved to country-dropdown.css */
-  
-  .option-btn {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    height: 44px;
-    border-radius: 8px;
-    border: none;
-    background-color: #f9f9f9;
-    margin-bottom: 12px;
-    padding: 0 15px;
-    font-size: 14px;
-    cursor: pointer;
-    text-align: left;
-    box-shadow: none;
-  }
-  
-  .option-btn svg {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-  }
-  
-  .birthday-btn span {
-    color: #F44B74;
-  }
-  
-  .option-btn.has-value {
-    background-color: rgba(248, 92, 138, 0.05);
-    border: 1px solid rgba(248, 92, 138, 0.1);
-  }
-  
-  .location-btn span {
-    color: #333;
-  }
-  
-  .confirm-btn {
-    width: 100%;
-    height: 44px;
-    border-radius: 22px;
-    border: none;
-    background-color: #F44B74;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 30px;
-    box-shadow: 0 2px 8px rgba(248, 92, 138, 0.3);
-  }
-  
-  @media (max-width: 600px) {
-    .profile-header h1 {
-      font-size: 17px;
+    .profile-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      background-color: #fff;
+      font-family: 'Roboto', sans-serif;
+      padding: 16px;
+      padding-top: 0;
+      box-sizing: border-box;
     }
-  }
-  
-  /* Date Picker Styles */
-  .date-picker-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  
-  .date-picker-container {
-    background-color: white;
-    border-radius: 20px 20px 0 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 24px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-  }
-  
-  .date-picker-modal.visible .date-picker-container {
-    transform: translateY(0);
-  }
-  
-  .date-picker-container h2 {
-    font-size: 18px;
-    color: #333;
-    margin: 0 0 20px;
-    font-weight: 500;
-    text-align: center;
-  }
-  
-  .year-month-selector {
-    display: block;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .year-month-selector > div {
-    text-align: center;
-  }
-  
-  .handle-bar {
-    width: 40px;
-    height: 4px;
-    background-color: #ddd;
-    border-radius: 2px;
-    margin-bottom: 16px;
-  }
+    
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-top: 16px;
+    }
+    
+    .profile-header h1 {
+      font-size: 18px;
+      font-weight: 500;
+      margin: 0;
+      color: #333;
+    }
+    
+    .skip-btn {
+      color: #F44B74;
+      font-size: 14px;
+      font-weight: 400;
+      text-decoration: none;
+    }
+    
+    .profile-photo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-photo {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: #f3f3f3;
+      margin-bottom: 8px;
+      border: 1px solid #eaeaea;
+    }
+    
+    .profile-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-  .selected-year {
-    font-size: 20px;
-    font-weight: 700;
-    color: #F44B74;
-    margin-bottom: 4px;
-    cursor: pointer;
-  }
-  
-  .selected-month {
-    font-size: 22px;
-    color: #F44B74;
-    font-weight: 400;
-    cursor: pointer;
-  }
-  
-  .year-selector, .month-selector {
-    display: none;
-    width: 100%;
-    margin-bottom: 20px;
-    max-height: 300px;
-  }
-  
-  .selector-title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: 500;
-    margin: 10px 0;
-    color: #333;
-  }
-  
-  .year-scroll-container, .month-scroll-container {
-    height: 220px;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: y mandatory;
-    padding: 60px 0;
-    margin: 0 auto;
-    width: 100%;
-    position: relative;
-    background: linear-gradient(
-      to bottom,
-      white 0%,
-      rgba(255,255,255,0.8) 20%,
-      rgba(255,255,255,0.4) 40%,
-      rgba(255,255,255,0.4) 60%,
-      rgba(255,255,255,0.8) 80%,
-      white 100%
-    );
-  }
-  
-  .year-item, .month-item {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    scroll-snap-align: center;
-    color: #333;
-    cursor: pointer;
-    border-radius: 8px;
-  }
-  
-  .year-item:hover, .month-item:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .year-item.selected, .month-item.selected {
-    color: #F44B74;
-    font-weight: bold;
-    font-size: 22px;
-  }
-  
-  .year-selector.active, .month-selector.active {
-    display: block;
-  }
-  
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  
-  .day {
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 50%;
-    color: #333;
-  }
-  
-  .day:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .day.selected {
-    background-color: #F44B74;
-    color: white;
-  }
-  
-  .save-btn {
-    width: 100%;
-    height: 50px;
-    border-radius: 25px;
-    border: none;
-    background-color: #F44B74;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 4px 10px rgba(248, 92, 138, 0.3);
-  }
-  
-  .cancel-btn {
-    width: 100%;
-    height: 40px;
-    border-radius: 20px;
-    border: none;
-    background-color: transparent;
-    color: #666;
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
-    margin-top: 10px;
-    display: none;
-  }
-  
-  .date-picker-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  
-  .date-picker-container {
-    background-color: white;
-    border-radius: 20px 20px 0 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 24px;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transform: translateY(100%);
-    transition: transform 0.3s ease-out;
-  }
-  
-  .date-picker-modal.visible .date-picker-container {
-    transform: translateY(0);
-  }
-  
-  .date-picker-container h2 {
-    font-size: 18px;
-    color: #333;
-    margin: 0 0 20px;
-    font-weight: 500;
-    text-align: center;
-  }
-  
-  .year-month-selector {
-    display: block;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .year-month-selector > div {
-    text-align: center;
-  }
-  
-  .handle-bar {
-    width: 40px;
-    height: 4px;
-    background-color: #ddd;
-    border-radius: 2px;
-    margin-bottom: 16px;
-  }
+    .profile-photo-text {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
+    }
+    
+    .camera-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: #F44B74;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      padding: 0;
+    }
+    
+    .camera-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+    
+    .profile-form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      margin: 0 auto;
+    }
+    
+    .input-group {
+      margin-bottom: 15px;
+    }
+    
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 4px;
+    }
+    
+    .input-group input {
+      width: 100%;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      padding: 0 15px;
+      font-size: 16px;
+      box-sizing: border-box;
+      color: #333;
+      background-color: #fff;
+    }
+    
+    /* Phone input styles moved to country-dropdown.css */
+    
+    .option-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 44px;
+      border-radius: 8px;
+      border: none;
+      background-color: #f9f9f9;
+      margin-bottom: 12px;
+      padding: 0 15px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: none;
+    }
+    
+    .option-btn svg {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    .birthday-btn span {
+      color: #F44B74;
+    }
+    
+    .option-btn.has-value {
+      background-color: rgba(248, 92, 138, 0.05);
+      border: 1px solid rgba(248, 92, 138, 0.1);
+    }
+    
+    .location-btn span {
+      color: #333;
+    }
+    
+    .confirm-btn {
+      width: 100%;
+      height: 44px;
+      border-radius: 22px;
+      border: none;
+      background-color: #F44B74;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 30px;
+      box-shadow: 0 2px 8px rgba(248, 92, 138, 0.3);
+    }
+    
+    @media (max-width: 600px) {
+      .profile-header h1 {
+        font-size: 17px;
+      }
+    }
+    
+    /* Date Picker Styles */
+    .date-picker-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    
+    .date-picker-container {
+      background-color: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 100%;
+      padding: 24px;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform: translateY(100%);
+      transition: transform 0.3s ease-out;
+    }
+    
+    .date-picker-modal.visible .date-picker-container {
+      transform: translateY(0);
+    }
+    
+    .date-picker-container h2 {
+      font-size: 18px;
+      color: #333;
+      margin: 0 0 20px;
+      font-weight: 500;
+      text-align: center;
+    }
+    
+    .year-month-selector {
+      display: block;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .year-month-selector > div {
+      text-align: center;
+    }
+    
+    .handle-bar {
+      width: 40px;
+      height: 4px;
+      background-color: #ddd;
+      border-radius: 2px;
+      margin-bottom: 16px;
+    }
 
-  .selected-year {
-    font-size: 20px;
-    font-weight: 700;
-    color: #F44B74;
-    margin-bottom: 4px;
-    cursor: pointer;
-  }
-  
-  .selected-month {
-    font-size: 22px;
-    color: #F44B74;
-    font-weight: 400;
-    cursor: pointer;
-  }
-  
-  .year-selector, .month-selector {
-    display: none;
-    width: 100%;
-    margin-bottom: 20px;
-    max-height: 300px;
-  }
-  
-  .selector-title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: 500;
-    margin: 10px 0;
-    color: #333;
-  }
-  
-  .year-scroll-container, .month-scroll-container {
-    height: 220px;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: y mandatory;
-    padding: 60px 0;
-    margin: 0 auto;
-    width: 100%;
-    position: relative;
-    background: linear-gradient(
-      to bottom,
-      white 0%,
-      rgba(255,255,255,0.8) 20%,
-      rgba(255,255,255,0.4) 40%,
-      rgba(255,255,255,0.4) 60%,
-      rgba(255,255,255,0.8) 80%,
-      white 100%
-    );
-  }
-  
-  .year-item, .month-item {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    scroll-snap-align: center;
-    color: #333;
-    cursor: pointer;
-    border-radius: 8px;
-  }
-  
-  .year-item:hover, .month-item:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .year-item.selected, .month-item.selected {
-    color: #F44B74;
-    font-weight: bold;
-    font-size: 22px;
-  }
-  
-  .year-selector.active, .month-selector.active {
-    display: block;
-  }
-  
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    width: 100%;
-    margin-bottom: 30px;
-  }
-  
-  .day {
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 50%;
-    color: #333;
-  }
-  
-  .day:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .day.selected {
-    background-color: #F44B74;
-    color: white;
-  }
-  
-  .save-btn {
-    width: 100%;
-    height: 50px;
-    border-radius: 25px;
-    border: none;
-    background-color: #F44B74;
-    color: white;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 10px;
-    box-shadow: 0 4px 10px rgba(248, 92, 138, 0.3);
-  }
-  
-  .cancel-btn {
-    width: 100%;
-    height: 40px;
-    border-radius: 20px;
-    border: none;
-    background-color: transparent;
-    color: #666;
-    font-size: 14px;
-    font-weight: 400;
-    cursor: pointer;
-    margin-top: 10px;
-    display: none;
-  }
-</style>
+    .selected-year {
+      font-size: 20px;
+      font-weight: 700;
+      color: #F44B74;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+    
+    .selected-month {
+      font-size: 22px;
+      color: #F44B74;
+      font-weight: 400;
+      cursor: pointer;
+    }
+    
+    .year-selector, .month-selector {
+      display: none;
+      width: 100%;
+      margin-bottom: 20px;
+      max-height: 300px;
+    }
+    
+    .selector-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+      margin: 10px 0;
+      color: #333;
+    }
+    
+    .year-scroll-container, .month-scroll-container {
+      height: 220px;
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: y mandatory;
+      padding: 60px 0;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+      background: linear-gradient(
+        to bottom,
+        white 0%,
+        rgba(255,255,255,0.8) 20%,
+        rgba(255,255,255,0.4) 40%,
+        rgba(255,255,255,0.4) 60%,
+        rgba(255,255,255,0.8) 80%,
+        white 100%
+      );
+    }
+    
+    .year-item, .month-item {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      scroll-snap-align: center;
+      color: #333;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    
+    .year-item:hover, .month-item:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .year-item.selected, .month-item.selected {
+      color: #F44B74;
+      font-weight: bold;
+      font-size: 22px;
+    }
+    
+    .year-selector.active, .month-selector.active {
+      display: block;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      width: 100%;
+      margin-bottom: 30px;
+    }
+    
+    .day {
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 50%;
+      color: #333;
+    }
+    
+    .day:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .day.selected {
+      background-color: #F44B74;
+      color: white;
+    }
+    
+    .save-btn {
+      width: 100%;
+      height: 50px;
+      border-radius: 25px;
+      border: none;
+      background-color: #F44B74;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(248, 92, 138, 0.3);
+    }
+    
+    .cancel-btn {
+      width: 100%;
+      height: 40px;
+      border-radius: 20px;
+      border: none;
+      background-color: transparent;
+      color: #666;
+      font-size: 14px;
+      font-weight: 400;
+      cursor: pointer;
+      margin-top: 10px;
+      display: none;
     }
     
     .close-btn {
@@ -722,141 +450,15 @@
       font-weight: 500;
       color: #999;
     }
-    
-    .save-btn {
-      width: 100%;
-      height: 48px;
-      background-color: #F44B74;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      cursor: pointer;
-    }
   </style>
-</head>
-<body>
-  <div class="profile-container">
-    <div class="profile-header">
-      <h1 data-i18n="profile.edit_info">Edit Profile</h1>
-      <a href="/discover" class="skip-btn" data-i18n="profile.cancel">Cancel</a>
-    </div>
-    
-    <div class="profile-photo-container">
-      <div class="profile-photo">
-        <img src="/images/default-profile.png" alt="Profile Photo" id="profile-image">
-        <button class="camera-btn">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="profile-photo-text" data-i18n="profile.photo">Profile Photo</div>
-    </div>
-    
-    <div class="profile-form">
-      <div class="input-group">
-        <label for="first-name" data-i18n="profile.first_name">First name</label>
-        <input type="text" id="first-name" placeholder="Jane" data-i18n-placeholder="profile.first_name_placeholder">
-      </div>
-      
-      <div class="input-group">
-        <label for="last-name" data-i18n="profile.last_name">Last name</label>
-        <input type="text" id="last-name" placeholder="Doe" data-i18n-placeholder="profile.last_name_placeholder">
-      </div>
-
-      <div class="input-group">
-        <label for="phone-number" data-i18n="profile.phone_number">Phone number</label>
-        <div class="phone-input-container">
-          <div class="country-select" id="country-select">
-            <div class="selected-country">
-              <div class="country-flag" id="selected-flag">🇺🇸</div>
-              <div class="country-code" id="selected-code">+1</div>
-              <div class="dropdown-arrow">▼</div>
-            </div>
-            <div class="country-dropdown" id="country-dropdown" style="display: none;">
-              <div class="country-search-container">
-                <input type="text" id="country-search-input" placeholder="Search country" class="country-search" data-i18n-placeholder="profile.search_country">
-              </div>
-              <div class="country-list-container">
-                <!-- Country options will be populated dynamically from countries.js -->
-              </div>
-            </div>
-          </div>
-          <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input" data-i18n-placeholder="profile.phone_placeholder">
-          <input type="hidden" id="country-code-input" value="+1">
-          <input type="hidden" id="full-phone" value="">
-        </div>
-      </div>
-      
-      <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M16 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M8 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M3 10H21" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span id="birthday-display" data-i18n="profile.choose_birthday">Choose birthday date</span>
-      </button>
-      
-      <button class="option-btn location-btn" id="location-btn" type="button">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span id="location-display" data-i18n="profile.choose_location">Choose your location</span>
-      </button>
-      
-      <button class="confirm-btn" id="save-btn" data-i18n="profile.save_changes">Save Changes</button>
-    </div>
-  </div>
-  <!-- Date Picker Modal -->
-  <div class="date-picker-modal" id="birthday-picker-modal">
-    <div class="date-picker-container">
-      <div class="handle-bar"></div>
-      <h2>Birthday</h2>
-      
-      <div class="year-month-selector">
-        <div style="text-align: center; font-size: 16px;">
-          <div class="selected-year" id="selected-year" onclick="toggleYearSelector()">2025</div>
-          <div class="selected-month" id="selected-month" onclick="toggleMonthSelector()">July</div>
-        </div>
-      </div>
-      
-      <div class="year-selector" id="year-selector">
-        <div class="selector-header">
-          <button class="close-btn" onclick="toggleYearSelector()">Done</button>
-        </div>
-        <div class="selector-title">Select Year</div>
-        <div class="year-scroll-container" id="year-scroll-container"></div>
-      </div>
-      
-      <div class="month-selector" id="month-selector">
-        <div class="selector-header">
-          <button class="close-btn" onclick="toggleMonthSelector()">Done</button>
-        </div>
-        <div class="selector-title">Select Month</div>
-        <div class="month-scroll-container" id="month-scroll-container"></div>
-      </div>
-      
-      <div class="calendar-grid" id="calendar-grid">
-        <!-- Calendar will be populated by JavaScript -->
-      </div>
-      
-      <button class="save-btn" id="save-date-btn" onclick="saveDateSelection(); return false;">Save</button>
-      <button class="cancel-btn" id="cancel-date-btn" onclick="closeModal(); return false;">Cancel</button>
-    </div>
-  </div>
-
+  
   <script>
     // Global variables
-    let userId = null;
-    let userProfileData = null;
-    let selectedDate = null;
-    let currentDate = new Date();
-    let selectedFile = null;
+    let editProfileUserId = null;
+    let editProfileUserData = null;
+    let editProfileSelectedDate = null;
+    let editProfileCurrentDate = new Date();
+    let editProfileSelectedFile = null;
     
     document.addEventListener('DOMContentLoaded', async function() {
       await initializeEditProfileSupabase();
@@ -928,6 +530,7 @@
 
     // Populate form with user data
     function populateEditProfileFormWithUserData(data) {
+      console.log(data)
       if (data.first_name) document.getElementById('first-name').value = data.first_name;
       if (data.last_name) document.getElementById('last-name').value = data.last_name;
       if (data.phone_number) document.getElementById('phone-number').value = data.phone_number;
@@ -1311,5 +914,121 @@
     window.toggleYearSelector = toggleYearSelector;
     window.toggleMonthSelector = toggleMonthSelector;
   </script>
+</head>
+
+<body>
+  <div class="profile-container">
+    <div class="profile-header">
+      <h1 data-i18n="profile.edit_info">Edit Profile</h1>
+      <a href="/discover" class="skip-btn" data-i18n="profile.cancel">Cancel</a>
+    </div>
+    
+    <div class="profile-photo-container">
+      <div class="profile-photo">
+        <img src="/images/default-profile.png" alt="Profile Photo" id="profile-image">
+        <button class="camera-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="profile-photo-text" data-i18n="profile.photo">Profile Photo</div>
+    </div>
+    
+    <div class="profile-form">
+      <div class="input-group">
+        <label for="first-name" data-i18n="profile.first_name">First name</label>
+        <input type="text" id="first-name" placeholder="Jane" data-i18n-placeholder="profile.first_name_placeholder">
+      </div>
+      
+      <div class="input-group">
+        <label for="last-name" data-i18n="profile.last_name">Last name</label>
+        <input type="text" id="last-name" placeholder="Doe" data-i18n-placeholder="profile.last_name_placeholder">
+      </div>
+
+      <div class="input-group">
+        <label for="phone-number" data-i18n="profile.phone_number">Phone number</label>
+        <div class="phone-input-container">
+          <div class="country-select" id="country-select">
+            <div class="selected-country">
+              <div class="country-flag" id="selected-flag">🇺🇸</div>
+              <div class="country-code" id="selected-code">+1</div>
+              <div class="dropdown-arrow">▼</div>
+            </div>
+            <div class="country-dropdown" id="country-dropdown" style="display: none;">
+              <div class="country-search-container">
+                <input type="text" id="country-search-input" placeholder="Search country" class="country-search" data-i18n-placeholder="profile.search_country">
+              </div>
+              <div class="country-list-container">
+                <!-- Country options will be populated dynamically from countries.js -->
+              </div>
+            </div>
+          </div>
+          <input type="tel" id="phone-number" placeholder="123-456-7890" class="phone-input" data-i18n-placeholder="profile.phone_placeholder">
+          <input type="hidden" id="country-code-input" value="+1">
+          <input type="hidden" id="full-phone" value="">
+        </div>
+      </div>
+      
+      <button class="option-btn birthday-btn" id="birthday-btn" type="button" onclick="showDatePicker()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 2V6" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 10H21" stroke="#F44B74" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="birthday-display" data-i18n="profile.choose_birthday">Choose birthday date</span>
+      </button>
+      
+      <button class="option-btn location-btn" id="location-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="location-display" data-i18n="profile.choose_location">Choose your location</span>
+      </button>
+      
+      <button class="confirm-btn" id="confirm-btn">Save Changes</button>
+    </div>
+  </div>
+
+  <!-- Date Picker Modal -->
+  <div class="date-picker-modal" id="birthday-picker-modal">
+    <div class="date-picker-container">
+      <div class="handle-bar"></div>
+      <h2>Birthday</h2>
+      
+      <div class="year-month-selector">
+        <div style="text-align: center; font-size: 16px;">
+          <div class="selected-year" id="selected-year" onclick="toggleYearSelector()">2025</div>
+          <div class="selected-month" id="selected-month" onclick="toggleMonthSelector()">July</div>
+        </div>
+      </div>
+      
+      <div class="year-selector" id="year-selector">
+        <div class="selector-header">
+          <button class="close-btn" onclick="toggleYearSelector()">Done</button>
+        </div>
+        <div class="selector-title">Select Year</div>
+        <div class="year-scroll-container" id="year-scroll-container"></div>
+      </div>
+      
+      <div class="month-selector" id="month-selector">
+        <div class="selector-header">
+          <button class="close-btn" onclick="toggleMonthSelector()">Done</button>
+        </div>
+        <div class="selector-title">Select Month</div>
+        <div class="month-scroll-container" id="month-scroll-container"></div>
+      </div>
+      
+      <div class="calendar-grid" id="calendar-grid">
+        <!-- Calendar will be populated by JavaScript -->
+      </div>
+      
+      <button class="save-btn" id="save-date-btn" onclick="saveDateSelection(); return false;">Save</button>
+      <button class="cancel-btn" id="cancel-date-btn" onclick="closeModal(); return false;">Cancel</button>
+    </div>
+  </div>
 </body>
 </html>

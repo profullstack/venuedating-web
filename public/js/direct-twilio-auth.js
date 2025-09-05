@@ -112,6 +112,119 @@ export async function verifyDirectTwilioOtp(phone, otp, isSignup = false) {
 }
 
 /**
+ * Refresh user info from Supabase and update localStorage
+ */
+async function refreshUserInfo(currentUser) {
+  try {
+    console.log('[DIRECT TWILIO CLIENT] Refreshing user info from Supabase...');
+    
+    if (!currentUser.id || !currentUser.phone) {
+      console.log('[DIRECT TWILIO CLIENT] Invalid user data, skipping refresh');
+      return;
+    }
+    
+    // Import Supabase client
+    const { default: supabaseClientPromise } = await import('./supabase-client.js');
+    const supabase = await supabaseClientPromise;
+    
+    // Get current session user from Supabase auth
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    
+    // If no current session or user ID doesn't match, fetch from profiles table directly
+    let updatedUser;
+    if (authError || !authUser || authUser.id !== currentUser.id) {
+      console.log('[DIRECT TWILIO CLIENT] No matching auth session, fetching from profiles table');
+      
+      // First, let's check if the user exists without .single() to see all matching rows
+      const { data: allProfileData, error: allProfileError } = await supabase
+        .from('profiles')
+        .select('id, phone, has_paid, created_at')
+        .eq('id', currentUser.id);
+
+      console.log('[DIRECT TWILIO CLIENT] Profile query for user ID:', currentUser.id);
+      console.log('[DIRECT TWILIO CLIENT] All profile data:', allProfileData);
+      console.log('[DIRECT TWILIO CLIENT] All profile error:', allProfileError);
+
+      // Now try the single query
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, phone, has_paid, created_at')
+        .eq('id', currentUser.id)
+        .single();
+
+      console.log('[DIRECT TWILIO CLIENT] Single profile data:', profileData);
+      console.log('[DIRECT TWILIO CLIENT] Single profile error:', profileError);
+      
+      if (profileError && profileError.code === 'PGRST116') {
+        // User doesn't exist in profiles table, use localStorage data
+        console.log('[DIRECT TWILIO CLIENT] User not found in profiles table, using localStorage data');
+        updatedUser = {
+          id: currentUser.id,
+          phone: currentUser.phone,
+          email: currentUser.email,
+          name: currentUser.name,
+          has_paid: false, // Default to false if not in profiles
+          created_at: currentUser.created_at || new Date().toISOString()
+        };
+      } else if (profileError || !profileData) {
+        console.error('[DIRECT TWILIO CLIENT] Error fetching user from profiles:', profileError);
+        return;
+      } else {
+        updatedUser = {
+          id: profileData.id,
+          phone: profileData.phone || currentUser.phone,
+          email: currentUser.email,
+          name: currentUser.name,
+          has_paid: profileData.has_paid || false,
+          created_at: profileData.created_at
+        };
+      }
+    } else {
+      // User has active session, combine auth data with profile data
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('has_paid')
+        .eq('id', currentUser.id)
+        .single();
+      
+      // Handle case where user doesn't exist in profiles table
+      let hasPaid = false;
+      if (profileError && profileError.code === 'PGRST116') {
+        console.log('[DIRECT TWILIO CLIENT] User not found in profiles table for auth session');
+        hasPaid = false;
+      } else if (profileData) {
+        hasPaid = profileData.has_paid || false;
+      }
+      
+      updatedUser = {
+        id: authUser.id,
+        phone: authUser.phone || currentUser.phone,
+        email: authUser.email,
+        name: authUser.user_metadata?.name || currentUser.name,
+        has_paid: hasPaid,
+        created_at: authUser.created_at
+      };
+    }
+    
+    // Update localStorage with fresh data from Supabase
+    const refreshedUserData = {
+      id: updatedUser.id,
+      phone: updatedUser.phone,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      has_paid: updatedUser.has_paid,
+      created_at: updatedUser.created_at
+    };
+    
+    localStorage.setItem('barcrush_user', JSON.stringify(refreshedUserData));
+    console.log('[DIRECT TWILIO CLIENT] User info refreshed successfully:', refreshedUserData);
+  } catch (error) {
+    console.error('[DIRECT TWILIO CLIENT] Error refreshing user info:', error);
+    // Don't throw error - just log it and continue with existing localStorage data
+  }
+}
+
+/**
  * Validate current session
  * @returns {Promise<Object>} Session validation result
  */
@@ -124,6 +237,10 @@ export async function validateDirectTwilioSession() {
         const user = JSON.parse(userData);
         if (user && user.id) {
           console.log('[DIRECT TWILIO CLIENT] Valid user data found in local storage');
+          
+          // Refresh user info from Supabase
+          await refreshUserInfo(user);
+          
           return { valid: true, user };
         }
       } catch (e) {

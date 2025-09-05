@@ -11,8 +11,9 @@ if (typeof window.HostedCheckoutManager === 'undefined') {
 
   /**
    * Create checkout session and redirect to Square's hosted checkout
+   * @param {number} amount - The payment amount (default: 2)
    */
-  async createCheckoutSession() {
+  async createCheckoutSession(amount = 2) {
     if (this.isProcessing) return;
     
     try {
@@ -36,7 +37,7 @@ if (typeof window.HostedCheckoutManager === 'undefined') {
       }
 
       console.log('User data for checkout:', user)
-      console.log('Sending to backend:', { userId: user.id, phone: user.phone })
+      console.log('Sending to backend:', { userId: user.id, phone: user.phone, amount })
 
       // Create checkout session using phone-based authentication
       const response = await fetch('/api/create-checkout-session', {
@@ -46,7 +47,8 @@ if (typeof window.HostedCheckoutManager === 'undefined') {
         },
         body: JSON.stringify({
           userId: user.id,
-          phone: user.phone
+          phone: user.phone,
+          amount: amount
         })
       });
 
@@ -84,7 +86,8 @@ if (typeof window.HostedCheckoutManager === 'undefined') {
       if (show) {
         el.textContent = 'Processing...';
       } else {
-        el.textContent = 'Upgrade to Premium - $2';
+        const amount = el.getAttribute('data-amount') || 2;
+        el.textContent = `Upgrade to Premium - $${amount}`;
       }
     });
   }
