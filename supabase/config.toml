@@ -38,8 +38,5 @@ jwt_expiry = 3600
 enable_signup = true
 
 [auth.external.twilio]
-enabled = true
-twilio_account_sid = "AC554663cb9ea7efc0ebddb56fb727bd11"
-twilio_auth_token = "f6cf2e4e1cac5d9006d29cb291a00c30"
-twilio_messaging_service_sid = "+14085396332"
+enabled = false
 
