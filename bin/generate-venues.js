@@ -374,7 +374,7 @@ function transformPlaceData(place, city) {
 }
 
 /**
- * Save places to Supabase with photos
+ * Save places to Supabase without photos (using general metadata only)
  */
 async function savePlacesToDatabase(places, city) {
   const displayName = options.custom ? city.name : `${city.city || city}, ${city.state || ''}`;
@@ -396,16 +396,7 @@ async function savePlacesToDatabase(places, city) {
     for (const place of places) {
       const transformed = transformPlaceData(place, city);
       
-      // Fetch photos for this place if it has identifying data
-      let photos = [];
-      if (place.data_id || place.data_cid || place.place_id) {
-        photos = await fetchPlacePhotos(place);
-        
-        // Add a small delay between photo requests to be respectful to the API
-        await delay(500);
-      }
-      
-      // Convert from function parameters to table columns
+      // Convert from function parameters to table columns (no photos)
       transformedPlaces.push({
         title: transformed.p_title,
         data_cid: transformed.p_data_cid,
@@ -428,7 +419,7 @@ async function savePlacesToDatabase(places, city) {
         position: transformed.p_position,
         search_query: transformed.p_search_query,
         source: transformed.p_source,
-        photos: photos
+        photos: [] // Empty photos array since API doesn't provide them
       });
     }
     
@@ -453,8 +444,7 @@ async function savePlacesToDatabase(places, city) {
     }
     
     const savedCount = savedPlaces.length;
-    const totalPhotos = transformedPlaces.reduce((sum, place) => sum + (place.photos?.length || 0), 0);
-    console.log(`   ✅ Saved ${savedCount} places with ${totalPhotos} total photos to database`);
+    console.log(`   ✅ Saved ${savedCount} places to database (metadata only, no photos)`);
     
     return { success: true, count: savedCount };
   } catch (error) {
