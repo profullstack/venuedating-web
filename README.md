@@ -445,4 +445,3 @@ Key features of the generator:
 
 For detailed usage instructions and information about customizing templates, see the [Generator Guide](README-generator.md).
 
-
