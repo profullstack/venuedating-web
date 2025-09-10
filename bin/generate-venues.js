@@ -39,6 +39,7 @@ const SCALESERP_BASE_URL = 'https://api.scaleserp.com/search';
 const SEARCH_QUERY = 'night clubs';
 const RESULTS_PER_PAGE = 20;
 const MAX_PAGES = 3;
+const OHIO_STATE_NAME = 'Ohio';
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -50,6 +51,7 @@ const options = {
   mvp: false,
   custom: false,
   dryRun: false,
+  ohio: false,
   help: false
 };
 
@@ -77,6 +79,9 @@ for (let i = 0; i < args.length; i++) {
     case '--dry-run':
       options.dryRun = true;
       break;
+    case '--ohio':
+      options.ohio = true;
+      break;
     case '--help':
       options.help = true;
       break;
@@ -103,6 +108,7 @@ Options:
   --delay <number>     Delay between API calls in milliseconds (default: 1500)
   --mvp               Use MVP cities list (6 cities) instead of full list (200 cities)
   --custom            Use custom venues list from /data/us-custom.json
+  --ohio              Filter for Ohio cities only
   --dry-run           Show what would be done without making API calls
   --help              Show this help message
 
@@ -111,6 +117,7 @@ Examples:
   node bin/generate-venues.js --limit 10         # Process first 10 cities
   node bin/generate-venues.js --start 50 --limit 25  # Process cities 50-74
   node bin/generate-venues.js --custom           # Process custom venues from us-custom.json
+  node bin/generate-venues.js --ohio             # Process only Ohio cities
   node bin/generate-venues.js --dry-run          # Show what would be done
   `);
   process.exit(0);
@@ -131,31 +138,38 @@ function validateEnvironment() {
 }
 
 /**
- * Load cities data from JSON file
+ * Load city data from JSON file
+ * @returns {Promise<Array>} Array of city objects
  */
-async function loadCities() {
+async function loadCityData() {
   try {
-    let citiesFileName, cityType;
+    let dataFile;
+    let cities;
     
     if (options.custom) {
-      citiesFileName = 'us-custom.json';
-      cityType = 'custom venues';
+      dataFile = path.join(rootDir, 'data', 'us-custom.json');
+      console.log('✅ Using custom venues list');
     } else if (options.mvp) {
-      citiesFileName = 'us-cities-mvp.json';
-      cityType = 'MVP';
+      dataFile = path.join(rootDir, 'data', 'us-cities-mvp.json');
+      console.log('✅ Using MVP cities list');
     } else {
-      citiesFileName = 'us-cities-top-200.json';
-      cityType = 'full';
+      dataFile = path.join(rootDir, 'data', 'us-cities-top-200.json');
+      console.log('✅ Loaded cities from full data file (us-cities-top-200.json)');
     }
     
-    const citiesPath = path.join(rootDir, 'data', citiesFileName);
-    const citiesData = await fs.readFile(citiesPath, 'utf-8');
-    const cities = JSON.parse(citiesData);
+    const data = await fs.readFile(dataFile, 'utf8');
+    cities = JSON.parse(data);
     
-    console.log(`✅ Loaded ${cities.length} ${options.custom ? 'custom venues' : 'cities'} from ${cityType} data file (${citiesFileName})`);
+    // Filter for Ohio cities if the option is enabled
+    if (options.ohio) {
+      const ohioCities = cities.filter(city => city.state === OHIO_STATE_NAME);
+      console.log(`✅ Filtered for Ohio cities: Found ${ohioCities.length} cities in Ohio`);
+      return ohioCities;
+    }
+    
     return cities;
   } catch (error) {
-    console.error('❌ Error loading cities data:', error.message);
+    console.error(`❌ Error loading city data: ${error.message}`);
     process.exit(1);
   }
 }
@@ -483,7 +497,7 @@ async function main() {
   validateEnvironment();
   
   // Load cities
-  const allCities = await loadCities();
+  const allCities = await loadCityData();
   
   // Apply start and limit options
   const startIndex = Math.max(0, options.start);
