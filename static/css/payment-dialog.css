@@ -1,0 +1,49 @@
+/**
+ * Payment Dialog Styles
+ */
+
+.payment-success {
+  padding: var(--spacing-md);
+}
+
+.payment-success h3 {
+  margin-bottom: var(--spacing-md);
+}
+
+.payment-success p {
+  margin-bottom: var(--spacing-lg);
+}
+
+.payment-status-container {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+}
+
+.payment-spinner {
+  margin-right: var(--spacing-sm);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(var(--primary-color-rgb), 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s linear infinite;
+}
+
+.payment-status-text {
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add a CSS variable for primary color in RGB format for the spinner */
+:root {
+  --primary-color-rgb: 224, 35, 55; /* RGB values for #e02337 */
+}
+
+[data-theme="dark"] {
+  --primary-color-rgb: 229, 77, 93; /* RGB values for #e54d5d */
+}

@@ -1,0 +1,155 @@
+/* Form Validation Styles */
+
+/* Input field styling for validation states */
+input.valid,
+textarea.valid,
+select.valid {
+  border-color: #4CAF50 !important;
+  background-image: url('/images/icons/check-circle.svg');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
+}
+
+input.invalid,
+textarea.invalid,
+select.invalid {
+  border-color: #F44336 !important;
+  background-image: url('/images/icons/warning-circle.svg');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
+}
+
+/* Validation feedback message */
+.validation-feedback {
+  color: #F44336;
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+  font-weight: 400;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Field label indication */
+label.required::after {
+  content: '*';
+  color: #F44336;
+  margin-left: 4px;
+}
+
+/* Character counter styles */
+.character-counter {
+  font-size: 11px;
+  color: #777;
+  text-align: right;
+  margin-top: 4px;
+  transition: color 0.3s ease;
+}
+
+.character-counter.limit-warning {
+  color: #FFA000;
+}
+
+.character-counter.limit-exceeded {
+  color: #F44336;
+}
+
+/* Input group with validation */
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.25);
+}
+
+/* Tooltip for validation requirements */
+.validation-tooltip {
+  position: absolute;
+  right: -8px;
+  top: 8px;
+  cursor: help;
+}
+
+.validation-tooltip .tooltip-icon {
+  color: #777;
+  font-size: 16px;
+}
+
+.validation-tooltip .tooltip-content {
+  position: absolute;
+  right: 24px;
+  top: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  width: 220px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  font-size: 12px;
+  display: none;
+  z-index: 100;
+}
+
+.validation-tooltip:hover .tooltip-content {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* For inline validation indicators */
+.validation-indicator {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* For radio and checkbox validation */
+.radio-group.invalid,
+.checkbox-group.invalid {
+  border: 1px solid #F44336;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+/* Create validation icons if SVGs aren't available */
+@media screen and (max-width: 768px) {
+  input.valid,
+  textarea.valid,
+  select.valid,
+  input.invalid,
+  textarea.invalid,
+  select.invalid {
+    background-image: none;
+    padding-right: inherit;
+  }
+  
+  input.valid,
+  textarea.valid,
+  select.valid {
+    border-right: 4px solid #4CAF50 !important;
+  }
+  
+  input.invalid,
+  textarea.invalid,
+  select.invalid {
+    border-right: 4px solid #F44336 !important;
+  }
+}

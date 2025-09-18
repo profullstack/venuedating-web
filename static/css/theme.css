@@ -1,0 +1,468 @@
+/**
+ * Profullstack, Inc. Document Generation API
+ * Theme CSS with light and dark mode support
+ */
+
+:root {
+  /* Base colors - Light theme (default) */
+  --primary-color: #e02337;        /* Profullstack, Inc. red */
+  --primary-light: #e54d5d;        /* Lighter red */
+  --primary-dark: #c01d2f;         /* Darker red */
+  --secondary-color: #fc7e3e;      /* Accent orange */
+  --secondary-light: #fd9c6a;      /* Lighter orange */
+  --secondary-dark: #e66a2c;       /* Darker orange */
+  --accent-color: #ba18aa;         /* Accent magenta */
+  
+  /* Neutral colors - Light theme */
+  --background-color: #ffffff;     /* White background */
+  --surface-color: #f9fafb;        /* Light gray surface */
+  --surface-variant: #f3f4f6;      /* Slightly darker surface */
+  --border-color: #e5e7eb;         /* Light border */
+  --divider-color: #d1d5db;        /* Divider color */
+  
+  /* Text colors - Light theme */
+  --text-primary: #111827;         /* Near black for primary text */
+  --text-secondary: #4b5563;       /* Dark gray for secondary text */
+  --text-tertiary: #6b7280;        /* Medium gray for tertiary text */
+  --text-disabled: #9ca3af;        /* Light gray for disabled text */
+  --text-on-primary: #ffffff;      /* White text on primary color */
+  --text-on-secondary: #ffffff;    /* White text on secondary color */
+  
+  /* Status colors - Light theme */
+  --success-color: #10b981;        /* Success green */
+  --warning-color: #fc7e3e;        /* Warning orange */
+  --error-color: #e02337;          /* Error red */
+  --info-color: #ba18aa;           /* Info magenta */
+  
+  /* Component colors - Light theme */
+  --card-background: #ffffff;      /* Card background */
+  --input-background: #ffffff;     /* Input background */
+  --input-border: #d1d5db;         /* Input border */
+  --button-hover: rgba(0, 0, 0, 0.05); /* Button hover overlay */
+  --overlay-color: rgba(0, 0, 0, 0.5); /* Modal overlay */
+  --shadow-color: rgba(0, 0, 0, 0.1);  /* Shadow color */
+  
+  /* Other variables */
+  --border-radius-sm: 4px;         /* Small border radius */
+  --border-radius-md: 6px;         /* Medium border radius */
+  --border-radius-lg: 8px;         /* Large border radius */
+  --border-radius-xl: 12px;        /* Extra large border radius */
+  --border-radius-full: 9999px;    /* Full/pill border radius */
+  
+  --spacing-xs: 4px;               /* Extra small spacing */
+  --spacing-sm: 8px;               /* Small spacing */
+  --spacing-md: 16px;              /* Medium spacing */
+  --spacing-md-lg: 1.2rem;         /* Medium-large spacing (19.2px at default font size) */
+  --spacing-lg: 24px;              /* Large spacing */
+  --spacing-xl: 32px;              /* Extra large spacing */
+  --spacing-xxl: 48px;             /* Double extra large spacing */
+  
+  --transition-fast: 150ms;        /* Fast transition */
+  --transition-normal: 250ms;      /* Normal transition */
+  --transition-slow: 350ms;        /* Slow transition */
+  
+  --shadow-sm: 0 1px 2px 0 var(--shadow-color);
+  --shadow-md: 0 4px 6px -1px var(--shadow-color);
+  --shadow-lg: 0 10px 15px -3px var(--shadow-color);
+  
+  /* Font settings */
+  --font-family: 'SpaceMono', monospace;
+  --font-size-xs: 0.75rem;         /* 12px */
+  --font-size-sm: 0.875rem;        /* 14px */
+  --font-size-md: 1rem;            /* 16px */
+  --font-size-lg: 1.125rem;        /* 18px */
+  --font-size-xl: 1.25rem;         /* 20px */
+  --font-size-2xl: 1.5rem;         /* 24px */
+  --font-size-3xl: 1.875rem;       /* 30px */
+  --font-size-4xl: 2.25rem;        /* 36px */
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  /* Base colors - Dark theme */
+  --primary-color: #e54d5d;        /* Brighter red for dark mode */
+  --primary-light: #e97683;        /* Lighter red */
+  --primary-dark: #e02337;         /* Darker red */
+  --secondary-color: #fd9c6a;      /* Accent orange */
+  --secondary-light: #feba96;      /* Lighter orange */
+  --secondary-dark: #fc7e3e;       /* Darker orange */
+  --accent-color: #d34bc1;         /* Accent magenta */
+  
+  /* Neutral colors - Dark theme */
+  --background-color: #35113F;     /* Dark background */
+  --surface-color: #35113F;        /* Dark surface */
+  --surface-variant: #35113F;      /* Slightly lighter surface */
+  --border-color: #4b5563;         /* Dark border */
+  --divider-color: #6b7280;        /* Divider color */
+  
+  /* Text colors - Dark theme */
+  --text-primary: #F5F5F5;         /* Near white for primary text */
+  --text-secondary: #e5e7eb;       /* Light gray for secondary text */
+  --text-tertiary: #d1d5db;        /* Medium light gray for tertiary text */
+  --text-disabled: #9ca3af;        /* Gray for disabled text */
+  --text-on-primary: #ffffff;      /* White text on primary color */
+  --text-on-secondary: #ffffff;    /* White text on secondary color */
+  
+  /* Status colors - Dark theme */
+  --success-color: #34d399;        /* Brighter success green */
+  --warning-color: #fd9c6a;        /* Brighter warning orange */
+  --error-color: #e54d5d;          /* Brighter error red */
+  --info-color: #d34bc1;           /* Brighter info magenta */
+  
+  /* Component colors - Dark theme */
+  --card-background: #1f2937;      /* Card background */
+  --input-background: #374151;     /* Input background */
+  --input-border: #4b5563;         /* Input border */
+  --button-hover: rgba(255, 255, 255, 0.1); /* Button hover overlay */
+  --overlay-color: rgba(0, 0, 0, 0.7);      /* Modal overlay */
+  --shadow-color: rgba(0, 0, 0, 0.3);       /* Shadow color */
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 0;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Route transition styles */
+#app {
+  min-height: 100vh;
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure the app container takes full height but allows scrolling */
+html, body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Transition overlay */
+.transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--background-color);
+  z-index: 9999;
+  display: block;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 150ms ease-in-out;
+  pointer-events: none; /* Allow clicks to pass through when faded out */
+}
+
+/* Theme toggle styles are now defined in the pf-header component */
+
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  text-decoration: none;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  color: var(--text-on-secondary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-amber {
+  background-color: var(--secondary-color);
+  color: var(--text-on-secondary);
+}
+
+.btn-amber:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--button-hover);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--input-background);
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
+}
+
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-lg);
+}
+
+.table th,
+.table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.table th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  background-color: var(--surface-variant);
+}
+
+.table tr:hover {
+  background-color: var(--surface-variant);
+}
+
+/* Alert styles */
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(4px);
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.9);
+  border-left: 4px solid var(--success-color);
+  color: white;
+}
+
+.alert-warning {
+  background-color: rgba(245, 158, 11, 0.9);
+  border-left: 4px solid var(--warning-color);
+  color: white;
+}
+
+.alert-error {
+  background-color: rgba(239, 68, 68, 0.9);
+  border-left: 4px solid var(--error-color);
+  color: white;
+}
+
+.alert-info {
+  background-color: rgba(186, 24, 170, 0.9);
+  border-left: 4px solid var(--info-color);
+  color: white;
+}
+
+/* Utility classes */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-disabled { color: var(--text-disabled); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-secondary { background-color: var(--secondary-color); }
+.bg-surface { background-color: var(--surface-color); }
+.bg-surface-variant { background-color: var(--surface-variant); }
+
+/* Subscription page styles */
+.pricing-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  margin: var(--spacing-xl) 0;
+}
+
+.pricing-plan {
+  flex: 1;
+  min-width: 280px;
+  max-width: 350px;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  text-align: center;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  border: 1px solid var(--border-color);
+}
+
+.pricing-plan:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.pricing-plan.popular {
+  border: 2px solid var(--accent-color);
+  position: relative;
+  z-index: 1;
+}
+
+.pricing-plan.popular::before {
+  content: "Best Value";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--accent-color);
+  color: var(--text-on-primary);
+  padding: 4px 12px;
+  border-radius: var(--border-radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.plan-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.plan-price {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-lg);
+}
+
+.plan-price small {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-secondary);
+}
+
+.plan-features {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 var(--spacing-lg) 0;
+  text-align: left;
+}
+
+.plan-features li {
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  position: relative;
+  padding-left: 25px;
+}
+
+.plan-features li::before {
+  content: "✓";
+  color: var(--success-color);
+  position: absolute;
+  left: 0;
+  font-weight: var(--font-weight-bold);
+}
+
+.payment-methods {
+  text-align: center;
+  margin: var(--spacing-xl) 0;
+}
+
+.payment-methods p {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-secondary);
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: var(--spacing-xl);
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.offline-notification {
+  background-color: var(--warning-color);
+  color: white;
+  text-align: center;
+  padding: var(--spacing-sm);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(100%);
+  transition: transform var(--transition-normal);
+}
+
+.offline-notification.visible {
+  transform: translateY(0);
+}

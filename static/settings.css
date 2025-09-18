@@ -1,0 +1,112 @@
+/**
+ * Profullstack, Inc. Document Generation API
+ * Settings page specific styles
+ */
+
+/* Settings container */
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-md) 0;
+}
+
+/* Page title */
+.page-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+/* Card title */
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Subscription info */
+.subscription-info {
+  margin-bottom: var(--spacing-lg);
+}
+
+.subscription-info p {
+  margin: var(--spacing-sm) 0;
+  color: var(--text-secondary);
+}
+
+.subscription-info strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Danger zone */
+.danger-zone {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-md);
+  border: 1px solid var(--error-color);
+  border-radius: var(--border-radius-md);
+}
+
+.danger-title {
+  color: var(--error-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.danger-zone p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Button styles */
+.btn-danger {
+  background-color: var(--error-color);
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c01d2f;
+}
+
+/* Form control */
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  color: var(--text-primary);
+  background-color: var(--input-background);
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
+}
+
+.form-control[readonly] {
+  background-color: var(--surface-variant);
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .settings-container {
+    padding: var(--spacing-md) var(--spacing-md);
+  }
+  
+  .card {
+    padding: var(--spacing-md);
+  }
+}

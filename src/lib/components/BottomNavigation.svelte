@@ -1,0 +1,145 @@
+<script>
+  import { page } from '$app/stores';
+  
+  // Reactive statement to determine current page from URL
+  $: currentPage = getCurrentPageFromPath($page.url.pathname);
+  
+  function getCurrentPageFromPath(pathname) {
+    if (pathname === '/' || pathname.startsWith('/discover')) {
+      return 'discover';
+    } else if (pathname.startsWith('/matching')) {
+      return 'matching';
+    } else if (pathname.startsWith('/chat')) {
+      return 'chat';
+    }
+    return 'discover'; // default
+  }
+</script>
+
+<nav class="bottom-nav">
+  <a 
+    href="/discover" 
+    class="nav-item {currentPage === 'discover' ? 'active' : ''}" 
+    title="Discover" 
+    aria-label="Discover"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+    </svg>
+  </a>
+  
+  <a 
+    href="/matching" 
+    class="nav-item {currentPage === 'matching' ? 'active' : ''}" 
+    title="Matching" 
+    aria-label="Matching"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+    </svg>
+  </a>
+  
+  <a 
+    href="/chat" 
+    class="nav-item {currentPage === 'chat' ? 'active' : ''}" 
+    title="Chat" 
+    aria-label="Chat"
+  >
+    <svg width="24" height="24" viewBox="0 0 24 24" stroke-width="2">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+    </svg>
+    <span class="unread-badge hidden">0</span>
+  </a>
+</nav>
+
+<style>
+  /* Bottom Navigation */
+  .bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--surface-color);
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    border-radius: 40px;
+    box-shadow: 0 4px 20px var(--shadow-color);
+    width: 182px;
+    padding: 12px 24px;
+  }
+  
+  .nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+    position: relative;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .nav-item svg {
+    width: 24px;
+    height: 24px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .nav-item.active::before {
+    content: "";
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: #F44B74;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  
+  .nav-item.active svg {
+    fill: white;
+    stroke: white;
+  }
+  
+  .nav-item:not(.active) svg {
+    fill: none;
+    stroke: #F44B74;
+  }
+  
+  /* Unread message badge */
+  .unread-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #FF4B77;
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 10;
+    border: 2px solid var(--surface-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .unread-badge.hidden {
+    display: none;
+  }
+  
+  .unread-badge.dot {
+    min-width: 8px;
+    width: 8px;
+    height: 8px;
+    top: -2px;
+    right: -2px;
+  }
+</style>

@@ -1,0 +1,215 @@
+/**
+ * Profullstack, Inc. Document Generation API
+ * API Keys page specific styles
+ */
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* API Keys container */
+.api-key-container {
+  max-width: 100%;
+  margin-bottom: 30px;
+}
+
+/* Dashboard tabs */
+.dashboard-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: none;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  border-bottom: 3px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+}
+
+.tab-button.active {
+  border-bottom-color: var(--primary-color);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+}
+
+.tab-content {
+  background-color: var(--background-color);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Form styles */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-help {
+  margin-top: 5px;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  background-color: #eee;
+  color: #000;
+  font-size: var(--font-size-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(224, 35, 55, 0.1);
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.btn:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Login prompt */
+.login-prompt {
+  text-align: center;
+  padding: var(--spacing-xl);
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xxl);
+}
+
+.login-prompt h2 {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+}
+
+.login-prompt p {
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-secondary);
+}
+
+.login-button {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
+  text-decoration: none;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast);
+}
+
+.login-button:hover {
+  background-color: var(--primary-dark);
+  text-decoration: none;
+}
+
+/* Intro section */
+.intro-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.intro-section h2 {
+  margin-top: 0;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.intro-section h3 {
+  color: var(--text-primary);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+}
+
+.intro-section p {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.intro-section ul {
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  padding-left: 20px;
+}
+
+.intro-section li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.intro-section code {
+  background-color: var(--surface-variant);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .dashboard-tabs {
+    flex-direction: column;
+    border-bottom: none;
+  }
+  
+  .tab-button {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+  }
+  
+  .tab-button.active {
+    border-bottom: none;
+    border-left: 3px solid var(--primary-color);
+    background-color: var(--surface-variant);
+  }
+  
+  .tab-content {
+    padding: 15px;
+  }
+}

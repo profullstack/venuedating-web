@@ -1,0 +1,147 @@
+/* Filter Modal Styles */
+
+.filter-modal {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.filter-modal.active {
+  display: flex;
+}
+
+.filter-modal-content {
+  background: var(--background, #1a0826);
+  color: var(--text, #ffffff);
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.filter-modal-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--primary, #F44B74);
+  cursor: pointer;
+}
+
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.filter-options {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-option {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 24px;
+  background: var(--background-light, #2d1540);
+  color: #fff;
+  border: 1px solid transparent;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filter-option.active {
+  background: var(--primary, #F44B74);
+}
+
+.location-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-input input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--background-light, #2d1540);
+  background: var(--background-light, #2d1540);
+  color: #fff;
+}
+
+.location-input button {
+  background: none;
+  border: none;
+  color: var(--primary, #F44B74);
+  cursor: pointer;
+}
+
+.slider-container {
+  position: relative;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--primary, #F44B74);
+}
+
+.slider-value, .slider-range {
+  text-align: right;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #bbb;
+}
+
+.filter-modal-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.primary-btn, .secondary-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.primary-btn {
+  background: var(--primary, #F44B74);
+  color: #fff;
+}
+
+.secondary-btn {
+  background: var(--background-light, #2d1540);
+  color: #fff;
+}
