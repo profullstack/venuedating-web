@@ -1,7 +1,7 @@
 {
-  "name": "document-generation-api",
+  "name": "venuedating-web",
   "version": "1.0.0",
-  "description": "API for generating various document formats from HTML and Markdown",
+  "description": "Venue Dating - Connect with people at your favorite venues",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
@@ -18,18 +18,15 @@
     "stripe:products": "node bin/create-stripe-products.js"
   },
   "keywords": [
-    "pdf",
-    "doc",
-    "excel",
-    "powerpoint",
-    "epub",
-    "markdown",
-    "html",
-    "conversion",
-    "api"
+    "dating",
+    "venues",
+    "social",
+    "matching",
+    "pwa",
+    "progressive-web-app"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Venue Dating",
+  "license": "MIT",
   "dependencies": {
     "@hono/node-server": "^1.8.2",
     "@profullstack/spa-router": "^1.11.1",

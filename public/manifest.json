@@ -1,7 +1,7 @@
 {
-  "name": "BarCrush",
-  "short_name": "BarCrush",
-  "description": "A dating app for people to connect with others at a bar near them.",
+  "name": "Venue Dating",
+  "short_name": "Venue Dating",
+  "description": "Connect with people at your favorite venues - bars, restaurants, and entertainment spots near you.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

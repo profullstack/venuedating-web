@@ -1,8 +1,12 @@
-# vibe-stack.dev
+# Venue Dating
 
 [![Crypto Payment](https://paybadge.profullstack.com/badge.svg)](https://paybadge.profullstack.com/?tickers=btc%2Ceth%2Csol%2Cusdc)
 
-vibe-stack.dev is a modern, AI-first framework built for rapid development of Progressive Web Apps (PWAs). Designed for versatility and speed, it provides an optimized boilerplate for creating, testing, and deploying full-stack applications across Windows, macOS, Linux, iOS, Android, desktop, and WebXR environments. With seamless integration to backend tools like Supabase, vibe-stack.dev empowers developers to prototype quickly and scale effortlessly, ensuring a smooth, consistent experience on any platform or device.
+Venue Dating is a modern Progressive Web App (PWA) that connects people at their favorite venues. Built with cutting-edge web technologies and powered by Supabase, Venue Dating provides a seamless experience for discovering and matching with people at bars, restaurants, and entertainment venues near you.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Automatic Deployment with GitHub Actions
 

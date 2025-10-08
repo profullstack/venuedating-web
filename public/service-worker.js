@@ -1,6 +1,6 @@
 // Cache version - increment this when you make significant changes
 const CACHE_VERSION = 'v2';
-const CACHE_NAME = 'barcrush-app-' + CACHE_VERSION;
+const CACHE_NAME = 'venuedating-app-' + CACHE_VERSION;
 // Add a timestamp for cache-busting
 const CACHE_TIMESTAMP = new Date().getTime();
 
