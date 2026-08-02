@@ -107,8 +107,8 @@ export async function verifyOTP(phoneNumber, code) {
       .update({ attempts: data.attempts + 1 })
       .eq('id', data.id);
     
-    // Check if max attempts reached (5 attempts)
-    if (data.attempts >= 4) { // This will be the 5th attempt
+    // Check if max attempts exceeded (5 attempts allowed)
+    if (data.attempts + 1 > 5) { // This would be the 6th attempt
       // Delete the code after max attempts
       await supabase
         .from(OTP_TABLE)
