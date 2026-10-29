@@ -194,7 +194,9 @@
 }
 </style>
 
-<script>
+<script type="module">
+import { mountGuard } from '/js/vendor/contact-form-browser.js';
+
 // This view is loaded by the SPA router after the page has loaded, so it
 // runs now rather than waiting for DOMContentLoaded (which has already
 // fired, and used to leave the form doing nothing).
@@ -204,34 +206,12 @@
   contactForm.dataset.ready = '1';
   const submitBtn = contactForm.querySelector('.submit-btn');
 
-  // The proof-of-render token and the honeypot, minted for this visit. The
-  // honeypot is off-canvas (.cf-hp) rather than display:none, because some
-  // bots skip fields they can tell are not rendered.
+  // The proof-of-render token and the honeypot, minted for this visit
+  // (@profullstack/contact-form/browser). The honeypot is off-canvas (.cf-hp)
+  // rather than display:none, because some bots skip fields they can tell
+  // are not rendered.
   try {
-    const response = await fetch('/api/contact', { headers: { Accept: 'application/json' } });
-    const { tokenField, token, honeypotField } = await response.json();
-    if (tokenField && token) {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = tokenField;
-      input.value = token;
-      contactForm.prepend(input);
-    }
-    if (honeypotField) {
-      const trap = document.createElement('div');
-      trap.className = 'cf-hp';
-      trap.setAttribute('aria-hidden', 'true');
-      const label = document.createElement('label');
-      label.textContent = 'Website';
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.name = honeypotField;
-      input.tabIndex = -1;
-      input.autocomplete = 'off';
-      label.append(input);
-      trap.append(label);
-      contactForm.append(trap);
-    }
+    await mountGuard(contactForm, '/api/contact');
   } catch (error) {
     console.warn('contact form: could not fetch a token', error);
   }
