@@ -81,3 +81,12 @@ test('a missing subject is refused', async () => {
   assert.equal(res.status, 400);
   assert.equal(sent.length, 0);
 });
+
+test('the browser helper the contact view imports is served', async () => {
+  const app = new Hono();
+  for (const r of contactRoutes) app[r.method.toLowerCase()](r.path, r.handler);
+  const res = await app.request('/js/vendor/contact-form-browser.js');
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type'), /javascript/);
+  assert.match(await res.text(), /export async function mountGuard/);
+});
