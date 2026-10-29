@@ -1,6 +1,6 @@
 {
   "name": "venuedating-web",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Venue Dating - Connect with people at your favorite venues",
   "type": "module",
   "main": "src/index.js",
@@ -8,6 +8,7 @@
     "start": "node src/index.js",
     "dev": "pnpm build && nodemon src/index.js",
     "test": "node test-runner-comprehensive.js",
+    "test:contact": "node --test tests/contact.test.js",
     "test:api": "node test-runner-comprehensive.js api",
     "test:ui": "node test-runner-comprehensive.js ui",
     "test:integration": "node test-runner-comprehensive.js integration",
@@ -29,6 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "@hono/node-server": "^1.8.2",
+    "@profullstack/contact-form": "0.3.1",
     "@profullstack/spa-router": "^1.11.1",
     "@supabase/supabase-js": "^2.49.4",
     "chalk": "^5.3.0",
