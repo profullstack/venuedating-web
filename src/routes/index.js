@@ -46,6 +46,7 @@ import { userRoutes as userApiRoutes } from './user-routes.js';
 import { authStatusRoute } from './auth-status.js';
 import { supabaseConfigRoute } from './config.js';
 import { websocketRoute } from './websocket.js';
+import { contactRoutes } from './contact.js';
 import { verificationRoutes } from './verification-routes.js';
 import { verifyRoutes } from './verify-routes.js';
 import { authMiddleware } from '../middleware/auth-middleware.js';
@@ -95,6 +96,7 @@ const publicRoutes = [
   authStatusRoute,
   supabaseConfigRoute,
   websocketRoute,
+  ...contactRoutes,
   ...verificationRoutes,
   ...userRoutes,
   ...notificationRoutes,

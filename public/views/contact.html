@@ -22,25 +22,27 @@
     </div>
     
     <div class="contact-form">
-      <form id="contactForm">
+      <!-- Posts to /api/contact (@profullstack/contact-form). The token and
+           honeypot are fetched from GET /api/contact when the view opens. -->
+      <form id="contactForm" action="/api/contact" method="post">
         <div class="form-group">
           <label for="name" data-i18n="contact.name_label">Name</label>
-          <input type="text" id="name" name="name" required>
+          <input type="text" id="name" name="name" maxlength="120" autocomplete="name" required>
         </div>
         
         <div class="form-group">
           <label for="email" data-i18n="contact.email_label">Email</label>
-          <input type="email" id="email" name="email" required>
+          <input type="email" id="email" name="email" maxlength="254" autocomplete="email" required>
         </div>
         
         <div class="form-group">
           <label for="subject" data-i18n="contact.subject_label">Subject</label>
-          <input type="text" id="subject" name="subject" required>
+          <input type="text" id="subject" name="subject" maxlength="200" required>
         </div>
         
         <div class="form-group">
           <label for="message" data-i18n="contact.message_label">Message</label>
-          <textarea id="message" name="message" rows="5" required></textarea>
+          <textarea id="message" name="message" rows="5" maxlength="5000" required></textarea>
         </div>
         
         <button type="submit" class="submit-btn" data-i18n="contact.submit_button">Send Message</button>
@@ -181,29 +183,85 @@
     min-width: 100%;
   }
 }
+
+/* The contact form's honeypot: off-canvas, never display:none. */
+.cf-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+// This view is loaded by the SPA router after the page has loaded, so it
+// runs now rather than waiting for DOMContentLoaded (which has already
+// fired, and used to leave the form doing nothing).
+(async () => {
   const contactForm = document.getElementById('contactForm');
-  
-  if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      // Get form values
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const subject = document.getElementById('subject').value;
-      const message = document.getElementById('message').value;
-      
-      // Here you would typically send the form data to your backend
-      // For now, we'll just show a success message
-      alert(`Thank you, ${name}! Your message has been sent. We'll get back to you soon.`);
-      
-      // Reset the form
-      contactForm.reset();
-    });
+  if (!contactForm || contactForm.dataset.ready) return;
+  contactForm.dataset.ready = '1';
+  const submitBtn = contactForm.querySelector('.submit-btn');
+
+  // The proof-of-render token and the honeypot, minted for this visit. The
+  // honeypot is off-canvas (.cf-hp) rather than display:none, because some
+  // bots skip fields they can tell are not rendered.
+  try {
+    const response = await fetch('/api/contact', { headers: { Accept: 'application/json' } });
+    const { tokenField, token, honeypotField } = await response.json();
+    if (tokenField && token) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = tokenField;
+      input.value = token;
+      contactForm.prepend(input);
+    }
+    if (honeypotField) {
+      const trap = document.createElement('div');
+      trap.className = 'cf-hp';
+      trap.setAttribute('aria-hidden', 'true');
+      const label = document.createElement('label');
+      label.textContent = 'Website';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = honeypotField;
+      input.tabIndex = -1;
+      input.autocomplete = 'off';
+      label.append(input);
+      trap.append(label);
+      contactForm.append(trap);
+    }
+  } catch (error) {
+    console.warn('contact form: could not fetch a token', error);
   }
-});
+
+  contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const name = document.getElementById('name').value;
+    submitBtn.disabled = true;
+    try {
+      // JSON in, JSON out: { success: true }, or { error } with a 4xx/5xx.
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(contactForm)))
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        alert(result.error ?? 'Your message could not be sent. Please try again.');
+        return;
+      }
+      alert(`Thank you, ${name}! Your message has been sent. We'll get back to you soon.`);
+      // Reset the form (the token and honeypot inputs keep their values)
+      contactForm.reset();
+    } catch {
+      alert('Your message could not be sent. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+})();
 </script>
